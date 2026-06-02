@@ -1,0 +1,3 @@
+class LoginViewModel {
+  const LoginViewModel();
+}
