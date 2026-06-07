@@ -1,0 +1,75 @@
+{
+  "app": {
+    "name": "Quraaa"
+  },
+  "common": {
+    "ok": "OK",
+    "cancel": "Cancel",
+    "retry": "Retry",
+    "save": "Save"
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to continue"
+    }
+  },
+  "errors": {
+    "unknown": {
+      "title": "Unknown error",
+      "message": "Something went wrong. Please try again."
+    },
+    "network": {
+      "title": "Network error",
+      "message": "Check your connection and try again."
+    },
+    "no_internet": {
+      "title": "No internet connection",
+      "message": "You are offline right now."
+    },
+    "timeout": {
+      "title": "Request timed out",
+      "message": "The request took too long to complete."
+    },
+    "unauthorized": {
+      "title": "Unauthorized",
+      "message": "Your credentials are incorrect."
+    },
+    "forbidden": {
+      "title": "Forbidden",
+      "message": "You do not have permission to continue."
+    },
+    "not_found": {
+      "title": "Not found",
+      "message": "The requested item could not be found."
+    },
+    "validation": {
+      "title": "Validation error",
+      "message": "Please review the provided information."
+    },
+    "conflict": {
+      "title": "Conflict",
+      "message": "The requested action conflicts with existing data."
+    },
+    "payment_required": {
+      "title": "Payment required",
+      "message": "A payment is required to continue."
+    },
+    "subscription": {
+      "title": "Subscription error",
+      "message": "Your subscription does not allow this action."
+    },
+    "server": {
+      "title": "Server error",
+      "message": "The server encountered an error."
+    },
+    "internal": {
+      "title": "Internal error",
+      "message": "An internal server error occurred."
+    },
+    "redirection": {
+      "title": "Redirection",
+      "message": "The request needs to be redirected."
+    }
+  }
+}
