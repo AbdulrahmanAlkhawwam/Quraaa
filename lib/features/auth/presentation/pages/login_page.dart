@@ -5,7 +5,6 @@ import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
 import '../../../../shared/theme/app_radius.dart';
-import '../../../../shared/widgets/custom_button.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -22,7 +21,7 @@ class LoginPage extends StatelessWidget {
               'assets/images/onboarding.jpg',
               fit: BoxFit.cover,
               width: double.infinity,
-    x        ),
+            ),
           ),
           // Bottom Sheet (30% height)
           Expanded(
@@ -41,14 +40,14 @@ class LoginPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  CustomButton.primary(
-                    text: "Let's Start",
+                  FilledButton(
                     onPressed: () {},
+                    child: const Text("Let's Start"),
                   ),
                   SizedBox(height: AppSpacing.spacing24),
-                  CustomButton.secondary(
-                    text: "I Have Already Account",
+                  OutlinedButton(
                     onPressed: () {},
+                    child: const Text("I Have Already Account"),
                   ),
                 ],
               ),
@@ -59,3 +58,4 @@ class LoginPage extends StatelessWidget {
     );
   }
 }
+
