@@ -1,0 +1,45 @@
+class ErrorCodes {
+  ErrorCodes._();
+
+  static const String unknown = 'unknown';
+  static const String operationFailedRetry = 'operation_failed_retry';
+  static const String operationCancelled = 'operation_cancelled';
+  static const String noInternet = 'no_internet';
+  static const String networkErrorRetry = 'network_error_retry';
+  static const String timeout = 'timeout';
+  static const String badRequest = 'bad_request';
+  static const String unauthorized = 'unauthorized';
+  static const String wrongPasswordRetry = 'wrong_password_retry';
+  static const String forbidden = 'forbidden';
+  static const String resourceNotFound = 'resource_not_found';
+  static const String validationFailed = 'validation_failed';
+  static const String conflict = 'conflict';
+  static const String gone = 'gone';
+  static const String preconditionFailed = 'precondition_failed';
+  static const String redirection = 'redirection';
+  static const String tooManyRequests = 'too_many_requests';
+  static const String paymentRequired = 'payment_required';
+  static const String subscriptionRequired = 'subscription_required';
+  static const String subscriptionInactive = 'subscription_inactive';
+  static const String subscriptionExpired = 'subscription_expired';
+  static const String subscriptionCancelled = 'subscription_cancelled';
+  static const String serverError = 'server_error';
+  static const String internalServerError = 'internal_server_error';
+  static const String serviceUnavailable = 'service_unavailable';
+  static const String methodNotAllowed = 'method_not_allowed';
+  static const String cacheReadFailed = 'cache_read_failed';
+  static const String cacheWriteFailed = 'cache_write_failed';
+  static const String offlineSyncFailed = 'offline_sync_failed';
+  static const String downloadFailed = 'download_failed';
+  static const String insufficientStorage = 'insufficient_storage';
+  static const String fileAccessDenied = 'file_access_denied';
+  static const String loginFailed = 'login_failed';
+  static const String tokenExpired = 'token_expired';
+  static const String userNotFound = 'user_not_found';
+  static const String organizationNotFound = 'organization_not_found';
+  static const String studentAlreadyExists = 'student_already_exists';
+  static const String enrollmentFailed = 'enrollment_failed';
+  static const String alreadyEnrolled = 'already_enrolled';
+  static const String courseNotFound = 'course_not_found';
+  static const String dataNotFound = 'data_not_found';
+}
