@@ -8,11 +8,11 @@ FilledButtonThemeData filledButtonTheme(ColorScheme colors) {
     style: FilledButton.styleFrom(
       backgroundColor: AppColors.primary600,
       foregroundColor: Colors.white,
-      minimumSize: const Size(double.infinity, 56),
+      minimumSize: const Size(double.infinity, 48),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.radius32),
       ),
-      textStyle: AppTextStyles.buttonLarge.copyWith(color: Colors.white),
+      textStyle: AppTextStyles.buttonMedium.copyWith(color: Colors.white),
     ).copyWith(
       overlayColor: WidgetStateProperty.resolveWith<Color?>((states) {
         if (states.contains(WidgetState.pressed)) return AppColors.primary800;

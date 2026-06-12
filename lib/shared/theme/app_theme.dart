@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:quraaa/shared/theme/styles/elevated_button.dart';
 
 import 'app_colors.dart';
 import 'app_text_styles.dart';
 import 'styles/filled_button.dart';
 import 'styles/outlined_button.dart';
-// import 'styles/text_button.dart';
-// import 'styles/icon_button.dart';
 
 abstract class AppTheme {
   static ThemeData light() {
@@ -35,18 +32,9 @@ abstract class AppTheme {
       cardColor: AppColors.card,
       dividerColor: AppColors.primary100,
       colorScheme: colors,
-
-      // Text theme
       textTheme: AppTextStyles.textTheme(),
-
-      // Component themes
       filledButtonTheme: filledButtonTheme(colors),
       outlinedButtonTheme: outlinedButtonTheme(colors),
-      elevatedButtonTheme: elevatedButtonTheme(colors),
-      // textButtonTheme: textButtonTheme(colors),
-      // iconButtonTheme: iconButtonTheme(colors),
-
-      // Additional standard themes
       dividerTheme: const DividerThemeData(
         color: AppColors.primary100,
         thickness: 1,

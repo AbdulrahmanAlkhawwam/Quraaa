@@ -9,20 +9,22 @@ OutlinedButtonThemeData outlinedButtonTheme(ColorScheme colors) {
         OutlinedButton.styleFrom(
           foregroundColor: AppColors.textPrimary,
           backgroundColor: Colors.white,
-          minimumSize: const Size(double.infinity, 56),
+          minimumSize: const Size(double.infinity, 48),
           side: const BorderSide(color: AppColors.primary200, width: 1),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.radius32),
           ),
-          textStyle: AppTextStyles.buttonLarge.copyWith(
+          textStyle: AppTextStyles.buttonMedium.copyWith(
             color: AppColors.textPrimary,
           ),
         ).copyWith(
           overlayColor: WidgetStateProperty.resolveWith<Color?>((states) {
-            if (states.contains(WidgetState.pressed))
-              return AppColors.primary700.withOpacity(0.1);
-            if (states.contains(WidgetState.hovered))
-              return AppColors.primary700.withOpacity(0.05);
+            if (states.contains(WidgetState.pressed)) {
+              return AppColors.primary700.withAlpha(25);
+            }
+            if (states.contains(WidgetState.hovered)) {
+              return AppColors.primary700.withAlpha(10);
+            }
             return null;
           }),
         ),
