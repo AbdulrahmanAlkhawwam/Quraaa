@@ -242,14 +242,15 @@ String trimStackTrace(String value, {int maxLines = 18}) {
 String redactSensitiveText(String input) {
   final String sanitized = input
       .replaceAll(
-        RegExp(
-          r'(?i)\b(Bearer\s+)[A-Za-z0-9\-._~+/]+=*\b',
-        ),
+    RegExp(
+      r'\b(Bearer\s+)[A-Za-z0-9\-._~+/]+=*\b',
+      caseSensitive: false,
+    ),
         'Bearer ***',
       )
       .replaceAllMapped(
         RegExp(
-          r'(?i)\b(password|pass|token|refreshToken|accessToken|authorization|cookie|cookies|jwt|secret|apiKey|clientSecret)\b\s*[:=]\s*[^,\s&]+',
+          r'\b(password|pass|token|refreshToken|accessToken|authorization|cookie|cookies|jwt|secret|apiKey|clientSecret)\b\s*[:=]\s*[^,\s&]+',
         ),
         (Match match) => '${match.group(1)}: ***',
       );

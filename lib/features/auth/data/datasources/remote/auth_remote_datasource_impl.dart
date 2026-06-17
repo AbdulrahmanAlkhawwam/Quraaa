@@ -30,7 +30,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }) async {
     try {
       final Response<dynamic> response = await _httpHelper.post(
-        '/api/Auth/register',
+        '/Auth/register',
         data: <String, Object?>{
           'firstName': firstName,
           'lastName': lastName,
