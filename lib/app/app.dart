@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../config/routes/app_router.dart';
@@ -21,6 +22,27 @@ class _QuraaaAppState extends State<QuraaaApp> {
       sl<NavigationTracker>().observer,
     ],
   );
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _lockOrientationIfPhone();
+    });
+  }
+
+  Future<void> _lockOrientationIfPhone() async {
+    final Size size = MediaQuery.sizeOf(context);
+    final double shortestSide = size.shortestSide;
+    if (shortestSide < 600) {
+      await SystemChrome.setPreferredOrientations(<DeviceOrientation>[
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
+    } else {
+      await SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
