@@ -8,7 +8,7 @@ import '../../../../core/assets/app_images.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
-import '../../data/datasources/local/auth_journey_local_data_source.dart';
+import '../../data/datasources/auth_local_datasource.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -18,8 +18,8 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  final AuthJourneyLocalDataSource _authJourney =
-      sl<AuthJourneyLocalDataSource>();
+  final AuthLocalDataSource _authJourney =
+      sl<AuthLocalDataSource>();
 
   @override
   void initState() {

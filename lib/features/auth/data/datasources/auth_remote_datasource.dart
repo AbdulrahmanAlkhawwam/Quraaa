@@ -1,9 +1,10 @@
 import 'package:dio/dio.dart';
 
-import '../../../../../core/errors/error_mapper.dart';
-import '../../../../../core/errors/exceptions.dart';
-import '../../../../../core/network/endpoints.dart';
-import '../../../../../core/network/http_helper.dart';
+import '../../../../core/errors/error_mapper.dart';
+import '../../../../core/errors/exceptions.dart';
+import '../../../../core/network/endpoints.dart';
+import '../../../../core/network/http_helper.dart';
+import '../mappers/auth_mapper.dart';
 
 abstract class AuthRemoteDataSource {
   Future<Map<String, Object?>> login({
@@ -12,13 +13,13 @@ abstract class AuthRemoteDataSource {
   });
 
   Future<Map<String, Object?>> register({
-    required String firstName,
-    required String lastName,
-    required String phoneNumber,
-    required String password,
-    required int gender,
-    required String dateOfBirth,
-    required List<String> interests,
+    String? firstName,
+    String? lastName,
+    String? phoneNumber,
+    String? password,
+    int? gender,
+    String? dateOfBirth,
+    List<String>? interests,
   });
 }
 
@@ -37,26 +38,26 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<Map<String, Object?>> register({
-    required String firstName,
-    required String lastName,
-    required String phoneNumber,
-    required String password,
-    required int gender,
-    required String dateOfBirth,
-    required List<String> interests,
+    String? firstName,
+    String? lastName,
+    String? phoneNumber,
+    String? password,
+    int? gender,
+    String? dateOfBirth,
+    List<String>? interests,
   }) async {
     try {
       final Response<dynamic> response = await _httpHelper.post(
         Endpoints.register,
-        data: <String, Object?>{
-          'firstName': firstName,
-          'lastName': lastName,
-          'phoneNumber': phoneNumber,
-          'password': password,
-          'gender': gender,
-          'dateOfBirth': dateOfBirth,
-          'interests': interests,
-        },
+        data: AuthMapper.registerToJson(
+          firstName: firstName,
+          lastName: lastName,
+          phoneNumber: phoneNumber,
+          password: password,
+          gender: gender,
+          dateOfBirth: dateOfBirth,
+          interests: interests,
+        ),
       );
 
       final dynamic data = response.data;

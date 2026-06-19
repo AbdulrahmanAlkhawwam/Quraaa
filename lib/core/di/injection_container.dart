@@ -2,8 +2,9 @@ import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../features/auth/data/datasources/remote/auth_remote_datasource.dart';
-import '../../features/auth/data/datasources/local/auth_journey_local_data_source.dart';
+import '../../features/auth/data/datasources/auth_local_datasource.dart';
+import '../../features/auth/data/datasources/user_local_datasource.dart';
+import '../../features/auth/data/datasources/auth_remote_datasource.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/onboarding/data/datasources/local/onboarding_local_datasource.dart';
@@ -14,6 +15,7 @@ import '../../features/onboarding/domain/use_cases/load_onboarding_state_use_cas
 import '../../features/onboarding/domain/use_cases/save_birth_date_use_case.dart';
 import '../../features/onboarding/domain/use_cases/save_interests_use_case.dart';
 import '../../features/onboarding/domain/use_cases/save_gender_use_case.dart';
+import '../../features/auth/domain/use_cases/register_use_case.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import '../../features/onboarding/presentation/viewmodels/onboarding_view_model.dart';
@@ -118,9 +120,7 @@ void registerCoreDependencies() {
     () => DioLoggingInterceptor(sl<AppLogger>()),
   );
   sl.registerLazySingleton<Dio>(
-    () => HttpHelper.buildDio(<Interceptor>[
-      sl<DioLoggingInterceptor>(),
-    ]),
+    () => HttpHelper.buildDio(<Interceptor>[sl<DioLoggingInterceptor>()]),
   );
   sl.registerLazySingleton<HttpHelper>(() => HttpHelper(sl<Dio>()));
 
@@ -134,8 +134,12 @@ void registerCoreDependencies() {
 }
 
 void registerFeatureDependencies() {
-  sl.registerLazySingleton<AuthJourneyLocalDataSource>(
-    () => AuthJourneyLocalDataSourceImpl(sl<StorageService>()),
+  sl.registerLazySingleton<AuthLocalDataSource>(
+    () => AuthLocalDataSourceImpl(sl<StorageService>()),
+  );
+
+  sl.registerLazySingleton<UserLocalDataSource>(
+    () => UserLocalDataSourceImpl(sl<StorageService>()),
   );
   if (!sl.isRegistered<PdfRenderDataSource>()) {
     sl.registerLazySingleton<PdfRenderDataSource>(
@@ -187,10 +191,14 @@ void registerFeatureDependencies() {
     () => OnboardingBloc(sl<OnboardingViewModel>()),
   );
 
+  sl.registerFactory<RegisterUseCase>(
+    () => RegisterUseCase(sl<AuthRepository>()),
+  );
+
   sl.registerFactory<AuthBloc>(
     () => AuthBloc(
-      authRepository: sl<AuthRepository>(),
-      authJourney: sl<AuthJourneyLocalDataSource>(),
+      registerUseCase: sl<RegisterUseCase>(),
+      authJourney: sl<AuthLocalDataSource>(),
       userContext: sl<UserContextProvider>(),
     ),
   );

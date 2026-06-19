@@ -1,5 +1,5 @@
 import '../../../../core/architecture/use_case.dart';
-import '../entities/auth_user.dart';
+import '../entities/user.dart';
 import '../repositories/auth_repository.dart';
 
 class LoginParams {
@@ -12,13 +12,13 @@ class LoginParams {
   final String password;
 }
 
-class LoginUseCase extends UseCase<AuthUser, LoginParams> {
+class LoginUseCase extends UseCase<User, LoginParams> {
   const LoginUseCase(this._repository);
 
   final AuthRepository _repository;
 
   @override
-  Future<AuthUser> call(LoginParams params) {
+  Future<User> call(LoginParams params) {
     return _repository.login(
       username: params.username,
       password: params.password,

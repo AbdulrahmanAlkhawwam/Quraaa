@@ -1,4 +1,4 @@
-import '../../../../../core/services/storage_service.dart';
+import '../../../../core/services/storage_service.dart';
 
 enum AuthJourneyStage {
   auth,
@@ -66,7 +66,9 @@ AuthSessionMode? authSessionModeFromKey(String? key) {
   return null;
 }
 
-abstract class AuthJourneyLocalDataSource {
+abstract class AuthLocalDataSource {
+  Future<Map<String, Object?>> getCachedUser();
+
   Future<bool> isAuthSeen();
 
   Future<void> markAuthSeen();
@@ -108,8 +110,8 @@ abstract class AuthJourneyLocalDataSource {
   Future<void> clearSession();
 }
 
-class AuthJourneyLocalDataSourceImpl implements AuthJourneyLocalDataSource {
-  const AuthJourneyLocalDataSourceImpl(this._storageService);
+class AuthLocalDataSourceImpl implements AuthLocalDataSource {
+  const AuthLocalDataSourceImpl(this._storageService);
 
   final StorageService _storageService;
 
@@ -121,6 +123,12 @@ class AuthJourneyLocalDataSourceImpl implements AuthJourneyLocalDataSource {
   static const String _sessionModeKey = 'auth_session_mode';
   static const String _accessTokenKey = 'auth_access_token';
   static const String _refreshTokenKey = 'auth_refresh_token';
+
+  @override
+  Future<Map<String, Object?>> getCachedUser() async {
+    // TODO: implement getCachedUser
+    throw UnimplementedError();
+  }
 
   @override
   Future<bool> isAuthSeen() async {

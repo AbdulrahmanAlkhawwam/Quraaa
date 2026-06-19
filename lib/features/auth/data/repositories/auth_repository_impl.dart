@@ -1,18 +1,18 @@
 import '../../../../core/architecture/base_repository.dart';
-import '../../domain/entities/auth_tokens.dart';
-import '../../domain/entities/auth_user.dart';
+import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
-import '../datasources/remote/auth_remote_datasource.dart';
-import '../models/auth_tokens_model.dart';
+import '../datasources/auth_remote_datasource.dart';
+import '../mappers/auth_mapper.dart';
+import '../models/user_model.dart';
 
-class AuthRepositoryImpl extends BaseRepository<AuthUser>
+class AuthRepositoryImpl extends BaseRepository<User>
     implements AuthRepository {
   const AuthRepositoryImpl(this._remoteDataSource);
 
   final AuthRemoteDataSource _remoteDataSource;
 
   @override
-  Future<AuthUser> login({
+  Future<User> login({
     required String username,
     required String password,
   }) {
@@ -20,14 +20,14 @@ class AuthRepositoryImpl extends BaseRepository<AuthUser>
   }
 
   @override
-  Future<AuthTokens> register({
-    required String firstName,
-    required String lastName,
-    required String phoneNumber,
-    required String password,
-    required int gender,
-    required String dateOfBirth,
-    required List<String> interests,
+  Future<User> register({
+    String? firstName,
+    String? lastName,
+    String? phoneNumber,
+    String? password,
+    int? gender,
+    String? dateOfBirth,
+    List<String>? interests,
   }) async {
     final Map<String, Object?> response = await _remoteDataSource.register(
       firstName: firstName,
@@ -38,16 +38,16 @@ class AuthRepositoryImpl extends BaseRepository<AuthUser>
       dateOfBirth: dateOfBirth,
       interests: interests,
     );
-    return AuthTokensModel.fromJson(response);
+    return AuthMapper.fromJson(response);
   }
 
   @override
-  Future<AuthUser> getCached() {
+  Future<User> getCached() {
     throw UnimplementedError();
   }
 
   @override
-  Future<AuthUser> sync() {
+  Future<User> sync() {
     throw UnimplementedError();
   }
 }
