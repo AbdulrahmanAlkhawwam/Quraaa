@@ -198,11 +198,7 @@ class IoLocalFileSystemDataSource implements LocalFileSystemDataSource {
     }
 
     String currentPath = _androidRootPath;
-    for (final String segment in rest.split('/')) {
-      if (segment.isEmpty) {
-        continue;
-      }
-
+    for (final String segment in _segments(rest)) {
       currentPath = '$currentPath/$segment';
       breadcrumbs.add(LocalPathSegment(label: segment, path: currentPath));
     }
@@ -211,8 +207,7 @@ class IoLocalFileSystemDataSource implements LocalFileSystemDataSource {
   }
 
   List<LocalPathSegment> _buildWindowsBreadcrumbs(String normalizedPath) {
-    final List<String> segments =
-        normalizedPath.split('/').where((String part) => part.isNotEmpty).toList();
+    final List<String> segments = _segments(normalizedPath);
     if (segments.isEmpty) {
       return <LocalPathSegment>[
         LocalPathSegment(label: normalizedPath, path: pathFromNormalized(normalizedPath)),
@@ -245,11 +240,7 @@ class IoLocalFileSystemDataSource implements LocalFileSystemDataSource {
     }
 
     String currentPath = '';
-    for (final String segment in rest.split('/')) {
-      if (segment.isEmpty) {
-        continue;
-      }
-
+    for (final String segment in _segments(rest)) {
       currentPath = '$currentPath/$segment';
       breadcrumbs.add(LocalPathSegment(label: segment, path: currentPath));
     }
@@ -259,9 +250,15 @@ class IoLocalFileSystemDataSource implements LocalFileSystemDataSource {
 
   String _basename(String path) {
     final String normalizedPath = _normalize(path);
-    final List<String> parts =
-        normalizedPath.split('/').where((String part) => part.isNotEmpty).toList();
+    final List<String> parts = _segments(normalizedPath);
     return parts.isEmpty ? normalizedPath : parts.last;
+  }
+
+  List<String> _segments(String normalizedPath) {
+    return normalizedPath
+        .split('/')
+        .where((String part) => part.isNotEmpty)
+        .toList(growable: false);
   }
 
   String _normalize(String path) => path.replaceAll('\\', '/');

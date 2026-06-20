@@ -53,17 +53,13 @@ class _PdfPageImageState extends State<PdfPageImage> {
       _pageFuture = null;
       _textLayerFuture = null;
       _renderWidth = null;
-      _selectionStart = null;
-      _selectionEnd = null;
-      _selectedContents = <PdfTextContentInfo>[];
+      _resetSelectionFields();
     }
 
     if (oldWidget.zoom != widget.zoom) {
       _pageFuture = null;
       _renderWidth = null;
-      _selectionStart = null;
-      _selectionEnd = null;
-      _selectedContents = <PdfTextContentInfo>[];
+      _resetSelectionFields();
     }
   }
 
@@ -142,12 +138,7 @@ class _PdfPageImageState extends State<PdfPageImage> {
                           Positioned.fill(
                             child: CustomPaint(
                               painter: _TextBoundsPainter(
-                                rects: widget.highlights
-                                    .expand(
-                                      (PdfTextHighlight highlight) =>
-                                          highlight.bounds,
-                                    )
-                                    .toList(growable: false),
+                                rects: _highlightRects,
                                 textLayer: textLayer,
                                 pageSize: pageSize,
                                 color: const Color(0x66F6D86B),
@@ -157,12 +148,7 @@ class _PdfPageImageState extends State<PdfPageImage> {
                           Positioned.fill(
                             child: CustomPaint(
                               painter: _TextBoundsPainter(
-                                rects: _selectedContents
-                                    .expand(
-                                      (PdfTextContentInfo content) =>
-                                          content.bounds,
-                                    )
-                                    .toList(growable: false),
+                                rects: _selectedRects,
                                 textLayer: textLayer,
                                 pageSize: pageSize,
                                 color: const Color(0x553B8F65),
@@ -231,6 +217,14 @@ class _PdfPageImageState extends State<PdfPageImage> {
         .trim();
   }
 
+  List<Rect> get _highlightRects {
+    return widget.highlights
+        .expand((PdfTextHighlight highlight) => highlight.bounds)
+        .toList(growable: false);
+  }
+
+  List<Rect> get _selectedRects => _rectsFromContents(_selectedContents);
+
   void _startSelection({
     required Offset position,
     required PdfPageTextLayer textLayer,
@@ -275,9 +269,7 @@ class _PdfPageImageState extends State<PdfPageImage> {
     }
 
     setState(() {
-      _selectionStart = null;
-      _selectionEnd = null;
-      _selectedContents = <PdfTextContentInfo>[];
+      _resetSelectionFields();
     });
   }
 
@@ -287,8 +279,7 @@ class _PdfPageImageState extends State<PdfPageImage> {
       return;
     }
 
-    await Clipboard.setData(ClipboardData(text: text));
-    widget.onMessage(LocalizationConstants.pdfReaderCopiedKey.tr());
+    await _copyTextToClipboard(text);
     _clearSelection();
   }
 
@@ -302,8 +293,7 @@ class _PdfPageImageState extends State<PdfPageImage> {
       await widget.renderer.shareText(text);
       _clearSelection();
     } catch (_) {
-      await Clipboard.setData(ClipboardData(text: text));
-      widget.onMessage(LocalizationConstants.pdfReaderCopiedKey.tr());
+      await _copyTextToClipboard(text);
       _clearSelection();
     }
   }
@@ -317,9 +307,7 @@ class _PdfPageImageState extends State<PdfPageImage> {
     widget.onHighlightAdded(
       PdfTextHighlight(
         text: text,
-        bounds: _selectedContents
-            .expand((PdfTextContentInfo content) => content.bounds)
-            .toList(growable: false),
+        bounds: _selectedRects,
       ),
     );
     widget.onMessage(LocalizationConstants.pdfReaderHighlightedKey.tr());
@@ -369,30 +357,23 @@ class _PdfPageImageState extends State<PdfPageImage> {
     return bounds;
   }
 
-  Rect _pageRectToLocal(
-    Rect pageRect, {
-    required PdfPageTextLayer textLayer,
-    required Size pageSize,
-  }) {
-    final double sourceWidth = math.max(textLayer.width, 1.0);
-    final double sourceHeight = math.max(textLayer.height, 1.0);
-    final double scaleX = pageSize.width / sourceWidth;
-    final double scaleY = pageSize.height / sourceHeight;
-
-    return Rect.fromLTRB(
-      pageRect.left * scaleX,
-      pageRect.top * scaleY,
-      pageRect.right * scaleX,
-      pageRect.bottom * scaleY,
-    );
-  }
-
   double _aspectRatio(PdfPageTextLayer textLayer) {
     if (textLayer.width > 0 && textLayer.height > 0) {
       return textLayer.width / textLayer.height;
     }
 
     return 0.72;
+  }
+
+  void _resetSelectionFields() {
+    _selectionStart = null;
+    _selectionEnd = null;
+    _selectedContents = <PdfTextContentInfo>[];
+  }
+
+  Future<void> _copyTextToClipboard(String text) async {
+    await Clipboard.setData(ClipboardData(text: text));
+    widget.onMessage(LocalizationConstants.pdfReaderCopiedKey.tr());
   }
 }
 
@@ -629,17 +610,12 @@ class _TextBoundsPainter extends CustomPainter {
     final Paint paint = Paint()
       ..color = color
       ..style = PaintingStyle.fill;
-    final double sourceWidth = math.max(textLayer.width, 1.0);
-    final double sourceHeight = math.max(textLayer.height, 1.0);
-    final double scaleX = pageSize.width / sourceWidth;
-    final double scaleY = pageSize.height / sourceHeight;
 
     for (final Rect pageRect in rects) {
-      final Rect localRect = Rect.fromLTRB(
-        pageRect.left * scaleX,
-        pageRect.top * scaleY,
-        pageRect.right * scaleX,
-        pageRect.bottom * scaleY,
+      final Rect localRect = _pageRectToLocal(
+        pageRect,
+        textLayer: textLayer,
+        pageSize: pageSize,
       ).inflate(1.5);
       canvas.drawRRect(
         RRect.fromRectAndRadius(localRect, const Radius.circular(3)),
@@ -729,4 +705,26 @@ Rect _mergeRects(Rect first, Rect second) {
     math.max(first.right, second.right),
     math.max(first.bottom, second.bottom),
   );
+}
+
+Rect _pageRectToLocal(
+  Rect pageRect, {
+  required PdfPageTextLayer textLayer,
+  required Size pageSize,
+}) {
+  final double scaleX = pageSize.width / math.max(textLayer.width, 1.0);
+  final double scaleY = pageSize.height / math.max(textLayer.height, 1.0);
+
+  return Rect.fromLTRB(
+    pageRect.left * scaleX,
+    pageRect.top * scaleY,
+    pageRect.right * scaleX,
+    pageRect.bottom * scaleY,
+  );
+}
+
+List<Rect> _rectsFromContents(Iterable<PdfTextContentInfo> contents) {
+  return contents
+      .expand((PdfTextContentInfo content) => content.bounds)
+      .toList(growable: false);
 }

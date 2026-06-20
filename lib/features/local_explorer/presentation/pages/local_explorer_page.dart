@@ -134,11 +134,10 @@ class _ExplorerContent extends StatelessWidget {
           const SizedBox(height: AppSpacing.lg),
           BreadcrumbBar(
             breadcrumbs: snapshot.breadcrumbs,
-            onSelected: (LocalPathSegment segment) {
-              context
-                  .read<LocalExplorerBloc>()
-                  .add(LocalExplorerBreadcrumbSelected(segment.path));
-            },
+            onSelected: (LocalPathSegment segment) => _dispatch(
+              context,
+              LocalExplorerBreadcrumbSelected(segment.path),
+            ),
           ),
           const SizedBox(height: AppSpacing.sm),
           ExplorerNote(
@@ -177,11 +176,10 @@ class _ExplorerHeader extends StatelessWidget {
         IconButton(
           tooltip: MaterialLocalizations.of(context).backButtonTooltip,
           onPressed: snapshot.canNavigateUp
-              ? () {
-                  context
-                      .read<LocalExplorerBloc>()
-                      .add(const LocalExplorerParentRequested());
-                }
+              ? () => _dispatch(
+                    context,
+                    const LocalExplorerParentRequested(),
+                  )
               : context.canPop()
                   ? () => context.pop()
                   : null,
@@ -221,11 +219,10 @@ class _ExplorerHeader extends StatelessWidget {
         const SizedBox(width: AppSpacing.sm),
         IconButton(
           tooltip: MaterialLocalizations.of(context).refreshIndicatorSemanticLabel,
-          onPressed: () {
-            context
-                .read<LocalExplorerBloc>()
-                .add(const LocalExplorerRefreshRequested());
-          },
+          onPressed: () => _dispatch(
+            context,
+            const LocalExplorerRefreshRequested(),
+          ),
           icon: const HugeIcon(
             icon: HugeIcons.strokeRoundedArrowReloadHorizontal,
             color: AppColors.secondary,
@@ -266,11 +263,8 @@ class _ExplorerGrid extends StatelessWidget {
           itemBuilder: (BuildContext context, int index) {
             return ExplorerItemTile(
               entry: entries[index],
-              onOpenDirectory: (LocalFileEntry entry) {
-                context
-                    .read<LocalExplorerBloc>()
-                    .add(LocalExplorerDirectoryOpened(entry.path));
-              },
+              onOpenDirectory: (LocalFileEntry entry) =>
+                  _openDirectory(context, entry),
               onOpenPdf: (LocalFileEntry entry) => _openPdf(context, entry),
             );
           },
@@ -329,16 +323,7 @@ class _ExplorerList extends StatelessWidget {
             ),
             onTap: !enabled
                 ? null
-                : () {
-                    if (entry.isDirectory) {
-                      context
-                          .read<LocalExplorerBloc>()
-                          .add(LocalExplorerDirectoryOpened(entry.path));
-                      return;
-                    }
-
-                    _openPdf(context, entry);
-                  },
+                : () => _openEntry(context, entry),
           ),
         );
       },
@@ -460,11 +445,10 @@ class _AccessView extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 FilledButton.icon(
-                  onPressed: () {
-                    context
-                        .read<LocalExplorerBloc>()
-                        .add(const LocalExplorerAccessRequested());
-                  },
+                  onPressed: () => _dispatch(
+                    context,
+                    const LocalExplorerAccessRequested(),
+                  ),
                   icon: HugeIcon(
                     icon: HugeIcons.strokeRoundedFolderUnlocked,
                     color: Theme.of(context).colorScheme.onPrimary,
@@ -509,11 +493,10 @@ class _FailureView extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.lg),
             OutlinedButton.icon(
-              onPressed: () {
-                context
-                    .read<LocalExplorerBloc>()
-                    .add(const LocalExplorerRefreshRequested());
-              },
+              onPressed: () => _dispatch(
+                context,
+                const LocalExplorerRefreshRequested(),
+              ),
               icon: const HugeIcon(
                 icon: HugeIcons.strokeRoundedArrowReloadHorizontal,
                 color: AppColors.secondary,
@@ -528,6 +511,19 @@ class _FailureView extends StatelessWidget {
   }
 }
 
+void _openDirectory(BuildContext context, LocalFileEntry entry) {
+  _dispatch(context, LocalExplorerDirectoryOpened(entry.path));
+}
+
+void _openEntry(BuildContext context, LocalFileEntry entry) {
+  if (entry.isDirectory) {
+    _openDirectory(context, entry);
+    return;
+  }
+
+  _openPdf(context, entry);
+}
+
 void _openPdf(BuildContext context, LocalFileEntry entry) {
   context.pushNamed(
     RouteNames.pdfReaderName,
@@ -537,4 +533,8 @@ void _openPdf(BuildContext context, LocalFileEntry entry) {
     },
     extra: entry,
   );
+}
+
+void _dispatch(BuildContext context, LocalExplorerEvent event) {
+  context.read<LocalExplorerBloc>().add(event);
 }
