@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/app_spacing.dart';
 import '../../domain/entities/local_directory_snapshot.dart';
 
@@ -22,7 +23,7 @@ class BreadcrumbBar extends StatelessWidget {
     }
 
     return SizedBox(
-      height: 42,
+      height: 28,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
@@ -31,12 +32,12 @@ class BreadcrumbBar extends StatelessWidget {
           final bool isLast = index == breadcrumbs.length - 1;
 
           return InkWell(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(AppRadius.sm),
             onTap: isLast ? null : () => onSelected(segment),
             child: Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.xs,
-                vertical: AppSpacing.sm,
+                vertical: AppSpacing.xs,
               ),
               child: Text(
                 segment.label,
@@ -54,7 +55,7 @@ class BreadcrumbBar extends StatelessWidget {
             child: HugeIcon(
               icon: HugeIcons.strokeRoundedArrowRight01,
               color: AppColors.textMuted,
-              size: 22,
+              size: 16,
             ),
           );
         },

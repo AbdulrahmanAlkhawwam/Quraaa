@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/app_spacing.dart';
 import '../../domain/entities/local_file_entry.dart';
 import 'file_artwork.dart';
@@ -21,66 +22,100 @@ class ExplorerItemTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool isEnabled = entry.isSupported;
 
-    return Opacity(
-      opacity: isEnabled ? 1 : 0.42,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(14),
-        onTap: !isEnabled
-            ? null
-            : () {
-                if (entry.isDirectory) {
-                  onOpenDirectory(entry);
-                  return;
-                }
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        final double documentArtworkWidth = (constraints.maxWidth * 0.52)
+            .clamp(56.0, 86.0)
+            .toDouble();
 
-                onOpenPdf(entry);
-              },
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xs),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Expanded(
-                child: Center(child: FileArtwork(type: entry.type)),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Row(
+        return Opacity(
+          opacity: isEnabled ? 1 : 0.36,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            onTap: !isEnabled
+                ? null
+                : () {
+                    if (entry.isDirectory) {
+                      onOpenDirectory(entry);
+                      return;
+                    }
+
+                    onOpenPdf(entry);
+                  },
+            child: Padding(
+              padding: EdgeInsets.zero,
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Expanded(
-                    child: Text(
-                      entry.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppColors.textPrimary,
-                            height: 1.15,
-                          ),
+                  Flexible(
+                    child: Center(
+                      child: entry.isDirectory
+                          ? FileArtwork(type: entry.type)
+                          : SizedBox(
+                              width: documentArtworkWidth,
+                              child: FileArtwork(
+                                type: entry.type,
+                                label: _artworkLabel(entry),
+                              ),
+                            ),
                     ),
                   ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Text(
-                    _trailingLabel(entry),
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: AppColors.textMuted,
-                          fontWeight: FontWeight.w700,
+                  const SizedBox(height: AppSpacing.sm),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Expanded(
+                        child: Text(
+                          entry.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(
+                                color: AppColors.textPrimary,
+                                height: 1.1,
+                              ),
                         ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Text(
+                        _trailingLabel(entry),
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: AppColors.textMuted,
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
   String _trailingLabel(LocalFileEntry entry) {
-    if (entry.isDirectory) {
-      return 'Folder';
+    return _formatBytes(entry.sizeBytes);
+  }
+
+  String? _artworkLabel(LocalFileEntry entry) {
+    if (entry.isPdf) {
+      return 'PDF';
     }
 
-    return _formatBytes(entry.sizeBytes);
+    final String lowerName = entry.name.toLowerCase();
+    if (lowerName.endsWith('.xls') || lowerName.endsWith('.xlsx')) {
+      return 'Excel';
+    }
+
+    if (lowerName.endsWith('.doc') || lowerName.endsWith('.docx')) {
+      return 'Docs';
+    }
+
+    return null;
   }
 
   String _formatBytes(int bytes) {

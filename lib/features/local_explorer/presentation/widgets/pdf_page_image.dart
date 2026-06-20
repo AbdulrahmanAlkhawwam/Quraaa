@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/theme/app_colors.dart';
@@ -12,13 +11,16 @@ import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/app_shadows.dart';
 import '../../../../shared/theme/app_spacing.dart';
 import '../../data/datasources/local/pdf_render_datasource.dart';
+import 'pdf_selection_gesture_layer.dart';
+import 'pdf_selection_toolbar.dart';
+import 'pdf_selection_toolbar_position.dart';
+import 'rendered_pdf_page_image.dart';
 
 class PdfPageImage extends StatefulWidget {
   const PdfPageImage({
     required this.renderer,
     required this.path,
     required this.pageIndex,
-    required this.zoom,
     required this.highlights,
     required this.onHighlightAdded,
     required this.onMessage,
@@ -28,7 +30,6 @@ class PdfPageImage extends StatefulWidget {
   final PdfRenderDataSource renderer;
   final String path;
   final int pageIndex;
-  final double zoom;
   final List<PdfTextHighlight> highlights;
   final ValueChanged<PdfTextHighlight> onHighlightAdded;
   final ValueChanged<String> onMessage;
@@ -52,12 +53,6 @@ class _PdfPageImageState extends State<PdfPageImage> {
         oldWidget.pageIndex != widget.pageIndex) {
       _pageFuture = null;
       _textLayerFuture = null;
-      _renderWidth = null;
-      _resetSelectionFields();
-    }
-
-    if (oldWidget.zoom != widget.zoom) {
-      _pageFuture = null;
       _renderWidth = null;
       _resetSelectionFields();
     }
@@ -86,15 +81,17 @@ class _PdfPageImageState extends State<PdfPageImage> {
                 ? constraints.maxWidth
                 : MediaQuery.sizeOf(context).width;
             final double pageWidth =
-                (viewportWidth * widget.zoom).clamp(260.0, 4200.0).toDouble();
+                viewportWidth.clamp(260.0, 4200.0).toDouble();
             final double pageHeight = pageWidth / _aspectRatio(textLayer);
             final Size pageSize = Size(pageWidth, pageHeight);
             final double pixelRatio =
                 MediaQuery.devicePixelRatioOf(context)
                     .clamp(1.0, 3.0)
                     .toDouble();
-            final int renderWidth =
-                (pageWidth * pixelRatio).round().clamp(480, 3200).toInt();
+            final int renderWidth = (pageWidth * pixelRatio * 2)
+                .round()
+                .clamp(720, 3600)
+                .toInt();
 
             if (_pageFuture == null || _renderWidth != renderWidth) {
               _renderWidth = renderWidth;
@@ -107,96 +104,100 @@ class _PdfPageImageState extends State<PdfPageImage> {
 
             return Padding(
               padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-              child: SingleChildScrollView(
-                clipBehavior: Clip.none,
-                scrollDirection: Axis.horizontal,
-                physics: const BouncingScrollPhysics(),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceLight,
-                    borderRadius: BorderRadius.circular(AppRadius.sm),
-                    border: Border.all(color: AppColors.borderLight),
-                    boxShadow: AppShadows.elevation1,
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(AppRadius.sm),
-                    child: SizedBox(
-                      width: pageWidth,
-                      height: pageHeight,
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: <Widget>[
-                          FutureBuilder<Uint8List>(
-                            future: _pageFuture,
-                            builder: (
-                              BuildContext context,
-                              AsyncSnapshot<Uint8List> snapshot,
-                            ) {
-                              return _RenderedPageImage(snapshot: snapshot);
-                            },
-                          ),
-                          Positioned.fill(
-                            child: CustomPaint(
-                              painter: _TextBoundsPainter(
-                                rects: _highlightRects,
-                                textLayer: textLayer,
-                                pageSize: pageSize,
-                                color: const Color(0x66F6D86B),
-                              ),
+              child: SizedBox(
+                width: pageWidth,
+                height: pageHeight,
+                child: InteractiveViewer(
+                  minScale: 0.85,
+                  maxScale: 4,
+                  panEnabled: true,
+                  scaleEnabled: true,
+                  clipBehavior: Clip.hardEdge,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceLight,
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                      border: Border.all(color: AppColors.borderLight),
+                      boxShadow: AppShadows.elevation1,
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                      child: SizedBox.expand(
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: <Widget>[
+                            FutureBuilder<Uint8List>(
+                              future: _pageFuture,
+                              builder: (
+                                BuildContext context,
+                                AsyncSnapshot<Uint8List> snapshot,
+                              ) {
+                                return RenderedPdfPageImage(snapshot: snapshot);
+                              },
                             ),
-                          ),
-                          Positioned.fill(
-                            child: CustomPaint(
-                              painter: _TextBoundsPainter(
-                                rects: _selectedRects,
-                                textLayer: textLayer,
-                                pageSize: pageSize,
-                                color: const Color(0x553B8F65),
-                              ),
-                            ),
-                          ),
-                          if (_selectionStart != null &&
-                              _selectionEnd != null)
                             Positioned.fill(
                               child: CustomPaint(
-                                painter: _SelectionRectPainter(
-                                  start: _selectionStart!,
-                                  end: _selectionEnd!,
+                                painter: _TextBoundsPainter(
+                                  rects: _highlightRects,
+                                  textLayer: textLayer,
+                                  pageSize: pageSize,
+                                  color: const Color(0x66F6D86B),
                                 ),
                               ),
                             ),
-                          Positioned.fill(
-                            child: _SelectionGestureLayer(
-                              enabled: textLayer.hasText,
-                              textLayer: textLayer,
-                              pageSize: pageSize,
-                              onSelectionStarted: _startSelection,
-                              onSelectionMoved: _moveSelection,
-                              onSelectionFinished: _finishSelection,
-                              onUnavailable: () {
-                                widget.onMessage(
-                                  LocalizationConstants
-                                      .pdfReaderSelectionUnavailableKey
-                                      .tr(),
-                                );
-                              },
-                              onTap: _clearSelection,
+                            Positioned.fill(
+                              child: CustomPaint(
+                                painter: _TextBoundsPainter(
+                                  rects: _selectedRects,
+                                  textLayer: textLayer,
+                                  pageSize: pageSize,
+                                  color: const Color(0x553B8F65),
+                                ),
+                              ),
                             ),
-                          ),
-                          if (_selectedText.isNotEmpty)
-                            _SelectionToolbarPosition(
-                              selectedBounds: _selectedLocalBounds(
+                            if (_selectionStart != null &&
+                                _selectionEnd != null)
+                              Positioned.fill(
+                                child: CustomPaint(
+                                  painter: _SelectionRectPainter(
+                                    start: _selectionStart!,
+                                    end: _selectionEnd!,
+                                  ),
+                                ),
+                              ),
+                            Positioned.fill(
+                              child: PdfSelectionGestureLayer(
+                                enabled: textLayer.hasText,
                                 textLayer: textLayer,
                                 pageSize: pageSize,
-                              ),
-                              pageSize: pageSize,
-                              child: _SelectionToolbar(
-                                onCopy: _copySelectedText,
-                                onShare: _shareSelectedText,
-                                onHighlight: _markSelectedText,
+                                onSelectionStarted: _startSelection,
+                                onSelectionMoved: _moveSelection,
+                                onSelectionFinished: _finishSelection,
+                                onUnavailable: () {
+                                  widget.onMessage(
+                                    LocalizationConstants
+                                        .pdfReaderSelectionUnavailableKey
+                                        .tr(),
+                                  );
+                                },
+                                onTap: _clearSelection,
                               ),
                             ),
-                        ],
+                            if (_selectedText.isNotEmpty)
+                              PdfSelectionToolbarPosition(
+                                selectedBounds: _selectedLocalBounds(
+                                  textLayer: textLayer,
+                                  pageSize: pageSize,
+                                ),
+                                pageSize: pageSize,
+                                child: PdfSelectionToolbar(
+                                  onCopy: _copySelectedText,
+                                  onShare: _shareSelectedText,
+                                  onHighlight: _markSelectedText,
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -374,217 +375,6 @@ class _PdfPageImageState extends State<PdfPageImage> {
   Future<void> _copyTextToClipboard(String text) async {
     await Clipboard.setData(ClipboardData(text: text));
     widget.onMessage(LocalizationConstants.pdfReaderCopiedKey.tr());
-  }
-}
-
-class _RenderedPageImage extends StatelessWidget {
-  const _RenderedPageImage({required this.snapshot});
-
-  final AsyncSnapshot<Uint8List> snapshot;
-
-  @override
-  Widget build(BuildContext context) {
-    if (snapshot.connectionState != ConnectionState.done) {
-      return const ColoredBox(
-        color: AppColors.surfaceLight,
-        child: Center(
-          child: CircularProgressIndicator(strokeWidth: 2.5),
-        ),
-      );
-    }
-
-    final Uint8List? bytes = snapshot.data;
-    if (snapshot.hasError || bytes == null || bytes.isEmpty) {
-      return const ColoredBox(
-        color: AppColors.surfaceLight,
-        child: Center(
-          child: HugeIcon(
-            icon: HugeIcons.strokeRoundedPdf02,
-            color: AppColors.pdfLabel,
-            size: 54,
-          ),
-        ),
-      );
-    }
-
-    return Image.memory(
-      bytes,
-      fit: BoxFit.fill,
-      gaplessPlayback: true,
-      filterQuality: FilterQuality.medium,
-    );
-  }
-}
-
-class _SelectionGestureLayer extends StatelessWidget {
-  const _SelectionGestureLayer({
-    required this.enabled,
-    required this.textLayer,
-    required this.pageSize,
-    required this.onSelectionStarted,
-    required this.onSelectionMoved,
-    required this.onSelectionFinished,
-    required this.onUnavailable,
-    required this.onTap,
-  });
-
-  final bool enabled;
-  final PdfPageTextLayer textLayer;
-  final Size pageSize;
-  final void Function({
-    required Offset position,
-    required PdfPageTextLayer textLayer,
-    required Size pageSize,
-  }) onSelectionStarted;
-  final void Function({
-    required Offset position,
-    required PdfPageTextLayer textLayer,
-    required Size pageSize,
-  }) onSelectionMoved;
-  final VoidCallback onSelectionFinished;
-  final VoidCallback onUnavailable;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: onTap,
-      onLongPressStart: (LongPressStartDetails details) {
-        if (!enabled) {
-          onUnavailable();
-          return;
-        }
-
-        onSelectionStarted(
-          position: details.localPosition,
-          textLayer: textLayer,
-          pageSize: pageSize,
-        );
-      },
-      onLongPressMoveUpdate: !enabled
-          ? null
-          : (LongPressMoveUpdateDetails details) {
-              onSelectionMoved(
-                position: details.localPosition,
-                textLayer: textLayer,
-                pageSize: pageSize,
-              );
-            },
-      onLongPressEnd: !enabled ? null : (_) => onSelectionFinished(),
-      onLongPressCancel: !enabled ? null : onSelectionFinished,
-    );
-  }
-}
-
-class _SelectionToolbarPosition extends StatelessWidget {
-  const _SelectionToolbarPosition({
-    required this.selectedBounds,
-    required this.pageSize,
-    required this.child,
-  });
-
-  final Rect? selectedBounds;
-  final Size pageSize;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final Rect? bounds = selectedBounds;
-    if (bounds == null) {
-      return const SizedBox.shrink();
-    }
-
-    final double left = _clampDouble(
-      bounds.left,
-      AppSpacing.sm,
-      math.max(AppSpacing.sm, pageSize.width - 174),
-    );
-    final double top = _clampDouble(
-      bounds.top - 54,
-      AppSpacing.sm,
-      math.max(AppSpacing.sm, pageSize.height - 54),
-    );
-
-    return Positioned(
-      left: left,
-      top: top,
-      child: child,
-    );
-  }
-}
-
-class _SelectionToolbar extends StatelessWidget {
-  const _SelectionToolbar({
-    required this.onCopy,
-    required this.onShare,
-    required this.onHighlight,
-  });
-
-  final VoidCallback onCopy;
-  final VoidCallback onShare;
-  final VoidCallback onHighlight;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: AppColors.secondary,
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-        boxShadow: AppShadows.elevation1,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            _ToolbarButton(
-              tooltip: LocalizationConstants.pdfReaderCopyKey.tr(),
-              icon: HugeIcons.strokeRoundedCopy01,
-              onPressed: onCopy,
-            ),
-            _ToolbarButton(
-              tooltip: LocalizationConstants.pdfReaderShareKey.tr(),
-              icon: HugeIcons.strokeRoundedShare01,
-              onPressed: onShare,
-            ),
-            _ToolbarButton(
-              tooltip: LocalizationConstants.pdfReaderHighlightKey.tr(),
-              icon: HugeIcons.strokeRoundedPencilEdit01,
-              onPressed: onHighlight,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ToolbarButton extends StatelessWidget {
-  const _ToolbarButton({
-    required this.tooltip,
-    required this.icon,
-    required this.onPressed,
-  });
-
-  final String tooltip;
-  final List<List<dynamic>> icon;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      tooltip: tooltip,
-      onPressed: onPressed,
-      constraints: const BoxConstraints.tightFor(width: 42, height: 42),
-      padding: EdgeInsets.zero,
-      visualDensity: VisualDensity.compact,
-      icon: HugeIcon(
-        icon: icon,
-        color: AppColors.surfaceLight,
-        size: 21,
-      ),
-    );
   }
 }
 

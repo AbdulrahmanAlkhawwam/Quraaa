@@ -1,16 +1,17 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_dimensions.dart';
-import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/app_spacing.dart';
 import '../../data/datasources/local/pdf_render_datasource.dart';
-import '../widgets/pdf_page_image.dart';
+import '../widgets/pdf_page_list.dart';
+import '../widgets/pdf_reader_header.dart';
+import '../widgets/pdf_reader_message_view.dart';
+import '../widgets/pdf_scroll_to_top_button.dart';
 
 class PdfReaderPage extends StatefulWidget {
   const PdfReaderPage({
@@ -27,15 +28,18 @@ class PdfReaderPage extends StatefulWidget {
 }
 
 class _PdfReaderPageState extends State<PdfReaderPage> {
-  static const double _minZoom = 0.75;
-  static const double _maxZoom = 2.25;
-  static const double _zoomStep = 0.25;
+  static const double _scrollTopThreshold = 360;
 
   late final PdfRenderDataSource _renderer = sl<PdfRenderDataSource>();
+  late final ScrollController _scrollController = ScrollController()
+    ..addListener(_handleScroll);
   late Future<int> _pageCountFuture;
   final Map<int, List<PdfTextHighlight>> _highlightsByPage =
       <int, List<PdfTextHighlight>>{};
-  double _zoom = 1;
+
+  int _currentPageIndex = 0;
+  int? _pageCount;
+  bool _showScrollToTopButton = false;
 
   @override
   void initState() {
@@ -49,8 +53,22 @@ class _PdfReaderPageState extends State<PdfReaderPage> {
     if (oldWidget.path != widget.path) {
       _pageCountFuture = _renderer.pageCount(widget.path);
       _highlightsByPage.clear();
-      _zoom = 1;
+      _currentPageIndex = 0;
+      _pageCount = null;
+      _showScrollToTopButton = false;
+
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(0);
+      }
     }
+  }
+
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_handleScroll)
+      ..dispose();
+    super.dispose();
   }
 
   @override
@@ -65,14 +83,10 @@ class _PdfReaderPageState extends State<PdfReaderPage> {
             ),
             child: Column(
               children: <Widget>[
-                _PdfHeader(
+                PdfReaderHeader(
                   fileName: widget.name,
-                  zoom: _zoom,
-                  canZoomIn: _zoom < _maxZoom,
-                  canZoomOut: _zoom > _minZoom,
-                  onZoomIn: () => _changeZoom(_zoomStep),
-                  onZoomOut: () => _changeZoom(-_zoomStep),
-                  onResetZoom: _resetZoom,
+                  currentPage: _currentPageIndex + 1,
+                  pageCount: _pageCount,
                 ),
                 Expanded(
                   child: FutureBuilder<int>(
@@ -80,7 +94,7 @@ class _PdfReaderPageState extends State<PdfReaderPage> {
                     builder:
                         (BuildContext context, AsyncSnapshot<int> snapshot) {
                       if (snapshot.connectionState != ConnectionState.done) {
-                        return _MessageView(
+                        return PdfReaderMessageView(
                           icon: HugeIcons.strokeRoundedPdf02,
                           message:
                               LocalizationConstants.pdfReaderLoadingKey.tr(),
@@ -88,7 +102,7 @@ class _PdfReaderPageState extends State<PdfReaderPage> {
                       }
 
                       if (snapshot.hasError || (snapshot.data ?? 0) <= 0) {
-                        return _MessageView(
+                        return PdfReaderMessageView(
                           icon: HugeIcons.strokeRoundedCancelCircle,
                           message:
                               LocalizationConstants.pdfReaderUnsupportedKey.tr(),
@@ -96,47 +110,29 @@ class _PdfReaderPageState extends State<PdfReaderPage> {
                       }
 
                       final int pageCount = snapshot.data!;
-                      return ListView.builder(
-                        physics: const BouncingScrollPhysics(),
-                        padding: const EdgeInsets.fromLTRB(
-                          AppSpacing.lg,
-                          AppSpacing.sm,
-                          AppSpacing.lg,
-                          AppSpacing.xl,
-                        ),
-                        itemBuilder: (BuildContext context, int index) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: <Widget>[
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  bottom: AppSpacing.sm,
-                                ),
-                                child: Text(
-                                  '${index + 1} / $pageCount',
-                                  textAlign: TextAlign.center,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .labelMedium
-                                      ?.copyWith(color: AppColors.textMuted),
-                                ),
+                      _schedulePageCountUpdate(pageCount);
+
+                      return Stack(
+                        children: <Widget>[
+                          PdfPageList(
+                            controller: _scrollController,
+                            renderer: _renderer,
+                            path: widget.path,
+                            pageCount: pageCount,
+                            highlightsByPage: _highlightsByPage,
+                            onHighlightAdded: _addHighlight,
+                            onMessage: _showMessage,
+                            onPageChanged: _setCurrentPage,
+                          ),
+                          if (_showScrollToTopButton)
+                            PositionedDirectional(
+                              end: AppSpacing.lg,
+                              bottom: AppSpacing.lg,
+                              child: PdfScrollToTopButton(
+                                onPressed: _scrollToTop,
                               ),
-                              PdfPageImage(
-                                renderer: _renderer,
-                                path: widget.path,
-                                pageIndex: index,
-                                zoom: _zoom,
-                                highlights: _highlightsByPage[index] ??
-                                    const <PdfTextHighlight>[],
-                                onHighlightAdded: (PdfTextHighlight highlight) {
-                                  _addHighlight(index, highlight);
-                                },
-                                onMessage: _showMessage,
-                              ),
-                            ],
-                          );
-                        },
-                        itemCount: pageCount,
+                            ),
+                        ],
                       );
                     },
                   ),
@@ -147,18 +143,6 @@ class _PdfReaderPageState extends State<PdfReaderPage> {
         ),
       ),
     );
-  }
-
-  void _changeZoom(double amount) {
-    setState(() {
-      _zoom = (_zoom + amount).clamp(_minZoom, _maxZoom).toDouble();
-    });
-  }
-
-  void _resetZoom() {
-    setState(() {
-      _zoom = 1;
-    });
   }
 
   void _addHighlight(int pageIndex, PdfTextHighlight highlight) {
@@ -176,251 +160,59 @@ class _PdfReaderPageState extends State<PdfReaderPage> {
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(message)));
   }
-}
 
-class _PdfHeader extends StatelessWidget {
-  const _PdfHeader({
-    required this.fileName,
-    required this.zoom,
-    required this.canZoomIn,
-    required this.canZoomOut,
-    required this.onZoomIn,
-    required this.onZoomOut,
-    required this.onResetZoom,
-  });
+  void _setCurrentPage(int pageIndex) {
+    if (_currentPageIndex == pageIndex) {
+      return;
+    }
 
-  final String fileName;
-  final double zoom;
-  final bool canZoomIn;
-  final bool canZoomOut;
-  final VoidCallback onZoomIn;
-  final VoidCallback onZoomOut;
-  final VoidCallback onResetZoom;
+    setState(() {
+      _currentPageIndex = pageIndex;
+    });
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.md,
-        AppSpacing.lg,
-        AppSpacing.sm,
-      ),
-      child: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-          final Widget leading = IconButton(
-            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-            onPressed: context.canPop() ? () => context.pop() : null,
-            icon: const HugeIcon(
-              icon: HugeIcons.strokeRoundedArrowLeft01,
-              color: AppColors.secondary,
-              size: 34,
-            ),
-            color: AppColors.secondary,
-            iconSize: 34,
-          );
-          final Widget title = _PdfTitleBlock(fileName: fileName);
-          final Widget controls = _ZoomControls(
-            zoom: zoom,
-            canZoomIn: canZoomIn,
-            canZoomOut: canZoomOut,
-            onZoomIn: onZoomIn,
-            onZoomOut: onZoomOut,
-            onResetZoom: onResetZoom,
-          );
+  void _handleScroll() {
+    final bool shouldShow =
+        _scrollController.hasClients &&
+        _scrollController.offset > _scrollTopThreshold;
 
-          if (constraints.maxWidth < 430) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    leading,
-                    const SizedBox(width: AppSpacing.sm),
-                    Expanded(child: title),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Align(
-                  alignment: AlignmentDirectional.centerEnd,
-                  child: controls,
-                ),
-              ],
-            );
-          }
+    if (_showScrollToTopButton == shouldShow) {
+      return;
+    }
 
-          return Row(
-            children: <Widget>[
-              leading,
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(child: title),
-              const SizedBox(width: AppSpacing.md),
-              controls,
-            ],
-          );
-        },
-      ),
+    setState(() {
+      _showScrollToTopButton = shouldShow;
+    });
+  }
+
+  void _scrollToTop() {
+    if (!_scrollController.hasClients) {
+      return;
+    }
+
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 280),
+      curve: Curves.easeOutCubic,
     );
   }
-}
 
-class _PdfTitleBlock extends StatelessWidget {
-  const _PdfTitleBlock({required this.fileName});
+  void _schedulePageCountUpdate(int pageCount) {
+    if (_pageCount == pageCount) {
+      return;
+    }
 
-  final String fileName;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Text(
-          LocalizationConstants.pdfReaderTitleKey.tr(),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: AppColors.secondary,
-                fontWeight: FontWeight.w700,
-              ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          fileName,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.textSecondary,
-              ),
-        ),
-      ],
-    );
-  }
-}
-
-class _ZoomControls extends StatelessWidget {
-  const _ZoomControls({
-    required this.zoom,
-    required this.canZoomIn,
-    required this.canZoomOut,
-    required this.onZoomIn,
-    required this.onZoomOut,
-    required this.onResetZoom,
-  });
-
-  final double zoom;
-  final bool canZoomIn;
-  final bool canZoomOut;
-  final VoidCallback onZoomIn;
-  final VoidCallback onZoomOut;
-  final VoidCallback onResetZoom;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-        border: Border.all(color: AppColors.borderLight),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            _ZoomButton(
-              tooltip: LocalizationConstants.pdfReaderZoomOutKey.tr(),
-              icon: HugeIcons.strokeRoundedRemove01,
-              onPressed: canZoomOut ? onZoomOut : null,
-            ),
-            Tooltip(
-              message: LocalizationConstants.pdfReaderResetZoomKey.tr(),
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: onResetZoom,
-                child: SizedBox(
-                  width: 54,
-                  height: 38,
-                  child: Center(
-                    child: Text(
-                      '${(zoom * 100).round()}%',
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.w700,
-                          ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            _ZoomButton(
-              tooltip: LocalizationConstants.pdfReaderZoomInKey.tr(),
-              icon: HugeIcons.strokeRoundedAdd01,
-              onPressed: canZoomIn ? onZoomIn : null,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ZoomButton extends StatelessWidget {
-  const _ZoomButton({
-    required this.tooltip,
-    required this.icon,
-    required this.onPressed,
-  });
-
-  final String tooltip;
-  final List<List<dynamic>> icon;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      tooltip: tooltip,
-      onPressed: onPressed,
-      constraints: const BoxConstraints.tightFor(width: 38, height: 38),
-      padding: EdgeInsets.zero,
-      visualDensity: VisualDensity.compact,
-      icon: HugeIcon(
-        icon: icon,
-        color: onPressed == null ? AppColors.textMuted : AppColors.secondary,
-        size: 21,
-      ),
-    );
-  }
-}
-
-class _MessageView extends StatelessWidget {
-  const _MessageView({
-    required this.icon,
-    required this.message,
-  });
-
-  final List<List<dynamic>> icon;
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            HugeIcon(icon: icon, color: AppColors.secondary, size: 56),
-            const SizedBox(height: AppSpacing.md),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppColors.textPrimary,
-                  ),
-            ),
-          ],
-        ),
-      ),
-    );
+      setState(() {
+        _pageCount = pageCount;
+        if (_currentPageIndex >= pageCount) {
+          _currentPageIndex = pageCount - 1;
+        }
+      });
+    });
   }
 }

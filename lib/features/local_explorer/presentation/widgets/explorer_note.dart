@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hugeicons/hugeicons.dart';
-
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/app_spacing.dart';
@@ -20,7 +18,7 @@ class ExplorerNote extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: AppColors.noteSurface,
-        borderRadius: BorderRadius.circular(AppRadius.md),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
         border: Border.all(color: AppColors.noteBorder),
       ),
       child: Padding(
@@ -28,35 +26,23 @@ class ExplorerNote extends StatelessWidget {
           horizontal: AppSpacing.md,
           vertical: AppSpacing.sm,
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            const HugeIcon(
-              icon: HugeIcons.strokeRoundedInformationCircle,
-              color: AppColors.secondary,
-              size: 22,
+            Text(
+              title,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
             ),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          color: AppColors.secondary,
-                          fontWeight: FontWeight.w700,
-                        ),
+            const SizedBox(height: 2),
+            Text(
+              message,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.2,
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    message,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
-                          height: 1.2,
-                        ),
-                  ),
-                ],
-              ),
             ),
           ],
         ),
