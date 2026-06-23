@@ -1,0 +1,72 @@
+import 'dart:typed_data';
+
+import '../../../../core/errors/failures.dart';
+import '../../domain/entities/pdf_text_layer.dart';
+import '../../domain/repositories/pdf_reader_repository.dart';
+import '../../domain/value_objects/pdf_reader_result.dart';
+import '../datasources/local/pdf_render_datasource.dart';
+
+class PdfReaderRepositoryImpl implements PdfReaderRepository {
+  const PdfReaderRepositoryImpl(this._dataSource);
+
+  final PdfRenderDataSource _dataSource;
+
+  @override
+  Future<PdfReaderResult<int>> pageCount(String path) {
+    return _guard(() => _dataSource.pageCount(path));
+  }
+
+  @override
+  Future<PdfReaderResult<Uint8List>> renderPage({
+    required String path,
+    required int pageIndex,
+    required int width,
+  }) {
+    return _guard(
+      () => _dataSource.renderPage(
+        path: path,
+        pageIndex: pageIndex,
+        width: width,
+      ),
+    );
+  }
+
+  @override
+  Future<PdfReaderResult<PdfPageTextLayer>> textLayer({
+    required String path,
+    required int pageIndex,
+  }) {
+    return _guard(
+      () => _dataSource.textLayer(
+        path: path,
+        pageIndex: pageIndex,
+      ),
+    );
+  }
+
+  @override
+  Future<PdfReaderResult<bool>> shareText(String text) async {
+    try {
+      await _dataSource.shareText(text);
+      return const PdfReaderSuccess<bool>(true);
+    } catch (error) {
+      return PdfReaderFailure<bool>(_failureFrom(error));
+    }
+  }
+
+  Future<PdfReaderResult<T>> _guard<T>(Future<T> Function() action) async {
+    try {
+      return PdfReaderSuccess<T>(await action());
+    } catch (error) {
+      return PdfReaderFailure<T>(_failureFrom(error));
+    }
+  }
+
+  Failure _failureFrom(Object error) {
+    if (error is UnsupportedError || error is StateError) {
+      return OperationFailedFailure(message: error.toString());
+    }
+
+    return UnknownFailure(message: error.toString());
+  }
+}

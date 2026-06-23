@@ -1,6 +1,8 @@
+import 'package:equatable/equatable.dart';
+
 import 'local_file_entry.dart';
 
-class LocalDirectorySnapshot {
+class LocalDirectorySnapshot extends Equatable {
   const LocalDirectorySnapshot({
     required this.currentPath,
     required this.breadcrumbs,
@@ -20,9 +22,16 @@ class LocalDirectorySnapshot {
   }
 
   bool get canNavigateUp => breadcrumbs.length > 1;
+
+  @override
+  List<Object?> get props => <Object?>[
+        currentPath,
+        breadcrumbs,
+        entries,
+      ];
 }
 
-class LocalPathSegment {
+class LocalPathSegment extends Equatable {
   const LocalPathSegment({
     required this.label,
     required this.path,
@@ -30,4 +39,7 @@ class LocalPathSegment {
 
   final String label;
   final String path;
+
+  @override
+  List<Object?> get props => <Object?>[label, path];
 }

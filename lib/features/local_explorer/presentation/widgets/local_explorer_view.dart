@@ -50,6 +50,7 @@ class _LocalExplorerViewState extends State<LocalExplorerView> {
                         context,
                         const LocalExplorerAccessRequested(),
                       ),
+                      onDismissed: () => _dismissAccess(context),
                     ),
                   LocalExplorerLoading(previous: final previous) =>
                     previous == null
@@ -119,6 +120,12 @@ class _LocalExplorerViewState extends State<LocalExplorerView> {
       return;
     }
 
+    if (context.canPop()) {
+      context.pop();
+    }
+  }
+
+  void _dismissAccess(BuildContext context) {
     if (context.canPop()) {
       context.pop();
     }

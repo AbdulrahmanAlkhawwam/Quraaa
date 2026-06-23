@@ -2,7 +2,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/local_explorer/presentation/pages/local_explorer_page.dart';
-import '../../features/local_explorer/presentation/pages/pdf_reader_page.dart';
+import '../../features/pdf_reader/presentation/pages/pdf_reader_page.dart';
 import 'route_names.dart';
 
 GoRouter buildAppRouter() {

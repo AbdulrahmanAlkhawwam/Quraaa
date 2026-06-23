@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../../core/errors/exceptions.dart';
+
 class LocalExplorerPlatformDataSource {
   LocalExplorerPlatformDataSource({
-    MethodChannel channel = const MethodChannel('quraaa/local_explorer'),
-  }) : _channel = channel;
+    MethodChannel this._channel = const MethodChannel('quraaa/local_explorer'),
+  });
 
   final MethodChannel _channel;
 
@@ -17,7 +19,7 @@ class LocalExplorerPlatformDataSource {
       return null;
     }
 
-    return _channel.invokeMethod<String>('defaultRootPath');
+    return _invoke<String>('defaultRootPath');
   }
 
   Future<bool> hasStorageAccess() async {
@@ -25,7 +27,7 @@ class LocalExplorerPlatformDataSource {
       return true;
     }
 
-    return await _channel.invokeMethod<bool>('hasStorageAccess') ?? false;
+    return await _invoke<bool>('hasStorageAccess') ?? false;
   }
 
   Future<bool> requestStorageAccess() async {
@@ -33,6 +35,16 @@ class LocalExplorerPlatformDataSource {
       return true;
     }
 
-    return await _channel.invokeMethod<bool>('requestStorageAccess') ?? false;
+    return await _invoke<bool>('requestStorageAccess') ?? false;
+  }
+
+  Future<T?> _invoke<T>(String method) async {
+    try {
+      return await _channel.invokeMethod<T>(method);
+    } on PlatformException catch (error) {
+      throw OperationFailedException(message: error.message);
+    } on MissingPluginException catch (error) {
+      throw OperationFailedException(message: '$error');
+    }
   }
 }

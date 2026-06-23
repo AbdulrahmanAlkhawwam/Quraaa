@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../data/datasources/local/pdf_render_datasource.dart';
+import '../../domain/entities/pdf_text_layer.dart';
 
 class PdfSelectionGestureLayer extends StatelessWidget {
   const PdfSelectionGestureLayer({

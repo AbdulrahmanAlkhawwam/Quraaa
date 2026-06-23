@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import '../../../../../core/errors/exceptions.dart';
-import '../../../domain/entities/local_directory_snapshot.dart';
-import '../../../domain/entities/local_file_entry.dart';
+import '../../models/local_file_entry_model.dart';
+import '../../models/local_path_segment_model.dart';
 import 'local_explorer_platform_datasource.dart';
 import 'local_file_system_datasource.dart';
 
@@ -36,13 +36,13 @@ class IoLocalFileSystemDataSource implements LocalFileSystemDataSource {
   }
 
   @override
-  Future<List<LocalFileEntry>> listDirectory(String path) async {
+  Future<List<LocalFileEntryModel>> listDirectory(String path) async {
     final Directory directory = Directory(path);
     if (!await directory.exists()) {
-      throw NotFoundException(message: 'Folder was not found.');
+      throw const NotFoundException(message: 'Folder was not found.');
     }
 
-    final List<LocalFileEntry> entries = <LocalFileEntry>[];
+    final List<LocalFileEntryModel> entries = <LocalFileEntryModel>[];
 
     try {
       await for (final FileSystemEntity entity
@@ -73,10 +73,13 @@ class IoLocalFileSystemDataSource implements LocalFileSystemDataSource {
         } on FileSystemException {
           continue;
         }
-        final LocalFileEntryType type = _entryType(entity.path, entityType);
+        final LocalFileEntryModelType type = _entryType(
+          entity.path,
+          entityType,
+        );
 
         entries.add(
-          LocalFileEntry(
+          LocalFileEntryModel(
             name: name,
             path: entity.path,
             type: type,
@@ -96,7 +99,7 @@ class IoLocalFileSystemDataSource implements LocalFileSystemDataSource {
   }
 
   @override
-  List<LocalPathSegment> buildBreadcrumbs(String path) {
+  List<LocalPathSegmentModel> buildBreadcrumbs(String path) {
     final String normalizedPath = _normalize(path);
 
     if (_isAndroidInternalPath(normalizedPath)) {
@@ -152,20 +155,20 @@ class IoLocalFileSystemDataSource implements LocalFileSystemDataSource {
     }
   }
 
-  LocalFileEntryType _entryType(
+  LocalFileEntryModelType _entryType(
     String path,
     FileSystemEntityType entityType,
   ) {
     if (entityType == FileSystemEntityType.directory) {
-      return LocalFileEntryType.directory;
+      return LocalFileEntryModelType.directory;
     }
 
     return path.toLowerCase().endsWith('.pdf')
-        ? LocalFileEntryType.pdf
-        : LocalFileEntryType.unsupported;
+        ? LocalFileEntryModelType.pdf
+        : LocalFileEntryModelType.unsupported;
   }
 
-  int _compareEntries(LocalFileEntry first, LocalFileEntry second) {
+  int _compareEntries(LocalFileEntryModel first, LocalFileEntryModel second) {
     final int rankCompare = _rank(first.type).compareTo(_rank(second.type));
     if (rankCompare != 0) {
       return rankCompare;
@@ -174,17 +177,17 @@ class IoLocalFileSystemDataSource implements LocalFileSystemDataSource {
     return first.name.toLowerCase().compareTo(second.name.toLowerCase());
   }
 
-  int _rank(LocalFileEntryType type) {
+  int _rank(LocalFileEntryModelType type) {
     return switch (type) {
-      LocalFileEntryType.directory => 0,
-      LocalFileEntryType.pdf => 1,
-      LocalFileEntryType.unsupported => 2,
+      LocalFileEntryModelType.directory => 0,
+      LocalFileEntryModelType.pdf => 1,
+      LocalFileEntryModelType.unsupported => 2,
     };
   }
 
-  List<LocalPathSegment> _buildAndroidBreadcrumbs(String normalizedPath) {
-    final List<LocalPathSegment> breadcrumbs = <LocalPathSegment>[
-      const LocalPathSegment(
+  List<LocalPathSegmentModel> _buildAndroidBreadcrumbs(String normalizedPath) {
+    final List<LocalPathSegmentModel> breadcrumbs = <LocalPathSegmentModel>[
+      const LocalPathSegmentModel(
         label: 'Internal Storage',
         path: _androidRootPath,
       ),
@@ -200,39 +203,50 @@ class IoLocalFileSystemDataSource implements LocalFileSystemDataSource {
     String currentPath = _androidRootPath;
     for (final String segment in _segments(rest)) {
       currentPath = '$currentPath/$segment';
-      breadcrumbs.add(LocalPathSegment(label: segment, path: currentPath));
-    }
-
-    return breadcrumbs;
-  }
-
-  List<LocalPathSegment> _buildWindowsBreadcrumbs(String normalizedPath) {
-    final List<String> segments = _segments(normalizedPath);
-    if (segments.isEmpty) {
-      return <LocalPathSegment>[
-        LocalPathSegment(label: normalizedPath, path: pathFromNormalized(normalizedPath)),
-      ];
-    }
-
-    final List<LocalPathSegment> breadcrumbs = <LocalPathSegment>[];
-    String currentPath = '${segments.first}/';
-    breadcrumbs.add(
-      LocalPathSegment(label: segments.first, path: pathFromNormalized(currentPath)),
-    );
-
-    for (final String segment in segments.skip(1)) {
-      currentPath = '$currentPath$segment/';
       breadcrumbs.add(
-        LocalPathSegment(label: segment, path: pathFromNormalized(currentPath)),
+        LocalPathSegmentModel(label: segment, path: currentPath),
       );
     }
 
     return breadcrumbs;
   }
 
-  List<LocalPathSegment> _buildUnixBreadcrumbs(String normalizedPath) {
-    final List<LocalPathSegment> breadcrumbs = <LocalPathSegment>[
-      const LocalPathSegment(label: 'Root', path: '/'),
+  List<LocalPathSegmentModel> _buildWindowsBreadcrumbs(String normalizedPath) {
+    final List<String> segments = _segments(normalizedPath);
+    if (segments.isEmpty) {
+      return <LocalPathSegmentModel>[
+        LocalPathSegmentModel(
+          label: normalizedPath,
+          path: pathFromNormalized(normalizedPath),
+        ),
+      ];
+    }
+
+    final List<LocalPathSegmentModel> breadcrumbs = <LocalPathSegmentModel>[];
+    String currentPath = '${segments.first}/';
+    breadcrumbs.add(
+      LocalPathSegmentModel(
+        label: segments.first,
+        path: pathFromNormalized(currentPath),
+      ),
+    );
+
+    for (final String segment in segments.skip(1)) {
+      currentPath = '$currentPath$segment/';
+      breadcrumbs.add(
+        LocalPathSegmentModel(
+          label: segment,
+          path: pathFromNormalized(currentPath),
+        ),
+      );
+    }
+
+    return breadcrumbs;
+  }
+
+  List<LocalPathSegmentModel> _buildUnixBreadcrumbs(String normalizedPath) {
+    final List<LocalPathSegmentModel> breadcrumbs = <LocalPathSegmentModel>[
+      const LocalPathSegmentModel(label: 'Root', path: '/'),
     ];
     final String rest = normalizedPath.replaceFirst(RegExp(r'^/+'), '');
     if (rest.isEmpty) {
@@ -242,7 +256,9 @@ class IoLocalFileSystemDataSource implements LocalFileSystemDataSource {
     String currentPath = '';
     for (final String segment in _segments(rest)) {
       currentPath = '$currentPath/$segment';
-      breadcrumbs.add(LocalPathSegment(label: segment, path: currentPath));
+      breadcrumbs.add(
+        LocalPathSegmentModel(label: segment, path: currentPath),
+      );
     }
 
     return breadcrumbs;
@@ -264,7 +280,9 @@ class IoLocalFileSystemDataSource implements LocalFileSystemDataSource {
   String _normalize(String path) => path.replaceAll('\\', '/');
 
   String pathFromNormalized(String normalizedPath) {
-    return Platform.isWindows ? normalizedPath.replaceAll('/', '\\') : normalizedPath;
+    return Platform.isWindows
+        ? normalizedPath.replaceAll('/', '\\')
+        : normalizedPath;
   }
 
   bool _isAndroidInternalPath(String normalizedPath) {

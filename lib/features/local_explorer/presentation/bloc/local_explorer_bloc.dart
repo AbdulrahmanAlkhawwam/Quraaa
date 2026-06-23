@@ -1,9 +1,13 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/errors/exceptions.dart';
+import '../../../../core/architecture/use_case.dart';
+import '../../../../core/errors/failures.dart';
 import '../../domain/entities/local_directory_snapshot.dart';
 import '../../domain/repositories/local_file_repository.dart';
+import '../../domain/use_cases/get_local_directory_parent_use_case.dart';
 import '../../domain/use_cases/load_local_directory_use_case.dart';
+import '../../domain/use_cases/request_local_storage_access_use_case.dart';
+import '../../domain/value_objects/result.dart';
 
 sealed class LocalExplorerEvent {
   const LocalExplorerEvent();
@@ -72,11 +76,11 @@ final class LocalExplorerFailure extends LocalExplorerState {
 
 class LocalExplorerBloc extends Bloc<LocalExplorerEvent, LocalExplorerState> {
   LocalExplorerBloc({
-    required LoadLocalDirectoryUseCase loadDirectory,
+    required this._loadDirectory,
     required LocalFileRepository repository,
-  })  : _loadDirectory = loadDirectory,
-        _repository = repository,
-        super(const LocalExplorerInitial()) {
+  }) : super(const LocalExplorerInitial()) {
+    _getParentDirectory = GetLocalDirectoryParentUseCase(repository);
+    _requestStorageAccess = RequestLocalStorageAccessUseCase(repository);
     on<LocalExplorerStarted>(_onStarted);
     on<LocalExplorerDirectoryOpened>(_onDirectoryOpened);
     on<LocalExplorerBreadcrumbSelected>(_onBreadcrumbSelected);
@@ -86,7 +90,8 @@ class LocalExplorerBloc extends Bloc<LocalExplorerEvent, LocalExplorerState> {
   }
 
   final LoadLocalDirectoryUseCase _loadDirectory;
-  final LocalFileRepository _repository;
+  late final GetLocalDirectoryParentUseCase _getParentDirectory;
+  late final RequestLocalStorageAccessUseCase _requestStorageAccess;
 
   LocalDirectorySnapshot? _snapshot;
 
@@ -120,12 +125,22 @@ class LocalExplorerBloc extends Bloc<LocalExplorerEvent, LocalExplorerState> {
       return;
     }
 
-    final String? parentPath = _repository.parentOf(snapshot.currentPath);
-    if (parentPath == null) {
-      return;
-    }
+    final Result<String?> result = await _getParentDirectory(
+      GetLocalDirectoryParentParams(path: snapshot.currentPath),
+    );
 
-    await _open(path: parentPath, emit: emit);
+    await result.fold(
+      onSuccess: (String? parentPath) async {
+        if (parentPath == null) {
+          return;
+        }
+
+        await _open(path: parentPath, emit: emit);
+      },
+      onFailure: (Failure failure) async {
+        emit(LocalExplorerFailure(failure.message, previous: _snapshot));
+      },
+    );
   }
 
   Future<void> _onRefreshRequested(
@@ -140,13 +155,21 @@ class LocalExplorerBloc extends Bloc<LocalExplorerEvent, LocalExplorerState> {
     Emitter<LocalExplorerState> emit,
   ) async {
     emit(LocalExplorerLoading(previous: _snapshot));
-    final bool granted = await _repository.requestStorageAccess();
-    if (!granted) {
-      emit(const LocalExplorerAccessRequired());
-      return;
-    }
+    final Result<bool> result = await _requestStorageAccess(const NoParams());
 
-    await _open(path: _snapshot?.currentPath, emit: emit);
+    await result.fold(
+      onSuccess: (bool granted) async {
+        if (!granted) {
+          emit(const LocalExplorerAccessRequired());
+          return;
+        }
+
+        await _open(path: _snapshot?.currentPath, emit: emit);
+      },
+      onFailure: (Failure failure) async {
+        emit(LocalExplorerFailure(failure.message, previous: _snapshot));
+      },
+    );
   }
 
   Future<void> _open({
@@ -155,20 +178,22 @@ class LocalExplorerBloc extends Bloc<LocalExplorerEvent, LocalExplorerState> {
   }) async {
     emit(LocalExplorerLoading(previous: _snapshot));
 
-    try {
-      final LocalDirectorySnapshot snapshot = await _loadDirectory(
-        LoadLocalDirectoryParams(path: path),
-      );
-      _snapshot = snapshot;
-      emit(LocalExplorerLoaded(snapshot));
-    } on FileAccessDeniedException {
-      emit(const LocalExplorerAccessRequired());
-    } on AppException catch (error) {
-      emit(LocalExplorerFailure(error.message, previous: _snapshot));
-    } on UnsupportedError catch (error) {
-      emit(LocalExplorerFailure(error.message ?? '$error', previous: _snapshot));
-    } catch (error) {
-      emit(LocalExplorerFailure('$error', previous: _snapshot));
-    }
+    final Result<LocalDirectorySnapshot> result = await _loadDirectory(
+      LoadLocalDirectoryParams(path: path),
+    );
+
+    result.fold(
+      onSuccess: (LocalDirectorySnapshot snapshot) {
+        _snapshot = snapshot;
+        emit(LocalExplorerLoaded(snapshot));
+      },
+      onFailure: (Failure failure) {
+        if (failure is FileAccessDeniedFailure) {
+          emit(const LocalExplorerAccessRequired());
+        } else {
+          emit(LocalExplorerFailure(failure.message, previous: _snapshot));
+        }
+      },
+    );
   }
 }

@@ -6,13 +6,19 @@ import '../bloc/local_explorer_bloc.dart';
 import '../widgets/local_explorer_view.dart';
 
 class LocalExplorerPage extends StatelessWidget {
-  const LocalExplorerPage({super.key});
+  const LocalExplorerPage({
+    this.bloc,
+    super.key,
+  });
+
+  final LocalExplorerBloc? bloc;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<LocalExplorerBloc>(
       create: (BuildContext context) {
-        return sl<LocalExplorerBloc>()..add(const LocalExplorerStarted());
+        return (bloc ?? sl<LocalExplorerBloc>())
+          ..add(const LocalExplorerStarted());
       },
       child: const LocalExplorerView(),
     );

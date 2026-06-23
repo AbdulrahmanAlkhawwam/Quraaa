@@ -10,7 +10,11 @@ import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/app_shadows.dart';
 import '../../../../shared/theme/app_spacing.dart';
-import '../../data/datasources/local/pdf_render_datasource.dart';
+import '../../domain/entities/pdf_text_layer.dart';
+import '../../domain/use_cases/get_pdf_text_layer_use_case.dart';
+import '../../domain/use_cases/render_pdf_page_use_case.dart';
+import '../../domain/use_cases/share_pdf_text_use_case.dart';
+import '../../domain/value_objects/pdf_reader_result.dart';
 import 'pdf_selection_gesture_layer.dart';
 import 'pdf_selection_toolbar.dart';
 import 'pdf_selection_toolbar_position.dart';
@@ -18,7 +22,9 @@ import 'rendered_pdf_page_image.dart';
 
 class PdfPageImage extends StatefulWidget {
   const PdfPageImage({
-    required this.renderer,
+    required this.renderPage,
+    required this.getTextLayer,
+    required this.shareText,
     required this.path,
     required this.pageIndex,
     required this.highlights,
@@ -27,7 +33,9 @@ class PdfPageImage extends StatefulWidget {
     super.key,
   });
 
-  final PdfRenderDataSource renderer;
+  final RenderPdfPageUseCase renderPage;
+  final GetPdfTextLayerUseCase getTextLayer;
+  final SharePdfTextUseCase shareText;
   final String path;
   final int pageIndex;
   final List<PdfTextHighlight> highlights;
@@ -60,11 +68,8 @@ class _PdfPageImageState extends State<PdfPageImage> {
 
   @override
   Widget build(BuildContext context) {
-    final Future<PdfPageTextLayer> textLayerFuture = _textLayerFuture ??=
-        widget.renderer.textLayer(
-          path: widget.path,
-          pageIndex: widget.pageIndex,
-        );
+    final Future<PdfPageTextLayer> textLayerFuture =
+        _textLayerFuture ??= _loadTextLayer();
 
     return FutureBuilder<PdfPageTextLayer>(
       future: textLayerFuture,
@@ -95,11 +100,7 @@ class _PdfPageImageState extends State<PdfPageImage> {
 
             if (_pageFuture == null || _renderWidth != renderWidth) {
               _renderWidth = renderWidth;
-              _pageFuture = widget.renderer.renderPage(
-                path: widget.path,
-                pageIndex: widget.pageIndex,
-                width: renderWidth,
-              );
+              _pageFuture = _renderPage(renderWidth);
             }
 
             return Padding(
@@ -218,13 +219,15 @@ class _PdfPageImageState extends State<PdfPageImage> {
         .trim();
   }
 
-  List<Rect> get _highlightRects {
+  List<PdfTextBounds> get _highlightRects {
     return widget.highlights
         .expand((PdfTextHighlight highlight) => highlight.bounds)
         .toList(growable: false);
   }
 
-  List<Rect> get _selectedRects => _rectsFromContents(_selectedContents);
+  List<PdfTextBounds> get _selectedRects {
+    return _boundsFromContents(_selectedContents);
+  }
 
   void _startSelection({
     required Offset position,
@@ -291,7 +294,10 @@ class _PdfPageImageState extends State<PdfPageImage> {
     }
 
     try {
-      await widget.renderer.shareText(text);
+      final bool shared = await _shareText(text);
+      if (!shared) {
+        await _copyTextToClipboard(text);
+      }
       _clearSelection();
     } catch (_) {
       await _copyTextToClipboard(text);
@@ -327,7 +333,7 @@ class _PdfPageImageState extends State<PdfPageImage> {
 
     final Rect selection = _rectFromOffsets(start, end).inflate(6);
     return textLayer.contents.where((PdfTextContentInfo content) {
-      return content.bounds.any((Rect pageRect) {
+      return content.bounds.any((PdfTextBounds pageRect) {
         final Rect localRect = _pageRectToLocal(
           pageRect,
           textLayer: textLayer,
@@ -345,7 +351,7 @@ class _PdfPageImageState extends State<PdfPageImage> {
   }) {
     Rect? bounds;
     for (final PdfTextContentInfo content in _selectedContents) {
-      for (final Rect pageRect in content.bounds) {
+      for (final PdfTextBounds pageRect in content.bounds) {
         final Rect localRect = _pageRectToLocal(
           pageRect,
           textLayer: textLayer,
@@ -376,6 +382,46 @@ class _PdfPageImageState extends State<PdfPageImage> {
     await Clipboard.setData(ClipboardData(text: text));
     widget.onMessage(LocalizationConstants.pdfReaderCopiedKey.tr());
   }
+
+  Future<PdfPageTextLayer> _loadTextLayer() async {
+    final PdfReaderResult<PdfPageTextLayer> result = await widget.getTextLayer(
+      GetPdfTextLayerParams(
+        path: widget.path,
+        pageIndex: widget.pageIndex,
+      ),
+    );
+
+    return result.fold(
+      onSuccess: (PdfPageTextLayer textLayer) => textLayer,
+      onFailure: (_) => const PdfPageTextLayer.empty(),
+    );
+  }
+
+  Future<Uint8List> _renderPage(int width) async {
+    final PdfReaderResult<Uint8List> result = await widget.renderPage(
+      RenderPdfPageParams(
+        path: widget.path,
+        pageIndex: widget.pageIndex,
+        width: width,
+      ),
+    );
+
+    return result.fold(
+      onSuccess: (Uint8List bytes) => bytes,
+      onFailure: (failure) => throw StateError(failure.message),
+    );
+  }
+
+  Future<bool> _shareText(String text) async {
+    final PdfReaderResult<bool> result = await widget.shareText(
+      SharePdfTextParams(text: text),
+    );
+
+    return result.fold(
+      onSuccess: (bool shared) => shared,
+      onFailure: (_) => false,
+    );
+  }
 }
 
 class _TextBoundsPainter extends CustomPainter {
@@ -386,7 +432,7 @@ class _TextBoundsPainter extends CustomPainter {
     required this.color,
   });
 
-  final List<Rect> rects;
+  final List<PdfTextBounds> rects;
   final PdfPageTextLayer textLayer;
   final Size pageSize;
   final Color color;
@@ -401,7 +447,7 @@ class _TextBoundsPainter extends CustomPainter {
       ..color = color
       ..style = PaintingStyle.fill;
 
-    for (final Rect pageRect in rects) {
+    for (final PdfTextBounds pageRect in rects) {
       final Rect localRect = _pageRectToLocal(
         pageRect,
         textLayer: textLayer,
@@ -498,7 +544,7 @@ Rect _mergeRects(Rect first, Rect second) {
 }
 
 Rect _pageRectToLocal(
-  Rect pageRect, {
+  PdfTextBounds pageRect, {
   required PdfPageTextLayer textLayer,
   required Size pageSize,
 }) {
@@ -513,7 +559,9 @@ Rect _pageRectToLocal(
   );
 }
 
-List<Rect> _rectsFromContents(Iterable<PdfTextContentInfo> contents) {
+List<PdfTextBounds> _boundsFromContents(
+  Iterable<PdfTextContentInfo> contents,
+) {
   return contents
       .expand((PdfTextContentInfo content) => content.bounds)
       .toList(growable: false);

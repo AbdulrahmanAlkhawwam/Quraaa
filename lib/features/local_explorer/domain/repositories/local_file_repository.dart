@@ -1,11 +1,12 @@
 import '../entities/local_directory_snapshot.dart';
+import '../value_objects/result.dart';
 
 abstract class LocalFileRepository {
-  Future<bool> hasStorageAccess();
+  Future<Result<bool>> hasStorageAccess();
 
-  Future<bool> requestStorageAccess();
+  Future<Result<bool>> requestStorageAccess();
 
-  Future<LocalDirectorySnapshot> loadDirectory({String? path});
+  Future<Result<LocalDirectorySnapshot>> loadDirectory({String? path});
 
-  String? parentOf(String path);
+  Result<String?> parentOf(String path);
 }

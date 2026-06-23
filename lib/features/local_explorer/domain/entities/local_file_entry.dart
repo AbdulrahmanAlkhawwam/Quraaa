@@ -1,6 +1,8 @@
+import 'package:equatable/equatable.dart';
+
 enum LocalFileEntryType { directory, pdf, unsupported }
 
-class LocalFileEntry {
+class LocalFileEntry extends Equatable {
   const LocalFileEntry({
     required this.name,
     required this.path,
@@ -20,4 +22,13 @@ class LocalFileEntry {
   bool get isPdf => type == LocalFileEntryType.pdf;
 
   bool get isSupported => isDirectory || isPdf;
+
+  @override
+  List<Object?> get props => <Object?>[
+        name,
+        path,
+        type,
+        sizeBytes,
+        modifiedAt,
+      ];
 }

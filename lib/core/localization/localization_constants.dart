@@ -14,6 +14,7 @@ class LocalizationConstants {
   static const String explorerAccessTitleKey = 'explorer.access.title';
   static const String explorerAccessMessageKey = 'explorer.access.message';
   static const String explorerAccessActionKey = 'explorer.access.action';
+  static const String explorerAccessDismissKey = 'explorer.access.dismiss';
   static const String explorerOpenPdfOnlyKey = 'explorer.open_pdf_only';
   static const String pdfReaderTitleKey = 'pdf_reader.title';
   static const String pdfReaderLoadingKey = 'pdf_reader.loading';

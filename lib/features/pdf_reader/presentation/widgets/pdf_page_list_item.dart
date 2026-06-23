@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 
-import '../../data/datasources/local/pdf_render_datasource.dart';
+import '../../domain/entities/pdf_text_layer.dart';
+import '../../domain/use_cases/get_pdf_text_layer_use_case.dart';
+import '../../domain/use_cases/render_pdf_page_use_case.dart';
+import '../../domain/use_cases/share_pdf_text_use_case.dart';
 import 'pdf_page_image.dart';
 import 'pdf_page_number_label.dart';
 
 class PdfPageListItem extends StatelessWidget {
   const PdfPageListItem({
-    required this.renderer,
+    required this.renderPage,
+    required this.getTextLayer,
+    required this.shareText,
     required this.path,
     required this.pageIndex,
     required this.pageCount,
@@ -16,7 +21,9 @@ class PdfPageListItem extends StatelessWidget {
     super.key,
   });
 
-  final PdfRenderDataSource renderer;
+  final RenderPdfPageUseCase renderPage;
+  final GetPdfTextLayerUseCase getTextLayer;
+  final SharePdfTextUseCase shareText;
   final String path;
   final int pageIndex;
   final int pageCount;
@@ -34,7 +41,9 @@ class PdfPageListItem extends StatelessWidget {
           pageCount: pageCount,
         ),
         PdfPageImage(
-          renderer: renderer,
+          renderPage: renderPage,
+          getTextLayer: getTextLayer,
+          shareText: shareText,
           path: path,
           pageIndex: pageIndex,
           highlights: highlights,

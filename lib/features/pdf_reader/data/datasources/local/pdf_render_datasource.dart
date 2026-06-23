@@ -1,87 +1,8 @@
 import 'dart:typed_data';
-import 'dart:ui';
 
 import 'package:flutter/services.dart';
 
-class PdfTextContentInfo {
-  const PdfTextContentInfo({
-    required this.text,
-    required this.bounds,
-  });
-
-  final String text;
-  final List<Rect> bounds;
-
-  static PdfTextContentInfo? fromChannel(Object? value) {
-    if (value is! Map<Object?, Object?>) {
-      return null;
-    }
-
-    final Object? rawBounds = value['bounds'];
-    final List<Rect> bounds = rawBounds is List<Object?>
-        ? rawBounds
-            .map(_rectFromChannel)
-            .whereType<Rect>()
-            .toList(growable: false)
-        : const <Rect>[];
-    final String text = (value['text'] as String? ?? '').trim();
-
-    if (text.isEmpty || bounds.isEmpty) {
-      return null;
-    }
-
-    return PdfTextContentInfo(text: text, bounds: bounds);
-  }
-}
-
-class PdfTextHighlight {
-  const PdfTextHighlight({
-    required this.text,
-    required this.bounds,
-  });
-
-  final String text;
-  final List<Rect> bounds;
-}
-
-class PdfPageTextLayer {
-  const PdfPageTextLayer({
-    required this.width,
-    required this.height,
-    required this.contents,
-  });
-
-  const PdfPageTextLayer.empty({
-    this.width = 1,
-    this.height = 1,
-  }) : contents = const <PdfTextContentInfo>[];
-
-  final double width;
-  final double height;
-  final List<PdfTextContentInfo> contents;
-
-  factory PdfPageTextLayer.fromChannel(Object? value) {
-    if (value is! Map<Object?, Object?>) {
-      return const PdfPageTextLayer.empty();
-    }
-
-    final Object? rawContents = value['contents'];
-    final List<PdfTextContentInfo> contents = rawContents is List<Object?>
-        ? rawContents
-            .map(PdfTextContentInfo.fromChannel)
-            .whereType<PdfTextContentInfo>()
-            .toList(growable: false)
-        : const <PdfTextContentInfo>[];
-
-    return PdfPageTextLayer(
-      width: _numberFromChannel(value['width'], 1),
-      height: _numberFromChannel(value['height'], 1),
-      contents: contents,
-    );
-  }
-
-  bool get hasText => contents.isNotEmpty;
-}
+import '../../../domain/entities/pdf_text_layer.dart';
 
 abstract class PdfRenderDataSource {
   Future<int> pageCount(String path);
@@ -164,7 +85,7 @@ class MethodChannelPdfRenderDataSource implements PdfRenderDataSource {
         },
       );
 
-      return PdfPageTextLayer.fromChannel(response);
+      return _textLayerFromChannel(response);
     } on MissingPluginException {
       return const PdfPageTextLayer.empty();
     }
@@ -187,7 +108,48 @@ double _numberFromChannel(Object? value, double fallback) {
   return value is num ? value.toDouble() : fallback;
 }
 
-Rect? _rectFromChannel(Object? value) {
+PdfPageTextLayer _textLayerFromChannel(Object? value) {
+  if (value is! Map<Object?, Object?>) {
+    return const PdfPageTextLayer.empty();
+  }
+
+  final Object? rawContents = value['contents'];
+  final List<PdfTextContentInfo> contents = rawContents is List<Object?>
+      ? rawContents
+          .map(_textContentFromChannel)
+          .whereType<PdfTextContentInfo>()
+          .toList(growable: false)
+      : const <PdfTextContentInfo>[];
+
+  return PdfPageTextLayer(
+    width: _numberFromChannel(value['width'], 1),
+    height: _numberFromChannel(value['height'], 1),
+    contents: contents,
+  );
+}
+
+PdfTextContentInfo? _textContentFromChannel(Object? value) {
+  if (value is! Map<Object?, Object?>) {
+    return null;
+  }
+
+  final Object? rawBounds = value['bounds'];
+  final List<PdfTextBounds> bounds = rawBounds is List<Object?>
+      ? rawBounds
+          .map(_boundsFromChannel)
+          .whereType<PdfTextBounds>()
+          .toList(growable: false)
+      : const <PdfTextBounds>[];
+  final String text = (value['text'] as String? ?? '').trim();
+
+  if (text.isEmpty || bounds.isEmpty) {
+    return null;
+  }
+
+  return PdfTextContentInfo(text: text, bounds: bounds);
+}
+
+PdfTextBounds? _boundsFromChannel(Object? value) {
   if (value is! Map<Object?, Object?>) {
     return null;
   }
@@ -201,5 +163,10 @@ Rect? _rectFromChannel(Object? value) {
     return null;
   }
 
-  return Rect.fromLTRB(left, top, right, bottom);
+  return PdfTextBounds(
+    left: left,
+    top: top,
+    right: right,
+    bottom: bottom,
+  );
 }

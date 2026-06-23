@@ -25,9 +25,10 @@
       "message": "This folder does not contain folders or PDF files."
     },
     "access": {
-      "title": "Storage access",
-      "message": "Allow access to browse local folders and open PDF files.",
-      "action": "Allow access"
+      "title": "File Permission !",
+      "message": "Can you give me access to your device file to enjoy by reading with us !",
+      "action": "Take Permission",
+      "dismiss": "Maybe Later"
     },
     "open_pdf_only": "Only PDF files can be opened"
   },

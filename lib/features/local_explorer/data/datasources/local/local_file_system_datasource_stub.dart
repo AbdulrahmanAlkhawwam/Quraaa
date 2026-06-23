@@ -1,5 +1,5 @@
-import '../../../domain/entities/local_directory_snapshot.dart';
-import '../../../domain/entities/local_file_entry.dart';
+import '../../models/local_file_entry_model.dart';
+import '../../models/local_path_segment_model.dart';
 import 'local_explorer_platform_datasource.dart';
 import 'local_file_system_datasource.dart';
 
@@ -9,7 +9,8 @@ LocalFileSystemDataSource createDataSource(
   return const UnsupportedLocalFileSystemDataSource();
 }
 
-class UnsupportedLocalFileSystemDataSource implements LocalFileSystemDataSource {
+class UnsupportedLocalFileSystemDataSource
+    implements LocalFileSystemDataSource {
   const UnsupportedLocalFileSystemDataSource();
 
   @override
@@ -18,13 +19,15 @@ class UnsupportedLocalFileSystemDataSource implements LocalFileSystemDataSource 
   }
 
   @override
-  Future<List<LocalFileEntry>> listDirectory(String path) {
+  Future<List<LocalFileEntryModel>> listDirectory(String path) {
     throw UnsupportedError('Local file browsing is not supported here.');
   }
 
   @override
-  List<LocalPathSegment> buildBreadcrumbs(String path) {
-    return <LocalPathSegment>[LocalPathSegment(label: path, path: path)];
+  List<LocalPathSegmentModel> buildBreadcrumbs(String path) {
+    return <LocalPathSegmentModel>[
+      LocalPathSegmentModel(label: path, path: path),
+    ];
   }
 
   @override

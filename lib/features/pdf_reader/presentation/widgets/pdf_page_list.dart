@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../../../shared/theme/app_spacing.dart';
-import '../../data/datasources/local/pdf_render_datasource.dart';
+import '../../domain/entities/pdf_text_layer.dart';
+import '../../domain/use_cases/get_pdf_text_layer_use_case.dart';
+import '../../domain/use_cases/render_pdf_page_use_case.dart';
+import '../../domain/use_cases/share_pdf_text_use_case.dart';
 import 'pdf_page_list_item.dart';
 
 typedef PdfPageHighlightAdded = void Function(
@@ -12,7 +15,9 @@ typedef PdfPageHighlightAdded = void Function(
 class PdfPageList extends StatelessWidget {
   const PdfPageList({
     required this.controller,
-    required this.renderer,
+    required this.renderPage,
+    required this.getTextLayer,
+    required this.shareText,
     required this.path,
     required this.pageCount,
     required this.highlightsByPage,
@@ -23,7 +28,9 @@ class PdfPageList extends StatelessWidget {
   });
 
   final ScrollController controller;
-  final PdfRenderDataSource renderer;
+  final RenderPdfPageUseCase renderPage;
+  final GetPdfTextLayerUseCase getTextLayer;
+  final SharePdfTextUseCase shareText;
   final String path;
   final int pageCount;
   final Map<int, List<PdfTextHighlight>> highlightsByPage;
@@ -57,7 +64,9 @@ class PdfPageList extends StatelessWidget {
               ),
               itemBuilder: (BuildContext context, int index) {
                 return PdfPageListItem(
-                  renderer: renderer,
+                  renderPage: renderPage,
+                  getTextLayer: getTextLayer,
+                  shareText: shareText,
                   path: path,
                   pageIndex: index,
                   pageCount: pageCount,
