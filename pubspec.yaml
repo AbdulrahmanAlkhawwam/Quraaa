@@ -43,6 +43,14 @@ dependencies:
   go_router: ^16.0.0
   dio: ^5.9.2
 
+  # Firebase & notifications (migrated from quraa_otp)
+  firebase_core: ^2.32.0
+  firebase_messaging: ^14.9.0
+  flutter_local_notifications: ^17.1.2
+  permission_handler: ^11.3.0
+  shared_preferences: ^2.2.3
+  uuid: ^4.4.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

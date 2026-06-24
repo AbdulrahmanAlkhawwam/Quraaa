@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "126486177996",
+    "project_id": "quraa-otp",
+    "storage_bucket": "quraa-otp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:126486177996:android:6e7a7fe20bcb49fc3bfa69",
+        "android_client_info": {
+          "package_name": "com.example.quraaa"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_2BWS786GSZKZc8PiZrfV05piXXnxwrE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:126486177996:android:e3bb38f97186fe7b3bfa69",
+        "android_client_info": {
+          "package_name": "com.quraa.otp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_2BWS786GSZKZc8PiZrfV05piXXnxwrE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
