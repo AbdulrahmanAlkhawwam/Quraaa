@@ -5,6 +5,6 @@
 abstract class ApiEndpoints {
   ApiEndpoints._();
 
-  static const String profileMe = '/api/Profile/me';
+  static const String profileMe = '/Profile/me';
   static const String refreshToken = '/api/Auth/refresh';
 }

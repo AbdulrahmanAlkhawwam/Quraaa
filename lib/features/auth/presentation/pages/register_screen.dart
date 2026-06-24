@@ -243,8 +243,8 @@ class _RegisterViewState extends State<_RegisterView> {
 
   int _genderToApiValue(GenderSelection gender) {
     return switch (gender) {
-      GenderSelection.boy => 0,
-      GenderSelection.girl => 1,
+      GenderSelection.boy => 1,
+      GenderSelection.girl => 2,
     };
   }
 
