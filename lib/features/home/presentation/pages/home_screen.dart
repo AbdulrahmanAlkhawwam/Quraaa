@@ -88,6 +88,19 @@ class _HomeScreenState extends State<HomeScreen> {
       _previousIndex = _selectedIndex;
       _selectedIndex = index;
     });
+
+    final String route = switch (index) {
+      0 => RouteNames.home,
+      1 => RouteNames.stores,
+      2 => RouteNames.userBooks,
+      3 => RouteNames.audioBooks,
+      4 => RouteNames.cart,
+      _ => RouteNames.home,
+    };
+
+    if (route != RouteNames.home) {
+      context.goTo(route);
+    }
   }
 
   @override

@@ -6,9 +6,13 @@ import '../../features/auth/presentation/pages/otp_verification_screen.dart';
 import '../../features/auth/presentation/pages/location_permission_screen.dart';
 import '../../features/auth/presentation/pages/notification_permission_screen.dart';
 import '../../features/home/presentation/pages/home_screen.dart';
+import '../../features/home/presentation/pages/audio_books_screen.dart';
+import '../../features/home/presentation/pages/cart_screen.dart';
 import '../../features/auth/presentation/pages/auth_screen.dart';
 import '../../features/auth/presentation/pages/login_screen.dart';
 import '../../features/auth/presentation/pages/register_screen.dart';
+import '../../features/home/presentation/pages/stores_screen.dart';
+import '../../features/home/presentation/pages/user_books_screen.dart';
 import '../../features/onboarding/presentation/pages/age_onboarding_page.dart';
 import '../../features/onboarding/presentation/pages/gender_onboarding_page.dart';
 import '../../features/onboarding/presentation/pages/interests_onboarding_page.dart';
@@ -106,6 +110,26 @@ GoRouter buildAppRouter({
         builder: (context, state) => const HomeScreen(),
       ),
       GoRoute(
+        name: RouteNames.stores,
+        path: RouteNames.stores,
+        builder: (context, state) => const StoresScreen(),
+      ),
+      GoRoute(
+        name: RouteNames.userBooks,
+        path: RouteNames.userBooks,
+        builder: (context, state) => const UserBooksScreen(),
+      ),
+      GoRoute(
+        name: RouteNames.audioBooks,
+        path: RouteNames.audioBooks,
+        builder: (context, state) => const AudioBooksScreen(),
+      ),
+      GoRoute(
+        name: RouteNames.cart,
+        path: RouteNames.cart,
+        builder: (context, state) => const CartScreen(),
+      ),
+      GoRoute(
         name: RouteNames.profile,
         path: RouteNames.profile,
         builder: (context, state) => BlocProvider<ProfileBloc>(
@@ -169,6 +193,10 @@ bool _isKnownRoute(String location) {
     RouteNames.splash,
     RouteNames.home,
     RouteNames.profile,
+    RouteNames.stores,
+    RouteNames.userBooks,
+    RouteNames.audioBooks,
+    RouteNames.cart,
     RouteNames.search,
     RouteNames.settings,
     RouteNames.subscriptionAccountType,

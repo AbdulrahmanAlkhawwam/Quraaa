@@ -99,6 +99,38 @@ class HomeDrawer extends StatelessWidget {
                   Navigator.of(context).pop();
                 },
               ),
+              _DrawerItem(
+                icon: HugeIcons.strokeRoundedStore01,
+                label: 'Stores',
+                onTap: () {
+                  Navigator.of(context).pop();
+                  context.goTo(RouteNames.stores);
+                },
+              ),
+              _DrawerItem(
+                icon: HugeIcons.strokeRoundedBooks02,
+                label: 'User Books',
+                onTap: () {
+                  Navigator.of(context).pop();
+                  context.goTo(RouteNames.userBooks);
+                },
+              ),
+              _DrawerItem(
+                icon: HugeIcons.strokeRoundedAudioBook04,
+                label: 'Audio Book',
+                onTap: () {
+                  Navigator.of(context).pop();
+                  context.goTo(RouteNames.audioBooks);
+                },
+              ),
+              _DrawerItem(
+                icon: HugeIcons.strokeRoundedShoppingCart01,
+                label: 'Cart',
+                onTap: () {
+                  Navigator.of(context).pop();
+                  context.goTo(RouteNames.cart);
+                },
+              ),
               const SizedBox(height: AppSpacing.spacing16),
               const Divider(height: 1),
               const SizedBox(height: AppSpacing.spacing16),
