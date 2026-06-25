@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import '../entities/pdf_text_layer.dart';
+import '../entities/pdf_text_note.dart';
 import '../value_objects/pdf_reader_result.dart';
 
 abstract class PdfReaderRepository {
@@ -18,4 +19,10 @@ abstract class PdfReaderRepository {
   });
 
   Future<PdfReaderResult<bool>> shareText(String text);
+
+  Future<PdfReaderResult<List<PdfTextNote>>> loadNotes(String path);
+
+  Future<PdfReaderResult<PdfTextNote>> saveNote(PdfTextNote note);
+
+  Future<PdfReaderResult<bool>> deleteNote(PdfTextNote note);
 }

@@ -7,16 +7,18 @@ import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_dimensions.dart';
-import '../../../../shared/theme/app_spacing.dart';
 import '../../domain/entities/pdf_text_layer.dart';
+import '../../domain/entities/pdf_text_note.dart';
 import '../../domain/use_cases/get_pdf_text_layer_use_case.dart';
 import '../../domain/use_cases/render_pdf_page_use_case.dart';
 import '../../domain/use_cases/share_pdf_text_use_case.dart';
 import '../bloc/pdf_reader_bloc.dart';
-import '../widgets/pdf_page_list.dart';
+import '../widgets/pdf_note_dialog.dart';
 import '../widgets/pdf_reader_header.dart';
 import '../widgets/pdf_reader_message_view.dart';
-import '../widgets/pdf_scroll_to_top_button.dart';
+import '../widgets/pdf_reader_controls.dart';
+import '../widgets/pdf_reader_spread_view.dart';
+import '../widgets/pdf_saved_note_sheet.dart';
 
 class PdfReaderPage extends StatefulWidget {
   const PdfReaderPage({
@@ -49,8 +51,6 @@ class _PdfReaderPageState extends State<PdfReaderPage> {
       widget.getTextLayer ?? sl<GetPdfTextLayerUseCase>();
   late final SharePdfTextUseCase _shareText =
       widget.shareText ?? sl<SharePdfTextUseCase>();
-  late final ScrollController _scrollController = ScrollController()
-    ..addListener(_handleScroll);
 
   @override
   void initState() {
@@ -66,16 +66,10 @@ class _PdfReaderPageState extends State<PdfReaderPage> {
     }
 
     _bloc.add(PdfReaderStarted(widget.path));
-    if (_scrollController.hasClients) {
-      _scrollController.jumpTo(0);
-    }
   }
 
   @override
   void dispose() {
-    _scrollController
-      ..removeListener(_handleScroll)
-      ..dispose();
     if (_ownsBloc) {
       _bloc.close();
     }
@@ -87,61 +81,33 @@ class _PdfReaderPageState extends State<PdfReaderPage> {
     return BlocProvider<PdfReaderBloc>.value(
       value: _bloc,
       child: _PdfReaderBody(
-        path: widget.path,
         name: widget.name,
-        controller: _scrollController,
         renderPage: _renderPage,
         getTextLayer: _getTextLayer,
         shareText: _shareText,
-        onScrollToTop: _scrollToTop,
       ),
-    );
-  }
-
-  void _handleScroll() {
-    if (!_scrollController.hasClients) {
-      return;
-    }
-
-    _bloc.add(PdfReaderScrolled(_scrollController.offset));
-  }
-
-  void _scrollToTop() {
-    if (!_scrollController.hasClients) {
-      return;
-    }
-
-    _scrollController.animateTo(
-      0,
-      duration: const Duration(milliseconds: 280),
-      curve: Curves.easeOutCubic,
     );
   }
 }
 
 class _PdfReaderBody extends StatelessWidget {
   const _PdfReaderBody({
-    required this.path,
     required this.name,
-    required this.controller,
     required this.renderPage,
     required this.getTextLayer,
     required this.shareText,
-    required this.onScrollToTop,
   });
 
-  final String path;
   final String name;
-  final ScrollController controller;
   final RenderPdfPageUseCase renderPage;
   final GetPdfTextLayerUseCase getTextLayer;
   final SharePdfTextUseCase shareText;
-  final VoidCallback onScrollToTop;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
+      resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -187,39 +153,145 @@ class _PdfReaderBody extends StatelessWidget {
   }
 
   Widget _readyContent(BuildContext context, PdfReaderReady state) {
-    return Stack(
+    final bool isLandscape =
+        MediaQuery.orientationOf(context) == Orientation.landscape;
+    if (!isLandscape && state.spreadMode == PdfReaderSpreadMode.twoPages) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) {
+          return;
+        }
+
+        context.read<PdfReaderBloc>().add(
+              const PdfReaderSpreadModeChanged(
+                PdfReaderSpreadMode.singlePage,
+              ),
+            );
+      });
+    }
+    final PdfReaderReady visibleState =
+        !isLandscape && state.spreadMode == PdfReaderSpreadMode.twoPages
+            ? state.copyWith(spreadMode: PdfReaderSpreadMode.singlePage)
+            : state;
+
+    return Column(
       children: <Widget>[
-        PdfPageList(
-          controller: controller,
-          renderPage: renderPage,
-          getTextLayer: getTextLayer,
-          shareText: shareText,
-          path: path,
-          pageCount: state.pageCount,
-          highlightsByPage: state.highlightsByPage,
-          onHighlightAdded: (int pageIndex, PdfTextHighlight highlight) {
+        Expanded(
+          child: PdfReaderSpreadView(
+            state: visibleState,
+            renderPage: renderPage,
+            getTextLayer: getTextLayer,
+            shareText: shareText,
+            onPrevious: () {
+              context.read<PdfReaderBloc>().add(
+                    const PdfReaderPreviousPageRequested(),
+                  );
+            },
+            onNext: () {
+              context.read<PdfReaderBloc>().add(
+                    const PdfReaderNextPageRequested(),
+                  );
+            },
+            onNoteRequested: ({
+              required PdfPageAnchor? anchor,
+              required List<PdfTextBounds> bounds,
+              required int pageIndex,
+              required String selectedText,
+            }) {
+              _showNoteDialog(
+                context,
+                anchor: anchor,
+                pageIndex: pageIndex,
+                selectedText: selectedText,
+                bounds: bounds,
+              );
+            },
+            onSavedNotePressed: (PdfTextNote note) {
+              _showSavedNoteSheet(context, note);
+            },
+            onMessage: (String message) => _showMessage(context, message),
+          ),
+        ),
+        PdfReaderControls(
+          state: visibleState,
+          isLandscape: isLandscape,
+          onPrevious: () {
             context.read<PdfReaderBloc>().add(
-                  PdfReaderHighlightAdded(
-                    pageIndex: pageIndex,
-                    highlight: highlight,
-                  ),
+                  const PdfReaderPreviousPageRequested(),
                 );
           },
-          onMessage: (String message) => _showMessage(context, message),
-          onPageChanged: (int pageIndex) {
+          onNext: () {
             context.read<PdfReaderBloc>().add(
-                  PdfReaderPageChanged(pageIndex),
+                  const PdfReaderNextPageRequested(),
+                );
+          },
+          onSpreadModeChanged: (PdfReaderSpreadMode mode) {
+            context.read<PdfReaderBloc>().add(
+                  PdfReaderSpreadModeChanged(mode),
                 );
           },
         ),
-        if (state.showScrollToTopButton)
-          PositionedDirectional(
-            end: AppSpacing.lg,
-            bottom: AppSpacing.lg,
-            child: PdfScrollToTopButton(onPressed: onScrollToTop),
-          ),
       ],
     );
+  }
+
+  Future<void> _showNoteDialog(
+    BuildContext context, {
+    required PdfPageAnchor? anchor,
+    required int pageIndex,
+    required String selectedText,
+    required List<PdfTextBounds> bounds,
+  }) async {
+    final String? note = await showDialog<String>(
+      context: context,
+      barrierColor: const Color(0x55000000),
+      builder: (BuildContext dialogContext) {
+        return PdfNoteDialog(selectedText: selectedText);
+      },
+    );
+
+    if (!context.mounted || note == null || note.trim().isEmpty) {
+      return;
+    }
+
+    context.read<PdfReaderBloc>().add(
+          PdfReaderNoteSaveRequested(
+            pageIndex: pageIndex,
+            selectedText: selectedText,
+            note: note,
+            bounds: bounds,
+            anchor: anchor,
+          ),
+        );
+    _showMessage(context, LocalizationConstants.pdfReaderNoteSavedKey.tr());
+  }
+
+  Future<void> _showSavedNoteSheet(
+    BuildContext context,
+    PdfTextNote note,
+  ) async {
+    final PdfTextNote? deletedNote = await showModalBottomSheet<PdfTextNote>(
+      context: context,
+      backgroundColor: AppColors.surfaceLight,
+      barrierColor: const Color(0x55000000),
+      showDragHandle: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
+      ),
+      builder: (BuildContext sheetContext) {
+        return PdfSavedNoteSheet(note: note);
+      },
+    );
+
+    if (!context.mounted || deletedNote == null) {
+      return;
+    }
+
+    context.read<PdfReaderBloc>().add(
+          PdfReaderNoteDeleteRequested(deletedNote),
+        );
+    _showMessage(context, LocalizationConstants.pdfReaderNoteDeletedKey.tr());
   }
 
   void _showMessage(BuildContext context, String message) {

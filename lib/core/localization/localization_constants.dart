@@ -25,6 +25,18 @@ class LocalizationConstants {
   static const String pdfReaderCopyKey = 'pdf_reader.copy';
   static const String pdfReaderShareKey = 'pdf_reader.share';
   static const String pdfReaderHighlightKey = 'pdf_reader.highlight';
+  static const String pdfReaderAddNoteKey = 'pdf_reader.add_note';
+  static const String pdfReaderNoteTitleKey = 'pdf_reader.note_title';
+  static const String pdfReaderPageNoteTitleKey =
+      'pdf_reader.page_note_title';
+  static const String pdfReaderPageNoteMessageKey =
+      'pdf_reader.page_note_message';
+  static const String pdfReaderNoteHintKey = 'pdf_reader.note_hint';
+  static const String pdfReaderNoteSavedKey = 'pdf_reader.note_saved';
+  static const String pdfReaderNoteDeletedKey = 'pdf_reader.note_deleted';
+  static const String pdfReaderSaveNoteKey = 'pdf_reader.save_note';
+  static const String pdfReaderDeleteNoteKey = 'pdf_reader.delete_note';
+  static const String pdfReaderTwoPageModeKey = 'pdf_reader.two_page_mode';
   static const String pdfReaderCopiedKey = 'pdf_reader.copied';
   static const String pdfReaderHighlightedKey = 'pdf_reader.highlighted';
   static const String pdfReaderSelectionUnavailableKey =

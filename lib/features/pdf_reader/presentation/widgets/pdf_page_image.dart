@@ -9,16 +9,24 @@ import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/app_shadows.dart';
-import '../../../../shared/theme/app_spacing.dart';
 import '../../domain/entities/pdf_text_layer.dart';
+import '../../domain/entities/pdf_text_note.dart';
 import '../../domain/use_cases/get_pdf_text_layer_use_case.dart';
 import '../../domain/use_cases/render_pdf_page_use_case.dart';
 import '../../domain/use_cases/share_pdf_text_use_case.dart';
 import '../../domain/value_objects/pdf_reader_result.dart';
+import 'pdf_page_note_marker.dart';
+import 'pdf_page_turn_gesture_layer.dart';
 import 'pdf_selection_gesture_layer.dart';
 import 'pdf_selection_toolbar.dart';
 import 'pdf_selection_toolbar_position.dart';
 import 'rendered_pdf_page_image.dart';
+
+typedef PdfTextNoteRequested = void Function({
+  required String selectedText,
+  required List<PdfTextBounds> bounds,
+  required PdfPageAnchor? anchor,
+});
 
 class PdfPageImage extends StatefulWidget {
   const PdfPageImage({
@@ -28,7 +36,13 @@ class PdfPageImage extends StatefulWidget {
     required this.path,
     required this.pageIndex,
     required this.highlights,
-    required this.onHighlightAdded,
+    required this.notes,
+    required this.canGoPrevious,
+    required this.canGoNext,
+    required this.onPreviousPageTurn,
+    required this.onNextPageTurn,
+    required this.onNoteRequested,
+    required this.onSavedNotePressed,
     required this.onMessage,
     super.key,
   });
@@ -39,7 +53,13 @@ class PdfPageImage extends StatefulWidget {
   final String path;
   final int pageIndex;
   final List<PdfTextHighlight> highlights;
-  final ValueChanged<PdfTextHighlight> onHighlightAdded;
+  final List<PdfTextNote> notes;
+  final bool canGoPrevious;
+  final bool canGoNext;
+  final VoidCallback onPreviousPageTurn;
+  final VoidCallback onNextPageTurn;
+  final PdfTextNoteRequested onNoteRequested;
+  final ValueChanged<PdfTextNote> onSavedNotePressed;
   final ValueChanged<String> onMessage;
 
   @override
@@ -85,9 +105,18 @@ class _PdfPageImageState extends State<PdfPageImage> {
             final double viewportWidth = constraints.maxWidth.isFinite
                 ? constraints.maxWidth
                 : MediaQuery.sizeOf(context).width;
-            final double pageWidth =
-                viewportWidth.clamp(260.0, 4200.0).toDouble();
-            final double pageHeight = pageWidth / _aspectRatio(textLayer);
+            final double viewportHeight = constraints.maxHeight.isFinite
+                ? constraints.maxHeight
+                : MediaQuery.sizeOf(context).height;
+            final double availableWidth = math.max(120, viewportWidth);
+            final double availableHeight = math.max(120, viewportHeight - 8);
+            final double aspectRatio = _aspectRatio(textLayer);
+            double pageWidth = availableWidth.clamp(120.0, 4200.0).toDouble();
+            double pageHeight = pageWidth / aspectRatio;
+            if (pageHeight > availableHeight) {
+              pageHeight = availableHeight.clamp(120.0, 4200.0).toDouble();
+              pageWidth = pageHeight * aspectRatio;
+            }
             final Size pageSize = Size(pageWidth, pageHeight);
             final double pixelRatio =
                 MediaQuery.devicePixelRatioOf(context)
@@ -103,101 +132,115 @@ class _PdfPageImageState extends State<PdfPageImage> {
               _pageFuture = _renderPage(renderWidth);
             }
 
-            return Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-              child: SizedBox(
-                width: pageWidth,
-                height: pageHeight,
-                child: InteractiveViewer(
-                  minScale: 0.85,
-                  maxScale: 4,
-                  panEnabled: true,
-                  scaleEnabled: true,
-                  clipBehavior: Clip.hardEdge,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceLight,
-                      borderRadius: BorderRadius.circular(AppRadius.sm),
-                      border: Border.all(color: AppColors.borderLight),
-                      boxShadow: AppShadows.elevation1,
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(AppRadius.sm),
-                      child: SizedBox.expand(
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: <Widget>[
-                            FutureBuilder<Uint8List>(
-                              future: _pageFuture,
-                              builder: (
-                                BuildContext context,
-                                AsyncSnapshot<Uint8List> snapshot,
-                              ) {
-                                return RenderedPdfPageImage(snapshot: snapshot);
-                              },
-                            ),
-                            Positioned.fill(
-                              child: CustomPaint(
-                                painter: _TextBoundsPainter(
-                                  rects: _highlightRects,
-                                  textLayer: textLayer,
-                                  pageSize: pageSize,
-                                  color: const Color(0x66F6D86B),
-                                ),
+            return SizedBox.expand(
+              child: InteractiveViewer(
+                key: ValueKey<String>('${widget.path}:${widget.pageIndex}'),
+                minScale: 1,
+                maxScale: 4.5,
+                boundaryMargin: EdgeInsets.zero,
+                panEnabled: true,
+                scaleEnabled: true,
+                clipBehavior: Clip.hardEdge,
+                child: Center(
+                  child: SizedBox(
+                    width: pageWidth,
+                    height: pageHeight,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceLight,
+                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                        border: Border.all(color: AppColors.borderLight),
+                        boxShadow: AppShadows.elevation1,
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                        child: SizedBox.expand(
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: <Widget>[
+                              FutureBuilder<Uint8List>(
+                                future: _pageFuture,
+                                builder: (
+                                  BuildContext context,
+                                  AsyncSnapshot<Uint8List> snapshot,
+                                ) {
+                                  return RenderedPdfPageImage(
+                                    snapshot: snapshot,
+                                  );
+                                },
                               ),
-                            ),
-                            Positioned.fill(
-                              child: CustomPaint(
-                                painter: _TextBoundsPainter(
-                                  rects: _selectedRects,
-                                  textLayer: textLayer,
-                                  pageSize: pageSize,
-                                  color: const Color(0x553B8F65),
-                                ),
-                              ),
-                            ),
-                            if (_selectionStart != null &&
-                                _selectionEnd != null)
                               Positioned.fill(
                                 child: CustomPaint(
-                                  painter: _SelectionRectPainter(
-                                    start: _selectionStart!,
-                                    end: _selectionEnd!,
+                                  painter: _TextBoundsPainter(
+                                    rects: _highlightRects,
+                                    textLayer: textLayer,
+                                    pageSize: pageSize,
+                                    color: const Color(0x66F6D86B),
                                   ),
                                 ),
                               ),
-                            Positioned.fill(
-                              child: PdfSelectionGestureLayer(
-                                enabled: textLayer.hasText,
-                                textLayer: textLayer,
-                                pageSize: pageSize,
-                                onSelectionStarted: _startSelection,
-                                onSelectionMoved: _moveSelection,
-                                onSelectionFinished: _finishSelection,
-                                onUnavailable: () {
-                                  widget.onMessage(
-                                    LocalizationConstants
-                                        .pdfReaderSelectionUnavailableKey
-                                        .tr(),
-                                  );
-                                },
-                                onTap: _clearSelection,
+                              Positioned.fill(
+                                child: CustomPaint(
+                                  painter: _TextBoundsPainter(
+                                    rects: _selectedRects,
+                                    textLayer: textLayer,
+                                    pageSize: pageSize,
+                                    color: const Color(0x553B8F65),
+                                  ),
+                                ),
                               ),
-                            ),
-                            if (_selectedText.isNotEmpty)
-                              PdfSelectionToolbarPosition(
-                                selectedBounds: _selectedLocalBounds(
+                              if (_selectionStart != null &&
+                                  _selectionEnd != null)
+                                Positioned.fill(
+                                  child: CustomPaint(
+                                    painter: _SelectionRectPainter(
+                                      start: _selectionStart!,
+                                      end: _selectionEnd!,
+                                    ),
+                                  ),
+                                ),
+                              Positioned.fill(
+                                child: PdfSelectionGestureLayer(
+                                  enabled: textLayer.hasText,
                                   textLayer: textLayer,
                                   pageSize: pageSize,
-                                ),
-                                pageSize: pageSize,
-                                child: PdfSelectionToolbar(
-                                  onCopy: _copySelectedText,
-                                  onShare: _shareSelectedText,
-                                  onHighlight: _markSelectedText,
+                                  onSelectionStarted: _startSelection,
+                                  onSelectionMoved: _moveSelection,
+                                  onSelectionFinished: _finishSelection,
+                                  onPageLongPressed: _requestPageNoteAt,
+                                  onTap: _clearSelection,
                                 ),
                               ),
-                          ],
+                              Positioned.fill(
+                                child: PdfPageTurnGestureLayer(
+                                  canGoPrevious: widget.canGoPrevious,
+                                  canGoNext: widget.canGoNext,
+                                  onPrevious: widget.onPreviousPageTurn,
+                                  onNext: widget.onNextPageTurn,
+                                ),
+                              ),
+                              for (final PdfTextNote note in widget.notes)
+                                if (note.isPageAnchorNote)
+                                  PdfPageNoteMarker(
+                                    note: note,
+                                    pageSize: pageSize,
+                                    onPressed: widget.onSavedNotePressed,
+                                  ),
+                              if (_selectedText.isNotEmpty)
+                                PdfSelectionToolbarPosition(
+                                  selectedBounds: _selectedLocalBounds(
+                                    textLayer: textLayer,
+                                    pageSize: pageSize,
+                                  ),
+                                  pageSize: pageSize,
+                                  child: PdfSelectionToolbar(
+                                    onCopy: _copySelectedText,
+                                    onShare: _shareSelectedText,
+                                    onNote: _requestNoteForSelectedText,
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -235,13 +278,20 @@ class _PdfPageImageState extends State<PdfPageImage> {
     required Size pageSize,
   }) {
     final Offset clamped = _clampOffset(position, pageSize);
+    final List<PdfTextContentInfo> contents = _contentsNearPosition(
+      position: clamped,
+      textLayer: textLayer,
+      pageSize: pageSize,
+    );
+    if (contents.isEmpty) {
+      _requestPageNoteAt(position: clamped, pageSize: pageSize);
+      return;
+    }
+
     setState(() {
       _selectionStart = clamped;
       _selectionEnd = clamped;
-      _selectedContents = _contentsInsideSelection(
-        textLayer: textLayer,
-        pageSize: pageSize,
-      );
+      _selectedContents = contents;
     });
   }
 
@@ -250,6 +300,10 @@ class _PdfPageImageState extends State<PdfPageImage> {
     required PdfPageTextLayer textLayer,
     required Size pageSize,
   }) {
+    if (_selectionStart == null) {
+      return;
+    }
+
     setState(() {
       _selectionEnd = _clampOffset(position, pageSize);
       _selectedContents = _contentsInsideSelection(
@@ -305,20 +359,34 @@ class _PdfPageImageState extends State<PdfPageImage> {
     }
   }
 
-  void _markSelectedText() {
+  void _requestNoteForSelectedText() {
     final String text = _selectedText;
     if (text.isEmpty || _selectedContents.isEmpty) {
       return;
     }
 
-    widget.onHighlightAdded(
-      PdfTextHighlight(
-        text: text,
-        bounds: _selectedRects,
+    widget.onNoteRequested(
+      selectedText: text,
+      bounds: _selectedRects,
+      anchor: null,
+    );
+    _clearSelection();
+  }
+
+  void _requestPageNoteAt({
+    required Offset position,
+    required Size pageSize,
+  }) {
+    final Offset clamped = _clampOffset(position, pageSize);
+    _clearSelection();
+    widget.onNoteRequested(
+      selectedText: '',
+      bounds: const <PdfTextBounds>[],
+      anchor: PdfPageAnchor(
+        xRatio: _ratioOf(clamped.dx, pageSize.width),
+        yRatio: _ratioOf(clamped.dy, pageSize.height),
       ),
     );
-    widget.onMessage(LocalizationConstants.pdfReaderHighlightedKey.tr());
-    _clearSelection();
   }
 
   List<PdfTextContentInfo> _contentsInsideSelection({
@@ -343,6 +411,34 @@ class _PdfPageImageState extends State<PdfPageImage> {
             selection.contains(localRect.center);
       });
     }).toList(growable: false);
+  }
+
+  List<PdfTextContentInfo> _contentsNearPosition({
+    required Offset position,
+    required PdfPageTextLayer textLayer,
+    required Size pageSize,
+  }) {
+    if (!textLayer.hasText) {
+      return const <PdfTextContentInfo>[];
+    }
+
+    final Rect hitRect = Rect.fromCircle(center: position, radius: 20);
+
+    for (final PdfTextContentInfo content in textLayer.contents) {
+      for (final PdfTextBounds pageRect in content.bounds) {
+        final Rect localRect = _pageRectToLocal(
+          pageRect,
+          textLayer: textLayer,
+          pageSize: pageSize,
+        );
+        if (hitRect.overlaps(localRect.inflate(5)) ||
+            localRect.contains(position)) {
+          return <PdfTextContentInfo>[content];
+        }
+      }
+    }
+
+    return const <PdfTextContentInfo>[];
   }
 
   Rect? _selectedLocalBounds({
@@ -523,6 +619,14 @@ double _clampDouble(double value, double min, double max) {
   }
 
   return value.clamp(min, max).toDouble();
+}
+
+double _ratioOf(double value, double size) {
+  if (size <= 0) {
+    return 0;
+  }
+
+  return (value / size).clamp(0.0, 1.0).toDouble();
 }
 
 Rect _rectFromOffsets(Offset first, Offset second) {

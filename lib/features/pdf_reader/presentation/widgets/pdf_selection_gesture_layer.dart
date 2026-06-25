@@ -10,7 +10,7 @@ class PdfSelectionGestureLayer extends StatelessWidget {
     required this.onSelectionStarted,
     required this.onSelectionMoved,
     required this.onSelectionFinished,
-    required this.onUnavailable,
+    required this.onPageLongPressed,
     required this.onTap,
     super.key,
   });
@@ -29,7 +29,10 @@ class PdfSelectionGestureLayer extends StatelessWidget {
     required Size pageSize,
   }) onSelectionMoved;
   final VoidCallback onSelectionFinished;
-  final VoidCallback onUnavailable;
+  final void Function({
+    required Offset position,
+    required Size pageSize,
+  }) onPageLongPressed;
   final VoidCallback onTap;
 
   @override
@@ -39,7 +42,10 @@ class PdfSelectionGestureLayer extends StatelessWidget {
       onTap: onTap,
       onLongPressStart: (LongPressStartDetails details) {
         if (!enabled) {
-          onUnavailable();
+          onPageLongPressed(
+            position: details.localPosition,
+            pageSize: pageSize,
+          );
           return;
         }
 

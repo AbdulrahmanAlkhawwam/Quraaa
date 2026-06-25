@@ -1,8 +1,16 @@
+import 'dart:math' as math;
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/entities/pdf_text_layer.dart';
+import '../../domain/entities/pdf_text_note.dart';
+import '../../domain/use_cases/delete_pdf_text_note_use_case.dart';
 import '../../domain/use_cases/get_pdf_page_count_use_case.dart';
+import '../../domain/use_cases/load_pdf_text_notes_use_case.dart';
+import '../../domain/use_cases/save_pdf_text_note_use_case.dart';
 import '../../domain/value_objects/pdf_reader_result.dart';
+
+enum PdfReaderSpreadMode { singlePage, twoPages }
 
 sealed class PdfReaderEvent {
   const PdfReaderEvent();
@@ -20,20 +28,40 @@ final class PdfReaderPageChanged extends PdfReaderEvent {
   final int pageIndex;
 }
 
-final class PdfReaderHighlightAdded extends PdfReaderEvent {
-  const PdfReaderHighlightAdded({
+final class PdfReaderPreviousPageRequested extends PdfReaderEvent {
+  const PdfReaderPreviousPageRequested();
+}
+
+final class PdfReaderNextPageRequested extends PdfReaderEvent {
+  const PdfReaderNextPageRequested();
+}
+
+final class PdfReaderSpreadModeChanged extends PdfReaderEvent {
+  const PdfReaderSpreadModeChanged(this.mode);
+
+  final PdfReaderSpreadMode mode;
+}
+
+final class PdfReaderNoteSaveRequested extends PdfReaderEvent {
+  const PdfReaderNoteSaveRequested({
     required this.pageIndex,
-    required this.highlight,
+    required this.selectedText,
+    required this.note,
+    required this.bounds,
+    this.anchor,
   });
 
   final int pageIndex;
-  final PdfTextHighlight highlight;
+  final String selectedText;
+  final String note;
+  final List<PdfTextBounds> bounds;
+  final PdfPageAnchor? anchor;
 }
 
-final class PdfReaderScrolled extends PdfReaderEvent {
-  const PdfReaderScrolled(this.offset);
+final class PdfReaderNoteDeleteRequested extends PdfReaderEvent {
+  const PdfReaderNoteDeleteRequested(this.note);
 
-  final double offset;
+  final PdfTextNote note;
 }
 
 sealed class PdfReaderState {
@@ -50,29 +78,49 @@ final class PdfReaderLoading extends PdfReaderState {
 
 final class PdfReaderReady extends PdfReaderState {
   const PdfReaderReady({
+    required this.path,
     required this.pageCount,
     this.currentPageIndex = 0,
-    this.highlightsByPage = const <int, List<PdfTextHighlight>>{},
-    this.showScrollToTopButton = false,
+    this.spreadMode = PdfReaderSpreadMode.singlePage,
+    this.notesByPage = const <int, List<PdfTextNote>>{},
   });
 
+  final String path;
   final int pageCount;
   final int currentPageIndex;
-  final Map<int, List<PdfTextHighlight>> highlightsByPage;
-  final bool showScrollToTopButton;
+  final PdfReaderSpreadMode spreadMode;
+  final Map<int, List<PdfTextNote>> notesByPage;
+
+  int get spreadSize =>
+      spreadMode == PdfReaderSpreadMode.twoPages ? 2 : 1;
+
+  bool get canGoPrevious => currentPageIndex > 0;
+
+  bool get canGoNext => currentPageIndex + spreadSize < pageCount;
+
+  List<int> get visiblePageIndexes {
+    final int secondPageIndex = currentPageIndex + 1;
+    if (spreadMode == PdfReaderSpreadMode.twoPages &&
+        secondPageIndex < pageCount) {
+      return <int>[currentPageIndex, secondPageIndex];
+    }
+
+    return <int>[currentPageIndex];
+  }
 
   PdfReaderReady copyWith({
+    String? path,
     int? pageCount,
     int? currentPageIndex,
-    Map<int, List<PdfTextHighlight>>? highlightsByPage,
-    bool? showScrollToTopButton,
+    PdfReaderSpreadMode? spreadMode,
+    Map<int, List<PdfTextNote>>? notesByPage,
   }) {
     return PdfReaderReady(
+      path: path ?? this.path,
       pageCount: pageCount ?? this.pageCount,
       currentPageIndex: currentPageIndex ?? this.currentPageIndex,
-      highlightsByPage: highlightsByPage ?? this.highlightsByPage,
-      showScrollToTopButton:
-          showScrollToTopButton ?? this.showScrollToTopButton,
+      spreadMode: spreadMode ?? this.spreadMode,
+      notesByPage: notesByPage ?? this.notesByPage,
     );
   }
 }
@@ -86,17 +134,27 @@ final class PdfReaderLoadFailure extends PdfReaderState {
 class PdfReaderBloc extends Bloc<PdfReaderEvent, PdfReaderState> {
   PdfReaderBloc({
     required GetPdfPageCountUseCase getPageCount,
+    required LoadPdfTextNotesUseCase loadNotes,
+    required SavePdfTextNoteUseCase saveNote,
+    required DeletePdfTextNoteUseCase deleteNote,
   })  : _getPageCount = getPageCount,
+        _loadNotes = loadNotes,
+        _saveNote = saveNote,
+        _deleteNote = deleteNote,
         super(const PdfReaderInitial()) {
     on<PdfReaderStarted>(_onStarted);
     on<PdfReaderPageChanged>(_onPageChanged);
-    on<PdfReaderHighlightAdded>(_onHighlightAdded);
-    on<PdfReaderScrolled>(_onScrolled);
+    on<PdfReaderPreviousPageRequested>(_onPreviousPageRequested);
+    on<PdfReaderNextPageRequested>(_onNextPageRequested);
+    on<PdfReaderSpreadModeChanged>(_onSpreadModeChanged);
+    on<PdfReaderNoteSaveRequested>(_onNoteSaveRequested);
+    on<PdfReaderNoteDeleteRequested>(_onNoteDeleteRequested);
   }
 
-  static const double _scrollTopThreshold = 360;
-
   final GetPdfPageCountUseCase _getPageCount;
+  final LoadPdfTextNotesUseCase _loadNotes;
+  final SavePdfTextNoteUseCase _saveNote;
+  final DeletePdfTextNoteUseCase _deleteNote;
 
   Future<void> _onStarted(
     PdfReaderStarted event,
@@ -108,16 +166,24 @@ class PdfReaderBloc extends Bloc<PdfReaderEvent, PdfReaderState> {
       GetPdfPageCountParams(path: event.path),
     );
 
-    result.fold(
-      onSuccess: (int pageCount) {
+    await result.fold(
+      onSuccess: (int pageCount) async {
         if (pageCount <= 0) {
           emit(const PdfReaderLoadFailure());
           return;
         }
 
-        emit(PdfReaderReady(pageCount: pageCount));
+        final Map<int, List<PdfTextNote>> notesByPage =
+            await _loadNotesByPage(event.path);
+        emit(
+          PdfReaderReady(
+            path: event.path,
+            pageCount: pageCount,
+            notesByPage: notesByPage,
+          ),
+        );
       },
-      onFailure: (failure) {
+      onFailure: (failure) async {
         emit(PdfReaderLoadFailure(message: failure.message));
       },
     );
@@ -127,49 +193,224 @@ class PdfReaderBloc extends Bloc<PdfReaderEvent, PdfReaderState> {
     PdfReaderPageChanged event,
     Emitter<PdfReaderState> emit,
   ) {
-    final PdfReaderState currentState = state;
-    if (currentState is! PdfReaderReady ||
-        currentState.currentPageIndex == event.pageIndex) {
+    final PdfReaderReady? readyState = _readyState;
+    if (readyState == null) {
       return;
     }
 
-    emit(currentState.copyWith(currentPageIndex: event.pageIndex));
+    emit(
+      readyState.copyWith(
+        currentPageIndex: _normalizedPageIndex(
+          pageIndex: event.pageIndex,
+          pageCount: readyState.pageCount,
+          spreadMode: readyState.spreadMode,
+        ),
+      ),
+    );
   }
 
-  void _onHighlightAdded(
-    PdfReaderHighlightAdded event,
+  void _onPreviousPageRequested(
+    PdfReaderPreviousPageRequested event,
     Emitter<PdfReaderState> emit,
   ) {
-    final PdfReaderState currentState = state;
-    if (currentState is! PdfReaderReady) {
+    final PdfReaderReady? readyState = _readyState;
+    if (readyState == null || !readyState.canGoPrevious) {
       return;
     }
 
-    final Map<int, List<PdfTextHighlight>> highlightsByPage =
-        Map<int, List<PdfTextHighlight>>.of(currentState.highlightsByPage);
-    final List<PdfTextHighlight> pageHighlights =
-        List<PdfTextHighlight>.of(highlightsByPage[event.pageIndex] ?? const []);
-
-    pageHighlights.add(event.highlight);
-    highlightsByPage[event.pageIndex] = pageHighlights;
-
-    emit(currentState.copyWith(highlightsByPage: highlightsByPage));
+    emit(
+      readyState.copyWith(
+        currentPageIndex: math.max(
+          0,
+          readyState.currentPageIndex - readyState.spreadSize,
+        ),
+      ),
+    );
   }
 
-  void _onScrolled(
-    PdfReaderScrolled event,
+  void _onNextPageRequested(
+    PdfReaderNextPageRequested event,
     Emitter<PdfReaderState> emit,
   ) {
+    final PdfReaderReady? readyState = _readyState;
+    if (readyState == null || !readyState.canGoNext) {
+      return;
+    }
+
+    emit(
+      readyState.copyWith(
+        currentPageIndex: _normalizedPageIndex(
+          pageIndex: readyState.currentPageIndex + readyState.spreadSize,
+          pageCount: readyState.pageCount,
+          spreadMode: readyState.spreadMode,
+        ),
+      ),
+    );
+  }
+
+  void _onSpreadModeChanged(
+    PdfReaderSpreadModeChanged event,
+    Emitter<PdfReaderState> emit,
+  ) {
+    final PdfReaderReady? readyState = _readyState;
+    if (readyState == null || readyState.spreadMode == event.mode) {
+      return;
+    }
+
+    emit(
+      readyState.copyWith(
+        spreadMode: event.mode,
+        currentPageIndex: _normalizedPageIndex(
+          pageIndex: readyState.currentPageIndex,
+          pageCount: readyState.pageCount,
+          spreadMode: event.mode,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _onNoteSaveRequested(
+    PdfReaderNoteSaveRequested event,
+    Emitter<PdfReaderState> emit,
+  ) async {
+    final PdfReaderReady? readyState = _readyState;
+    final String noteText = event.note.trim();
+    if (readyState == null || noteText.isEmpty) {
+      return;
+    }
+
+    final PdfTextNote note = PdfTextNote(
+      id: '${readyState.path}-${event.pageIndex}-'
+          '${DateTime.now().microsecondsSinceEpoch}',
+      path: readyState.path,
+      pageIndex: event.pageIndex,
+      selectedText: event.selectedText,
+      note: noteText,
+      bounds: event.bounds,
+      createdAt: DateTime.now(),
+      anchor: event.anchor,
+    );
+    final PdfReaderResult<PdfTextNote> result = await _saveNote(
+      SavePdfTextNoteParams(note: note),
+    );
+
+    result.fold(
+      onSuccess: (PdfTextNote savedNote) {
+        emit(
+          readyState.copyWith(
+            notesByPage: _notesWithAddedNote(
+              readyState.notesByPage,
+              savedNote,
+            ),
+          ),
+        );
+      },
+      onFailure: (_) {},
+    );
+  }
+
+  Future<void> _onNoteDeleteRequested(
+    PdfReaderNoteDeleteRequested event,
+    Emitter<PdfReaderState> emit,
+  ) async {
+    final PdfReaderReady? readyState = _readyState;
+    if (readyState == null) {
+      return;
+    }
+
+    final PdfReaderResult<bool> result = await _deleteNote(
+      DeletePdfTextNoteParams(note: event.note),
+    );
+
+    result.fold(
+      onSuccess: (bool deleted) {
+        if (!deleted) {
+          return;
+        }
+
+        emit(
+          readyState.copyWith(
+            notesByPage: _notesWithoutNote(
+              readyState.notesByPage,
+              event.note,
+            ),
+          ),
+        );
+      },
+      onFailure: (_) {},
+    );
+  }
+
+  PdfReaderReady? get _readyState {
     final PdfReaderState currentState = state;
-    if (currentState is! PdfReaderReady) {
-      return;
+    return currentState is PdfReaderReady ? currentState : null;
+  }
+
+  int _normalizedPageIndex({
+    required int pageIndex,
+    required int pageCount,
+    required PdfReaderSpreadMode spreadMode,
+  }) {
+    final int clampedIndex = pageIndex.clamp(0, pageCount - 1).toInt();
+    if (spreadMode == PdfReaderSpreadMode.twoPages) {
+      return clampedIndex.isOdd ? clampedIndex - 1 : clampedIndex;
     }
 
-    final bool shouldShow = event.offset > _scrollTopThreshold;
-    if (currentState.showScrollToTopButton == shouldShow) {
-      return;
+    return clampedIndex;
+  }
+
+  Future<Map<int, List<PdfTextNote>>> _loadNotesByPage(String path) async {
+    final PdfReaderResult<List<PdfTextNote>> result = await _loadNotes(
+      LoadPdfTextNotesParams(path: path),
+    );
+
+    return result.fold(
+      onSuccess: _groupNotesByPage,
+      onFailure: (_) => const <int, List<PdfTextNote>>{},
+    );
+  }
+
+  Map<int, List<PdfTextNote>> _groupNotesByPage(List<PdfTextNote> notes) {
+    final Map<int, List<PdfTextNote>> notesByPage =
+        <int, List<PdfTextNote>>{};
+    for (final PdfTextNote note in notes) {
+      notesByPage.putIfAbsent(note.pageIndex, () => <PdfTextNote>[]).add(note);
     }
 
-    emit(currentState.copyWith(showScrollToTopButton: shouldShow));
+    return notesByPage;
+  }
+
+  Map<int, List<PdfTextNote>> _notesWithAddedNote(
+    Map<int, List<PdfTextNote>> currentNotesByPage,
+    PdfTextNote note,
+  ) {
+    final Map<int, List<PdfTextNote>> notesByPage =
+        Map<int, List<PdfTextNote>>.of(currentNotesByPage);
+    final List<PdfTextNote> pageNotes = List<PdfTextNote>.of(
+      notesByPage[note.pageIndex] ?? const <PdfTextNote>[],
+    );
+
+    pageNotes.add(note);
+    notesByPage[note.pageIndex] = pageNotes;
+    return notesByPage;
+  }
+
+  Map<int, List<PdfTextNote>> _notesWithoutNote(
+    Map<int, List<PdfTextNote>> currentNotesByPage,
+    PdfTextNote note,
+  ) {
+    final Map<int, List<PdfTextNote>> notesByPage =
+        Map<int, List<PdfTextNote>>.of(currentNotesByPage);
+    final List<PdfTextNote> pageNotes = List<PdfTextNote>.of(
+      notesByPage[note.pageIndex] ?? const <PdfTextNote>[],
+    )..removeWhere((PdfTextNote currentNote) => currentNote.id == note.id);
+
+    if (pageNotes.isEmpty) {
+      notesByPage.remove(note.pageIndex);
+    } else {
+      notesByPage[note.pageIndex] = pageNotes;
+    }
+
+    return notesByPage;
   }
 }

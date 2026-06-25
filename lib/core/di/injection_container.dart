@@ -8,11 +8,15 @@ import '../../features/local_explorer/domain/repositories/local_file_repository.
 import '../../features/local_explorer/domain/use_cases/load_local_directory_use_case.dart';
 import '../../features/local_explorer/presentation/bloc/local_explorer_bloc.dart';
 import '../../features/pdf_reader/data/datasources/local/pdf_render_datasource.dart';
+import '../../features/pdf_reader/data/datasources/local/pdf_note_datasource.dart';
 import '../../features/pdf_reader/data/repositories/pdf_reader_repository_impl.dart';
 import '../../features/pdf_reader/domain/repositories/pdf_reader_repository.dart';
+import '../../features/pdf_reader/domain/use_cases/delete_pdf_text_note_use_case.dart';
 import '../../features/pdf_reader/domain/use_cases/get_pdf_page_count_use_case.dart';
 import '../../features/pdf_reader/domain/use_cases/get_pdf_text_layer_use_case.dart';
+import '../../features/pdf_reader/domain/use_cases/load_pdf_text_notes_use_case.dart';
 import '../../features/pdf_reader/domain/use_cases/render_pdf_page_use_case.dart';
+import '../../features/pdf_reader/domain/use_cases/save_pdf_text_note_use_case.dart';
 import '../../features/pdf_reader/domain/use_cases/share_pdf_text_use_case.dart';
 import '../../features/pdf_reader/presentation/bloc/pdf_reader_bloc.dart';
 
@@ -44,9 +48,18 @@ void registerFeatureDependencies() {
     );
   }
 
+  if (!sl.isRegistered<PdfNoteDataSource>()) {
+    sl.registerLazySingleton<PdfNoteDataSource>(
+      InMemoryPdfNoteDataSource.new,
+    );
+  }
+
   if (!sl.isRegistered<PdfReaderRepository>()) {
     sl.registerLazySingleton<PdfReaderRepository>(
-      () => PdfReaderRepositoryImpl(sl()),
+      () => PdfReaderRepositoryImpl(
+        renderDataSource: sl(),
+        noteDataSource: sl(),
+      ),
     );
   }
 
@@ -71,6 +84,24 @@ void registerFeatureDependencies() {
   if (!sl.isRegistered<SharePdfTextUseCase>()) {
     sl.registerLazySingleton<SharePdfTextUseCase>(
       () => SharePdfTextUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<LoadPdfTextNotesUseCase>()) {
+    sl.registerLazySingleton<LoadPdfTextNotesUseCase>(
+      () => LoadPdfTextNotesUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<SavePdfTextNoteUseCase>()) {
+    sl.registerLazySingleton<SavePdfTextNoteUseCase>(
+      () => SavePdfTextNoteUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<DeletePdfTextNoteUseCase>()) {
+    sl.registerLazySingleton<DeletePdfTextNoteUseCase>(
+      () => DeletePdfTextNoteUseCase(sl()),
     );
   }
 
@@ -100,7 +131,12 @@ void registerFeatureDependencies() {
 
   if (!sl.isRegistered<PdfReaderBloc>()) {
     sl.registerFactory<PdfReaderBloc>(
-      () => PdfReaderBloc(getPageCount: sl()),
+      () => PdfReaderBloc(
+        getPageCount: sl(),
+        loadNotes: sl(),
+        saveNote: sl(),
+        deleteNote: sl(),
+      ),
     );
   }
 }

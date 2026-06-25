@@ -13,13 +13,13 @@ class PdfSelectionToolbar extends StatelessWidget {
   const PdfSelectionToolbar({
     required this.onCopy,
     required this.onShare,
-    required this.onHighlight,
+    required this.onNote,
     super.key,
   });
 
   final VoidCallback onCopy;
   final VoidCallback onShare;
-  final VoidCallback onHighlight;
+  final VoidCallback onNote;
 
   @override
   Widget build(BuildContext context) {
@@ -45,9 +45,9 @@ class PdfSelectionToolbar extends StatelessWidget {
               onPressed: onShare,
             ),
             PdfToolbarButton(
-              tooltip: LocalizationConstants.pdfReaderHighlightKey.tr(),
-              icon: HugeIcons.strokeRoundedPencilEdit01,
-              onPressed: onHighlight,
+              tooltip: LocalizationConstants.pdfReaderAddNoteKey.tr(),
+              icon: HugeIcons.strokeRoundedNoteAdd,
+              onPressed: onNote,
             ),
           ],
         ),
