@@ -1,7 +1,6 @@
 import 'package:get_it/get_it.dart';
 
-import '../services/firebase_messaging_service.dart';
-import '../services/notification_service.dart';
+import '../services/services.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -36,4 +35,5 @@ Future<void> initializeNotificationDependencies() async {
   await messagingService.requestPermissions();
   await messagingService.subscribeToDefaultTopic();
   messagingService.listenToForegroundMessages();
+  await messagingService.logDeviceToken();
 }

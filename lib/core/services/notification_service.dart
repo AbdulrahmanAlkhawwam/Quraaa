@@ -8,17 +8,18 @@ import '../utils/logger.dart';
 /// Handles local notification display and FCM message presentation for the
 /// Quraaa app.
 ///
-/// Uses [flutter_local_notifications] so notifications work on Android without
-/// relying on the custom native plugin from quraa_otp.
+/// Uses [flutter_local_notifications] so notifications work on Android and
+/// iOS without relying on the custom native plugin from quraa_otp.
 class NotificationService {
   /// Creates the notification service.
-  NotificationService({
-    FlutterLocalNotificationsPlugin? plugin,
-  }) : _plugin = plugin ?? FlutterLocalNotificationsPlugin();
+  NotificationService({FlutterLocalNotificationsPlugin? plugin})
+    : _plugin = plugin ?? FlutterLocalNotificationsPlugin();
 
   final FlutterLocalNotificationsPlugin _plugin;
 
   bool _initialized = false;
+
+  static int _notificationId = 0;
 
   /// Initializes the plugin, creates the default Android notification channel,
   /// and optionally requests notification permission.
@@ -30,8 +31,20 @@ class NotificationService {
     const androidSettings = AndroidInitializationSettings(
       '@mipmap/ic_launcher',
     );
+
+    // Darwin settings cover iOS and macOS. Permission is requested through
+    // [requestNotificationPermission] to keep a single cross-platform entry
+    // point, so alert/badge/sound request flags are disabled here.
+    const darwinSettings = DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+    );
+
     const initializationSettings = InitializationSettings(
       android: androidSettings,
+      iOS: darwinSettings,
+      macOS: darwinSettings,
     );
 
     await _plugin.initialize(
@@ -48,8 +61,8 @@ class NotificationService {
     _initialized = true;
   }
 
-  /// Requests the Android notification permission on devices that require it
-  /// (Android 13+).
+  /// Requests the notification permission on platforms that require a runtime
+  /// request (Android 13+ and iOS).
   Future<bool> requestNotificationPermission() async {
     final status = await Permission.notification.request();
     AppLogger.info('Permission.notification status: ${status.name}');
@@ -73,10 +86,20 @@ class NotificationService {
       showWhen: true,
     );
 
-    final details = NotificationDetails(android: androidDetails);
+    const darwinDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    final details = NotificationDetails(
+      android: androidDetails,
+      iOS: darwinDetails,
+      macOS: darwinDetails,
+    );
 
     await _plugin.show(
-      DateTime.now().millisecond,
+      _nextNotificationId(),
       title,
       body,
       details,
@@ -93,20 +116,26 @@ class NotificationService {
   }
 
   /// Handles an incoming foreground FCM message by presenting a local
-  /// notification when the payload asks for it.
+  /// notification when the payload contains a body.
   Future<void> handleForegroundMessage(RemoteMessage message) async {
+    await showNotificationFromRemoteMessage(message);
+  }
+
+  /// Parses an FCM message and displays it as a local notification when a body
+  /// is available.
+  Future<void> showNotificationFromRemoteMessage(RemoteMessage message) async {
     final data = Map<String, Object?>.from(message.data);
     final notification = message.notification;
 
-    final title = notification?.title ??
+    final title =
+        notification?.title ??
         data[FirebaseConstants.titleKey]?.toString() ??
         FirebaseConstants.defaultChannelName;
-    final body = notification?.body ??
-        data[FirebaseConstants.bodyKey]?.toString() ??
-        '';
+    final body =
+        notification?.body ?? data[FirebaseConstants.bodyKey]?.toString() ?? '';
 
     if (body.isEmpty) {
-      AppLogger.info('Foreground FCM message has no body; skipping local UI.');
+      AppLogger.info('FCM message has no body; skipping local notification.');
       return;
     }
 
@@ -116,6 +145,11 @@ class NotificationService {
   /// Reads notification details that launched the app from a terminated state.
   Future<NotificationAppLaunchDetails?> getNotificationAppLaunchDetails() {
     return _plugin.getNotificationAppLaunchDetails();
+  }
+
+  int _nextNotificationId() {
+    _notificationId = (_notificationId + 1) & 0x7FFFFFFF;
+    return _notificationId;
   }
 
   Future<void> _createDefaultChannel() async {
@@ -128,7 +162,8 @@ class NotificationService {
 
     await _plugin
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.createNotificationChannel(channel);
   }
 

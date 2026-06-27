@@ -15,8 +15,8 @@ class FirebaseMessagingService {
   FirebaseMessagingService({
     FirebaseMessaging? messaging,
     NotificationService? notificationService,
-  })  : _messaging = messaging ?? FirebaseMessaging.instance,
-        _notificationService = notificationService ?? NotificationService();
+  }) : _messaging = messaging ?? FirebaseMessaging.instance,
+       _notificationService = notificationService ?? NotificationService();
 
   final FirebaseMessaging _messaging;
   final NotificationService _notificationService;
@@ -35,7 +35,7 @@ class FirebaseMessagingService {
 
     final authorized =
         settings.authorizationStatus == AuthorizationStatus.authorized ||
-            settings.authorizationStatus == AuthorizationStatus.provisional;
+        settings.authorizationStatus == AuthorizationStatus.provisional;
 
     AppLogger.info('FCM authorization status: ${settings.authorizationStatus}');
     return authorized;
@@ -56,13 +56,27 @@ class FirebaseMessagingService {
   }
 
   /// Stream of foreground FCM messages.
-  Stream<RemoteMessage> get onForegroundMessage {
-    return FirebaseMessaging.onMessage;
-  }
+  Stream<RemoteMessage> get onForegroundMessage => FirebaseMessaging.onMessage;
 
   /// Returns the current device FCM token for diagnostics.
-  Future<String?> getDeviceToken() {
-    return _messaging.getToken();
+  Future<String?> getDeviceToken() => _messaging.getToken();
+
+  /// Fetches and logs the current FCM token.
+  Future<void> logDeviceToken() async {
+    try {
+      final token = await getDeviceToken();
+      if (token != null) {
+        AppLogger.info('Firebase Messaging Token: $token');
+      } else {
+        AppLogger.error('Failed to retrieve Firebase Messaging Token.');
+      }
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Error retrieving Firebase Messaging Token',
+        error,
+        stackTrace,
+      );
+    }
   }
 
   /// Listens to foreground messages and presents them as local notifications.
@@ -102,20 +116,7 @@ Future<void> firebaseBackgroundMessageHandler(RemoteMessage message) async {
   // are not available in the background isolate.
   final notificationService = NotificationService();
   await notificationService.initialize(requestPermission: false);
-
-  final notification = message.notification;
-  final data = Map<String, Object?>.from(message.data);
-
-  final title = notification?.title ??
-      data[FirebaseConstants.titleKey]?.toString() ??
-      FirebaseConstants.defaultChannelName;
-  final body = notification?.body ??
-      data[FirebaseConstants.bodyKey]?.toString() ??
-      '';
-
-  if (body.isNotEmpty) {
-    await notificationService.showNotification(title: title, body: body);
-  }
+  await notificationService.showNotificationFromRemoteMessage(message);
 
   AppLogger.info('Background FCM message handled: ${message.messageId}');
 }

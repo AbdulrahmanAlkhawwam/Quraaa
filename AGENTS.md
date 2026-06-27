@@ -116,9 +116,9 @@ The architecture intends to use local storage as the source of truth and queue r
 
 Be aware that much of the code is scaffolding rather than working implementation:
 
-- `lib/core/di/injection_container.dart`: `registerCoreDependencies()`, `registerFeatureDependencies()`, and `registerTestDependencies()` are all empty. No services are registered in GetIt.
+- `lib/core/di/injection_container.dart`: registers `NotificationService` and `FirebaseMessagingService`; other feature/test registrations are still stubs.
 - `lib/features/auth/`: the only feature. `AuthRepositoryImpl`, `AuthLocalDataSource`, and `AuthRemoteDataSource` are abstract/stubbed (`UnimplementedError`). `AuthBloc` emits hard-coded success. `LoginPage` and `AppShell` are placeholder widgets.
-- Core services (`StorageService`, `DatabaseService`, `ConnectivityService`, `LoggerService`, etc.) are abstract contracts only.
+- Most core services (`StorageService`, `DatabaseService`, `ConnectivityService`, `LoggerService`, etc.) are abstract contracts only. `FirebaseService`, `NotificationService`, and `FirebaseMessagingService` are concrete; the Firebase services are called from `main.dart` and the notification services are wired through DI.
 - No concrete Dio API client, interceptors, or remote endpoints exist.
 - No CI/CD configuration (no `.github/workflows/`, no fastlane, etc.).
 - `.env` exists but `lib/config/env/env.dart` is a simple hard-coded class, not using `envied`.
