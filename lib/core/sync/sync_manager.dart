@@ -2,11 +2,7 @@ import 'sync_queue.dart';
 import 'sync_worker.dart';
 
 class SyncManager {
-  const SyncManager({
-    required SyncQueue queue,
-    required SyncWorker worker,
-  })  : _queue = queue,
-        _worker = worker;
+  const SyncManager({required this._queue, required this._worker});
 
   final SyncQueue _queue;
   final SyncWorker _worker;
