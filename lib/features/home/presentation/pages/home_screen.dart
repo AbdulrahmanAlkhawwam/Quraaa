@@ -151,7 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       actions: <Widget>[
         GestureDetector(
-          onTap: () => context.goTo(RouteNames.profile),
+          onTap: () => context.goTo(RouteNames.settings),
           child: Container(
             width: 44,
             height: 44,

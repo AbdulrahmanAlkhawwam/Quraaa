@@ -18,7 +18,7 @@ abstract class AppTheme {
       dividerColor: AppColors.primary100,
       colorScheme: lightColors,
       textTheme: AppTextStyles.textTheme(),
-      appBarTheme: appBarStyle(),
+      appBarTheme: appBarStyle(lightColors),
       filledButtonTheme: filledButtonTheme(lightColors),
       outlinedButtonTheme: outlinedButtonTheme(lightColors),
       textButtonTheme: textButtonTheme(lightColors),
@@ -44,6 +44,40 @@ abstract class AppTheme {
   }
 
   static ThemeData dark() {
-    return light();
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      fontFamily: 'Thmanyah Sans',
+      scaffoldBackgroundColor: AppColors.neutralBackgroundDark,
+      cardColor: AppColors.cardDark,
+      dividerColor: AppColors.outlineDark,
+      colorScheme: darkColors,
+      textTheme: AppTextStyles.textTheme().apply(
+        bodyColor: AppColors.textPrimaryDark,
+        displayColor: AppColors.textPrimaryDark,
+      ),
+      appBarTheme: appBarStyle(darkColors),
+      filledButtonTheme: filledButtonTheme(darkColors),
+      outlinedButtonTheme: outlinedButtonTheme(darkColors),
+      textButtonTheme: textButtonTheme(darkColors),
+      inputDecorationTheme: textInputFeildTheme(darkColors),
+      dividerTheme: const DividerThemeData(
+        color: AppColors.outlineDark,
+        thickness: 1,
+        space: 1,
+      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        borderRadius: BorderRadius.circular(AppRadius.radius40),
+        linearMinHeight: 8,
+        strokeWidth: 8,
+        linearTrackColor: AppColors.primary800,
+        color: AppColors.primary400,
+      ),
+      cardTheme: const CardThemeData(
+        color: AppColors.cardDark,
+        elevation: 0,
+        margin: EdgeInsets.zero,
+      ),
+    );
   }
 }

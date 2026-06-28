@@ -146,7 +146,41 @@ class LocalizationConstants {
   static const String settingsTabNotificationKey = 'settings.tabs.notification';
   static const String settingsTabSecurityKey = 'settings.tabs.security';
   static const String settingsTabLanguagesKey = 'settings.tabs.languages';
-  static const String settingsAccountTypeKey = 'settings.account_type';
+  static const String settingsAccountTypeKey = 'settings.account_type.title';
+  static const String settingsAccountTypeSubtitleKey =
+      'settings.account_type.subtitle';
+  static const String settingsAppearanceSubtitleKey =
+      'settings.shortcuts.appearance.subtitle';
+  static const String settingsNotificationsSubtitleKey =
+      'settings.shortcuts.notifications.subtitle';
+  static const String settingsSecuritySubtitleKey =
+      'settings.shortcuts.security.subtitle';
+  static const String settingsLanguagesSubtitleKey =
+      'settings.shortcuts.languages.subtitle';
+  static const String settingsThemeTitleKey = 'settings.theme.title';
+  static const String settingsThemeSubtitleKey = 'settings.theme.subtitle';
+  static const String settingsThemeSystemKey = 'settings.theme.system';
+  static const String settingsThemeLightKey = 'settings.theme.light';
+  static const String settingsThemeDarkKey = 'settings.theme.dark';
+  static const String settingsThemeSystemDescKey = 'settings.theme.system_desc';
+  static const String settingsThemeLightDescKey = 'settings.theme.light_desc';
+  static const String settingsThemeDarkDescKey = 'settings.theme.dark_desc';
+  static const String settingsLanguageTitleKey = 'settings.language.title';
+  static const String settingsLanguageSubtitleKey = 'settings.language.subtitle';
+  static const String settingsLanguageEnglishKey = 'settings.language.english';
+  static const String settingsLanguageArabicKey = 'settings.language.arabic';
+  static const String settingsLanguageEnglishDescKey =
+      'settings.language.english_desc';
+  static const String settingsLanguageArabicDescKey =
+      'settings.language.arabic_desc';
+  static const String settingsNotificationTitleKey =
+      'settings.notification.title';
+  static const String settingsNotificationSubtitleKey =
+      'settings.notification.subtitle';
+  static const String settingsNotificationBodyKey =
+      'settings.notification.body';
+  static const String settingsNotificationActionKey =
+      'settings.notification.action';
   static const String userDataFullNameKey = 'user_data.profile.full_name';
   static const String userDataBirthDateKey = 'user_data.profile.birth_date';
   static const String userDataCountryKey = 'user_data.profile.country';

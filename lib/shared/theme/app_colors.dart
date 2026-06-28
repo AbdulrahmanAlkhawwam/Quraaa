@@ -20,6 +20,13 @@ abstract class AppColors {
   static const Color textPrimary = Color(0xFF24311C);
   static const Color textSecondary = Color(0xFF4A5942);
   static const Color textTertiary = Color(0xFF7C8577);
+  static const Color neutralBackgroundDark = Color(0xFF121612);
+  static const Color surfaceDark = Color(0xFF1A2118);
+  static const Color cardDark = Color(0xFF20281D);
+  static const Color textPrimaryDark = Color(0xFFF3F6EF);
+  static const Color textSecondaryDark = Color(0xFFC5CEC0);
+  static const Color textTertiaryDark = Color(0xFF8D9788);
+  static const Color outlineDark = Color(0xFF34412F);
 
   // Semantics
   static const Color success500 = Color(0xFF4A8D29);
@@ -71,7 +78,7 @@ abstract class AppColors {
   static const Color backgroundLight = neutralBackground;
   static const Color surfaceLight = surface;
   static const Color backgroundDark = neutralBackground;
-  static const Color surfaceDark = surface;
+  static const Color surfaceDarkLightCompat = surface;
 }
 
 final ColorScheme lightColors = ColorScheme(
@@ -89,4 +96,21 @@ final ColorScheme lightColors = ColorScheme(
   onSurfaceVariant: AppColors.textSecondary,
   outline: AppColors.primary100,
   shadow: Colors.transparent,
+);
+
+final ColorScheme darkColors = ColorScheme(
+  brightness: Brightness.dark,
+  primary: AppColors.primary400,
+  onPrimary: AppColors.libraryGreen,
+  primaryContainer: AppColors.primary800,
+  onPrimaryContainer: AppColors.primary50,
+  secondary: AppColors.primary500,
+  onSecondary: AppColors.libraryGreen,
+  error: AppColors.error500,
+  onError: AppColors.card,
+  surface: AppColors.surfaceDark,
+  onSurface: AppColors.textPrimaryDark,
+  onSurfaceVariant: AppColors.textSecondaryDark,
+  outline: AppColors.primary800,
+  shadow: Colors.black54,
 );

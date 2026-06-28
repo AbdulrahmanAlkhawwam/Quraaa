@@ -48,7 +48,13 @@ class SettingsScreen extends StatelessWidget {
                     collapsedHeight: _collapsedHeight,
                     expandedHeight: _expandedHeight,
                     leading: IconButton(
-                      onPressed: () => context.pop(),
+                      onPressed: () {
+                        if (context.canPop()) {
+                          context.pop();
+                        } else {
+                          context.go(RouteNames.home);
+                        }
+                      },
                       icon: HugeIcon(
                         icon: HugeIcons.strokeRoundedArrowLeft01,
                         color: AppColors.libraryGreen,
@@ -138,7 +144,9 @@ class SettingsScreen extends StatelessWidget {
                           SettingsActionButton(
                             title:
                                 LocalizationConstants.settingsAccountTypeKey.tr(),
-                            subtitle: 'Free plan',
+                            subtitle:
+                                LocalizationConstants.settingsAccountTypeSubtitleKey
+                                    .tr(),
                             leadingIcon: HugeIcons.strokeRoundedUserAccount,
                             onTap: () => context.push(
                               RouteNames.subscriptionAccountType,
@@ -148,9 +156,11 @@ class SettingsScreen extends StatelessWidget {
                             title: LocalizationConstants
                                 .userDataSettingsAppearanceKey
                                 .tr(),
-                            subtitle: 'Theme and layout',
+                            subtitle: LocalizationConstants
+                                .settingsAppearanceSubtitleKey
+                                .tr(),
                             leadingIcon: HugeIcons.strokeRoundedSettings01,
-                            onTap: () => _showPlaceholder(context, 'Appearance'),
+                            onTap: () => ThemeBottomSheet.show(context),
                           ),
                         ],
                       ),
@@ -166,10 +176,11 @@ class SettingsScreen extends StatelessWidget {
                             title: LocalizationConstants
                                 .userDataSettingsNotificationManagementKey
                                 .tr(),
-                            subtitle: 'Push notifications and reminders',
+                            subtitle: LocalizationConstants
+                                .settingsNotificationsSubtitleKey
+                                .tr(),
                             leadingIcon: HugeIcons.strokeRoundedNotification01,
-                            onTap: () =>
-                                _showPlaceholder(context, 'Notification Management'),
+                            onTap: () => _showNotificationBottomSheet(context),
                           ),
                         ],
                       ),
@@ -185,9 +196,14 @@ class SettingsScreen extends StatelessWidget {
                             title: LocalizationConstants
                                 .userDataSettingsSecurityKey
                                 .tr(),
-                            subtitle: 'Password, device, and privacy',
+                            subtitle: LocalizationConstants
+                                .settingsSecuritySubtitleKey
+                                .tr(),
                             leadingIcon: HugeIcons.strokeRoundedSettings01,
-                            onTap: () => _showPlaceholder(context, 'Security'),
+                            onTap: () => _showPlaceholder(
+                              context,
+                              LocalizationConstants.settingsTabSecurityKey.tr(),
+                            ),
                           ),
                         ],
                       ),
@@ -203,8 +219,10 @@ class SettingsScreen extends StatelessWidget {
                             title: LocalizationConstants
                                 .userDataSettingsLanguagesKey
                                 .tr(),
-                            subtitle: 'Arabic and English',
-                            onTap: () => _showPlaceholder(context, 'Languages'),
+                            subtitle: LocalizationConstants
+                                .settingsLanguagesSubtitleKey
+                                .tr(),
+                            onTap: () => LanguageBottomSheet.show(context),
                           ),
                         ],
                       ),
@@ -225,7 +243,9 @@ class SettingsScreen extends StatelessWidget {
       builder: (BuildContext ctx) {
         return AlertDialog(
           title: Text(title),
-          content: const Text('This section is under development.'),
+          content: Text(
+            LocalizationConstants.profileDialogNotDesignedContentKey.tr(),
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
@@ -234,6 +254,16 @@ class SettingsScreen extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+
+  void _showNotificationBottomSheet(BuildContext context) {
+    NotificationBottomSheet.show(
+      context,
+      title: LocalizationConstants.settingsNotificationTitleKey.tr(),
+      body: LocalizationConstants.settingsNotificationBodyKey.tr(),
+      route: RouteNames.notificationPermission,
+      buttonLabel: LocalizationConstants.settingsNotificationActionKey.tr(),
     );
   }
 }

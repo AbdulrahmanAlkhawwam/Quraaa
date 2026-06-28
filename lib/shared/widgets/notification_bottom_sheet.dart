@@ -54,13 +54,15 @@ class NotificationBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme colors = Theme.of(context).colorScheme;
+
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.viewInsetsOf(context).bottom,
       ),
       child: Container(
-        decoration: const BoxDecoration(
-          color: AppColors.card,
+        decoration: BoxDecoration(
+          color: colors.surface,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(AppRadius.radius40),
             topRight: Radius.circular(AppRadius.radius40),
@@ -101,7 +103,7 @@ class NotificationBottomSheet extends StatelessWidget {
                         title,
                         textAlign: TextAlign.center,
                         style: AppTextStyles.h4.copyWith(
-                          color: AppColors.textPrimary,
+                          color: colors.onSurface,
                         ),
                       ),
                       const SizedBox(height: AppSpacing.spacing16),
@@ -109,7 +111,7 @@ class NotificationBottomSheet extends StatelessWidget {
                         body,
                         textAlign: TextAlign.center,
                         style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.textSecondary,
+                          color: colors.onSurfaceVariant,
                           height: 1.5,
                         ),
                       ),
@@ -124,8 +126,8 @@ class NotificationBottomSheet extends StatelessWidget {
                               context.push(route!);
                             },
                             style: FilledButton.styleFrom(
-                              backgroundColor: AppColors.primary600,
-                              foregroundColor: AppColors.card,
+                              backgroundColor: colors.primary,
+                              foregroundColor: colors.onPrimary,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(
                                   AppRadius.radius32,

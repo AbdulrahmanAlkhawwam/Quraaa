@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../app_colors.dart';
 import '../app_spacing.dart';
 import 'text_styles.dart';
 
-AppBarTheme appBarStyle() => AppBarTheme(
+AppBarTheme appBarStyle(ColorScheme colors) => AppBarTheme(
   backgroundColor: Colors.transparent,
   surfaceTintColor: Colors.transparent,
   shadowColor: Colors.transparent,
@@ -12,9 +11,9 @@ AppBarTheme appBarStyle() => AppBarTheme(
   scrolledUnderElevation: 0,
   titleSpacing: AppSpacing.spacing24,
   toolbarHeight: 64,
-  iconTheme: const IconThemeData(color: AppColors.primary50),
-  actionsIconTheme: const IconThemeData(color: AppColors.primary50),
+  iconTheme: IconThemeData(color: colors.onSurface),
+  actionsIconTheme: IconThemeData(color: colors.onSurface),
   titleTextStyle: AppTextStyles.appBarTitle.copyWith(
-    color: AppColors.primary50,
+    color: colors.onSurface,
   ),
 );

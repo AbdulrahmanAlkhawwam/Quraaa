@@ -8,6 +8,7 @@ import '../config/routes/app_router.dart';
 import '../core/di/injection_container.dart';
 import '../core/error_monitoring/navigation_tracker.dart';
 import '../core/localization/localization_constants.dart';
+import '../shared/theme/app_theme_cubit.dart';
 import '../features/profile/presentation/bloc/profile_bloc.dart';
 import '../shared/theme/app_theme.dart';
 import '../shared/widgets/dev_debug_overlay.dart';
@@ -52,24 +53,33 @@ class _QuraaaAppState extends State<QuraaaApp> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ProfileBloc>(
-      create: (BuildContext context) => sl<ProfileBloc>(),
-      child: MaterialApp.router(
-        title: LocalizationConstants.appNameKey.tr(),
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.light(),
-        darkTheme: AppTheme.dark(),
-        themeMode: ThemeMode.system,
-        routerConfig: _router,
-        localizationsDelegates: context.localizationDelegates,
-        supportedLocales: context.supportedLocales,
-        locale: context.locale,
-        builder: (BuildContext context, Widget? child) {
-          return Stack(
-            children: <Widget>[
-              child!,
-              DevDebugOverlay(navigatorKey: _navigatorKey),
-            ],
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<AppThemeCubit>.value(value: sl<AppThemeCubit>()),
+        BlocProvider<ProfileBloc>(
+          create: (BuildContext context) => sl<ProfileBloc>(),
+        ),
+      ],
+      child: BlocBuilder<AppThemeCubit, ThemeMode>(
+        builder: (BuildContext context, ThemeMode themeMode) {
+          return MaterialApp.router(
+            title: LocalizationConstants.appNameKey.tr(),
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.light(),
+            darkTheme: AppTheme.dark(),
+            themeMode: themeMode,
+            routerConfig: _router,
+            localizationsDelegates: context.localizationDelegates,
+            supportedLocales: context.supportedLocales,
+            locale: context.locale,
+            builder: (BuildContext context, Widget? child) {
+              return Stack(
+                children: <Widget>[
+                  child!,
+                  DevDebugOverlay(navigatorKey: _navigatorKey),
+                ],
+              );
+            },
           );
         },
       ),

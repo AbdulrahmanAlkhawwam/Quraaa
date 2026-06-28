@@ -12,6 +12,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'app/app.dart';
 import 'core/di/injection_container.dart';
+import 'core/constants/app_storage_keys.dart';
 import 'core/error_monitoring/app_logger.dart';
 import 'core/error_monitoring/telegram_notification_service.dart';
 import 'core/localization/localization_service.dart';
@@ -38,10 +39,8 @@ Future<void> main() async {
       await configureDependencies();
 
       final StorageService storageService = sl<StorageService>();
-      final String? savedLanguage = storageService.getString('user_language');
-      final Locale startLocale = savedLanguage == 'ar'
-          ? SupportedLocales.arabic
-          : SupportedLocales.english;
+      final Locale startLocale =
+          SupportedLocales.fromCode(storageService.getString(AppStorageKeys.userLanguage));
 
       appLogger = sl<AppLogger>();
       await _initializeFirebase(appLogger!);

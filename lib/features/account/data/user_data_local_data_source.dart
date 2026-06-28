@@ -1,3 +1,4 @@
+import '../../../../core/constants/app_storage_keys.dart';
 import '../../../../core/services/storage_service.dart';
 
 class UserDataLocalDataSource {
@@ -10,7 +11,7 @@ class UserDataLocalDataSource {
   static const String _countryKey = 'user_country';
   static const String _phoneKey = 'user_phone';
   static const String _themeKey = 'user_theme';
-  static const String _languageKey = 'user_language';
+  static const String _languageKey = AppStorageKeys.userLanguage;
   static const String _bookmarksKey = 'user_bookmarks';
   static const String _budgetBalanceKey = 'user_budget_balance';
   static const String _libraryItemsKey = 'user_library_items';
@@ -53,6 +54,14 @@ class UserDataLocalDataSource {
     required String language,
   }) async {
     await _storageService.setString(_themeKey, theme);
+    await _storageService.setString(_languageKey, language);
+  }
+
+  Future<void> saveTheme(String theme) async {
+    await _storageService.setString(_themeKey, theme);
+  }
+
+  Future<void> saveLanguage(String language) async {
     await _storageService.setString(_languageKey, language);
   }
 

@@ -15,7 +15,7 @@ class LocalizationService {
       path: LocalizationConstants.translationsPath,
       fallbackLocale: SupportedLocales.fallback,
       startLocale: startLocale ?? SupportedLocales.fallback,
-      saveLocale: false,
+      saveLocale: true,
       useOnlyLangCode: true,
       child: child,
     );

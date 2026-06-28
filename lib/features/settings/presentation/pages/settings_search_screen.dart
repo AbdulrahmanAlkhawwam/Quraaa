@@ -148,37 +148,64 @@ class _SettingsSearchScreenState extends State<SettingsSearchScreen> {
     return <_SettingsShortcut>[
       _SettingsShortcut(
         title: LocalizationConstants.settingsAccountTypeKey.tr(),
-        subtitle: LocalizationConstants.subscriptionAccountTypeSubtitleKey.tr(),
+        subtitle: LocalizationConstants.settingsAccountTypeSubtitleKey.tr(),
         icon: HugeIcons.strokeRoundedUserAccount,
         onTap: (BuildContext context) =>
             context.push(RouteNames.subscriptionAccountType),
       ),
       _SettingsShortcut(
         title: LocalizationConstants.userDataSettingsAppearanceKey.tr(),
-        subtitle: 'Theme and layout options',
+        subtitle: LocalizationConstants.settingsAppearanceSubtitleKey.tr(),
         icon: HugeIcons.strokeRoundedSettings01,
-        onTap: (BuildContext context) => Navigator.of(context).maybePop(),
+        onTap: (BuildContext context) => ThemeBottomSheet.show(context),
       ),
       _SettingsShortcut(
         title: LocalizationConstants
             .userDataSettingsNotificationManagementKey
             .tr(),
-        subtitle: 'Push, email, and reminder preferences',
+        subtitle: LocalizationConstants.settingsNotificationsSubtitleKey.tr(),
         icon: HugeIcons.strokeRoundedNotification01,
-        onTap: (BuildContext context) => Navigator.of(context).maybePop(),
+        onTap: (BuildContext context) => NotificationBottomSheet.show(
+          context,
+          title: LocalizationConstants.settingsNotificationTitleKey.tr(),
+          body: LocalizationConstants.settingsNotificationBodyKey.tr(),
+          route: RouteNames.notificationPermission,
+          buttonLabel: LocalizationConstants.settingsNotificationActionKey.tr(),
+        ),
       ),
       _SettingsShortcut(
         title: LocalizationConstants.userDataSettingsSecurityKey.tr(),
-        subtitle: 'Password and privacy controls',
+        subtitle: LocalizationConstants.settingsSecuritySubtitleKey.tr(),
         icon: HugeIcons.strokeRoundedSettings01,
-        onTap: (BuildContext context) => Navigator.of(context).maybePop(),
+        onTap: (BuildContext context) =>
+            _showPlaceholder(context, LocalizationConstants.settingsTabSecurityKey.tr()),
       ),
       _SettingsShortcut(
         title: LocalizationConstants.userDataSettingsLanguagesKey.tr(),
-        subtitle: 'Arabic and English',
-        onTap: (BuildContext context) => Navigator.of(context).maybePop(),
+        subtitle: LocalizationConstants.settingsLanguagesSubtitleKey.tr(),
+        onTap: (BuildContext context) => LanguageBottomSheet.show(context),
       ),
     ];
+  }
+
+  void _showPlaceholder(BuildContext context, String title) {
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext ctx) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(
+            LocalizationConstants.profileDialogNotDesignedContentKey.tr(),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(LocalizationConstants.commonCloseKey.tr()),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 

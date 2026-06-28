@@ -275,7 +275,48 @@
       "security": "Security",
       "languages": "Languages"
     },
-    "account_type": "Account Type"
+    "account_type": {
+      "title": "Account Type",
+      "subtitle": "Choose the membership that fits you"
+    },
+    "shortcuts": {
+      "appearance": {
+        "subtitle": "Theme and layout options"
+      },
+      "notifications": {
+        "subtitle": "Push, email, and reminder preferences"
+      },
+      "security": {
+        "subtitle": "Password and privacy controls"
+      },
+      "languages": {
+        "subtitle": "Arabic and English"
+      }
+    },
+    "theme": {
+      "title": "Theme",
+      "subtitle": "Choose how Quraaa looks across the app",
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark",
+      "system_desc": "Follow your device appearance settings.",
+      "light_desc": "Always use the light reading experience.",
+      "dark_desc": "Switch to a darker view for low light."
+    },
+    "language": {
+      "title": "Language",
+      "subtitle": "Choose the language used in the app",
+      "english": "English",
+      "arabic": "Arabic",
+      "english_desc": "Use the app in English.",
+      "arabic_desc": "Use the app in Arabic."
+    },
+    "notification": {
+      "title": "Notifications",
+      "subtitle": "Stay updated with alerts and reminders",
+      "body": "Allow notifications so you can receive book updates, reminders, and important account alerts.",
+      "action": "Enable notifications"
+    }
   },
   "subscription": {
     "account_type": {

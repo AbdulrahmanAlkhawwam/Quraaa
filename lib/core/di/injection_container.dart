@@ -30,6 +30,7 @@ import '../error_monitoring/navigation_tracker.dart';
 import '../error_monitoring/error_report_cache.dart';
 import '../error_monitoring/telegram_notification_service.dart';
 import '../error_monitoring/user_context_provider.dart';
+import '../../shared/theme/app_theme_cubit.dart';
 import '../../features/account/data/user_data_local_data_source.dart';
 import '../../features/profile/data/datasources/profile_local_data_source.dart';
 import '../../features/profile/data/datasources/profile_remote_data_source.dart';
@@ -174,6 +175,10 @@ void registerCoreDependencies() {
 
   sl.registerLazySingleton<ConnectivityService>(
     () => ConnectivityServiceImpl(),
+  );
+
+  sl.registerLazySingleton<AppThemeCubit>(
+    () => AppThemeCubit(sl<StorageService>()),
   );
 }
 
