@@ -43,8 +43,8 @@ class OnboardingScaffold extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: <Color>[
-                    AppColors.libraryGreen.withAlpha(100),
-                    AppColors.libraryGreen.withAlpha(120),
+                    AppColors.libraryGreen.withAlpha(AppColors.overlayLightAlpha),
+                    AppColors.libraryGreen.withAlpha(AppColors.overlayMediumAlpha),
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,

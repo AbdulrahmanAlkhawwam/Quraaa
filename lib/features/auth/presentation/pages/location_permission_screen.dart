@@ -10,7 +10,7 @@ import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import '../../data/datasources/auth_local_datasource.dart';
-import '../widgets/auth_scaffold.dart';
+import '../widgets/landing_page.dart';
 
 class LocationPermissionScreen extends StatefulWidget {
   const LocationPermissionScreen({super.key});
@@ -69,7 +69,7 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return AuthScaffold(
+    return LandingPage(
       cardColor: AppColors.card,
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.spacing24,

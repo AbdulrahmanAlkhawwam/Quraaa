@@ -40,6 +40,10 @@ abstract class AppColors {
   static const Color woodBrown = Color(0xFF6A4B2A);
   static const Color bookPaper = Color(0xFFF4F5F1);
 
+  // Overlay Alphas
+  static const int overlayLightAlpha = 100;
+  static const int overlayMediumAlpha = 120;
+
   // Edit Profile / Avatar
   static const Color editProfileBackground = Color(0xFFF7F7F5);
   static const Color editProfileTitle = Color(0xFF243B18);

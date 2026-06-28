@@ -3,10 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/assets/app_images.dart';
 import '../../../../shared/shared.dart';
 
-/// Shared auth scaffold that renders the onboarding background, gradient
-/// overlay and a rounded bottom card.
-class AuthScaffold extends StatelessWidget {
-  const AuthScaffold({
+class LandingPage extends StatelessWidget {
+  const LandingPage({
     required this.child,
     this.header = const SizedBox.shrink(),
     this.cardColor = AppColors.primary50,
@@ -45,8 +43,8 @@ class AuthScaffold extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: <Color>[
-                    AppColors.libraryGreen.withAlpha(100),
-                    AppColors.libraryGreen.withAlpha(120),
+                    AppColors.libraryGreen.withAlpha(AppColors.overlayLightAlpha),
+                    AppColors.libraryGreen.withAlpha(AppColors.overlayMediumAlpha),
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
@@ -54,32 +52,25 @@ class AuthScaffold extends StatelessWidget {
               ),
             ),
           ),
-          SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                header,
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Container(
-                      width: double.infinity,
-                      padding: padding.add(
-                        EdgeInsets.only(bottom: context.bottomPadding),
-                      ),
-                      decoration: BoxDecoration(
-                        color: cardColor,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(topRadius),
-                          topRight: Radius.circular(topRadius),
-                        ),
-                      ),
-                      child: child,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              header,
+              Expanded(
+                child: Container(
+                  padding: padding,
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(topRadius),
                     ),
                   ),
+                  child: SafeArea(
+                    child: child,
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),

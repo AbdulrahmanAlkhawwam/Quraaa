@@ -17,7 +17,7 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../widgets/auth_form_fields.dart';
-import '../widgets/auth_scaffold.dart';
+import '../widgets/landing_page.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -126,7 +126,7 @@ class _LoginViewState extends State<_LoginView> {
         canPop: false,
         child: Form(
           key: _formKey,
-          child: AuthScaffold(
+          child: LandingPage(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               child: Column(

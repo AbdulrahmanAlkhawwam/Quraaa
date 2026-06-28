@@ -8,7 +8,7 @@ import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import '../../data/datasources/auth_local_datasource.dart';
-import '../widgets/auth_scaffold.dart';
+import '../widgets/landing_page.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -28,7 +28,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return AuthScaffold(
+    return LandingPage(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.spacing24,
         AppSpacing.spacing24,

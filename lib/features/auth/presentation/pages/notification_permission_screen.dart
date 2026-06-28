@@ -11,7 +11,7 @@ import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../../../shared/shared.dart';
 import '../../data/datasources/auth_local_datasource.dart';
-import '../widgets/auth_scaffold.dart';
+import '../widgets/landing_page.dart';
 
 class NotificationPermissionScreen extends StatefulWidget {
   const NotificationPermissionScreen({super.key});
@@ -103,7 +103,7 @@ class _NotificationPermissionScreenState
 
   @override
   Widget build(BuildContext context) {
-    return AuthScaffold(
+    return LandingPage(
       cardColor: AppColors.card,
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.spacing24,
