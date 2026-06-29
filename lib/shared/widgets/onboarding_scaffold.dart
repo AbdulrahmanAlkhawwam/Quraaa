@@ -33,7 +33,7 @@ class OnboardingScaffold extends StatelessWidget {
       body: Stack(
         children: [
           Positioned.fill(
-            child: Image.asset(
+            child: AppImage(
               AppImages.onboardingBackground,
               fit: BoxFit.cover,
             ),

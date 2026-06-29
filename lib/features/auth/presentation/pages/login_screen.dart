@@ -14,10 +14,7 @@ import '../../../../shared/shared.dart';
 import '../../../../shared/widgets/phone_number_input.dart';
 import '../../data/datasources/auth_local_datasource.dart';
 import '../bloc/auth_bloc.dart';
-import '../bloc/auth_event.dart';
-import '../bloc/auth_state.dart';
 import '../widgets/auth_form_fields.dart';
-import '../widgets/landing_page.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -113,11 +110,11 @@ class _LoginViewState extends State<_LoginView> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (BuildContext context, AuthState state) {
-        switch (state) {
-          case AuthSuccess():
+        switch (state.status) {
+          case AuthStatus.success:
             unawaited(_navigatePostAuth(context));
-          case AuthError(:final error):
-            context.showResolvedErrorSnackBar(error);
+          case AuthStatus.error:
+            context.showResolvedErrorSnackBar(state.error);
           case _:
             break;
         }
@@ -126,7 +123,7 @@ class _LoginViewState extends State<_LoginView> {
         canPop: false,
         child: Form(
           key: _formKey,
-          child: LandingPage(
+          child: AppLayout(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               child: Column(
@@ -201,11 +198,10 @@ class _LoginViewState extends State<_LoginView> {
                   const SizedBox(height: AppSpacing.spacing32),
                   BlocBuilder<AuthBloc, AuthState>(
                     builder: (BuildContext context, AuthState state) {
-                      final bool isLoading = state is AuthLoading;
                       return SizedBox(
                         height: AppDimensions.onboardingButtonHeight,
                         child: FilledButton(
-                          onPressed: isLoading
+                          onPressed: state.status == AuthStatus.loading
                               ? null
                               : () {
                                   unawaited(
@@ -215,7 +211,7 @@ class _LoginViewState extends State<_LoginView> {
                                   );
                                   _continueAsUser();
                                 },
-                          child: isLoading
+                          child: state.status == AuthStatus.loading
                               ? const SizedBox(
                                   width: 20,
                                   height: 20,
@@ -232,11 +228,10 @@ class _LoginViewState extends State<_LoginView> {
                   const SizedBox(height: AppSpacing.spacing24),
                   BlocBuilder<AuthBloc, AuthState>(
                     builder: (BuildContext context, AuthState state) {
-                      final bool isLoading = state is AuthLoading;
                       return SizedBox(
                         height: AppDimensions.onboardingButtonHeight,
                         child: OutlinedButton(
-                          onPressed: isLoading
+                          onPressed: state.status == AuthStatus.loading
                               ? null
                               : () {
                                   unawaited(

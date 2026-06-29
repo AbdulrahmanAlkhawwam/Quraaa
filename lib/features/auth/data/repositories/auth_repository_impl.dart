@@ -1,4 +1,5 @@
 import '../../../../core/architecture/base_repository.dart';
+import '../../../../core/architecture/result.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_datasource.dart';
@@ -11,19 +12,23 @@ class AuthRepositoryImpl extends BaseRepository<User>
   final AuthRemoteDataSource _remoteDataSource;
 
   @override
-  Future<User> login({
+  Future<Result<User>> login({
     required String phoneNumber,
     required String password,
   }) async {
-    final Map<String, Object?> response = await _remoteDataSource.login(
-      phoneNumber: phoneNumber,
-      password: password,
-    );
-    return AuthMapper.fromJson(response);
+    try {
+      final response = await _remoteDataSource.login(
+        phoneNumber: phoneNumber,
+        password: password,
+      );
+      return Success(AuthMapper.fromJson(response));
+    } catch (error) {
+      return ResultFailure(_mapError(error));
+    }
   }
 
   @override
-  Future<User> register({
+  Future<Result<User>> register({
     String? firstName,
     String? lastName,
     String? phoneNumber,
@@ -32,26 +37,34 @@ class AuthRepositoryImpl extends BaseRepository<User>
     String? dateOfBirth,
     List<String>? categoryIds,
   }) async {
-    final Map<String, Object?> response = await _remoteDataSource.register(
-      firstName: firstName,
-      lastName: lastName,
-      phoneNumber: phoneNumber,
-      password: password,
-      gender: gender,
-      dateOfBirth: dateOfBirth,
-      categoryIds: categoryIds,
-    );
-    return AuthMapper.fromJson(response);
+    try {
+      final response = await _remoteDataSource.register(
+        firstName: firstName,
+        lastName: lastName,
+        phoneNumber: phoneNumber,
+        password: password,
+        gender: gender,
+        dateOfBirth: dateOfBirth,
+        categoryIds: categoryIds,
+      );
+      return Success(AuthMapper.fromJson(response));
+    } catch (error) {
+      return ResultFailure(_mapError(error));
+    }
   }
 
   @override
-  Future<User> refreshToken({
+  Future<Result<User>> refreshToken({
     required String refreshToken,
   }) async {
-    final Map<String, Object?> response = await _remoteDataSource.refreshToken(
-      refreshToken: refreshToken,
-    );
-    return AuthMapper.fromJson(response);
+    try {
+      final response = await _remoteDataSource.refreshToken(
+        refreshToken: refreshToken,
+      );
+      return Success(AuthMapper.fromJson(response));
+    } catch (error) {
+      return ResultFailure(_mapError(error));
+    }
   }
 
   @override
@@ -62,5 +75,9 @@ class AuthRepositoryImpl extends BaseRepository<User>
   @override
   Future<User> sync() {
     throw UnimplementedError();
+  }
+
+  String _mapError(Object error) {
+    return error is Exception ? error.toString() : 'Unexpected error';
   }
 }

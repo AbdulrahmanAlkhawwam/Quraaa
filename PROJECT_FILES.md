@@ -4,6 +4,11 @@ Generated file index for quick project navigation.
 
 **Total tracked files:** ~320 files
 
+**Status legend:**
+
+- ✅ — Verified against `.ai` project rules.
+- ⬜ — Not yet verified.
+
 ## Root Configuration
 
 - `.env`
@@ -18,10 +23,10 @@ Generated file index for quick project navigation.
 
 ## Project Documentation
 
-- `.ai/README.md`
-- `.ai/project/architecture.md`
-- `.ai/project/coding-standards.md`
-- `.ai/project/workflow.md`
+- ✅ `.ai/README.md`
+- ✅ `.ai/project/architecture.md`
+- ✅ `.ai/project/coding-standards.md`
+- ✅ `.ai/project/workflow.md`
 - `.ai/skills/code-review.md`
 - `.ai/skills/create-tests.md`
 - `.ai/skills/review.md`
@@ -50,7 +55,7 @@ Generated file index for quick project navigation.
 - `lib/core/architecture/syncable_entity.dart`
 - `lib/core/architecture/use_case.dart`
 - `lib/core/assets/app_assets.dart`
-- `lib/core/assets/app_images.dart`
+- ✅ `lib/core/assets/app_images.dart`
 - `lib/core/connectivity/connection_status.dart`
 - `lib/core/connectivity/connectivity_service.dart`
 - `lib/core/connectivity/connectivity_service_impl.dart`
@@ -102,6 +107,7 @@ Generated file index for quick project navigation.
 - `lib/core/utils/date_utils.dart`
 - `lib/core/utils/debouncer.dart`
 - `lib/core/utils/extensions.dart`
+- ✅ `lib/core/utils/image_helper.dart`
 - `lib/core/utils/validators.dart`
 
 ### Features
@@ -124,19 +130,17 @@ Generated file index for quick project navigation.
 - `lib/features/auth/domain/repositories/auth_repository.dart`
 - `lib/features/auth/domain/use_cases/login_use_case.dart`
 - `lib/features/auth/domain/use_cases/register_use_case.dart`
-- `lib/features/auth/presentation/bloc/auth_bloc.dart`
-- `lib/features/auth/presentation/bloc/auth_event.dart`
-- `lib/features/auth/presentation/bloc/auth_state.dart`
-- `lib/features/auth/presentation/pages/auth_screen.dart`
+- ✅ `lib/features/auth/presentation/bloc/auth_bloc.dart`
+- ✅ `lib/features/auth/presentation/bloc/auth_event.dart`
+- ✅ `lib/features/auth/presentation/bloc/auth_state.dart`
+- ✅ `lib/features/auth/presentation/pages/landing_page.dart`
 - `lib/features/auth/presentation/pages/location_permission_screen.dart`
 - `lib/features/auth/presentation/pages/login_screen.dart`
 - `lib/features/auth/presentation/pages/notification_permission_screen.dart`
 - `lib/features/auth/presentation/pages/otp_verification_screen.dart`
 - `lib/features/auth/presentation/pages/register_screen.dart`
 - `lib/features/auth/presentation/presentation.dart`
-- `lib/features/auth/presentation/widgets/.gitkeep`
 - `lib/features/auth/presentation/widgets/auth_form_fields.dart`
-- `lib/features/auth/presentation/widgets/landing_page.dart`
 
 #### Home
 
@@ -245,7 +249,7 @@ Generated file index for quick project navigation.
 - `lib/shared/models/.gitkeep`
 - `lib/shared/models/message.dart`
 - `lib/shared/theme/app_colors.dart`
-- `lib/shared/theme/app_dimensions.dart`
+- ✅ `lib/shared/theme/app_dimensions.dart`
 - `lib/shared/theme/app_durations.dart`
 - `lib/shared/theme/app_radius.dart`
 - `lib/shared/theme/app_shadows.dart`
@@ -253,9 +257,9 @@ Generated file index for quick project navigation.
 - `lib/shared/theme/app_theme.dart`
 - `lib/shared/theme/app_theme_cubit.dart`
 - `lib/shared/theme/styles/app_bar.dart`
-- `lib/shared/theme/styles/filled_button.dart`
-- `lib/shared/theme/styles/outlined_button.dart`
-- `lib/shared/theme/styles/text_button.dart`
+- ✅ `lib/shared/theme/styles/filled_button.dart`
+- ✅ `lib/shared/theme/styles/outlined_button.dart`
+- ✅ `lib/shared/theme/styles/text_button.dart`
 - `lib/shared/theme/styles/text_input_feild.dart`
 - `lib/shared/theme/styles/text_styles.dart`
 - `lib/shared/widgets/animated_search_bar.dart`
@@ -263,6 +267,8 @@ Generated file index for quick project navigation.
 - `lib/shared/widgets/bottom_sheet_drag_handle.dart`
 - `lib/shared/widgets/dev_debug_overlay.dart`
 - `lib/shared/widgets/expandable_search_bar.dart`
+- ✅ `lib/shared/widgets/app_image.dart`
+- ✅ `lib/shared/widgets/app_layout.dart`
 - `lib/shared/widgets/language_bottom_sheet.dart`
 - `lib/shared/widgets/notification_bottom_sheet.dart`
 - `lib/shared/widgets/onboarding_progress_indicator.dart`
@@ -283,7 +289,8 @@ Generated file index for quick project navigation.
 
 - `assets/animations/.gitkeep`
 - `assets/icons/.gitkeep`
-- `assets/illustrations/.gitkeep`
+- `assets/illustrations/boy.svg`
+- `assets/illustrations/girl.svg`
 - `assets/lottie/.gitkeep`
 - `assets/mock_data/.gitkeep`
 - `assets/images/onboarding.jpg`
@@ -304,14 +311,19 @@ Generated file index for quick project navigation.
 
 - `test/core/.gitkeep`
 - `test/core/errors/error_mapper_test.dart`
+- ✅ `test/core/utils/image_helper_test.dart`
 - `test/core/utils/validators_test.dart`
 - `test/features/auth/data/repositories/auth_repository_impl_test.dart`
 - `test/features/auth/domain/use_cases/login_use_case_test.dart`
-- `test/features/auth/presentation/bloc/auth_bloc_test.dart`
+- ✅ `test/features/auth/presentation/bloc/auth_bloc_test.dart`
 - `test/fixtures/.gitkeep`
 - `test/helpers/.gitkeep`
 - `test/mocks/.gitkeep`
 - `test/mocks/mock_classes.dart`
+- ✅ `test/shared/theme/styles/filled_button_test.dart`
+- ✅ `test/shared/theme/styles/outlined_button_test.dart`
+- ✅ `test/shared/theme/styles/text_button_test.dart`
+- ✅ `test/shared/widgets/app_image_test.dart`
 - `test/widget_test.dart`
 
 ## Android — `android/`

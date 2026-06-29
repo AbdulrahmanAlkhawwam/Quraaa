@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/assets/app_images.dart';
-import '../../../../shared/shared.dart';
+import '../../core/assets/app_images.dart';
+import '../theme/app_colors.dart';
+import 'app_image.dart';
+import '../theme/app_radius.dart';
+import '../theme/app_spacing.dart';
 
-class LandingPage extends StatelessWidget {
-  const LandingPage({
+class AppLayout extends StatelessWidget {
+  const AppLayout({
     required this.child,
     this.header = const SizedBox.shrink(),
     this.cardColor = AppColors.primary50,
@@ -33,7 +36,7 @@ class LandingPage extends StatelessWidget {
       body: Stack(
         children: [
           Positioned.fill(
-            child: Image.asset(
+            child: AppImage(
               AppImages.onboardingBackground,
               fit: BoxFit.cover,
             ),
@@ -54,20 +57,19 @@ class LandingPage extends StatelessWidget {
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               header,
-              Expanded(
-                child: Container(
-                  padding: padding,
-                  decoration: BoxDecoration(
-                    color: cardColor,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(topRadius),
-                    ),
+              Container(
+                padding: padding,
+                decoration: BoxDecoration(
+                  color: cardColor,
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(topRadius),
                   ),
-                  child: SafeArea(
-                    child: child,
-                  ),
+                ),
+                child: SafeArea(
+                  child: child,
                 ),
               ),
             ],

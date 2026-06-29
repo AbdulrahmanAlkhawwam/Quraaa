@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../config/routes/route_names.dart';
@@ -80,7 +81,7 @@ class _GenderOnboardingView extends StatelessWidget {
       body: Stack(
         children: [
           Positioned.fill(
-            child: Image.asset(
+            child: AppImage(
               AppImages.onboardingBackground,
               fit: BoxFit.cover,
             ),
@@ -299,7 +300,12 @@ class _GenderCard extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _GenderAvatar(gender: gender, selected: selected),
+              AppImage(
+                gender == GenderSelection.boy
+                    ? AppImages.boyImage
+                    : AppImages.girlImage,
+                height: AppDimensions.onboardingAvatarSize,
+              ),
               const SizedBox(height: AppSpacing.spacing20),
               Text(
                 label,
@@ -315,70 +321,3 @@ class _GenderCard extends StatelessWidget {
   }
 }
 
-class _GenderAvatar extends StatelessWidget {
-  const _GenderAvatar({required this.gender, required this.selected});
-
-  final GenderSelection gender;
-  final bool selected;
-
-  @override
-  Widget build(BuildContext context) {
-    final Color baseColor = gender == GenderSelection.boy
-        ? AppColors.primary300
-        : AppColors.primary200;
-    final Color accentColor = gender == GenderSelection.boy
-        ? AppColors.primary700
-        : AppColors.warning500;
-    final List<List<dynamic>> icon = gender == GenderSelection.boy
-        ? HugeIcons.strokeRoundedUser
-        : HugeIcons.strokeRoundedUser02;
-
-    return Container(
-      width: AppDimensions.onboardingAvatarSize,
-      height: AppDimensions.onboardingAvatarSize,
-      decoration: BoxDecoration(
-        color: selected ? AppColors.card : AppColors.surface,
-        shape: BoxShape.circle,
-      ),
-      child: Center(
-        child: Container(
-          width: AppDimensions.onboardingAvatarSize * 0.78,
-          height: AppDimensions.onboardingAvatarSize * 0.78,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: LinearGradient(
-              colors: [baseColor.withAlpha(220), accentColor.withAlpha(220)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            boxShadow: AppShadows.avatarGlow(baseColor),
-          ),
-          child: Center(
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                HugeIcon(
-                  icon: icon,
-                  size: AppDimensions.onboardingAvatarSize * 0.42,
-                  color: AppColors.card,
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    width: AppDimensions.onboardingAvatarSize * 0.42,
-                    height: AppDimensions.onboardingAvatarSize * 0.42,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.card.withAlpha(60),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}

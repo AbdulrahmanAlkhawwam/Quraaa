@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -163,10 +162,11 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             clipBehavior: Clip.antiAlias,
             child: hasImage
-                ? Image.file(
-                    File(profileImage),
+                ? AppImage(
+                    profileImage,
+                    isFile: true,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Center(
+                    errorWidget: const Center(
                       child: HugeIcon(
                         icon: HugeIcons.strokeRoundedUser,
                         color: AppColors.primary600,
@@ -174,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   )
-                : Center(
+                : const Center(
                     child: HugeIcon(
                       icon: HugeIcons.strokeRoundedUser,
                       color: AppColors.primary600,

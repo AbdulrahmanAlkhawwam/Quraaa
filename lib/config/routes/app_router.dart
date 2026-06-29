@@ -8,7 +8,7 @@ import '../../features/auth/presentation/pages/notification_permission_screen.da
 import '../../features/home/presentation/pages/home_screen.dart';
 import '../../features/home/presentation/pages/audio_books_screen.dart';
 import '../../features/home/presentation/pages/cart_screen.dart';
-import '../../features/auth/presentation/pages/auth_screen.dart';
+import '../../features/auth/presentation/pages/landing_page.dart';
 import '../../features/auth/presentation/pages/login_screen.dart';
 import '../../features/auth/presentation/pages/register_screen.dart';
 import '../../features/home/presentation/pages/stores_screen.dart';
@@ -70,7 +70,7 @@ GoRouter buildAppRouter({
       GoRoute(
         name: RouteNames.auth,
         path: RouteNames.auth,
-        builder: (context, state) => const AuthScreen(),
+        builder: (context, state) => const LandingPage(),
       ),
       GoRoute(
         name: RouteNames.onboarding,

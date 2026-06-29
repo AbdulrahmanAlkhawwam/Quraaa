@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
@@ -415,7 +414,7 @@ class _UserAvatar extends StatelessWidget {
         border: Border.all(color: AppColors.card, width: 4),
       ),
       clipBehavior: Clip.antiAlias,
-      child: SvgPicture.string(
+      child: AppImage(
         _avatarSvg,
         fit: BoxFit.cover,
       ),

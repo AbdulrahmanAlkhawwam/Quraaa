@@ -11,7 +11,6 @@ import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import '../../data/datasources/auth_local_datasource.dart';
-import '../widgets/landing_page.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   const OtpVerificationScreen({super.key, this.phoneNumber});
@@ -149,7 +148,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   @override
   Widget build(BuildContext context) {
     return OfflineRouteGuard(
-      child: LandingPage(
+      child: AppLayout(
         resizeToAvoidBottomInset: true,
         header: Padding(
           padding: const EdgeInsets.symmetric(

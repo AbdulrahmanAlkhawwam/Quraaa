@@ -30,4 +30,5 @@ export 'sync/sync_worker.dart';
 export 'utils/date_utils.dart';
 export 'utils/debouncer.dart';
 export 'utils/extensions.dart';
+export 'utils/image_helper.dart';
 export 'utils/validators.dart';

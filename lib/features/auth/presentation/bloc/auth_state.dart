@@ -1,32 +1,40 @@
-import 'package:equatable/equatable.dart';
+part of 'auth_bloc.dart';
 
-sealed class AuthState with EquatableMixin {
-  const AuthState();
-
-  @override
-  List<Object?> get props => const <Object?>[];
+enum AuthStatus {
+  init,
+  loading,
+  success,
+  error,
+  navigationLoading,
+  navigateToOnboarding,
+  navigateToLogin,
 }
 
-final class AuthInitial extends AuthState {
-  const AuthInitial();
-}
+enum AuthNavigationDestination { onboarding, login }
 
-final class AuthLoading extends AuthState {
-  const AuthLoading();
-}
+@immutable
+class AuthState with EquatableMixin {
+  const AuthState({
+    this.status = AuthStatus.init,
+    this.error,
+    this.destination,
+  });
 
-final class AuthSuccess extends AuthState {
-  const AuthSuccess();
-}
-
-final class AuthError extends AuthState {
-  const AuthError(this.error);
-
+  final AuthStatus status;
   final Object? error;
+  final AuthNavigationDestination? destination;
+
+  AuthState copyWith({
+    AuthStatus? status,
+    Object? error,
+    AuthNavigationDestination? destination,
+  }) =>
+      AuthState(
+        status: status ?? this.status,
+        error: error ?? this.error,
+        destination: destination ?? this.destination,
+      );
 
   @override
-  List<Object?> get props => <Object?>[error];
-
-  @override
-  String toString() => 'AuthError(error: $error)';
+  List<Object?> get props => <Object?>[status, error, destination];
 }

@@ -7,6 +7,7 @@ import '../../../../core/errors/exceptions.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../auth/data/datasources/auth_local_datasource.dart';
 import '../../../auth/data/datasources/user_local_datasource.dart';
+import '../../../auth/domain/entities/user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../data/datasources/profile_local_data_source.dart';
 import '../../data/models/profile_model.dart';
@@ -141,8 +142,12 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     required String refreshToken,
   }) async {
     try {
-      final user = await authRepository.refreshToken(
+      final result = await authRepository.refreshToken(
         refreshToken: refreshToken,
+      );
+      final user = result.fold<User>(
+        (failure) => throw Exception(failure.message),
+        (user) => user,
       );
 
       // Persist the new tokens so subsequent requests use them.

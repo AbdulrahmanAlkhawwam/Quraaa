@@ -1,24 +1,17 @@
-import 'package:equatable/equatable.dart';
+part of 'auth_bloc.dart';
 
-sealed class AuthEvent with EquatableMixin {
-  const AuthEvent();
+@immutable
+sealed class AuthEvent {}
 
-  @override
-  List<Object?> get props => const <Object?>[];
-}
-
-final class AuthLoginRequested extends AuthEvent {
-  const AuthLoginRequested({required this.phoneNumber, required this.password});
+class AuthLoginRequested extends AuthEvent {
+  AuthLoginRequested({required this.phoneNumber, required this.password});
 
   final String phoneNumber;
   final String password;
-
-  @override
-  List<Object?> get props => <Object?>[phoneNumber, password];
 }
 
-final class AuthRegisterRequested extends AuthEvent {
-  const AuthRegisterRequested({
+class AuthRegisterRequested extends AuthEvent {
+  AuthRegisterRequested({
     this.firstName,
     this.lastName,
     this.phoneNumber,
@@ -35,15 +28,10 @@ final class AuthRegisterRequested extends AuthEvent {
   final int? gender;
   final String? dateOfBirth;
   final List<String>? categoryIds;
-
-  @override
-  List<Object?> get props => <Object?>[
-        firstName,
-        lastName,
-        phoneNumber,
-        password,
-        gender,
-        dateOfBirth,
-        categoryIds,
-      ];
 }
+
+class AuthStarted extends AuthEvent {}
+
+class AuthOnboardingRequested extends AuthEvent {}
+
+class AuthLoginRequestedFromAuth extends AuthEvent {}

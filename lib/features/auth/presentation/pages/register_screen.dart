@@ -20,10 +20,7 @@ import '../../../onboarding/domain/entities/onboarding_draft.dart';
 import '../../../onboarding/domain/repositories/onboarding_repository.dart';
 import '../../data/datasources/auth_local_datasource.dart';
 import '../bloc/auth_bloc.dart';
-import '../bloc/auth_event.dart';
-import '../bloc/auth_state.dart';
 import '../widgets/auth_form_fields.dart';
-import '../widgets/landing_page.dart';
 
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
@@ -243,13 +240,13 @@ class _RegisterViewState extends State<_RegisterView> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (BuildContext context, AuthState state) {
-        switch (state) {
-          case AuthSuccess():
+        switch (state.status) {
+          case AuthStatus.success:
             unawaited(
               _navigatePostRegister(context, phoneNumber: _lastSubmittedPhone),
             );
-          case AuthError(:final error):
-            context.showResolvedErrorSnackBar(error);
+          case AuthStatus.error:
+            context.showResolvedErrorSnackBar(state.error);
           case _:
             break;
         }
@@ -258,7 +255,7 @@ class _RegisterViewState extends State<_RegisterView> {
         canPop: false,
         child: Form(
           key: _formKey,
-          child: LandingPage(
+          child: AppLayout(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               child: Column(
@@ -415,11 +412,11 @@ class _RegisterViewState extends State<_RegisterView> {
                   const SizedBox(height: AppSpacing.spacing32),
                   BlocBuilder<AuthBloc, AuthState>(
                     builder: (BuildContext context, AuthState state) {
-                      final bool isLoading = state is AuthLoading;
                       return SizedBox(
                         height: AppDimensions.onboardingButtonHeight,
                         child: FilledButton(
-                          onPressed: isLoading || !_canSubmit
+                          onPressed: state.status == AuthStatus.loading ||
+                                  !_canSubmit
                               ? null
                               : () {
                                   unawaited(
@@ -429,7 +426,7 @@ class _RegisterViewState extends State<_RegisterView> {
                                   );
                                   _submitRegistration();
                                 },
-                          child: isLoading
+                          child: state.status == AuthStatus.loading
                               ? const SizedBox(
                                   width: 20,
                                   height: 20,
@@ -448,11 +445,10 @@ class _RegisterViewState extends State<_RegisterView> {
                   const SizedBox(height: AppSpacing.spacing24),
                   BlocBuilder<AuthBloc, AuthState>(
                     builder: (BuildContext context, AuthState state) {
-                      final bool isLoading = state is AuthLoading;
                       return SizedBox(
                         height: AppDimensions.onboardingButtonHeight,
                         child: OutlinedButton(
-                          onPressed: isLoading
+                          onPressed: state.status == AuthStatus.loading
                               ? null
                               : () {
                                   unawaited(

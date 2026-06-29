@@ -1,12 +1,13 @@
+import '../../../../core/architecture/result.dart';
 import '../entities/user.dart';
 
 abstract class AuthRepository {
-  Future<User> login({
+  Future<Result<User>> login({
     required String phoneNumber,
     required String password,
   });
 
-  Future<User> register({
+  Future<Result<User>> register({
     String? firstName,
     String? lastName,
     String? phoneNumber,
@@ -16,7 +17,7 @@ abstract class AuthRepository {
     List<String>? categoryIds,
   });
 
-  Future<User> refreshToken({
+  Future<Result<User>> refreshToken({
     required String refreshToken,
   });
 }

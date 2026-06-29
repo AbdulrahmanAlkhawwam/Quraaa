@@ -1,11 +1,9 @@
-import 'dart:io';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/widgets/app_image.dart';
 
 /// Circular avatar used in the Settings screen's SliverAppBar.
 ///
@@ -37,21 +35,13 @@ class ProfileAvatar extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: hasImage
-          ? isNetworkImage
-              ? CachedNetworkImage(
-                  imageUrl: imagePath!,
-                  fit: BoxFit.cover,
-                  placeholder: (BuildContext context, String url) =>
-                      _buildShimmer(),
-                  errorWidget:
-                      (BuildContext context, String url, Object error) =>
-                          _buildFallback(),
-                )
-              : Image.file(
-                  File(imagePath!),
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) => _buildFallback(),
-                )
+          ? AppImage(
+              imagePath,
+              fit: BoxFit.cover,
+              isFile: !isNetworkImage,
+              placeholder: _buildShimmer(),
+              errorWidget: _buildFallback(),
+            )
           : _buildFallback(),
     );
   }

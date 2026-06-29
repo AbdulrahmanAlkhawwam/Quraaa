@@ -16,6 +16,18 @@ This repository follows a production-ready Flutter architecture.
 - Business logic belongs inside Cubits or Blocs.
 - UI must never contain business logic.
 
+## Bloc Logic Conventions
+
+Follow the single-state class pattern used across the project (e.g., `AuthBloc`):
+
+- Define one immutable `State` class per Bloc with a `status` enum (`init`, `loading`, `success`, `error`, plus navigation-specific values when needed).
+- Provide a `copyWith` method on the state to emit incremental updates.
+- Avoid sealed state sub-classes such as `AuthLoading`, `AuthSuccess`, etc.
+- Events are simple immutable classes declared without `EquatableMixin`.
+- Use `part 'bloc_event.dart'` and `part 'bloc_state.dart'` inside the Bloc file.
+- Import `package:meta/meta.dart` and annotate events and state with `@immutable`.
+- UI must read status and data directly from the Bloc state; do not cache loading or derived values in local widget variables.
+
 ## Dependency Injection
 
 - Register dependencies using the existing DI solution.
