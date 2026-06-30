@@ -3,7 +3,6 @@ import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_datasource.dart';
 import '../mappers/auth_mapper.dart';
-import '../models/user_model.dart';
 
 class AuthRepositoryImpl extends BaseRepository<User>
     implements AuthRepository {
@@ -31,7 +30,7 @@ class AuthRepositoryImpl extends BaseRepository<User>
     String? password,
     int? gender,
     String? dateOfBirth,
-    String? categoryId,
+    List<String>? categoryIds,
   }) async {
     final Map<String, Object?> response = await _remoteDataSource.register(
       firstName: firstName,
@@ -40,7 +39,7 @@ class AuthRepositoryImpl extends BaseRepository<User>
       password: password,
       gender: gender,
       dateOfBirth: dateOfBirth,
-      categoryId: categoryId,
+      categoryIds: categoryIds,
     );
     return AuthMapper.fromJson(response);
   }

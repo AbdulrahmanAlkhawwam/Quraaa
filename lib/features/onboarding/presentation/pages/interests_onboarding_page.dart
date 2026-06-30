@@ -10,7 +10,6 @@ import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import '../../../../shared/widgets/onboarding_scaffold.dart';
 import '../../../auth/data/datasources/auth_local_datasource.dart';
-import '../../domain/entities/category.dart';
 import '../bloc/onboarding_bloc.dart';
 
 class InterestsOnboardingPage extends StatefulWidget {
@@ -119,7 +118,7 @@ class _InterestsOnboardingView extends StatelessWidget {
                     spacing: AppSpacing.spacing12,
                     runSpacing: AppSpacing.spacing12,
                     children: state.categories.map((category) {
-                      final selected = state.selectedCategoryId == category.id;
+                      final selected = state.selectedCategoryIds.contains(category.id);
                       return _InterestChip(
                         label: context.locale.languageCode == 'ar'
                             ? category.nameAr

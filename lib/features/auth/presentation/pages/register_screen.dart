@@ -7,12 +7,15 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 import '../../../../config/routes/route_names.dart';
+import '../../../../core/connectivity/offline_route_guard.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/error_monitoring/user_context_provider.dart';
 import '../../../../core/assets/app_images.dart';
 import '../../../../core/localization/localization_constants.dart';
+import '../../../../core/utils/validators.dart';
 import '../../../../shared/shared.dart';
 import '../../../../shared/widgets/phone_number_input.dart';
+import '../../../onboarding/domain/entities/category.dart';
 import '../../../onboarding/domain/entities/gender_selection.dart';
 import '../../../onboarding/domain/entities/onboarding_draft.dart';
 import '../../../onboarding/domain/repositories/onboarding_repository.dart';
@@ -28,7 +31,7 @@ class RegisterScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => sl<AuthBloc>(),
-      child: const _RegisterView(),
+      child: const OfflineRouteGuard(child: _RegisterView()),
     );
   }
 }
@@ -44,25 +47,139 @@ class _RegisterViewState extends State<_RegisterView> {
   final AuthLocalDataSource _authJourney = sl<AuthLocalDataSource>();
   final OnboardingRepository _onboardingRepository = sl<OnboardingRepository>();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   PhoneNumber? _phoneNumber;
   bool _isPhoneValid = false;
   bool _obscurePassword = true;
 
+  bool _isLoadingOnboarding = true;
+  GenderSelection? _selectedGender;
+  int? _birthYear;
+  int? _birthMonth;
+  int? _birthDay;
+  List<String> _selectedCategoryIds = const <String>[];
+  List<String> _validCategoryIds = const <String>[];
+
   String? _lastSubmittedPhone;
 
   @override
   void initState() {
     super.initState();
+    _firstNameController.addListener(_onFieldChanged);
+    _lastNameController.addListener(_onFieldChanged);
+    _phoneController.addListener(_onFieldChanged);
+    _passwordController.addListener(_onFieldChanged);
     unawaited(_authJourney.markRegisterSeen());
+    unawaited(_loadOnboardingData());
+  }
+
+  void _onFieldChanged() {
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _loadOnboardingData() async {
+    try {
+      final OnboardingDraft draft = await _onboardingRepository.loadState();
+      final List<Category> categories = await _onboardingRepository.getCategories();
+      if (!mounted) return;
+      setState(() {
+        _selectedGender = draft.selectedGender;
+        _birthYear = draft.birthYear;
+        _birthMonth = draft.birthMonth;
+        _birthDay = draft.birthDay;
+        _selectedCategoryIds = draft.selectedCategoryIds ?? const <String>[];
+        _validCategoryIds = categories.map((Category c) => c.id).toList();
+        _isLoadingOnboarding = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _isLoadingOnboarding = false;
+      });
+    }
   }
 
   @override
   void dispose() {
+    _firstNameController.removeListener(_onFieldChanged);
+    _lastNameController.removeListener(_onFieldChanged);
+    _phoneController.removeListener(_onFieldChanged);
+    _passwordController.removeListener(_onFieldChanged);
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  bool get _isPhoneFormatValid {
+    final String? normalized = _phoneNumber?.phoneNumber;
+    return _isPhoneValid && normalized != null && normalized.startsWith('+');
+  }
+
+  String? get _firstNameError => Validators.validateName(
+        _firstNameController.text,
+        emptyError: LocalizationConstants.authFirstNameRequiredErrorKey.tr(),
+        maxLengthError:
+            LocalizationConstants.authFirstNameMaxLengthErrorKey.tr(),
+      );
+
+  String? get _lastNameError => Validators.validateName(
+        _lastNameController.text,
+        emptyError: LocalizationConstants.authLastNameRequiredErrorKey.tr(),
+        maxLengthError:
+            LocalizationConstants.authLastNameMaxLengthErrorKey.tr(),
+      );
+
+  String? get _phoneError => Validators.validatePhone(
+        _phoneController.text,
+        emptyError: LocalizationConstants.authPhoneRequiredErrorKey.tr(),
+        formatError: LocalizationConstants.authPhoneFormatErrorKey.tr(),
+        isValid: _isPhoneFormatValid,
+      );
+
+  String? get _passwordError => Validators.validatePassword(
+        _passwordController.text,
+        emptyError: LocalizationConstants.authPasswordRequiredErrorKey.tr(),
+        minLengthError:
+            LocalizationConstants.authPasswordMinLengthErrorKey.tr(),
+        digitError: LocalizationConstants.authPasswordDigitErrorKey.tr(),
+      );
+
+  String? get _dateOfBirthError => Validators.validateDateOfBirth(
+        year: _birthYear,
+        month: _birthMonth,
+        day: _birthDay,
+        emptyError:
+            LocalizationConstants.authDateOfBirthRequiredErrorKey.tr(),
+        invalidError:
+            LocalizationConstants.authDateOfBirthInvalidErrorKey.tr(),
+      );
+
+  String? get _genderError => Validators.validateGender(
+        _selectedGender,
+        invalidError: LocalizationConstants.authGenderInvalidErrorKey.tr(),
+      );
+
+  String? get _interestsError => Validators.validateInterests(
+        categoryIds: _selectedCategoryIds,
+        validCategoryIds: _validCategoryIds,
+        emptyError: LocalizationConstants.authInterestsEmptyErrorKey.tr(),
+        invalidError: LocalizationConstants.authInterestsInvalidErrorKey.tr(),
+      );
+
+  bool get _canSubmit {
+    if (_isLoadingOnboarding) return false;
+    return _firstNameError == null &&
+        _lastNameError == null &&
+        _phoneError == null &&
+        _passwordError == null &&
+        _dateOfBirthError == null &&
+        _genderError == null &&
+        _interestsError == null;
   }
 
   Future<void> _continueAsUser() async {
@@ -94,49 +211,16 @@ class _RegisterViewState extends State<_RegisterView> {
   }
 
   Future<void> _submitRegistration() async {
-    final bool isValid = _formKey.currentState?.validate() ?? false;
-    if (!isValid) {
+    final bool isFormValid = _formKey.currentState?.validate() ?? false;
+    if (!isFormValid || !_canSubmit) {
       unawaited(sl<UserContextProvider>().recordAction('Auth submit blocked'));
       return;
     }
 
     unawaited(sl<UserContextProvider>().recordAction('Auth submit with data'));
 
-    final OnboardingDraft onboardingDraft = await _onboardingRepository
-        .loadState();
-    final GenderSelection? selectedGender = onboardingDraft.selectedGender;
-    final int? birthYear = onboardingDraft.birthYear;
-    final int? birthMonth = onboardingDraft.birthMonth;
-    final int? birthDay = onboardingDraft.birthDay;
-    final String? categoryId = onboardingDraft.selectedCategoryId;
-
-    if (selectedGender == null ||
-        birthYear == null ||
-        birthMonth == null ||
-        birthDay == null) {
-      if (!mounted) return;
-      context.showErrorSnackBar(
-        message: const Message(
-          title: 'Registration incomplete',
-          value: 'Please finish onboarding before registering.',
-        ),
-      );
-      return;
-    }
-
-    if (categoryId == null) {
-      if (!mounted) return;
-      context.showErrorSnackBar(
-        message: const Message(
-          title: 'Registration incomplete',
-          value: 'Please select an interest category before registering.',
-        ),
-      );
-      return;
-    }
-
     final String formattedDateOfBirth =
-        '${birthYear.toString().padLeft(4, '0')}-${birthMonth.toString().padLeft(2, '0')}-${birthDay.toString().padLeft(2, '0')}';
+        '${_birthYear.toString().padLeft(4, '0')}-${_birthMonth.toString().padLeft(2, '0')}-${_birthDay.toString().padLeft(2, '0')}';
 
     final PhoneNumber phoneNumber = _phoneNumber ?? PhoneNumber();
     final String normalizedPhone =
@@ -146,11 +230,13 @@ class _RegisterViewState extends State<_RegisterView> {
 
     context.read<AuthBloc>().add(
       AuthRegisterRequested(
+        firstName: _firstNameController.text.trim(),
+        lastName: _lastNameController.text.trim(),
         phoneNumber: normalizedPhone,
         password: _passwordController.text,
-        gender: _genderToApiValue(selectedGender),
+        gender: _genderToApiValue(_selectedGender!),
         dateOfBirth: formattedDateOfBirth,
-        categoryId: categoryId,
+        categoryIds: _selectedCategoryIds,
       ),
     );
   }
@@ -235,6 +321,56 @@ class _RegisterViewState extends State<_RegisterView> {
                             ),
                             const SizedBox(height: AppSpacing.spacing32),
                             _LabeledField(
+                              label: LocalizationConstants.authFirstNameLabelKey
+                                  .tr(),
+                              child: _AuthTextField(
+                                controller: _firstNameController,
+                                hintText: LocalizationConstants
+                                    .authFirstNameHintKey
+                                    .tr(),
+                                textInputAction: TextInputAction.next,
+                                textCapitalization: TextCapitalization.words,
+                                autovalidateMode:
+                                    AutovalidateMode.onUserInteraction,
+                                validator: (String? value) =>
+                                    Validators.validateName(
+                                  value,
+                                  emptyError: LocalizationConstants
+                                      .authFirstNameRequiredErrorKey
+                                      .tr(),
+                                  maxLengthError: LocalizationConstants
+                                      .authFirstNameMaxLengthErrorKey
+                                      .tr(),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.spacing16),
+                            _LabeledField(
+                              label: LocalizationConstants.authLastNameLabelKey
+                                  .tr(),
+                              child: _AuthTextField(
+                                controller: _lastNameController,
+                                hintText: LocalizationConstants
+                                    .authLastNameHintKey
+                                    .tr(),
+                                textInputAction: TextInputAction.next,
+                                textCapitalization: TextCapitalization.words,
+                                autovalidateMode:
+                                    AutovalidateMode.onUserInteraction,
+                                validator: (String? value) =>
+                                    Validators.validateName(
+                                  value,
+                                  emptyError: LocalizationConstants
+                                      .authLastNameRequiredErrorKey
+                                      .tr(),
+                                  maxLengthError: LocalizationConstants
+                                      .authLastNameMaxLengthErrorKey
+                                      .tr(),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.spacing16),
+                            _LabeledField(
                               label: LocalizationConstants.authPhoneLabelKey
                                   .tr(),
                               child: Material(
@@ -265,18 +401,17 @@ class _RegisterViewState extends State<_RegisterView> {
                                       });
                                     }
                                   },
-                                  validator: (String? value) {
-                                    if (value == null || value.trim().isEmpty) {
-                                      return LocalizationConstants
-                                          .authPhoneHintKey
-                                          .tr();
-                                    }
-                                    if (!_isPhoneValid ||
-                                        _phoneNumber?.isoCode == null) {
-                                      return 'Please enter a valid phone number and country';
-                                    }
-                                    return null;
-                                  },
+                                  validator: (String? value) =>
+                                      Validators.validatePhone(
+                                    value,
+                                    emptyError: LocalizationConstants
+                                        .authPhoneRequiredErrorKey
+                                        .tr(),
+                                    formatError: LocalizationConstants
+                                        .authPhoneFormatErrorKey
+                                        .tr(),
+                                    isValid: _isPhoneFormatValid,
+                                  ),
                                   autoValidateMode:
                                       AutovalidateMode.onUserInteraction,
                                   onFieldSubmitted: _submitRegistration,
@@ -311,16 +446,34 @@ class _RegisterViewState extends State<_RegisterView> {
                                     size: 20,
                                   ),
                                 ),
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return LocalizationConstants
-                                        .authPasswordHintKey
-                                        .tr();
-                                  }
-                                  return null;
-                                },
+                                validator: (String? value) =>
+                                    Validators.validatePassword(
+                                  value,
+                                  emptyError: LocalizationConstants
+                                      .authPasswordRequiredErrorKey
+                                      .tr(),
+                                  minLengthError: LocalizationConstants
+                                      .authPasswordMinLengthErrorKey
+                                      .tr(),
+                                  digitError: LocalizationConstants
+                                      .authPasswordDigitErrorKey
+                                      .tr(),
+                                ),
+                                autovalidateMode:
+                                    AutovalidateMode.onUserInteraction,
                                 onSubmitted: (_) => _submitRegistration(),
                               ),
+                            ),
+                            const SizedBox(height: AppSpacing.spacing12),
+                            _PasswordChecklist(
+                              password: _passwordController.text,
+                            ),
+                            const SizedBox(height: AppSpacing.spacing16),
+                            _OnboardingValidationSummary(
+                              isLoading: _isLoadingOnboarding,
+                              dateOfBirthError: _dateOfBirthError,
+                              genderError: _genderError,
+                              interestsError: _interestsError,
                             ),
                             const SizedBox(height: AppSpacing.spacing32),
                             BlocBuilder<AuthBloc, AuthState>(
@@ -329,7 +482,7 @@ class _RegisterViewState extends State<_RegisterView> {
                                 return SizedBox(
                                   height: AppDimensions.onboardingButtonHeight,
                                   child: FilledButton(
-                                    onPressed: isLoading
+                                    onPressed: isLoading || !_canSubmit
                                         ? null
                                         : () {
                                             unawaited(
@@ -452,6 +605,7 @@ class _AuthTextField extends StatelessWidget {
     this.onSubmitted,
     this.validator,
     this.textCapitalization = TextCapitalization.none,
+    this.autovalidateMode,
   });
 
   final TextEditingController controller;
@@ -463,6 +617,7 @@ class _AuthTextField extends StatelessWidget {
   final ValueChanged<String>? onSubmitted;
   final String? Function(String?)? validator;
   final TextCapitalization textCapitalization;
+  final AutovalidateMode? autovalidateMode;
 
   @override
   Widget build(BuildContext context) {
@@ -477,8 +632,159 @@ class _AuthTextField extends StatelessWidget {
         style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textPrimary),
         validator: validator,
         onFieldSubmitted: onSubmitted,
+        autovalidateMode: autovalidateMode,
         decoration: InputDecoration(hintText: hintText, suffixIcon: suffixIcon),
       ),
+    );
+  }
+}
+
+class _PasswordChecklist extends StatelessWidget {
+  const _PasswordChecklist({required this.password});
+
+  final String password;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        _PasswordRequirementItem(
+          isMet: Validators.passwordNotEmpty(password),
+          text: LocalizationConstants.authPasswordRequirementNotEmptyKey.tr(),
+        ),
+        const SizedBox(height: AppSpacing.spacing8),
+        _PasswordRequirementItem(
+          isMet: Validators.passwordMinLength(password),
+          text: LocalizationConstants.authPasswordRequirementMinLengthKey.tr(),
+        ),
+        const SizedBox(height: AppSpacing.spacing8),
+        _PasswordRequirementItem(
+          isMet: Validators.passwordHasDigit(password),
+          text: LocalizationConstants.authPasswordRequirementDigitKey.tr(),
+        ),
+      ],
+    );
+  }
+}
+
+class _PasswordRequirementItem extends StatelessWidget {
+  const _PasswordRequirementItem({
+    required this.isMet,
+    required this.text,
+  });
+
+  final bool isMet;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        AnimatedContainer(
+          duration: AppDurations.medium,
+          width: 20,
+          height: 20,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isMet ? AppColors.success500 : Colors.transparent,
+            border: Border.all(
+              color: isMet ? AppColors.success500 : AppColors.textSecondary,
+              width: 1.5,
+            ),
+          ),
+          child: AnimatedSwitcher(
+            duration: AppDurations.medium,
+            transitionBuilder: (
+              Widget child,
+              Animation<double> animation,
+            ) {
+              return ScaleTransition(scale: animation, child: child);
+            },
+            child: isMet
+                ? const Icon(
+                    Icons.check,
+                    color: Colors.white,
+                    size: 14,
+                    key: ValueKey<String>('check'),
+                  )
+                : const SizedBox.shrink(
+                    key: ValueKey<String>('empty'),
+                  ),
+          ),
+        ),
+        const SizedBox(width: AppSpacing.spacing12),
+        AnimatedDefaultTextStyle(
+          duration: AppDurations.medium,
+          style: AppTextStyles.bodySmall.copyWith(
+            color: isMet ? AppColors.success500 : AppColors.textSecondary,
+          ),
+          child: Text(text),
+        ),
+      ],
+    );
+  }
+}
+
+class _OnboardingValidationSummary extends StatelessWidget {
+  const _OnboardingValidationSummary({
+    required this.isLoading,
+    this.dateOfBirthError,
+    this.genderError,
+    this.interestsError,
+  });
+
+  final bool isLoading;
+  final String? dateOfBirthError;
+  final String? genderError;
+  final String? interestsError;
+
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Center(
+        child: SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      );
+    }
+
+    final List<String> errors = <String>[
+      ?dateOfBirthError,
+      ?genderError,
+      ?interestsError,
+    ];
+
+    if (errors.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: errors.map((String error) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.spacing8),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              const Icon(
+                Icons.error_outline,
+                color: AppColors.error500,
+                size: 16,
+              ),
+              const SizedBox(width: AppSpacing.spacing8),
+              Expanded(
+                child: Text(
+                  error,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.error500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
     );
   }
 }

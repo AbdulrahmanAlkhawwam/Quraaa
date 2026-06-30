@@ -4,7 +4,7 @@ class OnboardingDraft {
   const OnboardingDraft({
     required this.completed,
     required this.selectedGender,
-    required this.selectedCategoryId,
+    required this.selectedCategoryIds,
     required this.birthYear,
     required this.birthMonth,
     required this.birthDay,
@@ -12,7 +12,7 @@ class OnboardingDraft {
 
   final bool completed;
   final GenderSelection? selectedGender;
-  final String? selectedCategoryId;
+  final List<String>? selectedCategoryIds;
   final int? birthYear;
   final int? birthMonth;
   final int? birthDay;

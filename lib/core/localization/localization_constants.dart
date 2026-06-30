@@ -8,10 +8,48 @@ class LocalizationConstants {
   static const String authCreateNewAccountKey = 'auth.screen.create_new_account';
   static const String authLoginTitleKey = 'auth.login.title';
   static const String authRegisterTitleKey = 'auth.register.title';
+  static const String authFirstNameLabelKey = 'auth.first_name.label';
+  static const String authFirstNameHintKey = 'auth.first_name.hint';
+  static const String authLastNameLabelKey = 'auth.last_name.label';
+  static const String authLastNameHintKey = 'auth.last_name.hint';
   static const String authPhoneLabelKey = 'auth.phone.label';
   static const String authPhoneHintKey = 'auth.phone.hint';
   static const String authPasswordLabelKey = 'auth.password.label';
   static const String authPasswordHintKey = 'auth.password.hint';
+  static const String authPasswordRequiredErrorKey =
+      'auth.password.validation.required';
+  static const String authPasswordMinLengthErrorKey =
+      'auth.password.validation.min_length';
+  static const String authPasswordDigitErrorKey =
+      'auth.password.validation.digit';
+  static const String authPasswordRequirementNotEmptyKey =
+      'auth.password.requirement.not_empty';
+  static const String authPasswordRequirementMinLengthKey =
+      'auth.password.requirement.min_length';
+  static const String authPasswordRequirementDigitKey =
+      'auth.password.requirement.digit';
+  static const String authFirstNameRequiredErrorKey =
+      'auth.first_name.validation.required';
+  static const String authFirstNameMaxLengthErrorKey =
+      'auth.first_name.validation.max_length';
+  static const String authLastNameRequiredErrorKey =
+      'auth.last_name.validation.required';
+  static const String authLastNameMaxLengthErrorKey =
+      'auth.last_name.validation.max_length';
+  static const String authPhoneRequiredErrorKey =
+      'auth.phone.validation.required';
+  static const String authPhoneFormatErrorKey =
+      'auth.phone.validation.format';
+  static const String authDateOfBirthRequiredErrorKey =
+      'auth.date_of_birth.validation.required';
+  static const String authDateOfBirthInvalidErrorKey =
+      'auth.date_of_birth.validation.invalid';
+  static const String authGenderInvalidErrorKey =
+      'auth.gender.validation.invalid';
+  static const String authInterestsEmptyErrorKey =
+      'auth.interests.validation.empty';
+  static const String authInterestsInvalidErrorKey =
+      'auth.interests.validation.invalid';
   static const String authNextKey = 'auth.action.next';
   static const String authContinueAsGuestKey = 'auth.action.continue_as_guest';
   static const String onboardingGenderTitleKey = 'onboarding.gender.title';

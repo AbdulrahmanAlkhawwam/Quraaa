@@ -6,6 +6,7 @@ import 'package:pinput/pinput.dart';
 
 import '../../../../config/routes/route_names.dart';
 import '../../../../core/assets/app_images.dart';
+import '../../../../core/connectivity/offline_route_guard.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../shared/shared.dart';
 import '../../data/datasources/auth_local_datasource.dart';
@@ -150,9 +151,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       ),
     );
 
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      body: Stack(
+    return OfflineRouteGuard(
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        body: Stack(
         children: [
           Positioned.fill(
             child: Image.asset(
@@ -323,6 +325,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           ),
         ],
       ),
-    );
+    ),
+  );
   }
 }

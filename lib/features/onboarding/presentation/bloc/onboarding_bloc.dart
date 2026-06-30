@@ -66,7 +66,7 @@ final class OnboardingNextRequested extends OnboardingEvent {
   const OnboardingNextRequested();
 }
 
-  final class OnboardingNavigationCompleted extends OnboardingEvent {
+final class OnboardingNavigationCompleted extends OnboardingEvent {
   const OnboardingNavigationCompleted();
 }
 
@@ -77,7 +77,7 @@ class OnboardingState {
     this.birthDay,
     this.selectedGender,
     this.categories = const <Category>[],
-    this.selectedCategoryId,
+    this.selectedCategoryIds = const <String>[],
     this.isLoading = false,
     this.isCompleted = false,
     this.navigationTarget,
@@ -91,7 +91,7 @@ class OnboardingState {
   final int? birthDay;
   final GenderSelection? selectedGender;
   final List<Category> categories;
-  final String? selectedCategoryId;
+  final List<String> selectedCategoryIds;
   final bool isLoading;
   final bool isCompleted;
   final String? navigationTarget;
@@ -130,7 +130,7 @@ class OnboardingState {
   bool get canContinueGender =>
       selectedGender != null && !isLoading && !isCompleted;
 
-  bool get hasCategory => selectedCategoryId != null;
+  bool get hasCategory => selectedCategoryIds.isNotEmpty;
 
   bool get canContinueCategory =>
       hasCategory && !isLoading && !isCompleted;
@@ -153,7 +153,7 @@ class OnboardingState {
     Object? birthDay = _unset,
     Object? selectedGender = _unset,
     Object? categories = _unset,
-    Object? selectedCategoryId = _unset,
+    Object? selectedCategoryIds = _unset,
     bool? isLoading,
     bool? isCompleted,
     Object? navigationTarget = _unset,
@@ -171,9 +171,9 @@ class OnboardingState {
       categories: identical(categories, _unset)
           ? this.categories
           : List<Category>.unmodifiable(categories as List<Category>),
-      selectedCategoryId: identical(selectedCategoryId, _unset)
-          ? this.selectedCategoryId
-          : selectedCategoryId as String?,
+      selectedCategoryIds: identical(selectedCategoryIds, _unset)
+          ? this.selectedCategoryIds
+          : List<String>.unmodifiable(selectedCategoryIds as List<String>),
       isLoading: isLoading ?? this.isLoading,
       isCompleted: isCompleted ?? this.isCompleted,
       navigationTarget: identical(navigationTarget, _unset)
@@ -236,7 +236,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
           birthDay: draft.birthDay,
           selectedGender: draft.selectedGender,
           categories: categories,
-          selectedCategoryId: draft.selectedCategoryId,
+          selectedCategoryIds: draft.selectedCategoryIds ?? const <String>[],
           isLoading: false,
           isCompleted: false,
         ),
@@ -339,21 +339,29 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     OnboardingCategorySelected event,
     Emitter<OnboardingState> emit,
   ) async {
-    final String? newCategoryId = state.selectedCategoryId == event.categoryId
-        ? null
-        : event.categoryId;
+    final List<String> newCategoryIds =
+        List<String>.from(state.selectedCategoryIds);
+    if (newCategoryIds.contains(event.categoryId)) {
+      newCategoryIds.remove(event.categoryId);
+    } else {
+      newCategoryIds.add(event.categoryId);
+    }
 
     emit(
       state.copyWith(
-        selectedCategoryId: newCategoryId,
+        selectedCategoryIds: newCategoryIds,
         errorMessage: null,
       ),
     );
 
     try {
-      await _saveCategoryIdUseCase(SaveCategoryIdParams(newCategoryId));
+      await _saveCategoryIdUseCase(
+        SaveCategoryIdParams(
+          newCategoryIds.isEmpty ? null : newCategoryIds,
+        ),
+      );
     } catch (_) {
-      emit(state.copyWith(errorMessage: 'Failed to save category'));
+      emit(state.copyWith(errorMessage: 'Failed to save categories'));
     }
   }
 

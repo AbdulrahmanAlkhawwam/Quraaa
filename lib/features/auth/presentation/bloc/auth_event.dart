@@ -18,7 +18,7 @@ final class AuthRegisterRequested extends AuthEvent {
     this.password,
     this.gender,
     this.dateOfBirth,
-    this.categoryId,
+    this.categoryIds,
   });
 
   final String? firstName;
@@ -27,5 +27,5 @@ final class AuthRegisterRequested extends AuthEvent {
   final String? password;
   final int? gender;
   final String? dateOfBirth;
-  final String? categoryId;
+  final List<String>? categoryIds;
 }

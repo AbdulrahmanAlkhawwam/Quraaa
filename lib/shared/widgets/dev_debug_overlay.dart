@@ -43,22 +43,18 @@ class DevDebugOverlay extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppColors.error500.withOpacity(0.9),
+                  color: AppColors.error500.withValues(alpha: 0.9),
                   shape: BoxShape.circle,
                   boxShadow: <BoxShadow>[
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.25),
+                      color: Colors.black.withValues(alpha: 0.25),
                       blurRadius: 6,
                       offset: const Offset(0, 2),
                     ),
                   ],
                 ),
                 child: const Center(
-                  child: Icon(
-                    Icons.bug_report,
-                    color: Colors.white,
-                    size: 20,
-                  ),
+                  child: Icon(Icons.bug_report, color: Colors.white, size: 20),
                 ),
               ),
             ),
@@ -126,9 +122,10 @@ class _DebugInfoSheetState extends State<_DebugInfoSheet> {
       };
 
       // Connectivity
-      final List<ConnectivityResult> results =
-          await Connectivity().checkConnectivity();
-      final String connectivityStatus = results.isEmpty ||
+      final List<ConnectivityResult> results = await Connectivity()
+          .checkConnectivity();
+      final String connectivityStatus =
+          results.isEmpty ||
               results.every(
                 (ConnectivityResult r) => r == ConnectivityResult.none,
               )
@@ -176,9 +173,9 @@ class _DebugInfoSheetState extends State<_DebugInfoSheet> {
                 child: Text(
                   'Dev Debug Info',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: AppColors.textPrimary,
-                        fontWeight: FontWeight.w700,
-                      ),
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
               IconButton(

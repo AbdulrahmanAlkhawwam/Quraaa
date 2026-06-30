@@ -1,3 +1,5 @@
+import '../../core/connectivity/connection_status.dart';
+import '../../core/connectivity/connectivity_service.dart';
 import '../../core/di/injection_container.dart';
 import '../../features/auth/data/datasources/auth_local_datasource.dart'
     show AuthLocalDataSource, AuthJourneyStage, AuthSessionMode;
@@ -7,8 +9,7 @@ import 'route_names.dart';
 
 Future<String> resolveStartupRoute() async {
   final OnboardingRepository onboardingRepository = sl<OnboardingRepository>();
-  final AuthLocalDataSource authJourney =
-      sl<AuthLocalDataSource>();
+  final AuthLocalDataSource authJourney = sl<AuthLocalDataSource>();
 
   final OnboardingDraft onboardingDraft = await onboardingRepository.loadState();
   final AuthSessionMode? sessionMode = await authJourney.getSessionMode();
@@ -20,18 +21,18 @@ Future<String> resolveStartupRoute() async {
   }
 
   if (onboardingDraft.completed) {
-    return RouteNames.register;
+    return await _guardOnlineRoute(RouteNames.register);
   }
 
   if (currentStage != null) {
-    return _normalizeStageRoute(currentStage);
+    return await _guardOnlineRoute(_normalizeStageRoute(currentStage));
   }
 
   if (_hasOnboardingProgress(onboardingDraft)) {
-    return _deriveRouteFromDraft(onboardingDraft);
+    return await _guardOnlineRoute(_deriveRouteFromDraft(onboardingDraft));
   }
 
-  return RouteNames.auth;
+  return await _guardOnlineRoute(RouteNames.auth);
 }
 
 String _deriveRouteFromDraft(OnboardingDraft onboardingDraft) {
@@ -50,7 +51,8 @@ String _deriveRouteFromDraft(OnboardingDraft onboardingDraft) {
     return RouteNames.onboardingAge;
   }
 
-  if (onboardingDraft.selectedCategoryId == null) {
+  if (onboardingDraft.selectedCategoryIds == null ||
+      onboardingDraft.selectedCategoryIds!.isEmpty) {
     return RouteNames.onboardingInterests;
   }
 
@@ -60,7 +62,8 @@ String _deriveRouteFromDraft(OnboardingDraft onboardingDraft) {
 bool _hasOnboardingProgress(OnboardingDraft onboardingDraft) {
   return onboardingDraft.completed ||
       onboardingDraft.selectedGender != null ||
-      onboardingDraft.selectedCategoryId != null ||
+      (onboardingDraft.selectedCategoryIds != null &&
+          onboardingDraft.selectedCategoryIds!.isNotEmpty) ||
       onboardingDraft.birthYear != null ||
       onboardingDraft.birthMonth != null ||
       onboardingDraft.birthDay != null;
@@ -97,3 +100,16 @@ const Set<String> _knownRoutes = <String>{
   RouteNames.onboardingInterests,
   RouteNames.notificationPermission,
 };
+
+Future<String> _guardOnlineRoute(String route) async {
+  if (route != RouteNames.register && route != RouteNames.otpVerification) {
+    return route;
+  }
+
+  final ConnectionStatus status = await sl<ConnectivityService>().currentStatus();
+  if (status == ConnectionStatus.disconnected) {
+    return RouteNames.auth;
+  }
+
+  return route;
+}

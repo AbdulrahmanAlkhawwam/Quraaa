@@ -13,6 +13,6 @@ abstract class AuthRepository {
     String? password,
     int? gender,
     String? dateOfBirth,
-    String? categoryId,
+    List<String>? categoryIds,
   });
 }

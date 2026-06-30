@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
-import '../theme/app_radius.dart';
 import '../theme/app_spacing.dart';
 
 class OnboardingProgressIndicator extends StatelessWidget {
@@ -17,8 +16,7 @@ class OnboardingProgressIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return
-      Row(
+    return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List<Widget>.generate(count, (index) {
         final bool active = index == activeIndex - 1;

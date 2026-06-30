@@ -9,7 +9,7 @@ class AuthMapper {
     String? password,
     int? gender,
     String? dateOfBirth,
-    String? categoryId,
+    List<String>? categoryIds,
   }) {
     return <String, Object?>{
       'firstName': ?firstName,
@@ -18,7 +18,7 @@ class AuthMapper {
       'password': ?password,
       'gender': ?gender,
       'dateOfBirth': ?dateOfBirth,
-      'categoryId': ?categoryId,
+      'categoryIds': ?categoryIds,
     };
   }
 

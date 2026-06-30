@@ -12,6 +12,8 @@ import '../../core/localization/localization_service.dart';
 import '../../core/localization/supported_locales.dart';
 import '../../core/services/storage_service.dart';
 import '../../features/account/data/user_data_local_data_source.dart';
+import '../../features/auth/data/datasources/user_local_datasource.dart';
+import '../../features/auth/data/models/user_model.dart';
 import '../shared.dart';
 
 enum UserDataTab {
@@ -33,6 +35,7 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   final UserDataLocalDataSource _dataSource =
       UserDataLocalDataSource(sl<StorageService>());
+  final UserLocalDataSource _authDataSource = sl<UserLocalDataSource>();
 
   UserDataTab _selectedTab = UserDataTab.profile;
   UserDataSnapshot? _snapshot;
@@ -45,7 +48,16 @@ class _AppShellState extends State<AppShell> {
   }
 
   Future<void> _load() async {
-    final UserDataSnapshot snapshot = await _dataSource.load();
+    UserDataSnapshot snapshot = await _dataSource.load();
+
+    // Prefer the authenticated user profile from cache so the screen shows
+    // the right data when the user is offline. Guest users keep the local
+    // fallback snapshot.
+    final UserModel? cachedUser = await _authDataSource.getUser();
+    if (cachedUser != null) {
+      snapshot = _mergeAuthUser(snapshot, cachedUser);
+    }
+
     if (!mounted) {
       return;
     }
@@ -54,6 +66,25 @@ class _AppShellState extends State<AppShell> {
       _snapshot = snapshot;
       _loading = false;
     });
+  }
+
+  UserDataSnapshot _mergeAuthUser(
+    UserDataSnapshot localSnapshot,
+    UserModel user,
+  ) {
+    return UserDataSnapshot(
+      fullName: user.fullName.isNotEmpty ? user.fullName : localSnapshot.fullName,
+      birthDate: user.birthday ?? localSnapshot.birthDate,
+      country: user.country ?? localSnapshot.country,
+      phone: user.phoneNumber ?? localSnapshot.phone,
+      theme: localSnapshot.theme,
+      language: user.language ?? localSnapshot.language,
+      bookmarks: localSnapshot.bookmarks,
+      budgetBalance: localSnapshot.budgetBalance,
+      libraryItems: localSnapshot.libraryItems,
+      operations: localSnapshot.operations,
+      profileImage: localSnapshot.profileImage,
+    );
   }
 
   Future<void> _logout() async {
@@ -75,6 +106,7 @@ class _AppShellState extends State<AppShell> {
           tab: tab,
           snapshot: _snapshot!,
           dataSource: _dataSource,
+          authDataSource: _authDataSource,
           onSaved: _load,
         ),
       ),
@@ -791,12 +823,14 @@ class UserDataEditScreen extends StatefulWidget {
     required this.tab,
     required this.snapshot,
     required this.dataSource,
+    required this.authDataSource,
     required this.onSaved,
   });
 
   final UserDataTab tab;
   final UserDataSnapshot snapshot;
   final UserDataLocalDataSource dataSource;
+  final UserLocalDataSource authDataSource;
   final Future<void> Function() onSaved;
 
   @override
@@ -856,12 +890,35 @@ class _UserDataEditScreenState extends State<UserDataEditScreen> {
       case UserDataTab.profile:
       case UserDataTab.edit:
       case UserDataTab.idCard:
+        final String fullName = _oneController.text.trim();
+        final String birthDate = _twoController.text.trim();
+        final String country = _threeController.text.trim();
+        final String phone = _fourController.text.trim();
+
         await widget.dataSource.saveProfile(
-          fullName: _oneController.text.trim(),
-          birthDate: _twoController.text.trim(),
-          country: _threeController.text.trim(),
-          phone: _fourController.text.trim(),
+          fullName: fullName,
+          birthDate: birthDate,
+          country: country,
+          phone: phone,
         );
+
+        // Keep the authenticated user cache in sync so the profile screen
+        // continues to show the right data when offline.
+        final UserModel? cachedUser = await widget.authDataSource.getUser();
+        if (cachedUser != null) {
+          final List<String> nameParts = fullName.trim().split(' ');
+          final String firstName = nameParts.first;
+          final String? lastName = nameParts.length > 1
+              ? nameParts.sublist(1).join(' ')
+              : cachedUser.lastName;
+          await widget.authDataSource.updateProfile(
+            firstName: firstName,
+            lastName: lastName,
+            birthday: birthDate,
+            country: country,
+            phoneNumber: phone,
+          );
+        }
         break;
       case UserDataTab.badges:
         await widget.dataSource.saveBudgetBalance(_oneController.text.trim());

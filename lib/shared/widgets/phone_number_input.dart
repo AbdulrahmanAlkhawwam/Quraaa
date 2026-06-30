@@ -3,7 +3,6 @@ import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
-import '../theme/app_radius.dart';
 import '../theme/app_spacing.dart';
 import '../theme/styles/text_styles.dart';
 
@@ -136,7 +135,7 @@ class _PhoneNumberInputState extends State<PhoneNumberInput> {
             onFieldSubmitted: widget.onFieldSubmitted != null
                 ? (String _) => widget.onFieldSubmitted!()
                 : null,
-          )
+          ),
         ],
       ),
     );

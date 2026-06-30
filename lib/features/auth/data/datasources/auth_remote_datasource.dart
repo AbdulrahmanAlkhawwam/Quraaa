@@ -19,7 +19,7 @@ abstract class AuthRemoteDataSource {
     String? password,
     int? gender,
     String? dateOfBirth,
-    String? categoryId,
+    List<String>? categoryIds,
   });
 }
 
@@ -68,7 +68,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     String? password,
     int? gender,
     String? dateOfBirth,
-    String? categoryId,
+    List<String>? categoryIds,
   }) async {
     try {
       final Response<dynamic> response = await _httpHelper.post(
@@ -80,7 +80,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           password: password,
           gender: gender,
           dateOfBirth: dateOfBirth,
-          categoryId: categoryId,
+          categoryIds: categoryIds,
         ),
       );
 

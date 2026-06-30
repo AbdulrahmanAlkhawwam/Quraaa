@@ -27,6 +27,7 @@ import '../error_monitoring/crashlytics_service.dart';
 import '../error_monitoring/device_info_provider.dart';
 import '../error_monitoring/dio_logging_interceptor.dart';
 import '../error_monitoring/navigation_tracker.dart';
+import '../error_monitoring/error_report_cache.dart';
 import '../error_monitoring/telegram_notification_service.dart';
 import '../error_monitoring/user_context_provider.dart';
 import '../network/http_helper.dart';
@@ -105,8 +106,15 @@ void registerCoreDependencies() {
     () => UserContextProvider(sl<StorageService>()),
   );
   sl.registerLazySingleton<CrashlyticsService>(() => CrashlyticsService());
+  sl.registerLazySingleton<ErrorReportCache>(
+    () => ErrorReportCache(sl<StorageService>()),
+  );
+
   sl.registerLazySingleton<TelegramNotificationService>(
-    () => TelegramNotificationService(),
+    () => TelegramNotificationService(
+      sl<ErrorReportCache>(),
+      sl<ConnectivityService>(),
+    ),
   );
   sl.registerLazySingleton<AppLogger>(
     () => AppLoggerImpl(
@@ -220,6 +228,7 @@ void registerFeatureDependencies() {
       loginUseCase: sl<LoginUseCase>(),
       registerUseCase: sl<RegisterUseCase>(),
       authJourney: sl<AuthLocalDataSource>(),
+      userCache: sl<UserLocalDataSource>(),
       userContext: sl<UserContextProvider>(),
     ),
   );

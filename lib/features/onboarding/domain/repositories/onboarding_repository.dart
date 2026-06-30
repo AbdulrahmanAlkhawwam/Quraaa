@@ -13,7 +13,7 @@ abstract class OnboardingRepository {
 
   Future<void> saveGender(GenderSelection gender);
 
-  Future<void> saveCategoryId(String? categoryId);
+  Future<void> saveCategoryIds(List<String>? categoryIds);
 
   Future<void> completeOnboarding();
 

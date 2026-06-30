@@ -16,7 +16,7 @@ abstract class OnboardingLocalDataSource {
 
   Future<void> saveGender(GenderSelection gender);
 
-  Future<void> saveCategoryId(String? categoryId);
+  Future<void> saveCategoryIds(List<String>? categoryIds);
 
   Future<void> completeOnboarding();
 
@@ -36,7 +36,7 @@ class OnboardingLocalDataSourceImpl implements OnboardingLocalDataSource {
   static const String _birthMonthKey = 'birth_month';
   static const String _birthDayKey = 'birth_day';
   static const String _genderKey = 'gender';
-  static const String _selectedCategoryIdKey = 'selected_category_id';
+  static const String _selectedCategoryIdsKey = 'selected_category_ids';
   static const String _completedKey = 'onboarding_completed';
   static const String _categoriesCacheKey = 'categories_cache';
 
@@ -46,13 +46,14 @@ class OnboardingLocalDataSourceImpl implements OnboardingLocalDataSource {
     final int? birthMonth = _storageService.getInt(_birthMonthKey);
     final int? birthDay = _storageService.getInt(_birthDayKey);
     final String? storedGender = _storageService.getString(_genderKey);
-    final String? storedCategoryId = _storageService.getString(_selectedCategoryIdKey);
+    final List<String>? storedCategoryIds =
+        _storageService.getStringList(_selectedCategoryIdsKey);
     final bool completed = _storageService.getBool(_completedKey) ?? false;
 
     return OnboardingDraft(
       completed: completed,
       selectedGender: GenderSelection.fromKey(storedGender),
-      selectedCategoryId: storedCategoryId,
+      selectedCategoryIds: storedCategoryIds,
       birthYear: birthYear,
       birthMonth: birthMonth,
       birthDay: birthDay,
@@ -76,11 +77,11 @@ class OnboardingLocalDataSourceImpl implements OnboardingLocalDataSource {
   }
 
   @override
-  Future<void> saveCategoryId(String? categoryId) async {
-    if (categoryId == null) {
-      await _storageService.remove(_selectedCategoryIdKey);
+  Future<void> saveCategoryIds(List<String>? categoryIds) async {
+    if (categoryIds == null || categoryIds.isEmpty) {
+      await _storageService.remove(_selectedCategoryIdsKey);
     } else {
-      await _storageService.setString(_selectedCategoryIdKey, categoryId);
+      await _storageService.setStringList(_selectedCategoryIdsKey, categoryIds);
     }
   }
 

@@ -12,6 +12,9 @@ import '../../features/onboarding/presentation/pages/age_onboarding_page.dart';
 import '../../features/onboarding/presentation/pages/gender_onboarding_page.dart';
 import '../../features/onboarding/presentation/pages/interests_onboarding_page.dart';
 import '../../features/search/search.dart';
+import '../../core/connectivity/connection_status.dart';
+import '../../core/connectivity/connectivity_service.dart';
+import '../../core/di/injection_container.dart';
 import '../../features/splash/presentation/pages/splash_screen.dart';
 import '../../features/local_explorer/presentation/pages/local_explorer_page.dart';
 import '../../features/pdf_reader/presentation/pages/pdf_reader_page.dart';
@@ -27,12 +30,20 @@ GoRouter buildAppRouter({
     navigatorKey: navigatorKey,
     initialLocation: RouteNames.splash,
     observers: observers,
-    redirect: (context, state) {
+    redirect: (context, state) async {
       final String location = state.matchedLocation;
 
       if (location == RouteNames.routeBridge) {
         return resolveBridgeRoute(state.uri.queryParameters['route']) ??
             RouteNames.splash;
+      }
+
+      if (_isOnlineOnlyRoute(location)) {
+        final ConnectionStatus status =
+            await sl<ConnectivityService>().currentStatus();
+        if (status == ConnectionStatus.disconnected) {
+          return RouteNames.auth;
+        }
       }
 
       if (location == RouteNames.splash || _isKnownRoute(location)) {
@@ -151,4 +162,9 @@ bool _isKnownRoute(String location) {
     RouteNames.locationPermission,
     RouteNames.otpVerification,
   }.contains(location);
+}
+
+bool _isOnlineOnlyRoute(String location) {
+  return location == RouteNames.register ||
+      location == RouteNames.otpVerification;
 }

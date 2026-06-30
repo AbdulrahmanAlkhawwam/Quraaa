@@ -128,6 +128,76 @@ class ErrorReport {
     return truncateMessage(buffer.toString());
   }
 
+  Map<String, Object?> toJson() {
+    return <String, Object?>{
+      'severity': severity.name,
+      'exceptionType': exceptionType,
+      'exceptionMessage': exceptionMessage,
+      'stackTrace': stackTrace,
+      'timestamp': timestamp.toIso8601String(),
+      'userId': userId,
+      'userName': userName,
+      'userEmail': userEmail,
+      'currentRoute': currentRoute,
+      'previousRoute': previousRoute,
+      'navigationHistory': navigationHistory,
+      'lastUserAction': lastUserAction,
+      'apiMethod': apiMethod,
+      'apiUrl': apiUrl,
+      'apiStatusCode': apiStatusCode,
+      'apiDuration': apiDuration?.inMilliseconds,
+      'apiRequestBody': apiRequestBody,
+      'apiResponseBody': apiResponseBody,
+      'deviceModel': deviceModel,
+      'deviceManufacturer': deviceManufacturer,
+      'deviceOsVersion': deviceOsVersion,
+      'locale': locale,
+      'appVersion': appVersion,
+      'buildNumber': buildNumber,
+      'environment': environment,
+      'language': language,
+      'subscriptionStatus': subscriptionStatus,
+      'source': source,
+    };
+  }
+
+  factory ErrorReport.fromJson(Map<String, Object?> json) {
+    return ErrorReport(
+      severity: ErrorSeverity.values.byName(json['severity']! as String),
+      exceptionType: json['exceptionType']! as String,
+      exceptionMessage: json['exceptionMessage']! as String,
+      stackTrace: json['stackTrace']! as String,
+      timestamp: DateTime.parse(json['timestamp']! as String),
+      userId: json['userId'] as String?,
+      userName: json['userName'] as String?,
+      userEmail: json['userEmail'] as String?,
+      currentRoute: json['currentRoute'] as String?,
+      previousRoute: json['previousRoute'] as String?,
+      navigationHistory: (json['navigationHistory'] as List<dynamic>?)
+              ?.cast<String>() ??
+          const <String>[],
+      lastUserAction: json['lastUserAction'] as String?,
+      apiMethod: json['apiMethod'] as String?,
+      apiUrl: json['apiUrl'] as String?,
+      apiStatusCode: json['apiStatusCode'] as int?,
+      apiDuration: json['apiDuration'] == null
+          ? null
+          : Duration(milliseconds: json['apiDuration']! as int),
+      apiRequestBody: json['apiRequestBody'] as String?,
+      apiResponseBody: json['apiResponseBody'] as String?,
+      deviceModel: json['deviceModel'] as String?,
+      deviceManufacturer: json['deviceManufacturer'] as String?,
+      deviceOsVersion: json['deviceOsVersion'] as String?,
+      locale: json['locale'] as String?,
+      appVersion: json['appVersion'] as String?,
+      buildNumber: json['buildNumber'] as String?,
+      environment: json['environment'] as String?,
+      language: json['language'] as String?,
+      subscriptionStatus: json['subscriptionStatus'] as String?,
+      source: json['source'] as String?,
+    );
+  }
+
   ErrorReport copyWith({
     ErrorSeverity? severity,
     String? exceptionType,

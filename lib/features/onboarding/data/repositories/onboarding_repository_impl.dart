@@ -31,8 +31,8 @@ class OnboardingRepositoryImpl implements OnboardingRepository {
   }
 
   @override
-  Future<void> saveCategoryId(String? categoryId) {
-    return _localDataSource.saveCategoryId(categoryId);
+  Future<void> saveCategoryIds(List<String>? categoryIds) {
+    return _localDataSource.saveCategoryIds(categoryIds);
   }
 
   @override

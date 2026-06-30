@@ -13,6 +13,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'app/app.dart';
 import 'core/di/injection_container.dart';
 import 'core/error_monitoring/app_logger.dart';
+import 'core/error_monitoring/telegram_notification_service.dart';
 import 'core/localization/localization_service.dart';
 import 'core/localization/supported_locales.dart';
 import 'core/services/app_diagnostics_service.dart';
@@ -45,6 +46,7 @@ Future<void> main() async {
       appLogger = sl<AppLogger>();
       await _initializeFirebase(appLogger!);
       await appLogger!.initialize();
+      await sl<TelegramNotificationService>().flushPendingReports();
       await _configureErrorHandlers(appLogger!);
       await sl<AppDiagnosticsService>().logStartupSnapshot();
 
