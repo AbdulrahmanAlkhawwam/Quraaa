@@ -36,8 +36,20 @@ class OnboardingRepositoryImpl implements OnboardingRepository {
   }
 
   @override
-  Future<List<Category>> getCategories() {
-    return _remoteDataSource.getCategories();
+  Future<List<Category>> getCategories() async {
+    // 1. Try local cache first
+    final cached = await _localDataSource.getCachedCategories();
+    if (cached != null && cached.isNotEmpty) {
+      return cached;
+    }
+
+    // 2. Cache is empty → fetch from API
+    final fresh = await _remoteDataSource.getCategories();
+
+    // 3. Save to cache for next time
+    await _localDataSource.saveCachedCategories(fresh);
+
+    return fresh;
   }
 
   @override

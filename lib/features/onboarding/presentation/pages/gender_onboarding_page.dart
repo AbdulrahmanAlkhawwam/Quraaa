@@ -60,12 +60,7 @@ class _GenderOnboardingPageState extends State<GenderOnboardingPage> {
             listener: (context, state) {
               final msg = state.errorMessage;
               if (msg != null) {
-                context.showErrorSnackBar(
-                  message: Message(
-                    title: LocalizationConstants.onboardingGenderTitleKey.tr(),
-                    value: msg,
-                  ),
-                );
+                context.showResolvedErrorSnackBar(msg);
               }
             },
             child: const _GenderOnboardingView(),

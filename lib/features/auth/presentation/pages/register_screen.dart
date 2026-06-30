@@ -50,6 +50,8 @@ class _RegisterViewState extends State<_RegisterView> {
   bool _isPhoneValid = false;
   bool _obscurePassword = true;
 
+  String? _lastSubmittedPhone;
+
   @override
   void initState() {
     super.initState();
@@ -71,31 +73,24 @@ class _RegisterViewState extends State<_RegisterView> {
       subscriptionStatus: 'active',
     );
     if (!mounted) return;
-    await _navigatePostRegister(context);
+    await _navigatePostRegister(context, phoneNumber: _lastSubmittedPhone);
   }
 
   Future<void> _continueAsGuest() async {
     await _authJourney.markGuestSession();
     await sl<UserContextProvider>().clearUser();
     if (!mounted) return;
-    await _navigatePostRegister(context);
+    await _navigatePostRegister(context, phoneNumber: null);
   }
 
-  Future<void> _navigatePostRegister(BuildContext context) async {
-    final bool locationSeen = await _authJourney.isLocationPermissionSeen();
-    if (!context.mounted) return;
-    if (locationSeen) {
-      final bool notificationSeen =
-          await _authJourney.isNotificationPermissionSeen();
-      if (!context.mounted) return;
-      if (notificationSeen) {
-        context.goTo(RouteNames.home);
-      } else {
-        context.goTo(RouteNames.notificationPermission);
-      }
-    } else {
-      context.goTo(RouteNames.locationPermission);
-    }
+  Future<void> _navigatePostRegister(
+    BuildContext context, {
+    String? phoneNumber,
+  }) async {
+    context.goTo(
+      RouteNames.otpVerification,
+      extra: phoneNumber,
+    );
   }
 
   Future<void> _submitRegistration() async {
@@ -147,6 +142,8 @@ class _RegisterViewState extends State<_RegisterView> {
     final String normalizedPhone =
         phoneNumber.phoneNumber?.trim() ?? _phoneController.text.trim();
 
+    _lastSubmittedPhone = normalizedPhone;
+
     context.read<AuthBloc>().add(
       AuthRegisterRequested(
         phoneNumber: normalizedPhone,
@@ -171,11 +168,9 @@ class _RegisterViewState extends State<_RegisterView> {
       listener: (BuildContext context, AuthState state) {
         switch (state) {
           case AuthSuccess():
-            unawaited(_navigatePostRegister(context));
-          case AuthError(:final message):
-            context.showErrorSnackBar(
-              message: Message(title: 'Registration failed', value: message),
-            );
+            unawaited(_navigatePostRegister(context, phoneNumber: _lastSubmittedPhone));
+          case AuthError(:final error):
+            context.showResolvedErrorSnackBar(error);
           case _:
             break;
         }

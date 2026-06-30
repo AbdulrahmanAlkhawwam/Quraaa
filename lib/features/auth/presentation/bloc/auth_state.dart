@@ -16,7 +16,10 @@ final class AuthSuccess extends AuthState {
 }
 
 final class AuthError extends AuthState {
-  const AuthError(this.message);
+  const AuthError(this.error);
 
-  final String message;
+  final Object? error;
+
+  @override
+  String toString() => 'AuthError(error: $error)';
 }

@@ -52,7 +52,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
       emit(const AuthSuccess());
     } catch (error) {
-      emit(AuthError(error.toString()));
+      emit(AuthError(error));
     }
   }
 
@@ -89,7 +89,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
       emit(const AuthSuccess());
     } catch (error) {
-      emit(AuthError(error.toString()));
+      emit(AuthError(error));
     }
   }
 }

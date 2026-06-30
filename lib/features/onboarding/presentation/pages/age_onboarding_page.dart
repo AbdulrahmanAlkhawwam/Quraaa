@@ -53,12 +53,7 @@ class _AgeOnboardingPageState extends State<AgeOnboardingPage> {
           listener: (context, state) {
             final msg = state.errorMessage;
             if (msg != null) {
-              context.showErrorSnackBar(
-                message: Message(
-                  title: LocalizationConstants.onboardingAgeTitleKey.tr(),
-                  value: msg,
-                ),
-              );
+              context.showResolvedErrorSnackBar(msg);
             }
           },
           child: const _AgeOnboardingView(),

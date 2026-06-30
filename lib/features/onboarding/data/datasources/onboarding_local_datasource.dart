@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import '../../../../core/services/storage_service.dart';
 import '../../domain/entities/gender_selection.dart';
 import '../../domain/entities/onboarding_draft.dart';
+import '../models/category_model.dart';
 
 abstract class OnboardingLocalDataSource {
   Future<OnboardingDraft> loadState();
@@ -18,6 +21,10 @@ abstract class OnboardingLocalDataSource {
   Future<void> completeOnboarding();
 
   Future<void> resetCompletion();
+
+  Future<List<CategoryModel>?> getCachedCategories();
+
+  Future<void> saveCachedCategories(List<CategoryModel> categories);
 }
 
 class OnboardingLocalDataSourceImpl implements OnboardingLocalDataSource {
@@ -31,6 +38,7 @@ class OnboardingLocalDataSourceImpl implements OnboardingLocalDataSource {
   static const String _genderKey = 'gender';
   static const String _selectedCategoryIdKey = 'selected_category_id';
   static const String _completedKey = 'onboarding_completed';
+  static const String _categoriesCacheKey = 'categories_cache';
 
   @override
   Future<OnboardingDraft> loadState() async {
@@ -84,5 +92,28 @@ class OnboardingLocalDataSourceImpl implements OnboardingLocalDataSource {
   @override
   Future<void> resetCompletion() async {
     await _storageService.setBool(_completedKey, false);
+  }
+
+  @override
+  Future<List<CategoryModel>?> getCachedCategories() async {
+    final String? jsonString = _storageService.getString(_categoriesCacheKey);
+    if (jsonString == null || jsonString.isEmpty) {
+      return null;
+    }
+    try {
+      final List<dynamic> decoded = jsonDecode(jsonString) as List<dynamic>;
+      return decoded
+          .map((item) => CategoryModel.fromJson(item as Map<String, dynamic>))
+          .toList();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> saveCachedCategories(List<CategoryModel> categories) async {
+    final List<Map<String, dynamic>> jsonList =
+        categories.map((e) => e.toJson()).toList();
+    await _storageService.setString(_categoriesCacheKey, jsonEncode(jsonList));
   }
 }

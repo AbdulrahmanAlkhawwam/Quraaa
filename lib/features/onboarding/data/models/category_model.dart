@@ -14,4 +14,12 @@ class CategoryModel extends Category {
       nameEn: json['nameEn'] as String,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'id': id,
+      'nameAr': nameAr,
+      'nameEn': nameEn,
+    };
+  }
 }

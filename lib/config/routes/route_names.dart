@@ -12,6 +12,7 @@ abstract class RouteNames {
   static const String search = '/search';
   static const String notificationPermission = '/notification-permission';
   static const String locationPermission = '/location-permission';
+  static const String otpVerification = '/otp-verification';
   static const String explorer = '/explorer';
   static const String pdfReader = '/explorer/pdf';
 

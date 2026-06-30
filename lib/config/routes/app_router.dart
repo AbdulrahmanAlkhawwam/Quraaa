@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/auth/presentation/pages/otp_verification_screen.dart';
 import '../../features/auth/presentation/pages/location_permission_screen.dart';
 import '../../features/auth/presentation/pages/notification_permission_screen.dart';
 import '../../features/home/presentation/pages/home_screen.dart';
@@ -112,6 +113,14 @@ GoRouter buildAppRouter({
         builder: (context, state) => const SearchScreen(),
       ),
       GoRoute(
+        name: RouteNames.otpVerification,
+        path: RouteNames.otpVerification,
+        builder: (context, state) {
+          final String? phoneNumber = state.extra as String?;
+          return OtpVerificationScreen(phoneNumber: phoneNumber);
+        },
+      ),
+      GoRoute(
         name: RouteNames.notificationPermission,
         path: RouteNames.notificationPermission,
         builder: (context, state) => const NotificationPermissionScreen(),
@@ -140,5 +149,6 @@ bool _isKnownRoute(String location) {
     RouteNames.routeBridge,
     RouteNames.notificationPermission,
     RouteNames.locationPermission,
+    RouteNames.otpVerification,
   }.contains(location);
 }

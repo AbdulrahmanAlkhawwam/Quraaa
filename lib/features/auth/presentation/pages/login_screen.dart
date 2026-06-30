@@ -115,13 +115,8 @@ class _LoginViewState extends State<_LoginView> {
         switch (state) {
           case AuthSuccess():
             unawaited(_navigatePostAuth(context));
-          case AuthError(:final message):
-            context.showErrorSnackBar(
-              message: Message(
-                title: LocalizationConstants.authLoginTitleKey.tr(),
-                value: message,
-              ),
-            );
+          case AuthError(:final error):
+            context.showResolvedErrorSnackBar(error);
           case _:
             break;
         }

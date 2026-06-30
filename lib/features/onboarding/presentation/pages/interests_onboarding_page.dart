@@ -59,12 +59,7 @@ class _InterestsOnboardingPageState extends State<InterestsOnboardingPage> {
             listener: (context, state) {
               final msg = state.errorMessage;
               if (msg != null) {
-                context.showErrorSnackBar(
-                  message: Message(
-                    title: LocalizationConstants.onboardingInterestsTitleKey.tr(),
-                    value: msg,
-                  ),
-                );
+                context.showResolvedErrorSnackBar(msg);
               }
             },
             child: const _InterestsOnboardingView(),

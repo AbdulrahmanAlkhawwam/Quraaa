@@ -7,6 +7,7 @@ import 'package:hugeicons/hugeicons.dart';
 import '../../config/routes/route_names.dart';
 import '../../core/di/injection_container.dart';
 import '../../core/error_monitoring/user_context_provider.dart';
+import '../../core/errors/error_message_resolver.dart';
 import '../models/message.dart';
 
 extension AppNavigation on BuildContext {
@@ -158,5 +159,15 @@ extension AppSnackbar on BuildContext {
         ),
       ),
     );
+  }
+
+  /// Shows an error SnackBar whose title and message are automatically
+  /// resolved from the error object.
+  ///
+  /// In **debug** mode the raw technical details are displayed.
+  /// In **release** mode a user-friendly localized message is displayed
+  /// using the keys under `errors.*` in `assets/translations`.
+  void showResolvedErrorSnackBar(Object? error) {
+    showErrorSnackBar(message: ErrorMessageResolver.resolve(error));
   }
 }
