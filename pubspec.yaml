@@ -95,3 +95,34 @@ flutter:
     - assets/lottie/
     - assets/translations/
     - assets/mock_data/
+
+  fonts:
+    - family: Thmanyah Sans
+      fonts:
+        - asset: assets/fonts/thmanyah_sans/thmanyahsans-Light.otf
+          weight: 300
+        - asset: assets/fonts/thmanyah_sans/thmanyahsans-Regular.otf
+          weight: 400
+        - asset: assets/fonts/thmanyah_sans/thmanyahsans-Medium.otf
+          weight: 500
+        - asset: assets/fonts/thmanyah_sans/thmanyahsans-Bold.otf
+          weight: 600
+        - asset: assets/fonts/thmanyah_sans/thmanyahsans-Bold.otf
+          weight: 700
+        - asset: assets/fonts/thmanyah_sans/thmanyahsans-Black.otf
+          weight: 900
+    - family: Thmanyah Serif Display
+      fonts:
+        - asset: assets/fonts/thmanyah_serif/thmanyahseriftext-Light.otf
+          weight: 300
+        - asset: assets/fonts/thmanyah_serif/thmanyahseriftext-Regular.otf
+          weight: 400
+        - asset: assets/fonts/thmanyah_serif/thmanyahseriftext-Medium.otf
+          weight: 500
+        - asset: assets/fonts/thmanyah_serif/thmanyahseriftext-Bold.otf
+          weight: 600
+        - asset: assets/fonts/thmanyah_serif/thmanyahseriftext-Bold.otf
+          weight: 700
+        - asset: assets/fonts/thmanyah_serif/thmanyahseriftext-Black.otf
+          weight: 900
+
