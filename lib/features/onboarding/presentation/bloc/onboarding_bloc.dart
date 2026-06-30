@@ -59,6 +59,10 @@ final class OnboardingNextRequested extends OnboardingEvent {
   const OnboardingNextRequested();
 }
 
+  final class OnboardingNavigationCompleted extends OnboardingEvent {
+  const OnboardingNavigationCompleted();
+}
+
 class OnboardingState {
   const OnboardingState({
     this.birthYear,
@@ -143,7 +147,7 @@ class OnboardingState {
     bool? isLoading,
     bool? isCompleted,
     Object? navigationTarget = _unset,
-    String? errorMessage,
+    Object? errorMessage = _unset,
   }) {
     return OnboardingState(
       birthYear:
@@ -164,7 +168,9 @@ class OnboardingState {
       navigationTarget: identical(navigationTarget, _unset)
           ? this.navigationTarget
           : navigationTarget as String?,
-      errorMessage: errorMessage,
+      errorMessage: identical(errorMessage, _unset)
+          ? this.errorMessage
+          : errorMessage as String?,
     );
   }
 }
@@ -181,6 +187,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     on<OnboardingInterestsNextRequested>(_onInterestsNextRequested);
     on<OnboardingSkipRequested>(_onSkipRequested);
     on<OnboardingNextRequested>(_onNextRequested);
+    on<OnboardingNavigationCompleted>(_onNavigationCompleted);
   }
 
   final OnboardingViewModel _viewModel;
@@ -200,7 +207,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
           selectedGender: draft.selectedGender,
           selectedInterests: draft.selectedInterests,
           isLoading: false,
-          isCompleted: draft.completed,
+          isCompleted: false,
         ),
       );
     } catch (_) {
@@ -399,5 +406,12 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
         ),
       );
     }
+  }
+
+  Future<void> _onNavigationCompleted(
+    OnboardingNavigationCompleted _event,
+    Emitter<OnboardingState> emit,
+  ) async {
+    emit(state.copyWith(navigationTarget: null));
   }
 }

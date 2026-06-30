@@ -55,4 +55,9 @@ class StorageServiceImpl extends StorageService {
   bool contains(String key) {
     return sharedPreferences.containsKey(key);
   }
+
+  @override
+  Future<bool> clearAll() {
+    return sharedPreferences.clear();
+  }
 }

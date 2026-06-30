@@ -15,6 +15,7 @@ class UserDataLocalDataSource {
   static const String _budgetBalanceKey = 'user_budget_balance';
   static const String _libraryItemsKey = 'user_library_items';
   static const String _operationsKey = 'user_operations';
+  static const String _profileImageKey = 'user_profile_image';
 
   Future<UserDataSnapshot> load() async {
     return UserDataSnapshot(
@@ -31,6 +32,7 @@ class UserDataLocalDataSource {
           <String>['Saved books', 'Listening queue'],
       operations: _storageService.getStringList(_operationsKey) ??
           <String>['Login', 'Bookmark added', 'Budget update'],
+      profileImage: _storageService.getString(_profileImageKey),
     );
   }
 
@@ -69,6 +71,14 @@ class UserDataLocalDataSource {
   Future<void> saveOperations(List<String> operations) async {
     await _storageService.setStringList(_operationsKey, operations);
   }
+
+  Future<void> saveProfileImage(String path) async {
+    await _storageService.setString(_profileImageKey, path);
+  }
+
+  Future<void> clearProfileImage() async {
+    await _storageService.remove(_profileImageKey);
+  }
 }
 
 class UserDataSnapshot {
@@ -83,6 +93,7 @@ class UserDataSnapshot {
     required this.budgetBalance,
     required this.libraryItems,
     required this.operations,
+    this.profileImage,
   });
 
   final String fullName;
@@ -95,4 +106,5 @@ class UserDataSnapshot {
   final String budgetBalance;
   final List<String> libraryItems;
   final List<String> operations;
+  final String? profileImage;
 }

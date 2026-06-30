@@ -19,6 +19,10 @@ Future<String> resolveStartupRoute() async {
     return RouteNames.home;
   }
 
+  if (onboardingDraft.completed) {
+    return RouteNames.register;
+  }
+
   if (currentStage != null) {
     return _normalizeStageRoute(currentStage);
   }

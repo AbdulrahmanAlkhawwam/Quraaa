@@ -8,6 +8,7 @@ import '../../../../config/routes/route_names.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
+import '../../../../shared/widgets/onboarding_scaffold.dart';
 import '../../../auth/data/datasources/auth_local_datasource.dart';
 import '../../domain/entities/interest_selection.dart';
 import '../bloc/onboarding_bloc.dart';
@@ -35,26 +36,39 @@ class _InterestsOnboardingPageState extends State<InterestsOnboardingPage> {
     return BlocProvider<OnboardingBloc>(
       create: (_) => sl<OnboardingBloc>()..add(const OnboardingStarted()),
       child: BlocListener<OnboardingBloc, OnboardingState>(
-        listenWhen: (p, c) =>
-            p.navigationTarget != c.navigationTarget && c.navigationTarget != null,
+        listenWhen: (previous, current) => current.navigationTarget != null,
         listener: (context, state) {
           final target = state.navigationTarget;
-          if (target != null) context.goTo(target);
+          if (target != null) {
+            context.read<OnboardingBloc>().add(
+              const OnboardingNavigationCompleted(),
+            );
+            context.goTo(target);
+          }
         },
         child: BlocListener<OnboardingBloc, OnboardingState>(
-          listenWhen: (p, c) => p.errorMessage != c.errorMessage && c.errorMessage != null,
+          listenWhen: (previous, current) =>
+              current.isCompleted && !previous.isCompleted,
           listener: (context, state) {
-            final msg = state.errorMessage;
-            if (msg != null) {
-              context.showErrorSnackBar(
-                message: Message(
-                  title: LocalizationConstants.onboardingInterestsTitleKey.tr(),
-                  value: msg,
-                ),
-              );
+            if (state.isCompleted) {
+              context.goTo(RouteNames.register);
             }
           },
-          child: const _InterestsOnboardingView(),
+          child: BlocListener<OnboardingBloc, OnboardingState>(
+            listenWhen: (p, c) => p.errorMessage != c.errorMessage && c.errorMessage != null,
+            listener: (context, state) {
+              final msg = state.errorMessage;
+              if (msg != null) {
+                context.showErrorSnackBar(
+                  message: Message(
+                    title: LocalizationConstants.onboardingInterestsTitleKey.tr(),
+                    value: msg,
+                  ),
+                );
+              }
+            },
+            child: const _InterestsOnboardingView(),
+          ),
         ),
       ),
     );

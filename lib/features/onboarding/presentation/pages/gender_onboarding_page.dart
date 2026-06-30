@@ -37,16 +37,40 @@ class _GenderOnboardingPageState extends State<GenderOnboardingPage> {
     return BlocProvider<OnboardingBloc>(
       create: (_) => sl<OnboardingBloc>()..add(const OnboardingStarted()),
       child: BlocListener<OnboardingBloc, OnboardingState>(
-        listenWhen: (previous, current) =>
-            previous.navigationTarget != current.navigationTarget &&
-            current.navigationTarget != null,
+        listenWhen: (previous, current) => current.navigationTarget != null,
         listener: (context, state) {
           final String? target = state.navigationTarget;
           if (target != null) {
+            context.read<OnboardingBloc>().add(
+              const OnboardingNavigationCompleted(),
+            );
             context.goTo(target);
           }
         },
-        child: const _GenderOnboardingView(),
+        child: BlocListener<OnboardingBloc, OnboardingState>(
+          listenWhen: (previous, current) =>
+              current.isCompleted && !previous.isCompleted,
+          listener: (context, state) {
+            if (state.isCompleted) {
+              context.goTo(RouteNames.register);
+            }
+          },
+          child: BlocListener<OnboardingBloc, OnboardingState>(
+            listenWhen: (p, c) => p.errorMessage != c.errorMessage && c.errorMessage != null,
+            listener: (context, state) {
+              final msg = state.errorMessage;
+              if (msg != null) {
+                context.showErrorSnackBar(
+                  message: Message(
+                    title: LocalizationConstants.onboardingGenderTitleKey.tr(),
+                    value: msg,
+                  ),
+                );
+              }
+            },
+            child: const _GenderOnboardingView(),
+          ),
+        ),
       ),
     );
   }

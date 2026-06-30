@@ -11,7 +11,8 @@
   "auth": {
     "screen": {
       "start": "Let's Start",
-      "already_have_account": "I Have Already Account"
+      "already_have_account": "I Have Already Account",
+      "create_new_account": "Create new Account"
     },
     "login": {
       "title": "Sign in"
@@ -229,6 +230,96 @@
     "redirection": {
       "title": "Redirection",
       "message": "The request needs to be redirected."
+    }
+  },
+  "terms_privacy": {
+    "title": "Terms & Conditions",
+    "last_updated": "Last Updated: June 20, 2026",
+    "welcome": "Welcome to Quraaa. By creating an account, accessing, or using our services, you agree to these Terms & Conditions. If you do not agree, please do not use Quraaa.",
+    "sections": {
+      "acceptance": {
+        "title": "Acceptance of Terms",
+        "desc": "By using Quraaa, you confirm that you have read, understood, and agree to be bound by these Terms & Conditions and our Privacy Policy."
+      },
+      "eligibility": {
+        "title": "Eligibility",
+        "desc": "You must be at least the minimum legal age required in your country to use Quraaa or have permission from a parent or legal guardian."
+      },
+      "user_account": {
+        "title": "User Account",
+        "desc": "When creating an account, you agree to: Provide accurate and complete information. Keep your account credentials secure. Be responsible for all activities under your account. Notify us immediately if you believe your account has been accessed without your permission."
+      },
+      "use_of_platform": {
+        "title": "Use of the Platform",
+        "desc": "You agree to use Quraaa only for lawful purposes. You must not: Violate any applicable laws or regulations. Share copyrighted content without permission. Upload malicious software or harmful content. Attempt to access systems or data without authorization. Harass, threaten, or abuse other users. Use automated tools to collect data without permission."
+      },
+      "digital_content": {
+        "title": "Digital Content",
+        "desc": "Books, audiobooks, summaries, and other digital content available on Quraaa are protected by copyright and intellectual property laws. Unless explicitly permitted, you may not: Copy, Redistribute, Resell, Modify, Publish, or Share purchased digital content. Your purchases grant you a personal, non-transferable license to access the content."
+      },
+      "marketplace": {
+        "title": "Marketplace",
+        "desc": "Users may buy or sell eligible books through Quraaa. Sellers are responsible for: Accurate product descriptions. Legal ownership of listed items. Shipping physical books when applicable. Quraaa may remove listings that violate these Terms."
+      },
+      "author_content": {
+        "title": "Author Content",
+        "desc": "Authors retain ownership of the content they publish. By publishing on Quraaa, you grant us a non-exclusive license to host, display, distribute, and promote your content through the platform. Authors are responsible for ensuring they own all rights to the content they upload."
+      },
+      "ai_features": {
+        "title": "AI Features",
+        "desc": "Quraaa may provide AI-powered services including: Book summaries, Reading assistance, Recommendations, Translation support. AI-generated content is provided for informational purposes only and may not always be accurate or complete."
+      },
+      "community_guidelines": {
+        "title": "Community Guidelines",
+        "desc": "Users must communicate respectfully. The following content is prohibited: Hate speech, Harassment, Spam, Fraud, Illegal content, Offensive or harmful material. We reserve the right to remove content or suspend accounts that violate these guidelines."
+      },
+      "payments": {
+        "title": "Payments",
+        "desc": "Certain features require payment. By making a purchase, you agree that: Prices may change without prior notice. Payments are processed through authorized payment providers. Taxes may apply depending on your location."
+      },
+      "subscriptions": {
+        "title": "Subscriptions",
+        "desc": "Subscription plans renew according to the selected billing cycle unless canceled before renewal. Subscription benefits may change as the platform evolves."
+      },
+      "refund_policy": {
+        "title": "Refund Policy",
+        "desc": "Refund eligibility depends on the type of purchase and applicable laws. Digital purchases may not be refundable once accessed unless required by law."
+      },
+      "privacy": {
+        "title": "Privacy",
+        "desc": "Your use of Quraaa is also governed by our Privacy Policy, which explains how we collect, use, and protect your personal information."
+      },
+      "intellectual_property": {
+        "title": "Intellectual Property",
+        "desc": "All platform branding, logos, designs, software, and services are owned by Quraaa or its licensors and are protected by applicable intellectual property laws."
+      },
+      "service_availability": {
+        "title": "Service Availability",
+        "desc": "We strive to provide uninterrupted access but cannot guarantee that the platform will always be available. Maintenance, updates, or technical issues may temporarily affect service availability."
+      },
+      "account_suspension": {
+        "title": "Account Suspension",
+        "desc": "We may suspend or terminate accounts that: Violate these Terms. Engage in fraudulent activity. Abuse platform services. Infringe intellectual property rights."
+      },
+      "limitation_of_liability": {
+        "title": "Limitation of Liability",
+        "desc": "To the maximum extent permitted by law, Quraaa shall not be liable for indirect, incidental, or consequential damages resulting from the use of the platform."
+      },
+      "changes_to_terms": {
+        "title": "Changes to These Terms",
+        "desc": "We may update these Terms & Conditions from time to time. Significant changes will be communicated through the application or other appropriate channels. Continued use of Quraaa after updates constitutes acceptance of the revised Terms."
+      },
+      "contact_us": {
+        "title": "Contact Us",
+        "desc": "If you have any questions regarding these Terms & Conditions, please contact us through the support channels provided within the application."
+      }
+    },
+    "action": {
+      "agree": "I Agree"
+    },
+    "footer": {
+      "continue_part1": "By continuing, you accept our ",
+      "continue_part2": "Terms & Privacy"
     }
   }
 }

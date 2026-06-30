@@ -1,14 +1,15 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_holo_date_picker/flutter_holo_date_picker.dart';
 
 import '../../../../config/routes/route_names.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
+import '../../../../shared/widgets/onboarding_scaffold.dart';
 import '../../../auth/data/datasources/auth_local_datasource.dart';
 import '../bloc/onboarding_bloc.dart';
 
@@ -33,14 +34,22 @@ class _AgeOnboardingPageState extends State<AgeOnboardingPage> {
     return BlocProvider<OnboardingBloc>(
       create: (_) => sl<OnboardingBloc>()..add(const OnboardingStarted()),
       child: BlocListener<OnboardingBloc, OnboardingState>(
-        listenWhen: (p, c) =>
-            p.navigationTarget != c.navigationTarget && c.navigationTarget != null,
+        listenWhen: (previous, current) =>
+            previous.navigationTarget != current.navigationTarget &&
+            current.navigationTarget != null,
         listener: (context, state) {
           final target = state.navigationTarget;
-          if (target != null) context.goTo(target);
+          if (target != null) {
+            context.read<OnboardingBloc>().add(
+              const OnboardingNavigationCompleted(),
+            );
+            context.goTo(target);
+          }
         },
         child: BlocListener<OnboardingBloc, OnboardingState>(
-          listenWhen: (p, c) => p.errorMessage != c.errorMessage && c.errorMessage != null,
+          listenWhen: (previous, current) =>
+              current.errorMessage != null &&
+              previous.errorMessage != current.errorMessage,
           listener: (context, state) {
             final msg = state.errorMessage;
             if (msg != null) {
@@ -84,22 +93,16 @@ class _AgeOnboardingView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<OnboardingBloc, OnboardingState>(
       builder: (context, state) {
-        final DateTime? selectedDate = state.hasBirthDate
-            ? DateTime(state.birthYear!, state.birthMonth!, state.birthDay!)
-            : null;
         final DateTime now = DateTime.now();
-        final DateTime initialDate = selectedDate ??
-            now.subtract(const Duration(days: 365 * 18));
-        final String? dateError = _validateDate(state);
+        final DateTime initialDate = state.hasBirthDate
+            ? DateTime(state.birthYear!, state.birthMonth!, state.birthDay!)
+            : now.subtract(const Duration(days: 365 * 18));
 
-        const double pickerHeight = 220;
-        const double itemHeight = 48;
-        const double highlightPadding = 8;
-        const double highlightTop =
-            (pickerHeight / 2) - (itemHeight / 2) - (highlightPadding / 2);
+        final String? dateError = _validateDate(state);
 
         return OnboardingScaffold(
           title: LocalizationConstants.onboardingAgeTitleKey.tr(),
+          cardColor: const Color(0xFF0A0A0A),
           leading: OnboardingBackButton(
             onPressed: () async {
               await sl<AuthLocalDataSource>().saveJourneyStage(
@@ -129,92 +132,29 @@ class _AgeOnboardingView extends StatelessWidget {
           content: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
-                padding: const EdgeInsets.all(AppSpacing.spacing24),
-                decoration: BoxDecoration(
-                  color: AppColors.card,
-                  borderRadius: BorderRadius.circular(AppRadius.radius32),
-                  border: Border.all(color: AppColors.primary100),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      LocalizationConstants.onboardingAgeYearKey.tr(),
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.libraryGreen,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.spacing12),
-                    SizedBox(
-                      height: pickerHeight,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Positioned(
-                            top: highlightTop,
-                            left: 0,
-                            right: 0,
-                            child: Container(
-                              height: itemHeight + highlightPadding,
-                              decoration: BoxDecoration(
-                                color: AppColors.primary100,
-                                borderRadius: BorderRadius.circular(
-                                  AppRadius.radius16,
-                                ),
-                              ),
-                            ),
-                          ),
-                          DatePickerWidget(
-                            initialDate: initialDate,
-                            firstDate: DateTime(1900),
-                            lastDate: now,
-                            dateFormat: 'yyyy-MM-dd',
-                            locale: DateTimePickerLocale.en_us,
-                            looping: false,
-                            pickerTheme: DateTimePickerTheme(
-                              backgroundColor: Colors.transparent,
-                              itemHeight: itemHeight,
-                              pickerHeight: pickerHeight,
-                              itemTextStyle: const TextStyle(
-                                color: AppColors.libraryGreen,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              dividerColor: Colors.transparent,
-                              dividerHeight: 0,
-                              dividerThickness: 0,
-                            ),
-                            onChange: (dateTime, _) {
-                              context.read<OnboardingBloc>().add(
-                                OnboardingAgeYearChanged(dateTime.year),
-                              );
-                              context.read<OnboardingBloc>().add(
-                                OnboardingAgeMonthChanged(dateTime.month),
-                              );
-                              context.read<OnboardingBloc>().add(
-                                OnboardingAgeDayChanged(dateTime.day),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.spacing8),
-                    Text(
-                      LocalizationConstants.onboardingAgeYearRangeKey.tr(),
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
+              Expanded(
+                child: _DateWheelPicker(
+                  initialYear: initialDate.year,
+                  initialMonth: initialDate.month,
+                  initialDay: initialDate.day,
+                  onChanged: (date) {
+                    context.read<OnboardingBloc>().add(
+                      OnboardingAgeYearChanged(date.year),
+                    );
+                    context.read<OnboardingBloc>().add(
+                      OnboardingAgeMonthChanged(date.month),
+                    );
+                    context.read<OnboardingBloc>().add(
+                      OnboardingAgeDayChanged(date.day),
+                    );
+                  },
                 ),
               ),
               if (dateError != null) ...[
                 const SizedBox(height: AppSpacing.spacing8),
                 Text(
                   dateError,
+                  textAlign: TextAlign.center,
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.error500,
                   ),
@@ -232,6 +172,240 @@ class _AgeOnboardingView extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _DateWheelPicker extends StatefulWidget {
+  const _DateWheelPicker({
+    required this.initialYear,
+    required this.initialMonth,
+    required this.initialDay,
+    required this.onChanged,
+  });
+
+  final int initialYear;
+  final int initialMonth;
+  final int initialDay;
+  final ValueChanged<DateTime> onChanged;
+
+  @override
+  State<_DateWheelPicker> createState() => _DateWheelPickerState();
+}
+
+class _DateWheelPickerState extends State<_DateWheelPicker> {
+  late final FixedExtentScrollController _yearController;
+  late final FixedExtentScrollController _monthController;
+  late final FixedExtentScrollController _dayController;
+
+  late final List<int> _years;
+  late final List<int> _months;
+  late List<int> _days;
+
+  static const double _itemHeight = 56;
+
+  @override
+  void initState() {
+    super.initState();
+    final now = DateTime.now();
+
+    _years = List<int>.generate(now.year - 1899, (i) => 1900 + i);
+    _months = List<int>.generate(12, (i) => i + 1);
+    _days = _generateDays(widget.initialYear, widget.initialMonth);
+
+    final yearIndex = _years.indexOf(widget.initialYear);
+    final monthIndex = _months.indexOf(widget.initialMonth);
+    final dayIndex = _days.indexOf(widget.initialDay);
+
+    assert(yearIndex >= 0, 'Initial year ${widget.initialYear} not in range');
+    assert(monthIndex >= 0, 'Initial month ${widget.initialMonth} not in range');
+    assert(dayIndex >= 0, 'Initial day ${widget.initialDay} not in month');
+
+    _yearController = FixedExtentScrollController(
+      initialItem: yearIndex.clamp(0, _years.length - 1),
+    );
+    _monthController = FixedExtentScrollController(
+      initialItem: monthIndex.clamp(0, _months.length - 1),
+    );
+    _dayController = FixedExtentScrollController(
+      initialItem: dayIndex.clamp(0, _days.length - 1),
+    );
+  }
+
+  List<int> _generateDays(int year, int month) {
+    final daysInMonth = DateTime(year, month + 1, 0).day;
+    return List<int>.generate(daysInMonth, (i) => i + 1);
+  }
+
+  void _updateDays() {
+    final year = _years[_yearController.selectedItem];
+    final month = _months[_monthController.selectedItem];
+    final newDays = _generateDays(year, month);
+
+    if (!listEquals(_days, newDays)) {
+      _days = newDays;
+
+      if (_dayController.selectedItem >= newDays.length) {
+        _dayController.jumpToItem(newDays.length - 1);
+      }
+
+      setState(() {});
+    }
+  }
+
+  void _notifyChange() {
+    final year = _years[_yearController.selectedItem];
+    final month = _months[_monthController.selectedItem];
+    final day = _days[_dayController.selectedItem];
+    widget.onChanged(DateTime(year, month, day));
+  }
+
+  @override
+  void dispose() {
+    _yearController.dispose();
+    _monthController.dispose();
+    _dayController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(AppRadius.radius24),
+      ),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.spacing24),
+      child: Column(
+        children: [
+          // Column labels
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.spacing24),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    LocalizationConstants.onboardingAgeYearKey.tr(),
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.caption.copyWith(
+                      color: const Color(0xFF888888),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    LocalizationConstants.onboardingAgeMonthKey.tr(),
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.caption.copyWith(
+                      color: const Color(0xFF888888),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    LocalizationConstants.onboardingAgeDayKey.tr(),
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.caption.copyWith(
+                      color: const Color(0xFF888888),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.spacing16),
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: _WheelColumn(
+                    controller: _yearController,
+                    items: _years,
+                    onChanged: (_) {
+                      _updateDays();
+                      _notifyChange();
+                    },
+                    itemHeight: _itemHeight,
+                  ),
+                ),
+                Expanded(
+                  child: _WheelColumn(
+                    controller: _monthController,
+                    items: _months,
+                    onChanged: (_) {
+                      _updateDays();
+                      _notifyChange();
+                    },
+                    itemHeight: _itemHeight,
+                  ),
+                ),
+                Expanded(
+                  child: _WheelColumn(
+                    controller: _dayController,
+                    items: _days,
+                    onChanged: (_) => _notifyChange(),
+                    itemHeight: _itemHeight,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _WheelColumn extends StatelessWidget {
+  const _WheelColumn({
+    required this.controller,
+    required this.items,
+    required this.onChanged,
+    required this.itemHeight,
+  });
+
+  final FixedExtentScrollController controller;
+  final List<int> items;
+  final ValueChanged<int> onChanged;
+  final double itemHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        // Selected item highlight
+        Container(
+          height: itemHeight + 12,
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E1E1E),
+            borderRadius: BorderRadius.circular(AppRadius.radius12),
+          ),
+        ),
+        // Wheel
+        ListWheelScrollView(
+          controller: controller,
+          itemExtent: itemHeight,
+          physics: const FixedExtentScrollPhysics(),
+          perspective: 0.003,
+          diameterRatio: 2.0,
+          overAndUnderCenterOpacity: 0.25,
+          onSelectedItemChanged: onChanged,
+          children: items.map((item) {
+            return Center(
+              child: Text(
+                item.toString(),
+                style: AppTextStyles.bodyLarge.copyWith(
+                  color: AppColors.leafGreen,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 22,
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 }

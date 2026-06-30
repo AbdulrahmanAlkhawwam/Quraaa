@@ -12,6 +12,7 @@ import '../../../../core/error_monitoring/user_context_provider.dart';
 import '../../../../core/assets/app_images.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
+import '../../../../shared/widgets/phone_number_input.dart';
 import '../../../onboarding/domain/entities/gender_selection.dart';
 import '../../../onboarding/domain/entities/onboarding_draft.dart';
 import '../../../onboarding/domain/repositories/onboarding_repository.dart';
@@ -20,17 +21,28 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 
-class RegisterScreen extends StatefulWidget {
+class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => sl<AuthBloc>(),
+      child: const _RegisterView(),
+    );
+  }
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterView extends StatefulWidget {
+  const _RegisterView({super.key});
+
+  @override
+  State<_RegisterView> createState() => _RegisterViewState();
+}
+
+class _RegisterViewState extends State<_RegisterView> {
   final AuthLocalDataSource _authJourney = sl<AuthLocalDataSource>();
-  final OnboardingRepository _onboardingRepository =
-      sl<OnboardingRepository>();
+  final OnboardingRepository _onboardingRepository = sl<OnboardingRepository>();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -49,20 +61,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
-  }
-
-  Future<void> _goBack() async {
-    final AuthJourneyStage? previousStage =
-        await _authJourney.getPreviousStage();
-    if (_shouldResumeOnboarding(previousStage)) {
-      await _onboardingRepository.resetCompletion();
-    }
-    await _authJourney.saveJourneyStage(
-      previousStage ?? AuthJourneyStage.auth,
-      previousStage: AuthJourneyStage.register,
-    );
-    if (!mounted) return;
-    context.goTo(_routeForStage(previousStage));
   }
 
   Future<void> _continueAsUser() async {
@@ -86,18 +84,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _submitRegistration() async {
     final bool isValid = _formKey.currentState?.validate() ?? false;
     if (!isValid) {
-      unawaited(
-        sl<UserContextProvider>().recordAction('Auth submit blocked'),
-      );
+      unawaited(sl<UserContextProvider>().recordAction('Auth submit blocked'));
       return;
     }
 
-    unawaited(
-      sl<UserContextProvider>().recordAction('Auth submit with data'),
-    );
+    unawaited(sl<UserContextProvider>().recordAction('Auth submit with data'));
 
-    final OnboardingDraft onboardingDraft =
-        await _onboardingRepository.loadState();
+    final OnboardingDraft onboardingDraft = await _onboardingRepository
+        .loadState();
     final GenderSelection? selectedGender = onboardingDraft.selectedGender;
     final int? birthYear = onboardingDraft.birthYear;
     final int? birthMonth = onboardingDraft.birthMonth;
@@ -145,45 +139,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
     };
   }
 
-  String _routeForStage(AuthJourneyStage? stage) {
-    return switch (stage) {
-      AuthJourneyStage.auth => RouteNames.auth,
-      AuthJourneyStage.login => RouteNames.login,
-      AuthJourneyStage.register => RouteNames.register,
-      AuthJourneyStage.onboarding => RouteNames.onboarding,
-      AuthJourneyStage.onboardingAge => RouteNames.onboardingAge,
-      AuthJourneyStage.onboardingInterests => RouteNames.onboardingInterests,
-      AuthJourneyStage.home => RouteNames.home,
-      null => RouteNames.auth,
-    };
-  }
-
-  bool _shouldResumeOnboarding(AuthJourneyStage? stage) {
-    return stage == AuthJourneyStage.onboarding ||
-        stage == AuthJourneyStage.onboardingAge ||
-        stage == AuthJourneyStage.onboardingInterests;
-  }
-
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<AuthBloc>(),
-      child: BlocListener<AuthBloc, AuthState>(
-        listener: (BuildContext context, AuthState state) {
-          switch (state) {
-            case AuthSuccess():
-              context.goTo(RouteNames.home);
-            case AuthError(:final message):
-              context.showErrorSnackBar(
-                message: Message(
-                  title: 'Registration failed',
-                  value: message,
-                ),
-              );
-            case _:
-              break;
-          }
-        },
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (BuildContext context, AuthState state) {
+        switch (state) {
+          case AuthSuccess():
+            context.goTo(RouteNames.home);
+          case AuthError(:final message):
+            context.showErrorSnackBar(
+              message: Message(title: 'Registration failed', value: message),
+            );
+          case _:
+            break;
+        }
+      },
+      child: PopScope(
+        canPop: false,
         child: Scaffold(
           body: Form(
             key: _formKey,
@@ -233,21 +205,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Align(
-                              alignment: AlignmentDirectional.centerStart,
-                              child: _RoundIconButton(
-                                icon: HugeIcons.strokeRoundedArrowLeft01,
-                                onPressed: () {
-                                  unawaited(
-                                    sl<UserContextProvider>().recordAction(
-                                      'Auth back button',
-                                    ),
-                                  );
-                                  _goBack();
-                                },
-                              ),
-                            ),
-                            const SizedBox(height: AppSpacing.spacing20),
                             Text(
                               LocalizationConstants.authRegisterTitleKey.tr(),
                               textAlign: TextAlign.start,
@@ -257,49 +214,55 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             const SizedBox(height: AppSpacing.spacing32),
                             _LabeledField(
-                              label: LocalizationConstants.authPhoneLabelKey.tr(),
-                              child: PhoneNumberInput(
-                                controller: _phoneController,
-                                initialValue: PhoneNumber(isoCode: 'SY'),
-                                countries: const <String>[
-                                  // 'AE',
-                                  // 'BH',
-                                  // 'EG',
-                                  // 'IQ',
-                                  // 'JO',
-                                  // 'KW',
-                                  // 'LB',
-                                  // 'OM',
-                                  // 'QA',
-                                  // 'SA',
-                                  'SY',
-                                ],
-                                onInputChanged: (PhoneNumber value) {
-                                  _phoneNumber = value;
-                                },
-                                onInputValidated: (bool value) {
-                                  if (_isPhoneValid != value) {
-                                    setState(() {
-                                      _isPhoneValid = value;
-                                    });
-                                  }
-                                },
-                                validator: (String? value) {
-                                  if (value == null || value.trim().isEmpty) {
-                                    return LocalizationConstants.authPhoneHintKey
-                                        .tr();
-                                  }
-                                  if (!_isPhoneValid ||
-                                      _phoneNumber?.isoCode == null) {
-                                    return 'Please enter a valid phone number and country';
-                                  }
-                                  return null;
-                                },
-                                autoValidateMode:
-                                    AutovalidateMode.onUserInteraction,
-                                onFieldSubmitted: _submitRegistration,
-                                hintText: LocalizationConstants.authPhoneHintKey
-                                    .tr(),
+                              label: LocalizationConstants.authPhoneLabelKey
+                                  .tr(),
+                              child: Material(
+                                type: MaterialType.transparency,
+                                child: PhoneNumberInput(
+                                  controller: _phoneController,
+                                  initialValue: PhoneNumber(isoCode: 'SY'),
+                                  countries: const <String>[
+                                    'AE',
+                                    'BH',
+                                    'EG',
+                                    'IQ',
+                                    'JO',
+                                    'KW',
+                                    'LB',
+                                    'OM',
+                                    'QA',
+                                    'SA',
+                                    'SY',
+                                  ],
+                                  onInputChanged: (PhoneNumber value) {
+                                    _phoneNumber = value;
+                                  },
+                                  onInputValidated: (bool value) {
+                                    if (_isPhoneValid != value) {
+                                      setState(() {
+                                        _isPhoneValid = value;
+                                      });
+                                    }
+                                  },
+                                  validator: (String? value) {
+                                    if (value == null || value.trim().isEmpty) {
+                                      return LocalizationConstants
+                                          .authPhoneHintKey
+                                          .tr();
+                                    }
+                                    if (!_isPhoneValid ||
+                                        _phoneNumber?.isoCode == null) {
+                                      return 'Please enter a valid phone number and country';
+                                    }
+                                    return null;
+                                  },
+                                  autoValidateMode:
+                                      AutovalidateMode.onUserInteraction,
+                                  onFieldSubmitted: _submitRegistration,
+                                  hintText: LocalizationConstants
+                                      .authPhoneHintKey
+                                      .tr(),
+                                ),
                               ),
                             ),
                             const SizedBox(height: AppSpacing.spacing16),
@@ -308,7 +271,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   .tr(),
                               child: _AuthTextField(
                                 controller: _passwordController,
-                                hintText: LocalizationConstants.authPasswordHintKey
+                                hintText: LocalizationConstants
+                                    .authPasswordHintKey
                                     .tr(),
                                 obscureText: _obscurePassword,
                                 textInputAction: TextInputAction.done,
@@ -326,6 +290,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     size: 20,
                                   ),
                                 ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return LocalizationConstants
+                                        .authPasswordHintKey
+                                        .tr();
+                                  }
+                                  return null;
+                                },
                                 onSubmitted: (_) => _submitRegistration(),
                               ),
                             ),
@@ -342,8 +314,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                             unawaited(
                                               sl<UserContextProvider>()
                                                   .recordAction(
-                                                'Auth primary button',
-                                              ),
+                                                    'Auth primary button',
+                                                  ),
                                             );
                                             _submitRegistration();
                                           },
@@ -356,8 +328,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                               color: Colors.white,
                                             ),
                                           )
-                                        : Text(LocalizationConstants.authNextKey
-                                            .tr()),
+                                        : Text(
+                                            LocalizationConstants.authNextKey
+                                                .tr(),
+                                          ),
                                   ),
                                 );
                               },
@@ -375,19 +349,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                             unawaited(
                                               sl<UserContextProvider>()
                                                   .recordAction(
-                                                'Auth secondary button',
-                                              ),
+                                                    'Auth secondary button',
+                                                  ),
                                             );
                                             _continueAsGuest();
                                           },
                                     child: Text(
-                                      LocalizationConstants.authContinueAsGuestKey
+                                      LocalizationConstants
+                                          .authContinueAsGuestKey
                                           .tr(),
                                     ),
                                   ),
                                 );
                               },
                             ),
+                            const SizedBox(height: AppSpacing.spacing16),
+                            TextButton(
+                              onPressed: () {
+                                unawaited(
+                                  sl<UserContextProvider>().recordAction(
+                                    'Auth already have account button',
+                                  ),
+                                );
+                                context.goTo(RouteNames.login);
+                              },
+                              child: Text(
+                                LocalizationConstants.authAlreadyHaveAccountKey
+                                    .tr(),
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.spacing12),
+                            const TermsPrivacyTextButton(),
                           ],
                         ),
                       ),
@@ -422,37 +414,8 @@ class _LabeledField extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.spacing12),
         child,
+        const SizedBox(height: AppSpacing.spacing12),
       ],
-    );
-  }
-}
-
-class _RoundIconButton extends StatelessWidget {
-  const _RoundIconButton({required this.icon, required this.onPressed});
-
-  final List<List<dynamic>> icon;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: AppSpacing.spacing48,
-      height: AppSpacing.spacing48,
-      child: Material(
-        color: AppColors.card,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.radius16),
-        ),
-        child: IconButton(
-          onPressed: onPressed,
-          icon: HugeIcon(
-            icon: icon,
-            color: AppColors.textPrimary,
-            size: 18,
-          ),
-          splashRadius: 22,
-        ),
-      ),
     );
   }
 }
@@ -490,14 +453,10 @@ class _AuthTextField extends StatelessWidget {
         textInputAction: textInputAction,
         obscureText: obscureText,
         textCapitalization: textCapitalization,
-        style: AppTextStyles.bodyLarge.copyWith(
-          color: AppColors.textPrimary,
-        ),
+        style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textPrimary),
         validator: validator,
-        decoration: InputDecoration(
-          hintText: hintText,
-          suffixIcon: suffixIcon,
-        ),
+        onFieldSubmitted: onSubmitted,
+        decoration: InputDecoration(hintText: hintText, suffixIcon: suffixIcon),
       ),
     );
   }

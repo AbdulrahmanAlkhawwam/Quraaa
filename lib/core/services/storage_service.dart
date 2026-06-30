@@ -17,4 +17,5 @@ abstract class StorageService {
 
   Future<bool> remove(String key);
   bool contains(String key);
+  Future<bool> clearAll();
 }

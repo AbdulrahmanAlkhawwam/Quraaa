@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../../config/routes/route_names.dart';
 import '../../core/di/injection_container.dart';
 import '../../core/error_monitoring/user_context_provider.dart';
 import '../models/message.dart';
@@ -34,7 +35,11 @@ extension AppNavigation on BuildContext {
 
   void back<T extends Object?>([T? result]) {
     unawaited(sl<UserContextProvider>().recordAction('Back navigation'));
-    pop(result);
+    if (GoRouter.of(this).canPop()) {
+      GoRouter.of(this).pop(result);
+    } else {
+      goTo(RouteNames.home);
+    }
   }
 }
 

@@ -9,8 +9,8 @@ import '../../core/di/injection_container.dart';
 import '../../core/error_monitoring/user_context_provider.dart';
 import '../../core/localization/localization_constants.dart';
 import '../../core/services/storage_service.dart';
-import '../../features/auth/data/datasources/auth_local_datasource.dart';
 import '../../features/account/data/user_data_local_data_source.dart';
+import '../../features/auth/data/datasources/auth_local_datasource.dart';
 import '../shared.dart';
 
 enum UserDataTab {
@@ -56,18 +56,11 @@ class _AppShellState extends State<AppShell> {
   }
 
   Future<void> _logout() async {
-    await sl<AuthLocalDataSource>().clearSession();
-    await sl<UserContextProvider>().clearUser();
+    await sl<StorageService>().clearAll();
     if (!mounted) {
       return;
     }
     context.goTo(RouteNames.auth);
-  }
-
-  void _openNotificationDemo() {
-    context.goTo(
-      '${RouteNames.routeBridge}?route=${Uri.encodeComponent(RouteNames.login)}',
-    );
   }
 
   Future<void> _openEditor(UserDataTab tab) async {
@@ -89,304 +82,287 @@ class _AppShellState extends State<AppShell> {
 
   @override
   Widget build(BuildContext context) {
-    final bool rtl = true/*context.isRTL*/;
     final UserDataSnapshot? snapshot = _snapshot;
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _openNotificationDemo,
-        backgroundColor: AppColors.libraryGreen,
-        foregroundColor: AppColors.primary50,
-        icon: const Icon(Icons.notifications_active_outlined),
-        label: const Text('Demo notification'),
-      ),
+      backgroundColor: AppColors.card,
       body: _loading || snapshot == null
           ? const Center(child: CircularProgressIndicator())
-          : Stack(
-              children: [
-                Positioned.fill(
-                  child: Image.asset(
-                    'assets/images/onboarding.jpg',
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                Positioned.fill(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          AppColors.libraryGreen.withOpacity(0.72),
-                          AppColors.primary900.withOpacity(0.9),
-                          AppColors.primary50.withOpacity(0.12),
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
+          : CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Column(
+                    children: [
+                      // Top green area with app bar + avatar
+                      _buildHeaderArea(),
+                      const SizedBox(height: AppSpacing.spacing16),
+                      // Tab bar
+                      _buildTabBar(),
+                      const SizedBox(height: AppSpacing.spacing16),
+                      // User data card
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.spacing24,
+                        ),
+                        child: _buildDataCard(snapshot),
                       ),
-                    ),
-                  ),
-                ),
-                SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.spacing24,
-                    ),
-                    child: Column(
-                      children: [
-                        _BlurHeader(
-                          title: LocalizationConstants.userDataTitleKey.tr(),
-                          onBackPressed: () => context.back(),
-                          onActionPressed: () => _openEditor(_selectedTab),
-                          actionIcon: HugeIcons.strokeRoundedPencil,
-                          rtl: rtl,
-                        ),
-                        const SizedBox(height: AppSpacing.spacing16),
-                        Container(
-                          height: 250,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(AppRadius.radius40),
-                            // todo : boxShadow: AppShadows.soft,
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(AppRadius.radius40),
-                            child: Stack(
-                              fit: StackFit.expand,
-                              children: [
-                                Image.asset(
-                                  'assets/images/onboarding.jpg',
-                                  fit: BoxFit.cover,
-                                ),
-                                Positioned.fill(
-                                  child: DecoratedBox(
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          AppColors.primary100.withOpacity(0.22),
-                                          AppColors.primary50.withOpacity(0.46),
-                                        ],
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Align(
-                                  alignment: Alignment.bottomCenter,
-                                  child: Container(
-                                    height: 130,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.22),
-                                      borderRadius: const BorderRadius.vertical(
-                                        bottom: Radius.circular(AppRadius.radius40),
-                                      ),
-                                    ),
-                                    child: Center(
-                                      child: HugeIcon(
-                                        icon: HugeIcons.strokeRoundedUser,
-                                        color: AppColors.libraryGreen,
-                                        size: 110,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.spacing16),
-                        SizedBox(
-                          height: 86,
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            reverse: rtl,
-                            child: Row(
-                              children: [
-                                _TabPill(
-                                  icon: HugeIcons.strokeRoundedUser,
-                                  label: LocalizationConstants
-                                      .userDataProfileTabKey
-                                      .tr(),
-                                  selected: _selectedTab == UserDataTab.profile,
-                                  onTap: () => setState(() {
-                                    _selectedTab = UserDataTab.profile;
-                                  }),
-                                ),
-                                _TabPill(
-                                  icon: HugeIcons.strokeRoundedPaintBrush02,
-                                  label: LocalizationConstants
-                                      .userDataAppearanceTabKey
-                                      .tr(),
-                                  selected:
-                                      _selectedTab == UserDataTab.appearance,
-                                  onTap: () => setState(() {
-                                    _selectedTab = UserDataTab.appearance;
-                                  }),
-                                ),
-                                _TabPill(
-                                  icon: HugeIcons.strokeRoundedBookmark01,
-                                  label: LocalizationConstants
-                                      .userDataBookmarksTabKey
-                                      .tr(),
-                                  selected:
-                                      _selectedTab == UserDataTab.bookmarks,
-                                  onTap: () => setState(() {
-                                    _selectedTab = UserDataTab.bookmarks;
-                                  }),
-                                ),
-                                _TabPill(
-                                  icon: HugeIcons.strokeRoundedWallet02,
-                                  label: LocalizationConstants
-                                      .userDataBudgetsTabKey
-                                      .tr(),
-                                  selected: _selectedTab == UserDataTab.budgets,
-                                  onTap: () => setState(() {
-                                    _selectedTab = UserDataTab.budgets;
-                                  }),
-                                ),
-                                _TabPill(
-                                  icon: HugeIcons.strokeRoundedLibrary,
-                                  label: LocalizationConstants
-                                      .userDataLibraryTabKey
-                                      .tr(),
-                                  selected: _selectedTab == UserDataTab.library,
-                                  onTap: () => setState(() {
-                                    _selectedTab = UserDataTab.library;
-                                  }),
-                                ),
-                                _TabPill(
-                                  icon: HugeIcons.strokeRoundedClock01,
-                                  label: LocalizationConstants
-                                      .userDataHistoryTabKey
-                                      .tr(),
-                                  selected: _selectedTab == UserDataTab.history,
-                                  onTap: () => setState(() {
-                                    _selectedTab = UserDataTab.history;
-                                  }),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.spacing12),
-                        Expanded(
-                          child: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 250),
-                            child: _TabBody(
-                              key: ValueKey<UserDataTab>(_selectedTab),
-                              tab: _selectedTab,
-                              snapshot: snapshot,
-                              onEdit: () => _openEditor(_selectedTab),
-                              onLogout: _logout,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      const SizedBox(height: AppSpacing.spacing24),
+                    ],
                   ),
                 ),
               ],
             ),
     );
   }
-}
 
-class _BlurHeader extends StatelessWidget {
-  const _BlurHeader({
-    required this.title,
-    required this.onBackPressed,
-    required this.onActionPressed,
-    required this.actionIcon,
-    required this.rtl,
-  });
-
-  final String title;
-  final VoidCallback onBackPressed;
-  final VoidCallback onActionPressed;
-  final List<List<dynamic>> actionIcon;
-  final bool rtl;
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(28/*AppRadius.radius28*/),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-        child: Container(
-          height: 78,
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.spacing12,
-          ),
-          decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.18),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.08),
+  Widget _buildHeaderArea() {
+    return Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        color: AppColors.primary50,
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(AppRadius.radius40),
+          bottomRight: Radius.circular(AppRadius.radius40),
+        ),
+      ),
+      child: SafeArea(
+        child: Column(
+          children: [
+            // Top bar: back arrow, settings title, pencil icon
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.spacing16,
+                vertical: AppSpacing.spacing8,
+              ),
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: () => context.back(),
+                    icon: HugeIcon(
+                      icon: HugeIcons.strokeRoundedArrowLeft01,
+                      color: AppColors.libraryGreen,
+                      size: 24,
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    'settings',
+                    style: AppTextStyles.h3.copyWith(
+                      color: AppColors.libraryGreen,
+                    ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () => _openEditor(_selectedTab),
+                    icon: HugeIcon(
+                      icon: HugeIcons.strokeRoundedEdit03,
+                      color: AppColors.libraryGreen,
+                      size: 24,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            borderRadius: BorderRadius.circular(28/*AppRadius.radius28*/),
-          ),
-          child: Row(
-            children: [
-              if (rtl) ...[
-                _HeaderButton(
-                  icon: actionIcon,
-                  onPressed: onActionPressed,
+            const SizedBox(height: AppSpacing.spacing8),
+            // Circular avatar placeholder
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                color: AppColors.primary100,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppColors.card,
+                  width: 4,
                 ),
-                const Spacer(),
-                Text(
-                  title,
-                  style: AppTextStyles.h3.copyWith(color: Colors.white),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary200.withOpacity(0.5),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Center(
+                child: HugeIcon(
+                  icon: HugeIcons.strokeRoundedUser,
+                  color: AppColors.primary500,
+                  size: 56,
                 ),
-                const Spacer(),
-                _HeaderButton(
-                  icon: HugeIcons.strokeRoundedArrowRight01,
-                  onPressed: onBackPressed,
-                ),
-              ] else ...[
-                _HeaderButton(
-                  icon: HugeIcons.strokeRoundedArrowLeft01,
-                  onPressed: onBackPressed,
-                ),
-                const Spacer(),
-                Text(
-                  title,
-                  style: AppTextStyles.h3.copyWith(color: Colors.white),
-                ),
-                const Spacer(),
-                _HeaderButton(
-                  icon: actionIcon,
-                  onPressed: onActionPressed,
-                ),
-              ],
-            ],
-          ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.spacing24),
+          ],
         ),
       ),
     );
   }
-}
 
-class _HeaderButton extends StatelessWidget {
-  const _HeaderButton({
-    required this.icon,
-    required this.onPressed,
-  });
-
-  final List<List<dynamic>> icon;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return _IconButtonShell(
-      onPressed: onPressed,
-      icon: icon,
-      size: 52,
-      backgroundColor: Colors.white.withOpacity(0.12),
-      iconColor: Colors.white,
+  Widget _buildTabBar() {
+    return SizedBox(
+      height: 56,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.spacing24,
+        ),
+        child: Row(
+          children: [
+            _MaterialTab(
+              icon: HugeIcons.strokeRoundedUser,
+              label: LocalizationConstants.userDataProfileTabKey.tr(),
+              selected: _selectedTab == UserDataTab.profile,
+              onTap: () => setState(() {
+                _selectedTab = UserDataTab.profile;
+              }),
+            ),
+            _MaterialTab(
+              icon: HugeIcons.strokeRoundedPaintBrush02,
+              label: LocalizationConstants.userDataAppearanceTabKey.tr(),
+              selected: _selectedTab == UserDataTab.appearance,
+              onTap: () => setState(() {
+                _selectedTab = UserDataTab.appearance;
+              }),
+            ),
+            _MaterialTab(
+              icon: HugeIcons.strokeRoundedBookmark01,
+              label: LocalizationConstants.userDataBookmarksTabKey.tr(),
+              selected: _selectedTab == UserDataTab.bookmarks,
+              onTap: () => setState(() {
+                _selectedTab = UserDataTab.bookmarks;
+              }),
+            ),
+            _MaterialTab(
+              icon: HugeIcons.strokeRoundedWallet02,
+              label: LocalizationConstants.userDataBudgetsTabKey.tr(),
+              selected: _selectedTab == UserDataTab.budgets,
+              onTap: () => setState(() {
+                _selectedTab = UserDataTab.budgets;
+              }),
+            ),
+            _MaterialTab(
+              icon: HugeIcons.strokeRoundedLibrary,
+              label: LocalizationConstants.userDataLibraryTabKey.tr(),
+              selected: _selectedTab == UserDataTab.library,
+              onTap: () => setState(() {
+                _selectedTab = UserDataTab.library;
+              }),
+            ),
+            _MaterialTab(
+              icon: HugeIcons.strokeRoundedClock01,
+              label: LocalizationConstants.userDataHistoryTabKey.tr(),
+              selected: _selectedTab == UserDataTab.history,
+              onTap: () => setState(() {
+                _selectedTab = UserDataTab.history;
+              }),
+            ),
+          ],
+        ),
+      ),
     );
+  }
+
+  Widget _buildDataCard(UserDataSnapshot snapshot) {
+    final List<String> values = switch (_selectedTab) {
+      UserDataTab.profile => <String>[
+          snapshot.fullName,
+          snapshot.birthDate,
+          snapshot.country,
+          snapshot.phone,
+        ],
+      UserDataTab.appearance => <String>[
+          snapshot.theme,
+          snapshot.language,
+        ],
+      UserDataTab.bookmarks => snapshot.bookmarks,
+      UserDataTab.budgets => <String>[
+          snapshot.budgetBalance,
+        ],
+      UserDataTab.library => snapshot.libraryItems,
+      UserDataTab.history => snapshot.operations,
+    };
+
+    return Column(
+      children: [
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: AppColors.card,
+            borderRadius: BorderRadius.circular(AppRadius.radius32),
+            border: Border.all(
+              color: AppColors.primary100,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: values.asMap().entries.map((entry) {
+              final int index = entry.key;
+              final String value = entry.value;
+              final bool isLast = index == values.length - 1;
+
+              return Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.spacing20,
+                      vertical: AppSpacing.spacing16,
+                    ),
+                    child: Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Text(
+                        value,
+                        style: AppTextStyles.bodyLarge.copyWith(
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (!isLast)
+                    const Divider(
+                      height: 1,
+                      indent: AppSpacing.spacing20,
+                      endIndent: AppSpacing.spacing20,
+                      color: AppColors.primary100,
+                    ),
+                ],
+              );
+            }).toList(),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.spacing24),
+        SizedBox(
+          width: double.infinity,
+          height: AppDimensions.onboardingButtonHeight,
+          child: FilledButton(
+            onPressed: _logout,
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.error500,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppRadius.radius32),
+              ),
+            ),
+            child: Text(LocalizationConstants.userDataLogoutKey.tr()),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _tabTitle(BuildContext context) {
+    return switch (_selectedTab) {
+      UserDataTab.profile => LocalizationConstants.userDataProfileTabKey.tr(),
+      UserDataTab.appearance => LocalizationConstants.userDataAppearanceTabKey.tr(),
+      UserDataTab.bookmarks => LocalizationConstants.userDataBookmarksTabKey.tr(),
+      UserDataTab.budgets => LocalizationConstants.userDataBudgetsTabKey.tr(),
+      UserDataTab.library => LocalizationConstants.userDataLibraryTabKey.tr(),
+      UserDataTab.history => LocalizationConstants.userDataHistoryTabKey.tr(),
+    };
   }
 }
 
-class _TabPill extends StatelessWidget {
-  const _TabPill({
+class _MaterialTab extends StatelessWidget {
+  const _MaterialTab({
     required this.icon,
     required this.label,
     required this.selected,
@@ -401,159 +377,42 @@ class _TabPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsetsDirectional.only(end: AppSpacing.spacing12),
+      padding: const EdgeInsetsDirectional.only(end: AppSpacing.spacing8),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.radius24),
+        borderRadius: BorderRadius.circular(AppRadius.radius16),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.spacing16,
-            vertical: AppSpacing.spacing16, //todo : it was spacing 14
+          padding: EdgeInsets.symmetric(
+            horizontal: selected ? AppSpacing.spacing16 : AppSpacing.spacing12,
+            vertical: AppSpacing.spacing12,
           ),
           decoration: BoxDecoration(
-            color: selected ? AppColors.primary50 : Colors.white.withOpacity(0.04),
-            borderRadius: BorderRadius.circular(AppRadius.radius24),
-            border: Border.all(
-              color: selected ? AppColors.primary300 : Colors.white.withOpacity(0.12),
-            ),
+            color: selected ? AppColors.primary50 : Colors.transparent,
+            borderRadius: BorderRadius.circular(AppRadius.radius16),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               HugeIcon(
                 icon: icon,
-                color: selected ? AppColors.primary700 : AppColors.primary100,
-                size: 22,
+                color: selected ? AppColors.primary600 : AppColors.primary600,
+                size: 24,
               ),
-              const SizedBox(width: 10/*AppSpacing.spacing10*/),
-              Text(
-                label,
-                style: AppTextStyles.bodyLarge.copyWith(
-                  color: selected ? AppColors.primary700 : AppColors.primary100,
+              if (selected) ...[
+                const SizedBox(width: 8),
+                Text(
+                  label,
+                  style: AppTextStyles.bodyLarge.copyWith(
+                    color: AppColors.primary600,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ),
       ),
-    );
-  }
-}
-
-class _TabBody extends StatelessWidget {
-  const _TabBody({
-    super.key,
-    required this.tab,
-    required this.snapshot,
-    required this.onEdit,
-    required this.onLogout,
-  });
-
-  final UserDataTab tab;
-  final UserDataSnapshot snapshot;
-  final VoidCallback onEdit;
-  final VoidCallback onLogout;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(AppSpacing.spacing20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppRadius.radius32),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: Text(
-              _title(context),
-              style: AppTextStyles.titleLarge.copyWith(
-                color: AppColors.libraryGreen,
-              ),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.spacing20),
-          Expanded(
-            child: _TabPreview(tab: tab, snapshot: snapshot),
-          ),
-          const SizedBox(height: AppSpacing.spacing20),
-          SizedBox(
-            height: AppDimensions.onboardingButtonHeight,
-            child: FilledButton(
-              onPressed: onEdit,
-              child: Text(LocalizationConstants.userDataEditKey.tr()),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.spacing12),
-          SizedBox(
-            height: AppDimensions.onboardingButtonHeight,
-            child: OutlinedButton(
-              onPressed: onLogout,
-              child: Text(LocalizationConstants.userDataLogoutKey.tr()),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _title(BuildContext context) {
-    return switch (tab) {
-      UserDataTab.profile => LocalizationConstants.userDataProfileTabKey.tr(),
-      UserDataTab.appearance => LocalizationConstants.userDataAppearanceTabKey.tr(),
-      UserDataTab.bookmarks => LocalizationConstants.userDataBookmarksTabKey.tr(),
-      UserDataTab.budgets => LocalizationConstants.userDataBudgetsTabKey.tr(),
-      UserDataTab.library => LocalizationConstants.userDataLibraryTabKey.tr(),
-      UserDataTab.history => LocalizationConstants.userDataHistoryTabKey.tr(),
-    };
-  }
-}
-
-class _TabPreview extends StatelessWidget {
-  const _TabPreview({required this.tab, required this.snapshot});
-
-  final UserDataTab tab;
-  final UserDataSnapshot snapshot;
-
-  @override
-  Widget build(BuildContext context) {
-    final List<String> items = switch (tab) {
-      UserDataTab.profile => <String>[
-          '${LocalizationConstants.userDataFullNameKey.tr()}: ${snapshot.fullName}',
-          '${LocalizationConstants.userDataBirthDateKey.tr()}: ${snapshot.birthDate}',
-          '${LocalizationConstants.userDataCountryKey.tr()}: ${snapshot.country}',
-          '${LocalizationConstants.userDataPhoneKey.tr()}: ${snapshot.phone}',
-        ],
-      UserDataTab.appearance => <String>[
-          '${LocalizationConstants.userDataThemeKey.tr()}: ${snapshot.theme}',
-          '${LocalizationConstants.userDataLanguageKey.tr()}: ${snapshot.language}',
-        ],
-      UserDataTab.bookmarks => snapshot.bookmarks,
-      UserDataTab.budgets => <String>[
-          '${LocalizationConstants.userDataBudgetBalanceKey.tr()}: ${snapshot.budgetBalance}',
-        ],
-      UserDataTab.library => snapshot.libraryItems,
-      UserDataTab.history => snapshot.operations,
-    };
-
-    return ListView.separated(
-      itemCount: items.length,
-      separatorBuilder: (_, __) => const Divider(height: 1),
-      itemBuilder: (context, index) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.spacing16),
-          child: Text(
-            items[index],
-            style: AppTextStyles.bodyLarge.copyWith(
-              color: AppColors.textPrimary,
-            ),
-          ),
-        );
-      },
     );
   }
 }
@@ -726,7 +585,7 @@ class _UserDataEditScreenState extends State<UserDataEditScreen> {
                     onBackPressed: () => Navigator.of(context).pop(),
                     onActionPressed: () => Navigator.of(context).pop(),
                     actionIcon: HugeIcons.strokeRoundedPencil,
-                    rtl: true/*context.isRTL*/,
+                    rtl: true /*context.isRTL*/,
                   ),
                   const SizedBox(height: AppSpacing.spacing20),
                   Expanded(
@@ -823,17 +682,23 @@ class _UserDataEditScreenState extends State<UserDataEditScreen> {
     return switch (widget.tab) {
       UserDataTab.profile => LocalizationConstants.userDataFullNameKey.tr(),
       UserDataTab.appearance => LocalizationConstants.userDataThemeKey.tr(),
-      UserDataTab.bookmarks => LocalizationConstants.userDataSavedItemsKey.tr(),
-      UserDataTab.budgets => LocalizationConstants.userDataBudgetBalanceKey.tr(),
-      UserDataTab.library => LocalizationConstants.userDataLibraryItemsKey.tr(),
-      UserDataTab.history => LocalizationConstants.userDataOperationsKey.tr(),
+      UserDataTab.bookmarks =>
+        LocalizationConstants.userDataSavedItemsKey.tr(),
+      UserDataTab.budgets =>
+        LocalizationConstants.userDataBudgetBalanceKey.tr(),
+      UserDataTab.library =>
+        LocalizationConstants.userDataLibraryItemsKey.tr(),
+      UserDataTab.history =>
+        LocalizationConstants.userDataOperationsKey.tr(),
     };
   }
 
   String _labelForSecondaryField(BuildContext context) {
     return switch (widget.tab) {
-      UserDataTab.profile => LocalizationConstants.userDataBirthDateKey.tr(),
-      UserDataTab.appearance => LocalizationConstants.userDataLanguageKey.tr(),
+      UserDataTab.profile =>
+        LocalizationConstants.userDataBirthDateKey.tr(),
+      UserDataTab.appearance =>
+        LocalizationConstants.userDataLanguageKey.tr(),
       _ => '',
     };
   }
@@ -843,6 +708,101 @@ class _UserDataEditScreenState extends State<UserDataEditScreen> {
       controller: controller,
       maxLines: widget.tab == UserDataTab.profile ? 1 : null,
       decoration: InputDecoration(labelText: label),
+    );
+  }
+}
+
+class _BlurHeader extends StatelessWidget {
+  const _BlurHeader({
+    required this.title,
+    required this.onBackPressed,
+    required this.onActionPressed,
+    required this.actionIcon,
+    required this.rtl,
+  });
+
+  final String title;
+  final VoidCallback onBackPressed;
+  final VoidCallback onActionPressed;
+  final List<List<dynamic>> actionIcon;
+  final bool rtl;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(28 /*AppRadius.radius28*/),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+        child: Container(
+          height: 78,
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.spacing12,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.18),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.08),
+            ),
+            borderRadius: BorderRadius.circular(28 /*AppRadius.radius28*/),
+          ),
+          child: Row(
+            children: [
+              if (rtl) ...[
+                _HeaderButton(
+                  icon: actionIcon,
+                  onPressed: onActionPressed,
+                ),
+                const Spacer(),
+                Text(
+                  title,
+                  style: AppTextStyles.h3.copyWith(color: Colors.white),
+                ),
+                const Spacer(),
+                _HeaderButton(
+                  icon: HugeIcons.strokeRoundedArrowRight01,
+                  onPressed: onBackPressed,
+                ),
+              ] else ...[
+                _HeaderButton(
+                  icon: HugeIcons.strokeRoundedArrowLeft01,
+                  onPressed: onBackPressed,
+                ),
+                const Spacer(),
+                Text(
+                  title,
+                  style: AppTextStyles.h3.copyWith(color: Colors.white),
+                ),
+                const Spacer(),
+                _HeaderButton(
+                  icon: actionIcon,
+                  onPressed: onActionPressed,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HeaderButton extends StatelessWidget {
+  const _HeaderButton({
+    required this.icon,
+    required this.onPressed,
+  });
+
+  final List<List<dynamic>> icon;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return _IconButtonShell(
+      onPressed: onPressed,
+      icon: icon,
+      size: 52,
+      backgroundColor: Colors.white.withOpacity(0.12),
+      iconColor: Colors.white,
     );
   }
 }
@@ -870,7 +830,7 @@ class _IconButtonShell extends StatelessWidget {
       child: Material(
         color: backgroundColor,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18/*AppRadius.radius18*/),
+          borderRadius: BorderRadius.circular(18 /*AppRadius.radius18*/),
         ),
         child: IconButton(
           onPressed: onPressed,

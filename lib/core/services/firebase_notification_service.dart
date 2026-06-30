@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'notification_service.dart';
@@ -9,17 +10,23 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 class FirebaseNotificationService implements NotificationService {
-  FirebaseNotificationService() : _messaging = FirebaseMessaging.instance;
-
-  final FirebaseMessaging _messaging;
+  /// Lazily initialised so the constructor never crashes even when Firebase
+  /// has not been initialised (e.g. missing google-services.json).
+  FirebaseMessaging? _messaging;
   final StreamController<RemoteMessage> _foregroundMessages =
       StreamController<RemoteMessage>.broadcast();
 
   @override
   Stream<RemoteMessage> get foregroundMessages => _foregroundMessages.stream;
 
+  bool get _isFirebaseReady => Firebase.apps.isNotEmpty;
+
   @override
   Future<void> initialize() async {
+    if (!_isFirebaseReady) {
+      return;
+    }
+    _messaging = FirebaseMessaging.instance;
     await requestPermission();
 
     FirebaseMessaging.onMessage.listen(_foregroundMessages.add);
@@ -28,7 +35,8 @@ class FirebaseNotificationService implements NotificationService {
 
   @override
   Future<void> requestPermission() async {
-    await _messaging.requestPermission(
+    if (_messaging == null) return;
+    await _messaging!.requestPermission(
       alert: true,
       badge: true,
       criticalAlert: false,
@@ -38,8 +46,9 @@ class FirebaseNotificationService implements NotificationService {
   }
 
   @override
-  Future<String?> getToken() {
-    return _messaging.getToken();
+  Future<String?> getToken() async {
+    if (_messaging == null) return null;
+    return _messaging!.getToken();
   }
 
   Future<void> dispose() async {

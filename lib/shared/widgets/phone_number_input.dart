@@ -64,7 +64,8 @@ class _PhoneNumberInputState extends State<PhoneNumberInput> {
   @override
   void initState() {
     super.initState();
-    _dialCode = widget.initialValue?.dialCode ??
+    _dialCode =
+        widget.initialValue?.dialCode ??
         _dialCodes[widget.initialValue?.isoCode ?? 'SY'] ??
         '+963';
   }
@@ -98,11 +99,11 @@ class _PhoneNumberInputState extends State<PhoneNumberInput> {
             initialValue: widget.initialValue ?? PhoneNumber(isoCode: 'SY'),
             textFieldController: widget.controller,
             keyboardType: TextInputType.phone,
-            textStyle: widget.textStyle ??
-                AppTextStyles.bodyLarge.copyWith(
-                  color: AppColors.textPrimary,
-                ),
-            selectorTextStyle: widget.selectorTextStyle ??
+            textStyle:
+                widget.textStyle ??
+                AppTextStyles.bodyLarge.copyWith(color: AppColors.textPrimary),
+            selectorTextStyle:
+                widget.selectorTextStyle ??
                 AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w500,
@@ -135,36 +136,7 @@ class _PhoneNumberInputState extends State<PhoneNumberInput> {
             onFieldSubmitted: widget.onFieldSubmitted != null
                 ? (String _) => widget.onFieldSubmitted!()
                 : null,
-          ),
-          Positioned(
-            left: 80,
-            top: 0,
-            bottom: 0,
-            child: IgnorePointer(
-              child: Center(
-                child: Text(
-                  _dialCode,
-                  style: widget.selectorTextStyle ??
-                      AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.textPrimary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            left: 120,
-            top: 0,
-            bottom: 0,
-            child: Center(
-              child: Container(
-                width: 1,
-                height: 24,
-                color: AppColors.primary200,
-              ),
-            ),
-          ),
+          )
         ],
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/home/presentation/pages/home_screen.dart';
 import '../../features/auth/presentation/pages/auth_screen.dart';
 import '../../features/auth/presentation/pages/login_screen.dart';
 import '../../features/auth/presentation/pages/register_screen.dart';
@@ -10,6 +11,7 @@ import '../../features/onboarding/presentation/pages/interests_onboarding_page.d
 import '../../features/splash/presentation/pages/splash_screen.dart';
 import '../../features/local_explorer/presentation/pages/local_explorer_page.dart';
 import '../../features/pdf_reader/presentation/pages/pdf_reader_page.dart';
+import '../../shared/widgets/app_shell.dart';
 import 'route_names.dart';
 import 'route_resolver.dart';
 
@@ -78,8 +80,13 @@ GoRouter buildAppRouter({
       ),
       GoRoute(
         name: RouteNames.home,
-        path: RouteNames.explorer,
-        builder: (context, state) => const LocalExplorerPage(),
+        path: RouteNames.home,
+        builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
+        name: RouteNames.profile,
+        path: RouteNames.profile,
+        builder: (context, state) => AppShell(),
       ),
       GoRoute(
         name: RouteNames.pdfReaderName,
@@ -102,6 +109,7 @@ bool _isKnownRoute(String location) {
   return <String>{
     RouteNames.splash,
     RouteNames.home,
+    RouteNames.profile,
     RouteNames.auth,
     RouteNames.login,
     RouteNames.register,

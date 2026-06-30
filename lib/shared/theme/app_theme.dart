@@ -6,6 +6,7 @@ import 'styles/text_styles.dart';
 import 'styles/app_bar.dart';
 import 'styles/filled_button.dart';
 import 'styles/outlined_button.dart';
+import 'styles/text_button.dart';
 import 'styles/text_input_feild.dart';
 
 abstract class AppTheme {
@@ -22,6 +23,7 @@ abstract class AppTheme {
       appBarTheme: appBarStyle(),
       filledButtonTheme: filledButtonTheme(lightColors),
       outlinedButtonTheme: outlinedButtonTheme(lightColors),
+      textButtonTheme: textButtonTheme(lightColors),
       inputDecorationTheme: textInputFeildTheme(lightColors),
       dividerTheme: const DividerThemeData(
         color: AppColors.primary100,

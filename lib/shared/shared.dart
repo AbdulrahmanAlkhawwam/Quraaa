@@ -9,5 +9,7 @@ export 'theme/app_theme.dart';
 export 'extensions/app_context.dart';
 export 'models/message.dart';
 export 'widgets/app_shell.dart';
-export 'widgets/onboarding_scaffold.dart';
-export 'widgets/phone_number_input.dart';
+export 'widgets/terms_privacy_bottom_sheet.dart';
+
+export 'widgets/notification_bottom_sheet.dart';
+
