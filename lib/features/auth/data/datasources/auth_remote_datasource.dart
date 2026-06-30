@@ -8,7 +8,7 @@ import '../mappers/auth_mapper.dart';
 
 abstract class AuthRemoteDataSource {
   Future<Map<String, Object?>> login({
-    required String username,
+    required String phoneNumber,
     required String password,
   });
 
@@ -19,7 +19,7 @@ abstract class AuthRemoteDataSource {
     String? password,
     int? gender,
     String? dateOfBirth,
-    List<String>? interests,
+    String? categoryId,
   });
 }
 
@@ -30,10 +30,34 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<Map<String, Object?>> login({
-    required String username,
+    required String phoneNumber,
     required String password,
-  }) {
-    throw UnimplementedError();
+  }) async {
+    try {
+      final Response<dynamic> response = await _httpHelper.post(
+        Endpoints.login,
+        data: AuthMapper.loginToJson(
+          phoneNumber: phoneNumber,
+          password: password,
+        ),
+      );
+
+      final dynamic data = response.data;
+      if (data is Map<String, dynamic>) {
+        return data.cast<String, Object?>();
+      }
+
+      throw const UnknownException(message: 'Invalid login response.');
+    } on DioException catch (error) {
+      final dynamic payload = error.response?.data;
+      if (payload is Map<String, dynamic>) {
+        throw ErrorMapper.map(payload);
+      }
+
+      throw UnknownException(
+        message: error.message ?? 'Unable to login.',
+      );
+    }
   }
 
   @override
@@ -44,7 +68,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     String? password,
     int? gender,
     String? dateOfBirth,
-    List<String>? interests,
+    String? categoryId,
   }) async {
     try {
       final Response<dynamic> response = await _httpHelper.post(
@@ -56,7 +80,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           password: password,
           gender: gender,
           dateOfBirth: dateOfBirth,
-          interests: interests,
+          categoryId: categoryId,
         ),
       );
 

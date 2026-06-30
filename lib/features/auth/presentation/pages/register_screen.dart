@@ -113,6 +113,7 @@ class _RegisterViewState extends State<_RegisterView> {
     final int? birthYear = onboardingDraft.birthYear;
     final int? birthMonth = onboardingDraft.birthMonth;
     final int? birthDay = onboardingDraft.birthDay;
+    final String? categoryId = onboardingDraft.selectedCategoryId;
 
     if (selectedGender == null ||
         birthYear == null ||
@@ -128,11 +129,19 @@ class _RegisterViewState extends State<_RegisterView> {
       return;
     }
 
+    if (categoryId == null) {
+      if (!mounted) return;
+      context.showErrorSnackBar(
+        message: const Message(
+          title: 'Registration incomplete',
+          value: 'Please select an interest category before registering.',
+        ),
+      );
+      return;
+    }
+
     final String formattedDateOfBirth =
         '${birthYear.toString().padLeft(4, '0')}-${birthMonth.toString().padLeft(2, '0')}-${birthDay.toString().padLeft(2, '0')}';
-    final List<String> interests = onboardingDraft.selectedInterests
-        .map((interest) => interest.key)
-        .toList(growable: false);
 
     final PhoneNumber phoneNumber = _phoneNumber ?? PhoneNumber();
     final String normalizedPhone =
@@ -144,7 +153,7 @@ class _RegisterViewState extends State<_RegisterView> {
         password: _passwordController.text,
         gender: _genderToApiValue(selectedGender),
         dateOfBirth: formattedDateOfBirth,
-        interests: interests,
+        categoryId: categoryId,
       ),
     );
   }

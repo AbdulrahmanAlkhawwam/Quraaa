@@ -76,8 +76,8 @@ class _PhoneNumberInputState extends State<PhoneNumberInput> {
       height: AppDimensions.onboardingInputHeight,
       decoration: BoxDecoration(
         color: AppColors.card,
-        borderRadius: BorderRadius.circular(AppRadius.radius24),
-        border: Border.all(color: AppColors.primary100),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFD2ECC6), width: 1),
       ),
       child: Stack(
         children: [

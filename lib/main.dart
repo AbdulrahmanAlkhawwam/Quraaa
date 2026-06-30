@@ -8,12 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'app/app.dart';
 import 'core/di/injection_container.dart';
-import 'core/error_monitoring/app_bloc_observer.dart';
 import 'core/error_monitoring/app_logger.dart';
 import 'core/localization/localization_service.dart';
 import 'core/localization/supported_locales.dart';

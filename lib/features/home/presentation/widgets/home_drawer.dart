@@ -151,22 +151,25 @@ class _DrawerItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: HugeIcon(
-        icon: icon,
-        color: iconColor ?? AppColors.primary600,
-        size: 22,
-      ),
-      title: Text(
-        label,
-        style: AppTextStyles.bodyLarge.copyWith(
-          color: textColor ?? AppColors.textPrimary,
+    return Material(
+      type: MaterialType.transparency,
+      child: ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: HugeIcon(
+          icon: icon,
+          color: iconColor ?? AppColors.primary600,
+          size: 22,
         ),
-      ),
-      onTap: onTap,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppRadius.radius12),
+        title: Text(
+          label,
+          style: AppTextStyles.bodyLarge.copyWith(
+            color: textColor ?? AppColors.textPrimary,
+          ),
+        ),
+        onTap: onTap,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.radius12),
+        ),
       ),
     );
   }

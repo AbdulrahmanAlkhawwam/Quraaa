@@ -10,7 +10,7 @@ class RegisterParams {
     this.password,
     this.gender,
     this.dateOfBirth,
-    this.interests,
+    this.categoryId,
   });
 
   final String? firstName;
@@ -19,7 +19,7 @@ class RegisterParams {
   final String? password;
   final int? gender;
   final String? dateOfBirth;
-  final List<String>? interests;
+  final String? categoryId;
 }
 
 class RegisterUseCase extends UseCase<User, RegisterParams> {
@@ -36,7 +36,7 @@ class RegisterUseCase extends UseCase<User, RegisterParams> {
       password: params.password,
       gender: params.gender,
       dateOfBirth: params.dateOfBirth,
-      interests: params.interests,
+      categoryId: params.categoryId,
     );
   }
 }

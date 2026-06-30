@@ -2,14 +2,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/routes/route_names.dart';
 import '../../../../core/architecture/use_case.dart';
+import '../../domain/entities/category.dart';
 import '../../domain/entities/gender_selection.dart';
-import '../../domain/entities/interest_selection.dart';
 import '../../domain/entities/onboarding_draft.dart';
 import '../../domain/use_cases/complete_onboarding_use_case.dart';
+import '../../domain/use_cases/load_categories_use_case.dart';
 import '../../domain/use_cases/load_onboarding_state_use_case.dart';
 import '../../domain/use_cases/save_birth_date_use_case.dart';
+import '../../domain/use_cases/save_category_id_use_case.dart';
 import '../../domain/use_cases/save_gender_use_case.dart';
-import '../../domain/use_cases/save_interests_use_case.dart';
 
 sealed class OnboardingEvent {
   const OnboardingEvent();
@@ -47,10 +48,10 @@ final class OnboardingGenderSelected extends OnboardingEvent {
   final GenderSelection gender;
 }
 
-final class OnboardingInterestToggled extends OnboardingEvent {
-  const OnboardingInterestToggled(this.interest);
+final class OnboardingCategorySelected extends OnboardingEvent {
+  const OnboardingCategorySelected(this.categoryId);
 
-  final InterestSelection interest;
+  final String categoryId;
 }
 
 final class OnboardingInterestsNextRequested extends OnboardingEvent {
@@ -75,7 +76,8 @@ class OnboardingState {
     this.birthMonth,
     this.birthDay,
     this.selectedGender,
-    this.selectedInterests = const <InterestSelection>[],
+    this.categories = const <Category>[],
+    this.selectedCategoryId,
     this.isLoading = false,
     this.isCompleted = false,
     this.navigationTarget,
@@ -88,7 +90,8 @@ class OnboardingState {
   final int? birthMonth;
   final int? birthDay;
   final GenderSelection? selectedGender;
-  final List<InterestSelection> selectedInterests;
+  final List<Category> categories;
+  final String? selectedCategoryId;
   final bool isLoading;
   final bool isCompleted;
   final String? navigationTarget;
@@ -127,10 +130,10 @@ class OnboardingState {
   bool get canContinueGender =>
       selectedGender != null && !isLoading && !isCompleted;
 
-  bool get hasInterests => selectedInterests.isNotEmpty;
+  bool get hasCategory => selectedCategoryId != null;
 
-  bool get canContinueInterests =>
-      hasInterests && !isLoading && !isCompleted;
+  bool get canContinueCategory =>
+      hasCategory && !isLoading && !isCompleted;
 
   static DateTime? _tryParseBirthDate(int year, int month, int day) {
     try {
@@ -149,7 +152,8 @@ class OnboardingState {
     Object? birthMonth = _unset,
     Object? birthDay = _unset,
     Object? selectedGender = _unset,
-    Object? selectedInterests = _unset,
+    Object? categories = _unset,
+    Object? selectedCategoryId = _unset,
     bool? isLoading,
     bool? isCompleted,
     Object? navigationTarget = _unset,
@@ -164,11 +168,12 @@ class OnboardingState {
       selectedGender: identical(selectedGender, _unset)
           ? this.selectedGender
           : selectedGender as GenderSelection?,
-      selectedInterests: identical(selectedInterests, _unset)
-          ? this.selectedInterests
-          : List<InterestSelection>.unmodifiable(
-              selectedInterests as List<InterestSelection>,
-            ),
+      categories: identical(categories, _unset)
+          ? this.categories
+          : List<Category>.unmodifiable(categories as List<Category>),
+      selectedCategoryId: identical(selectedCategoryId, _unset)
+          ? this.selectedCategoryId
+          : selectedCategoryId as String?,
       isLoading: isLoading ?? this.isLoading,
       isCompleted: isCompleted ?? this.isCompleted,
       navigationTarget: identical(navigationTarget, _unset)
@@ -186,12 +191,14 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     required LoadOnboardingStateUseCase loadOnboardingStateUseCase,
     required SaveBirthDateUseCase saveBirthDateUseCase,
     required SaveGenderUseCase saveGenderUseCase,
-    required SaveInterestsUseCase saveInterestsUseCase,
+    required SaveCategoryIdUseCase saveCategoryIdUseCase,
+    required LoadCategoriesUseCase loadCategoriesUseCase,
     required CompleteOnboardingUseCase completeOnboardingUseCase,
   })  : _loadOnboardingStateUseCase = loadOnboardingStateUseCase,
         _saveBirthDateUseCase = saveBirthDateUseCase,
         _saveGenderUseCase = saveGenderUseCase,
-        _saveInterestsUseCase = saveInterestsUseCase,
+        _saveCategoryIdUseCase = saveCategoryIdUseCase,
+        _loadCategoriesUseCase = loadCategoriesUseCase,
         _completeOnboardingUseCase = completeOnboardingUseCase,
         super(const OnboardingState()) {
     on<OnboardingStarted>(_onStarted);
@@ -200,8 +207,8 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     on<OnboardingAgeDayChanged>(_onAgeDayChanged);
     on<OnboardingAgeNextRequested>(_onAgeNextRequested);
     on<OnboardingGenderSelected>(_onGenderSelected);
-    on<OnboardingInterestToggled>(_onInterestToggled);
-    on<OnboardingInterestsNextRequested>(_onInterestsNextRequested);
+    on<OnboardingCategorySelected>(_onCategorySelected);
+    on<OnboardingInterestsNextRequested>(_onCategoryNextRequested);
     on<OnboardingSkipRequested>(_onSkipRequested);
     on<OnboardingNextRequested>(_onNextRequested);
     on<OnboardingNavigationCompleted>(_onNavigationCompleted);
@@ -210,7 +217,8 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
   final LoadOnboardingStateUseCase _loadOnboardingStateUseCase;
   final SaveBirthDateUseCase _saveBirthDateUseCase;
   final SaveGenderUseCase _saveGenderUseCase;
-  final SaveInterestsUseCase _saveInterestsUseCase;
+  final SaveCategoryIdUseCase _saveCategoryIdUseCase;
+  final LoadCategoriesUseCase _loadCategoriesUseCase;
   final CompleteOnboardingUseCase _completeOnboardingUseCase;
 
   Future<void> _onStarted(
@@ -220,13 +228,15 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     emit(state.copyWith(isLoading: true, errorMessage: null));
     try {
       final OnboardingDraft draft = await _loadOnboardingStateUseCase(const NoParams());
+      final List<Category> categories = await _loadCategoriesUseCase(const NoParams());
       emit(
         OnboardingState(
           birthYear: draft.birthYear,
           birthMonth: draft.birthMonth,
           birthDay: draft.birthDay,
           selectedGender: draft.selectedGender,
-          selectedInterests: draft.selectedInterests,
+          categories: categories,
+          selectedCategoryId: draft.selectedCategoryId,
           isLoading: false,
           isCompleted: false,
         ),
@@ -325,37 +335,33 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     }
   }
 
-  Future<void> _onInterestToggled(
-    OnboardingInterestToggled event,
+  Future<void> _onCategorySelected(
+    OnboardingCategorySelected event,
     Emitter<OnboardingState> emit,
   ) async {
-    final List<InterestSelection> updatedInterests =
-        List<InterestSelection>.from(state.selectedInterests);
-    if (updatedInterests.contains(event.interest)) {
-      updatedInterests.remove(event.interest);
-    } else {
-      updatedInterests.add(event.interest);
-    }
+    final String? newCategoryId = state.selectedCategoryId == event.categoryId
+        ? null
+        : event.categoryId;
 
     emit(
       state.copyWith(
-        selectedInterests: List<InterestSelection>.unmodifiable(updatedInterests),
+        selectedCategoryId: newCategoryId,
         errorMessage: null,
       ),
     );
 
     try {
-      await _saveInterestsUseCase(SaveInterestsParams(updatedInterests));
+      await _saveCategoryIdUseCase(SaveCategoryIdParams(newCategoryId));
     } catch (_) {
-      emit(state.copyWith(errorMessage: 'Failed to save interests'));
+      emit(state.copyWith(errorMessage: 'Failed to save category'));
     }
   }
 
-  Future<void> _onInterestsNextRequested(
+  Future<void> _onCategoryNextRequested(
     OnboardingInterestsNextRequested _event,
     Emitter<OnboardingState> emit,
   ) async {
-    if (!state.canContinueInterests) {
+    if (!state.canContinueCategory) {
       return;
     }
 

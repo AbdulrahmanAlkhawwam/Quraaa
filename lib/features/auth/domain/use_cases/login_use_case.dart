@@ -4,11 +4,11 @@ import '../repositories/auth_repository.dart';
 
 class LoginParams {
   const LoginParams({
-    required this.username,
+    required this.phoneNumber,
     required this.password,
   });
 
-  final String username;
+  final String phoneNumber;
   final String password;
 }
 
@@ -20,7 +20,7 @@ class LoginUseCase extends UseCase<User, LoginParams> {
   @override
   Future<User> call(LoginParams params) {
     return _repository.login(
-      username: params.username,
+      phoneNumber: params.phoneNumber,
       password: params.password,
     );
   }

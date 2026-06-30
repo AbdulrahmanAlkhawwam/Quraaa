@@ -20,6 +20,16 @@ class HttpHelper {
     );
   }
 
+  Future<Response<dynamic>> get(
+    String path, {
+    Options? options,
+  }) {
+    return _dio.get<dynamic>(
+      path,
+      options: options,
+    );
+  }
+
   Future<Response<dynamic>> post(
     String path, {
     Object? data,

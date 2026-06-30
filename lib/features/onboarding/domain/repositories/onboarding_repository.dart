@@ -1,5 +1,5 @@
+import '../entities/category.dart';
 import '../entities/gender_selection.dart';
-import '../entities/interest_selection.dart';
 import '../entities/onboarding_draft.dart';
 
 abstract class OnboardingRepository {
@@ -13,11 +13,13 @@ abstract class OnboardingRepository {
 
   Future<void> saveGender(GenderSelection gender);
 
-  Future<void> saveInterests(List<InterestSelection> interests);
+  Future<void> saveCategoryId(String? categoryId);
 
   Future<void> completeOnboarding();
 
   Future<void> resetCompletion();
 
   Future<bool> isCompleted();
+
+  Future<List<Category>> getCategories();
 }

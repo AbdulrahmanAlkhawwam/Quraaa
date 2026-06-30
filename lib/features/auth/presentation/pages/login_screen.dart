@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
@@ -13,15 +14,30 @@ import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import '../../../../shared/widgets/phone_number_input.dart';
 import '../../data/datasources/auth_local_datasource.dart';
+import '../bloc/auth_bloc.dart';
+import '../bloc/auth_event.dart';
+import '../bloc/auth_state.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => sl<AuthBloc>(),
+      child: const _LoginView(),
+    );
+  }
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginView extends StatefulWidget {
+  const _LoginView({super.key});
+
+  @override
+  State<_LoginView> createState() => _LoginViewState();
+}
+
+class _LoginViewState extends State<_LoginView> {
   final AuthLocalDataSource _authJourney = sl<AuthLocalDataSource>();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _phoneController = TextEditingController();
@@ -29,7 +45,6 @@ class _LoginScreenState extends State<LoginScreen> {
   PhoneNumber? _phoneNumber;
   bool _isPhoneValid = false;
   bool _obscurePassword = true;
-  bool _isLoading = false;
 
   @override
   void initState() {
@@ -61,28 +76,12 @@ class _LoginScreenState extends State<LoginScreen> {
       sl<UserContextProvider>().recordAction('Auth submit with data'),
     );
 
-    setState(() => _isLoading = true);
-    try {
-      await _authJourney.markAuthenticatedSession();
-      await sl<UserContextProvider>().setUser(
-        id: normalizedPhone,
-        name: normalizedPhone,
-        phone: normalizedPhone,
-        subscriptionStatus: 'active',
-      );
-      if (!mounted) return;
-      await _navigatePostAuth(context);
-    } catch (error) {
-      if (!mounted) return;
-      context.showErrorSnackBar(
-        message: Message(
-          title: LocalizationConstants.authLoginTitleKey.tr(),
-          value: error.toString(),
-        ),
-      );
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
+    context.read<AuthBloc>().add(
+      AuthLoginRequested(
+        phoneNumber: normalizedPhone,
+        password: _passwordController.text,
+      ),
+    );
   }
 
   Future<void> _continueAsGuest() async {
@@ -111,215 +110,243 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      child: Scaffold(
-        body: Form(
-          key: _formKey,
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: Image.asset(
-                  AppImages.onboardingBackground,
-                  fit: BoxFit.cover,
-                ),
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (BuildContext context, AuthState state) {
+        switch (state) {
+          case AuthSuccess():
+            unawaited(_navigatePostAuth(context));
+          case AuthError(:final message):
+            context.showErrorSnackBar(
+              message: Message(
+                title: LocalizationConstants.authLoginTitleKey.tr(),
+                value: message,
               ),
-              Positioned.fill(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: <Color>[
-                        AppColors.libraryGreen.withAlpha(100),
-                        AppColors.libraryGreen.withAlpha(120),
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                    ),
+            );
+          case _:
+            break;
+        }
+      },
+      child: PopScope(
+        canPop: false,
+        child: Scaffold(
+          body: Form(
+            key: _formKey,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: Image.asset(
+                    AppImages.onboardingBackground,
+                    fit: BoxFit.cover,
                   ),
                 ),
-              ),
-              Positioned.fill(
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.fromLTRB(
-                      AppSpacing.spacing24,
-                      AppSpacing.spacing32,
-                      AppSpacing.spacing24,
-                      AppSpacing.spacing24 + context.bottomPadding,
-                    ),
-                    decoration: const BoxDecoration(
-                      color: AppColors.primary50,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(AppRadius.radius40),
-                        topRight: Radius.circular(AppRadius.radius40),
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: <Color>[
+                          AppColors.libraryGreen.withAlpha(100),
+                          AppColors.libraryGreen.withAlpha(120),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
                       ),
                     ),
-                    child: SingleChildScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(
-                            LocalizationConstants.authLoginTitleKey.tr(),
-                            textAlign: TextAlign.start,
-                            style: AppTextStyles.h2.copyWith(
-                              color: AppColors.libraryGreen,
-                            ),
-                          ),
-                          const SizedBox(height: AppSpacing.spacing32),
-                          _LabeledField(
-                            label: LocalizationConstants.authPhoneLabelKey.tr(),
-                            child: PhoneNumberInput(
-                              controller: _phoneController,
-                              initialValue: PhoneNumber(isoCode: 'SY'),
-                              countries: const <String>[
-                                // 'AE',
-                                // 'BH',
-                                // 'EG',
-                                // 'IQ',
-                                // 'JO',
-                                // 'KW',
-                                // 'LB',
-                                // 'OM',
-                                // 'QA',
-                                // 'SA',
-                                'SY',
-                              ],
-                              onInputChanged: (PhoneNumber value) {
-                                _phoneNumber = value;
-                              },
-                              onInputValidated: (bool value) {
-                                if (_isPhoneValid != value) {
-                                  setState(() {
-                                    _isPhoneValid = value;
-                                  });
-                                }
-                              },
-                              validator: (String? value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return LocalizationConstants.authPhoneHintKey
-                                      .tr();
-                                }
-                                if (!_isPhoneValid ||
-                                    _phoneNumber?.isoCode == null) {
-                                  return 'Please enter a valid phone number and country';
-                                }
-                                return null;
-                              },
-                              autoValidateMode:
-                                  AutovalidateMode.onUserInteraction,
-                              onFieldSubmitted: _continueAsUser,
-                              hintText: LocalizationConstants.authPhoneHintKey
-                                  .tr(),
-                            ),
-                          ),
-                        const SizedBox(height: AppSpacing.spacing16),
-                        _LabeledField(
-                          label: LocalizationConstants.authPasswordLabelKey
-                              .tr(),
-                          child: _AuthTextField(
-                            controller: _passwordController,
-                            hintText: LocalizationConstants.authPasswordHintKey
-                                .tr(),
-                            obscureText: _obscurePassword,
-                            textInputAction: TextInputAction.done,
-                            suffixIcon: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  _obscurePassword = !_obscurePassword;
-                                });
-                              },
-                              icon: HugeIcon(
-                                icon: _obscurePassword
-                                    ? HugeIcons.strokeRoundedViewOff
-                                    : HugeIcons.strokeRoundedView,
-                                color: AppColors.primary300,
-                                size: 20,
+                  ),
+                ),
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.fromLTRB(
+                        AppSpacing.spacing24,
+                        AppSpacing.spacing32,
+                        AppSpacing.spacing24,
+                        AppSpacing.spacing24 + context.bottomPadding,
+                      ),
+                      decoration: const BoxDecoration(
+                        color: AppColors.primary50,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(AppRadius.radius40),
+                          topRight: Radius.circular(AppRadius.radius40),
+                        ),
+                      ),
+                      child: SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              LocalizationConstants.authLoginTitleKey.tr(),
+                              textAlign: TextAlign.start,
+                              style: AppTextStyles.h2.copyWith(
+                                color: AppColors.libraryGreen,
                               ),
                             ),
-                            onSubmitted: (_) => _continueAsUser(),
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.spacing32),
-                        SizedBox(
-                          height: AppDimensions.onboardingButtonHeight,
-                          child: FilledButton(
-                            onPressed: _isLoading
-                                ? null
-                                : () {
-                                    unawaited(
-                                      sl<UserContextProvider>().recordAction(
-                                        'Auth primary button',
-                                      ),
-                                    );
-                                    _continueAsUser();
-                                  },
-                            child: _isLoading
-                                ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.5,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : Text(
-                                    LocalizationConstants.authNextKey.tr()),
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.spacing24),
-                        SizedBox(
-                          height: AppDimensions.onboardingButtonHeight,
-                          child: OutlinedButton(
-                            onPressed: _isLoading
-                                ? null
-                                : () {
-                                    unawaited(
-                                      sl<UserContextProvider>().recordAction(
-                                        'Auth secondary button',
-                                      ),
-                                    );
-                                    _continueAsGuest();
-                                  },
-                            child: Text(
-                              LocalizationConstants.authContinueAsGuestKey
-                                  .tr(),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.spacing16),
-                        TextButton(
-                          onPressed: _isLoading
-                              ? null
-                              : () {
-                                  unawaited(
-                                    sl<UserContextProvider>().recordAction(
-                                      'Auth create new account button',
-                                    ),
-                                  );
-                                  context.goTo(RouteNames.register);
+                            const SizedBox(height: AppSpacing.spacing32),
+                            _LabeledField(
+                              label: LocalizationConstants.authPhoneLabelKey.tr(),
+                              child: PhoneNumberInput(
+                                controller: _phoneController,
+                                initialValue: PhoneNumber(isoCode: 'SY'),
+                                countries: const <String>[
+                                  // 'AE',
+                                  // 'BH',
+                                  // 'EG',
+                                  // 'IQ',
+                                  // 'JO',
+                                  // 'KW',
+                                  // 'LB',
+                                  // 'OM',
+                                  // 'QA',
+                                  // 'SA',
+                                  'SY',
+                                ],
+                                onInputChanged: (PhoneNumber value) {
+                                  _phoneNumber = value;
                                 },
-                          child: Text(
-                            LocalizationConstants.authCreateNewAccountKey
-                                .tr(),
-                          ),
+                                onInputValidated: (bool value) {
+                                  if (_isPhoneValid != value) {
+                                    setState(() {
+                                      _isPhoneValid = value;
+                                    });
+                                  }
+                                },
+                                validator: (String? value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return LocalizationConstants.authPhoneHintKey
+                                        .tr();
+                                  }
+                                  if (!_isPhoneValid ||
+                                      _phoneNumber?.isoCode == null) {
+                                    return 'Please enter a valid phone number and country';
+                                  }
+                                  return null;
+                                },
+                                autoValidateMode:
+                                    AutovalidateMode.onUserInteraction,
+                                onFieldSubmitted: _continueAsUser,
+                                hintText: LocalizationConstants.authPhoneHintKey
+                                    .tr(),
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.spacing16),
+                            _LabeledField(
+                              label: LocalizationConstants.authPasswordLabelKey
+                                  .tr(),
+                              child: _AuthTextField(
+                                controller: _passwordController,
+                                hintText: LocalizationConstants.authPasswordHintKey
+                                    .tr(),
+                                obscureText: _obscurePassword,
+                                textInputAction: TextInputAction.done,
+                                suffixIcon: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      _obscurePassword = !_obscurePassword;
+                                    });
+                                  },
+                                  icon: HugeIcon(
+                                    icon: _obscurePassword
+                                        ? HugeIcons.strokeRoundedViewOff
+                                        : HugeIcons.strokeRoundedView,
+                                    color: AppColors.primary300,
+                                    size: 20,
+                                  ),
+                                ),
+                                onSubmitted: (_) => _continueAsUser(),
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.spacing32),
+                            BlocBuilder<AuthBloc, AuthState>(
+                              builder: (BuildContext context, AuthState state) {
+                                final bool isLoading = state is AuthLoading;
+                                return SizedBox(
+                                  height: AppDimensions.onboardingButtonHeight,
+                                  child: FilledButton(
+                                    onPressed: isLoading
+                                        ? null
+                                        : () {
+                                            unawaited(
+                                              sl<UserContextProvider>()
+                                                  .recordAction(
+                                                'Auth primary button',
+                                              ),
+                                            );
+                                            _continueAsUser();
+                                          },
+                                    child: isLoading
+                                        ? const SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2.5,
+                                              color: Colors.white,
+                                            ),
+                                          )
+                                        : Text(
+                                            LocalizationConstants.authNextKey
+                                                .tr()),
+                                  ),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: AppSpacing.spacing24),
+                            BlocBuilder<AuthBloc, AuthState>(
+                              builder: (BuildContext context, AuthState state) {
+                                final bool isLoading = state is AuthLoading;
+                                return SizedBox(
+                                  height: AppDimensions.onboardingButtonHeight,
+                                  child: OutlinedButton(
+                                    onPressed: isLoading
+                                        ? null
+                                        : () {
+                                            unawaited(
+                                              sl<UserContextProvider>()
+                                                  .recordAction(
+                                                'Auth secondary button',
+                                              ),
+                                            );
+                                            _continueAsGuest();
+                                          },
+                                    child: Text(
+                                      LocalizationConstants.authContinueAsGuestKey
+                                          .tr(),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: AppSpacing.spacing16),
+                            TextButton(
+                              onPressed: () {
+                                unawaited(
+                                  sl<UserContextProvider>().recordAction(
+                                    'Auth create new account button',
+                                  ),
+                                );
+                                context.goTo(RouteNames.register);
+                              },
+                              child: Text(
+                                LocalizationConstants.authCreateNewAccountKey
+                                    .tr(),
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.spacing12),
+                            const TermsPrivacyTextButton(),
+                          ],
                         ),
-                        const SizedBox(height: AppSpacing.spacing12),
-                        const TermsPrivacyTextButton(),
-                      ],
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
-    ),
-  );
+    );
   }
 }
 
@@ -384,6 +411,7 @@ class _AuthTextField extends StatelessWidget {
           color: AppColors.textPrimary,
         ),
         validator: validator,
+        onFieldSubmitted: onSubmitted,
         decoration: InputDecoration(
           hintText: hintText,
           suffixIcon: suffixIcon,

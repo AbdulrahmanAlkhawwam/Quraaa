@@ -2,16 +2,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/error_monitoring/user_context_provider.dart';
 import '../../data/datasources/auth_local_datasource.dart';
+import '../../domain/use_cases/login_use_case.dart';
 import '../../domain/use_cases/register_use_case.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc({
+    required LoginUseCase loginUseCase,
     required RegisterUseCase registerUseCase,
     required AuthLocalDataSource authJourney,
     required UserContextProvider userContext,
-  }) : _registerUseCase = registerUseCase,
+  }) : _loginUseCase = loginUseCase,
+       _registerUseCase = registerUseCase,
        _authJourney = authJourney,
        _userContext = userContext,
        super(const AuthInitial()) {
@@ -19,6 +22,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthRegisterRequested>(_onRegisterRequested);
   }
 
+  final LoginUseCase _loginUseCase;
   final RegisterUseCase _registerUseCase;
   final AuthLocalDataSource _authJourney;
   final UserContextProvider _userContext;
@@ -29,11 +33,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(const AuthLoading());
     try {
-      await _authJourney.markAuthenticatedSession();
+      final user = await _loginUseCase(
+        LoginParams(
+          phoneNumber: event.phoneNumber,
+          password: event.password,
+        ),
+      );
+
+      await _authJourney.markAuthenticatedSession(
+        accessToken: user.accessToken,
+        refreshToken: user.refreshToken,
+      );
       await _userContext.setUser(
-        id: event.phoneNumber,
-        name: event.phoneNumber,
-        phone: event.phoneNumber,
+        id: user.phoneNumber ?? event.phoneNumber,
+        name: user.fullName.isNotEmpty ? user.fullName : event.phoneNumber,
+        phone: user.phoneNumber ?? event.phoneNumber,
         subscriptionStatus: 'active',
       );
       emit(const AuthSuccess());
@@ -56,7 +70,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           password: event.password,
           gender: event.gender,
           dateOfBirth: event.dateOfBirth,
-          interests: event.interests,
+          categoryId: event.categoryId,
         ),
       );
 

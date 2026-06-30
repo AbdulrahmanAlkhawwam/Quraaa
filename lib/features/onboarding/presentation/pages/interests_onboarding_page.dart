@@ -10,7 +10,7 @@ import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import '../../../../shared/widgets/onboarding_scaffold.dart';
 import '../../../auth/data/datasources/auth_local_datasource.dart';
-import '../../domain/entities/interest_selection.dart';
+import '../../domain/entities/category.dart';
 import '../bloc/onboarding_bloc.dart';
 
 class InterestsOnboardingPage extends StatefulWidget {
@@ -96,8 +96,8 @@ class _InterestsOnboardingView extends StatelessWidget {
     }
   }
 
-  void _onInterestToggled(BuildContext context, InterestSelection interest) {
-    context.read<OnboardingBloc>().add(OnboardingInterestToggled(interest));
+  void _onCategorySelected(BuildContext context, String categoryId) {
+    context.read<OnboardingBloc>().add(OnboardingCategorySelected(categoryId));
   }
 
   void _onNext(BuildContext context) {
@@ -116,23 +116,29 @@ class _InterestsOnboardingView extends StatelessWidget {
           totalSteps: 3,
           content: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
-            child: Wrap(
-              spacing: AppSpacing.spacing12,
-              runSpacing: AppSpacing.spacing12,
-              children: InterestSelection.values.map((interest) {
-                final selected = state.selectedInterests.contains(interest);
-                return _InterestChip(
-                  label: _interestLabel(interest),
-                  selected: selected,
-                  onTap: state.isLoading
-                      ? null
-                      : () => _onInterestToggled(context, interest),
-                );
-              }).toList(),
-            ),
+            child: state.categories.isEmpty
+                ? state.isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : const Center(child: Text('No categories available'))
+                : Wrap(
+                    spacing: AppSpacing.spacing12,
+                    runSpacing: AppSpacing.spacing12,
+                    children: state.categories.map((category) {
+                      final selected = state.selectedCategoryId == category.id;
+                      return _InterestChip(
+                        label: context.locale.languageCode == 'ar'
+                            ? category.nameAr
+                            : category.nameEn,
+                        selected: selected,
+                        onTap: state.isLoading
+                            ? null
+                            : () => _onCategorySelected(context, category.id),
+                      );
+                    }).toList(),
+                  ),
           ),
           bottomButton: OnboardingNextButton(
-            onPressed: state.canContinueInterests
+            onPressed: state.canContinueCategory
                 ? () => _onNext(context)
                 : null,
             isLoading: state.isLoading,
@@ -140,41 +146,6 @@ class _InterestsOnboardingView extends StatelessWidget {
         );
       },
     );
-  }
-
-  String _interestLabel(InterestSelection interest) {
-    return switch (interest) {
-      InterestSelection.spaceScience =>
-          LocalizationConstants.onboardingInterestSpaceScienceKey.tr(),
-      InterestSelection.geography =>
-          LocalizationConstants.onboardingInterestGeographyKey.tr(),
-      InterestSelection.history =>
-          LocalizationConstants.onboardingInterestHistoryKey.tr(),
-      InterestSelection.encyclopedias =>
-          LocalizationConstants.onboardingInterestEncyclopediasKey.tr(),
-      InterestSelection.patrols =>
-          LocalizationConstants.onboardingInterestPatrolsKey.tr(),
-      InterestSelection.culture =>
-          LocalizationConstants.onboardingInterestCultureKey.tr(),
-      InterestSelection.science =>
-          LocalizationConstants.onboardingInterestScienceKey.tr(),
-      InterestSelection.novels =>
-          LocalizationConstants.onboardingInterestNovelsKey.tr(),
-      InterestSelection.policy =>
-          LocalizationConstants.onboardingInterestPolicyKey.tr(),
-      InterestSelection.dictionary =>
-          LocalizationConstants.onboardingInterestDictionaryKey.tr(),
-      InterestSelection.education =>
-          LocalizationConstants.onboardingInterestEducationKey.tr(),
-      InterestSelection.technology =>
-          LocalizationConstants.onboardingInterestTechnologyKey.tr(),
-      InterestSelection.art =>
-          LocalizationConstants.onboardingInterestArtKey.tr(),
-      InterestSelection.literature =>
-          LocalizationConstants.onboardingInterestLiteratureKey.tr(),
-      InterestSelection.other =>
-          LocalizationConstants.onboardingInterestOtherKey.tr(),
-    };
   }
 }
 

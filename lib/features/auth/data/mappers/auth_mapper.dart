@@ -9,7 +9,7 @@ class AuthMapper {
     String? password,
     int? gender,
     String? dateOfBirth,
-    List<String>? interests,
+    String? categoryId,
   }) {
     return <String, Object?>{
       'firstName': ?firstName,
@@ -18,7 +18,17 @@ class AuthMapper {
       'password': ?password,
       'gender': ?gender,
       'dateOfBirth': ?dateOfBirth,
-      'interests': ?interests,
+      'categoryId': ?categoryId,
+    };
+  }
+
+  static Map<String, Object?> loginToJson({
+    required String phoneNumber,
+    required String password,
+  }) {
+    return <String, Object?>{
+      'phoneNumber': phoneNumber,
+      'password': password,
     };
   }
 

@@ -50,7 +50,7 @@ String _deriveRouteFromDraft(OnboardingDraft onboardingDraft) {
     return RouteNames.onboardingAge;
   }
 
-  if (onboardingDraft.selectedInterests.isEmpty) {
+  if (onboardingDraft.selectedCategoryId == null) {
     return RouteNames.onboardingInterests;
   }
 
@@ -60,7 +60,7 @@ String _deriveRouteFromDraft(OnboardingDraft onboardingDraft) {
 bool _hasOnboardingProgress(OnboardingDraft onboardingDraft) {
   return onboardingDraft.completed ||
       onboardingDraft.selectedGender != null ||
-      onboardingDraft.selectedInterests.isNotEmpty ||
+      onboardingDraft.selectedCategoryId != null ||
       onboardingDraft.birthYear != null ||
       onboardingDraft.birthMonth != null ||
       onboardingDraft.birthDay != null;

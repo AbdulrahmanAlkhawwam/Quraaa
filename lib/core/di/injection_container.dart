@@ -13,9 +13,12 @@ import '../../features/onboarding/domain/repositories/onboarding_repository.dart
 import '../../features/onboarding/domain/use_cases/complete_onboarding_use_case.dart';
 import '../../features/onboarding/domain/use_cases/load_onboarding_state_use_case.dart';
 import '../../features/onboarding/domain/use_cases/save_birth_date_use_case.dart';
-import '../../features/onboarding/domain/use_cases/save_interests_use_case.dart';
+import '../../features/onboarding/data/datasources/onboarding_remote_datasource.dart';
+import '../../features/onboarding/domain/use_cases/load_categories_use_case.dart';
+import '../../features/onboarding/domain/use_cases/save_category_id_use_case.dart';
 import '../../features/onboarding/domain/use_cases/save_gender_use_case.dart';
 import '../../features/auth/domain/use_cases/register_use_case.dart';
+import '../../features/auth/domain/use_cases/login_use_case.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import '../error_monitoring/app_bloc_observer.dart';
@@ -157,7 +160,14 @@ void registerFeatureDependencies() {
   );
 
   sl.registerLazySingleton<OnboardingRepository>(
-    () => OnboardingRepositoryImpl(sl<OnboardingLocalDataSource>()),
+    () => OnboardingRepositoryImpl(
+      sl<OnboardingLocalDataSource>(),
+      sl<OnboardingRemoteDataSource>(),
+    ),
+  );
+
+  sl.registerLazySingleton<OnboardingRemoteDataSource>(
+    () => OnboardingRemoteDataSourceImpl(sl<HttpHelper>()),
   );
 
   sl.registerLazySingleton<AuthRemoteDataSource>(
@@ -177,8 +187,11 @@ void registerFeatureDependencies() {
   sl.registerFactory<SaveGenderUseCase>(
     () => SaveGenderUseCase(sl<OnboardingRepository>()),
   );
-  sl.registerFactory<SaveInterestsUseCase>(
-    () => SaveInterestsUseCase(sl<OnboardingRepository>()),
+  sl.registerFactory<SaveCategoryIdUseCase>(
+    () => SaveCategoryIdUseCase(sl<OnboardingRepository>()),
+  );
+  sl.registerFactory<LoadCategoriesUseCase>(
+    () => LoadCategoriesUseCase(sl<OnboardingRepository>()),
   );
   sl.registerFactory<CompleteOnboardingUseCase>(
     () => CompleteOnboardingUseCase(sl<OnboardingRepository>()),
@@ -188,7 +201,8 @@ void registerFeatureDependencies() {
       loadOnboardingStateUseCase: sl<LoadOnboardingStateUseCase>(),
       saveBirthDateUseCase: sl<SaveBirthDateUseCase>(),
       saveGenderUseCase: sl<SaveGenderUseCase>(),
-      saveInterestsUseCase: sl<SaveInterestsUseCase>(),
+      saveCategoryIdUseCase: sl<SaveCategoryIdUseCase>(),
+      loadCategoriesUseCase: sl<LoadCategoriesUseCase>(),
       completeOnboardingUseCase: sl<CompleteOnboardingUseCase>(),
     ),
   );
@@ -197,8 +211,13 @@ void registerFeatureDependencies() {
     () => RegisterUseCase(sl<AuthRepository>()),
   );
 
+  sl.registerFactory<LoginUseCase>(
+    () => LoginUseCase(sl<AuthRepository>()),
+  );
+
   sl.registerFactory<AuthBloc>(
     () => AuthBloc(
+      loginUseCase: sl<LoginUseCase>(),
       registerUseCase: sl<RegisterUseCase>(),
       authJourney: sl<AuthLocalDataSource>(),
       userContext: sl<UserContextProvider>(),

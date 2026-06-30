@@ -1,6 +1,5 @@
 import '../../../../core/services/storage_service.dart';
 import '../../domain/entities/gender_selection.dart';
-import '../../domain/entities/interest_selection.dart';
 import '../../domain/entities/onboarding_draft.dart';
 
 abstract class OnboardingLocalDataSource {
@@ -14,7 +13,7 @@ abstract class OnboardingLocalDataSource {
 
   Future<void> saveGender(GenderSelection gender);
 
-  Future<void> saveInterests(List<InterestSelection> interests);
+  Future<void> saveCategoryId(String? categoryId);
 
   Future<void> completeOnboarding();
 
@@ -30,7 +29,7 @@ class OnboardingLocalDataSourceImpl implements OnboardingLocalDataSource {
   static const String _birthMonthKey = 'birth_month';
   static const String _birthDayKey = 'birth_day';
   static const String _genderKey = 'gender';
-  static const String _selectedInterestsKey = 'selected_interests';
+  static const String _selectedCategoryIdKey = 'selected_category_id';
   static const String _completedKey = 'onboarding_completed';
 
   @override
@@ -39,17 +38,13 @@ class OnboardingLocalDataSourceImpl implements OnboardingLocalDataSource {
     final int? birthMonth = _storageService.getInt(_birthMonthKey);
     final int? birthDay = _storageService.getInt(_birthDayKey);
     final String? storedGender = _storageService.getString(_genderKey);
-    final List<String> storedInterests =
-        _storageService.getStringList(_selectedInterestsKey) ?? [];
+    final String? storedCategoryId = _storageService.getString(_selectedCategoryIdKey);
     final bool completed = _storageService.getBool(_completedKey) ?? false;
 
     return OnboardingDraft(
       completed: completed,
       selectedGender: GenderSelection.fromKey(storedGender),
-      selectedInterests: storedInterests
-          .map(InterestSelection.fromKey)
-          .whereType<InterestSelection>()
-          .toList(growable: false),
+      selectedCategoryId: storedCategoryId,
       birthYear: birthYear,
       birthMonth: birthMonth,
       birthDay: birthDay,
@@ -73,13 +68,12 @@ class OnboardingLocalDataSourceImpl implements OnboardingLocalDataSource {
   }
 
   @override
-  Future<void> saveInterests(List<InterestSelection> interests) async {
-    await _storageService.setStringList(
-      _selectedInterestsKey,
-      interests
-          .map((InterestSelection interest) => interest.key)
-          .toList(growable: false),
-    );
+  Future<void> saveCategoryId(String? categoryId) async {
+    if (categoryId == null) {
+      await _storageService.remove(_selectedCategoryIdKey);
+    } else {
+      await _storageService.setString(_selectedCategoryIdKey, categoryId);
+    }
   }
 
   @override

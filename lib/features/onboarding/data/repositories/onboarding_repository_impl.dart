@@ -1,13 +1,15 @@
+import '../../domain/entities/category.dart';
 import '../../domain/entities/gender_selection.dart';
-import '../../domain/entities/interest_selection.dart';
 import '../../domain/entities/onboarding_draft.dart';
 import '../../domain/repositories/onboarding_repository.dart';
 import '../datasources/onboarding_local_datasource.dart';
+import '../datasources/onboarding_remote_datasource.dart';
 
 class OnboardingRepositoryImpl implements OnboardingRepository {
-  const OnboardingRepositoryImpl(this._localDataSource);
+  const OnboardingRepositoryImpl(this._localDataSource, this._remoteDataSource);
 
   final OnboardingLocalDataSource _localDataSource;
+  final OnboardingRemoteDataSource _remoteDataSource;
 
   @override
   Future<OnboardingDraft> loadState() {
@@ -29,8 +31,13 @@ class OnboardingRepositoryImpl implements OnboardingRepository {
   }
 
   @override
-  Future<void> saveInterests(List<InterestSelection> interests) {
-    return _localDataSource.saveInterests(interests);
+  Future<void> saveCategoryId(String? categoryId) {
+    return _localDataSource.saveCategoryId(categoryId);
+  }
+
+  @override
+  Future<List<Category>> getCategories() {
+    return _remoteDataSource.getCategories();
   }
 
   @override

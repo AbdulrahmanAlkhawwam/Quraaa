@@ -13,10 +13,14 @@ class AuthRepositoryImpl extends BaseRepository<User>
 
   @override
   Future<User> login({
-    required String username,
+    required String phoneNumber,
     required String password,
-  }) {
-    throw UnimplementedError();
+  }) async {
+    final Map<String, Object?> response = await _remoteDataSource.login(
+      phoneNumber: phoneNumber,
+      password: password,
+    );
+    return AuthMapper.fromJson(response);
   }
 
   @override
@@ -27,7 +31,7 @@ class AuthRepositoryImpl extends BaseRepository<User>
     String? password,
     int? gender,
     String? dateOfBirth,
-    List<String>? interests,
+    String? categoryId,
   }) async {
     final Map<String, Object?> response = await _remoteDataSource.register(
       firstName: firstName,
@@ -36,7 +40,7 @@ class AuthRepositoryImpl extends BaseRepository<User>
       password: password,
       gender: gender,
       dateOfBirth: dateOfBirth,
-      interests: interests,
+      categoryId: categoryId,
     );
     return AuthMapper.fromJson(response);
   }

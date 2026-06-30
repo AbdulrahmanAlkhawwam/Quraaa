@@ -1,11 +1,10 @@
 import 'gender_selection.dart';
-import 'interest_selection.dart';
 
 class OnboardingDraft {
   const OnboardingDraft({
     required this.completed,
     required this.selectedGender,
-    required this.selectedInterests,
+    required this.selectedCategoryId,
     required this.birthYear,
     required this.birthMonth,
     required this.birthDay,
@@ -13,7 +12,7 @@ class OnboardingDraft {
 
   final bool completed;
   final GenderSelection? selectedGender;
-  final List<InterestSelection> selectedInterests;
+  final String? selectedCategoryId;
   final int? birthYear;
   final int? birthMonth;
   final int? birthDay;
