@@ -10,6 +10,8 @@ abstract class RouteNames {
   static const String onboardingInterests = '/onboarding/interests';
   static const String routeBridge = '/open';
   static const String search = '/search';
+  static const String notificationPermission = '/notification-permission';
+  static const String locationPermission = '/location-permission';
   static const String explorer = '/explorer';
   static const String pdfReader = '/explorer/pdf';
 

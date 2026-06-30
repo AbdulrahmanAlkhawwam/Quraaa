@@ -81,6 +81,14 @@ abstract class AuthLocalDataSource {
 
   Future<void> markRegisterSeen();
 
+  Future<bool> isNotificationPermissionSeen();
+
+  Future<void> markNotificationPermissionSeen();
+
+  Future<bool> isLocationPermissionSeen();
+
+  Future<void> markLocationPermissionSeen();
+
   Future<AuthJourneyStage?> getCurrentStage();
 
   Future<AuthJourneyStage?> getPreviousStage();
@@ -164,6 +172,31 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   Future<void> markRegisterSeen() async {
     await saveJourneyStage(AuthJourneyStage.register);
     await _storageService.setBool(_registerSeenKey, true);
+  }
+
+  static const String _notificationPermissionSeenKey = 'notification_permission_seen';
+  static const String _locationPermissionSeenKey = 'location_permission_seen';
+
+  @override
+  Future<bool> isNotificationPermissionSeen() async {
+    final bool? value = _storageService.getBool(_notificationPermissionSeenKey);
+    return value ?? false;
+  }
+
+  @override
+  Future<void> markNotificationPermissionSeen() async {
+    await _storageService.setBool(_notificationPermissionSeenKey, true);
+  }
+
+  @override
+  Future<bool> isLocationPermissionSeen() async {
+    final bool? value = _storageService.getBool(_locationPermissionSeenKey);
+    return value ?? false;
+  }
+
+  @override
+  Future<void> markLocationPermissionSeen() async {
+    await _storageService.setBool(_locationPermissionSeenKey, true);
   }
 
   @override

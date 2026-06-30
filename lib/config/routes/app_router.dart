@@ -1,6 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/auth/presentation/pages/location_permission_screen.dart';
+import '../../features/auth/presentation/pages/notification_permission_screen.dart';
 import '../../features/home/presentation/pages/home_screen.dart';
 import '../../features/auth/presentation/pages/auth_screen.dart';
 import '../../features/auth/presentation/pages/login_screen.dart';
@@ -109,6 +111,16 @@ GoRouter buildAppRouter({
         path: RouteNames.search,
         builder: (context, state) => const SearchScreen(),
       ),
+      GoRoute(
+        name: RouteNames.notificationPermission,
+        path: RouteNames.notificationPermission,
+        builder: (context, state) => const NotificationPermissionScreen(),
+      ),
+      GoRoute(
+        name: RouteNames.locationPermission,
+        path: RouteNames.locationPermission,
+        builder: (context, state) => const LocationPermissionScreen(),
+      ),
     ],
   );
 }
@@ -126,5 +138,7 @@ bool _isKnownRoute(String location) {
     RouteNames.onboardingAge,
     RouteNames.onboardingInterests,
     RouteNames.routeBridge,
+    RouteNames.notificationPermission,
+    RouteNames.locationPermission,
   }.contains(location);
 }

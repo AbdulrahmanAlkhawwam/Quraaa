@@ -95,4 +95,5 @@ const Set<String> _knownRoutes = <String>{
   RouteNames.onboarding,
   RouteNames.onboardingAge,
   RouteNames.onboardingInterests,
+  RouteNames.notificationPermission,
 };

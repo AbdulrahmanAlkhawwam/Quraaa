@@ -71,14 +71,31 @@ class _RegisterViewState extends State<_RegisterView> {
       subscriptionStatus: 'active',
     );
     if (!mounted) return;
-    context.goTo(RouteNames.home);
+    await _navigatePostRegister(context);
   }
 
   Future<void> _continueAsGuest() async {
     await _authJourney.markGuestSession();
     await sl<UserContextProvider>().clearUser();
     if (!mounted) return;
-    context.goTo(RouteNames.home);
+    await _navigatePostRegister(context);
+  }
+
+  Future<void> _navigatePostRegister(BuildContext context) async {
+    final bool locationSeen = await _authJourney.isLocationPermissionSeen();
+    if (!context.mounted) return;
+    if (locationSeen) {
+      final bool notificationSeen =
+          await _authJourney.isNotificationPermissionSeen();
+      if (!context.mounted) return;
+      if (notificationSeen) {
+        context.goTo(RouteNames.home);
+      } else {
+        context.goTo(RouteNames.notificationPermission);
+      }
+    } else {
+      context.goTo(RouteNames.locationPermission);
+    }
   }
 
   Future<void> _submitRegistration() async {
@@ -145,7 +162,7 @@ class _RegisterViewState extends State<_RegisterView> {
       listener: (BuildContext context, AuthState state) {
         switch (state) {
           case AuthSuccess():
-            context.goTo(RouteNames.home);
+            unawaited(_navigatePostRegister(context));
           case AuthError(:final message):
             context.showErrorSnackBar(
               message: Message(title: 'Registration failed', value: message),

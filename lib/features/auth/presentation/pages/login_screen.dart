@@ -71,7 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
         subscriptionStatus: 'active',
       );
       if (!mounted) return;
-      context.goTo(RouteNames.home);
+      await _navigatePostAuth(context);
     } catch (error) {
       if (!mounted) return;
       context.showErrorSnackBar(
@@ -89,7 +89,24 @@ class _LoginScreenState extends State<LoginScreen> {
     await _authJourney.markGuestSession();
     await sl<UserContextProvider>().clearUser();
     if (!mounted) return;
-    context.goTo(RouteNames.home);
+    await _navigatePostAuth(context);
+  }
+
+  Future<void> _navigatePostAuth(BuildContext context) async {
+    final bool locationSeen = await _authJourney.isLocationPermissionSeen();
+    if (!context.mounted) return;
+    if (locationSeen) {
+      final bool notificationSeen =
+          await _authJourney.isNotificationPermissionSeen();
+      if (!context.mounted) return;
+      if (notificationSeen) {
+        context.goTo(RouteNames.home);
+      } else {
+        context.goTo(RouteNames.notificationPermission);
+      }
+    } else {
+      context.goTo(RouteNames.locationPermission);
+    }
   }
 
   @override
