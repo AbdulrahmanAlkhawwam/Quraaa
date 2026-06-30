@@ -7,7 +7,7 @@ import '../../features/auth/data/datasources/user_local_datasource.dart';
 import '../../features/auth/data/datasources/auth_remote_datasource.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
-import '../../features/onboarding/data/datasources/local/onboarding_local_datasource.dart';
+import '../../features/onboarding/data/datasources/onboarding_local_datasource.dart';
 import '../../features/onboarding/data/repositories/onboarding_repository_impl.dart';
 import '../../features/onboarding/domain/repositories/onboarding_repository.dart';
 import '../../features/onboarding/domain/use_cases/complete_onboarding_use_case.dart';
@@ -18,7 +18,6 @@ import '../../features/onboarding/domain/use_cases/save_gender_use_case.dart';
 import '../../features/auth/domain/use_cases/register_use_case.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/onboarding/presentation/bloc/onboarding_bloc.dart';
-import '../../features/onboarding/presentation/viewmodels/onboarding_view_model.dart';
 import '../error_monitoring/app_bloc_observer.dart';
 import '../error_monitoring/app_logger.dart';
 import '../error_monitoring/crashlytics_service.dart';
@@ -29,6 +28,8 @@ import '../error_monitoring/telegram_notification_service.dart';
 import '../error_monitoring/user_context_provider.dart';
 import '../network/http_helper.dart';
 import '../services/app_diagnostics_service.dart';
+import '../connectivity/connectivity_service.dart';
+import '../connectivity/connectivity_service_impl.dart';
 import '../services/firebase_notification_service.dart';
 import '../services/notification_service.dart';
 import '../services/storage_service_impl.dart';
@@ -131,6 +132,10 @@ void registerCoreDependencies() {
   sl.registerLazySingleton<AppDiagnosticsService>(
     () => AppDiagnosticsService(sl<AppLogger>()),
   );
+
+  sl.registerLazySingleton<ConnectivityService>(
+    () => ConnectivityServiceImpl(),
+  );
 }
 
 void registerFeatureDependencies() {
@@ -178,17 +183,14 @@ void registerFeatureDependencies() {
   sl.registerFactory<CompleteOnboardingUseCase>(
     () => CompleteOnboardingUseCase(sl<OnboardingRepository>()),
   );
-  sl.registerFactory<OnboardingViewModel>(
-    () => OnboardingViewModel(
-      sl<LoadOnboardingStateUseCase>(),
-      sl<SaveBirthDateUseCase>(),
-      sl<SaveGenderUseCase>(),
-      sl<SaveInterestsUseCase>(),
-      sl<CompleteOnboardingUseCase>(),
-    ),
-  );
   sl.registerFactory<OnboardingBloc>(
-    () => OnboardingBloc(sl<OnboardingViewModel>()),
+    () => OnboardingBloc(
+      loadOnboardingStateUseCase: sl<LoadOnboardingStateUseCase>(),
+      saveBirthDateUseCase: sl<SaveBirthDateUseCase>(),
+      saveGenderUseCase: sl<SaveGenderUseCase>(),
+      saveInterestsUseCase: sl<SaveInterestsUseCase>(),
+      completeOnboardingUseCase: sl<CompleteOnboardingUseCase>(),
+    ),
   );
 
   sl.registerFactory<RegisterUseCase>(

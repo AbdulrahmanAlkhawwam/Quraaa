@@ -94,7 +94,10 @@
     },
     "appearance": {
       "theme": "Theme",
-      "language": "Language"
+      "language": "Language",
+      "english": "English",
+      "arabic": "Arabic",
+      "change_language": "Change Language"
     },
     "bookmarks": {
       "saved_items": "Saved items"

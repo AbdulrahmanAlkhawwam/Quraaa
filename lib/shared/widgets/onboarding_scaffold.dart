@@ -17,7 +17,6 @@ class OnboardingScaffold extends StatelessWidget {
     required this.bottomButton,
     required this.activeIndex,
     required this.totalSteps,
-    this.cardColor = AppColors.card,
   });
 
   final String title;
@@ -27,7 +26,6 @@ class OnboardingScaffold extends StatelessWidget {
   final Widget bottomButton;
   final int activeIndex;
   final int totalSteps;
-  final Color cardColor;
 
   @override
   Widget build(BuildContext context) {
@@ -73,9 +71,9 @@ class OnboardingScaffold extends StatelessWidget {
                         AppSpacing.spacing24,
                         AppSpacing.spacing24 + context.bottomPadding,
                       ),
-                      decoration: BoxDecoration(
-                        color: cardColor,
-                        borderRadius: const BorderRadius.only(
+                      decoration: const BoxDecoration(
+                        color: AppColors.card,
+                        borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(AppRadius.radius40),
                           topRight: Radius.circular(AppRadius.radius40),
                         ),

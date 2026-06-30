@@ -8,6 +8,7 @@ import '../../features/auth/presentation/pages/register_screen.dart';
 import '../../features/onboarding/presentation/pages/age_onboarding_page.dart';
 import '../../features/onboarding/presentation/pages/gender_onboarding_page.dart';
 import '../../features/onboarding/presentation/pages/interests_onboarding_page.dart';
+import '../../features/search/search.dart';
 import '../../features/splash/presentation/pages/splash_screen.dart';
 import '../../features/local_explorer/presentation/pages/local_explorer_page.dart';
 import '../../features/pdf_reader/presentation/pages/pdf_reader_page.dart';
@@ -17,8 +18,10 @@ import 'route_resolver.dart';
 
 GoRouter buildAppRouter({
   List<NavigatorObserver> observers = const <NavigatorObserver>[],
+  GlobalKey<NavigatorState>? navigatorKey,
 }) {
   return GoRouter(
+    navigatorKey: navigatorKey,
     initialLocation: RouteNames.splash,
     observers: observers,
     redirect: (context, state) {
@@ -101,6 +104,11 @@ GoRouter buildAppRouter({
           );
         },
       ),
+      GoRoute(
+        name: RouteNames.search,
+        path: RouteNames.search,
+        builder: (context, state) => const SearchScreen(),
+      ),
     ],
   );
 }
@@ -110,6 +118,7 @@ bool _isKnownRoute(String location) {
     RouteNames.splash,
     RouteNames.home,
     RouteNames.profile,
+    RouteNames.search,
     RouteNames.auth,
     RouteNames.login,
     RouteNames.register,

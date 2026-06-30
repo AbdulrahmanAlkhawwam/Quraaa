@@ -9,6 +9,7 @@ abstract class RouteNames {
   static const String onboardingAge = '/onboarding/age';
   static const String onboardingInterests = '/onboarding/interests';
   static const String routeBridge = '/open';
+  static const String search = '/search';
   static const String explorer = '/explorer';
   static const String pdfReader = '/explorer/pdf';
 

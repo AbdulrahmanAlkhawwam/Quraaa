@@ -16,10 +16,12 @@ import 'core/di/injection_container.dart';
 import 'core/error_monitoring/app_bloc_observer.dart';
 import 'core/error_monitoring/app_logger.dart';
 import 'core/localization/localization_service.dart';
+import 'core/localization/supported_locales.dart';
 import 'core/services/app_diagnostics_service.dart';
 import 'core/services/services.dart';
 import 'core/services/firebase_notification_service.dart';
 import 'core/services/notification_service.dart';
+import 'core/services/storage_service.dart';
 
 RawReceivePort? _isolateErrorPort;
 
@@ -36,6 +38,12 @@ Future<void> main() async {
   FirebaseMessaging.onBackgroundMessage(firebaseBackgroundMessageHandler);
       await configureDependencies();
 
+      final StorageService storageService = sl<StorageService>();
+      final String? savedLanguage = storageService.getString('user_language');
+      final Locale startLocale = savedLanguage == 'ar'
+          ? SupportedLocales.arabic
+          : SupportedLocales.english;
+
       appLogger = sl<AppLogger>();
       await _initializeFirebase(appLogger!);
       await appLogger!.initialize();
@@ -45,7 +53,12 @@ Future<void> main() async {
       // If you need a Bloc observer, set it here before runApp:
       // Bloc.observer = sl<AppBlocObserver>();
 
-      runApp(LocalizationService.wrap(child: const QuraaaApp()));
+      runApp(
+        LocalizationService.wrap(
+          startLocale: startLocale,
+          child: const QuraaaApp(),
+        ),
+      );
     },
     (Object error, StackTrace stackTrace) {
       if (appLogger != null) {

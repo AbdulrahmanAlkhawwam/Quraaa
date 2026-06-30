@@ -1,9 +1,15 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/routes/route_names.dart';
+import '../../../../core/architecture/use_case.dart';
 import '../../domain/entities/gender_selection.dart';
 import '../../domain/entities/interest_selection.dart';
-import '../viewmodels/onboarding_view_model.dart';
+import '../../domain/entities/onboarding_draft.dart';
+import '../../domain/use_cases/complete_onboarding_use_case.dart';
+import '../../domain/use_cases/load_onboarding_state_use_case.dart';
+import '../../domain/use_cases/save_birth_date_use_case.dart';
+import '../../domain/use_cases/save_gender_use_case.dart';
+import '../../domain/use_cases/save_interests_use_case.dart';
 
 sealed class OnboardingEvent {
   const OnboardingEvent();
@@ -176,7 +182,18 @@ class OnboardingState {
 }
 
 class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
-  OnboardingBloc(this._viewModel) : super(const OnboardingState()) {
+  OnboardingBloc({
+    required LoadOnboardingStateUseCase loadOnboardingStateUseCase,
+    required SaveBirthDateUseCase saveBirthDateUseCase,
+    required SaveGenderUseCase saveGenderUseCase,
+    required SaveInterestsUseCase saveInterestsUseCase,
+    required CompleteOnboardingUseCase completeOnboardingUseCase,
+  })  : _loadOnboardingStateUseCase = loadOnboardingStateUseCase,
+        _saveBirthDateUseCase = saveBirthDateUseCase,
+        _saveGenderUseCase = saveGenderUseCase,
+        _saveInterestsUseCase = saveInterestsUseCase,
+        _completeOnboardingUseCase = completeOnboardingUseCase,
+        super(const OnboardingState()) {
     on<OnboardingStarted>(_onStarted);
     on<OnboardingAgeYearChanged>(_onAgeYearChanged);
     on<OnboardingAgeMonthChanged>(_onAgeMonthChanged);
@@ -190,7 +207,11 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     on<OnboardingNavigationCompleted>(_onNavigationCompleted);
   }
 
-  final OnboardingViewModel _viewModel;
+  final LoadOnboardingStateUseCase _loadOnboardingStateUseCase;
+  final SaveBirthDateUseCase _saveBirthDateUseCase;
+  final SaveGenderUseCase _saveGenderUseCase;
+  final SaveInterestsUseCase _saveInterestsUseCase;
+  final CompleteOnboardingUseCase _completeOnboardingUseCase;
 
   Future<void> _onStarted(
     OnboardingStarted _event,
@@ -198,7 +219,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
   ) async {
     emit(state.copyWith(isLoading: true, errorMessage: null));
     try {
-      final draft = await _viewModel.loadState();
+      final OnboardingDraft draft = await _loadOnboardingStateUseCase(const NoParams());
       emit(
         OnboardingState(
           birthYear: draft.birthYear,
@@ -269,10 +290,12 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
 
     emit(state.copyWith(isLoading: true, errorMessage: null));
     try {
-      await _viewModel.saveBirthDate(
-        year: state.birthYear!,
-        month: state.birthMonth!,
-        day: state.birthDay!,
+      await _saveBirthDateUseCase(
+        SaveBirthDateParams(
+          year: state.birthYear!,
+          month: state.birthMonth!,
+          day: state.birthDay!,
+        ),
       );
       emit(
         state.copyWith(
@@ -296,7 +319,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
   ) async {
     emit(state.copyWith(selectedGender: event.gender, errorMessage: null));
     try {
-      await _viewModel.selectGender(event.gender);
+      await _saveGenderUseCase(event.gender);
     } catch (_) {
       emit(state.copyWith(errorMessage: 'Failed to save gender'));
     }
@@ -322,7 +345,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     );
 
     try {
-      await _viewModel.saveInterests(updatedInterests);
+      await _saveInterestsUseCase(SaveInterestsParams(updatedInterests));
     } catch (_) {
       emit(state.copyWith(errorMessage: 'Failed to save interests'));
     }
@@ -338,7 +361,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
 
     emit(state.copyWith(isLoading: true, errorMessage: null));
     try {
-      await _viewModel.completeOnboarding();
+      await _completeOnboardingUseCase(const NoParams());
       emit(
         state.copyWith(
           isLoading: false,
@@ -362,7 +385,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
   ) async {
     emit(state.copyWith(isLoading: true, errorMessage: null));
     try {
-      await _viewModel.completeOnboarding();
+      await _completeOnboardingUseCase(const NoParams());
       emit(
         state.copyWith(
           isLoading: false,
@@ -391,7 +414,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     emit(state.copyWith(isLoading: true, errorMessage: null));
     try {
       final GenderSelection selectedGender = state.selectedGender!;
-      await _viewModel.selectGender(selectedGender);
+      await _saveGenderUseCase(selectedGender);
       emit(
         state.copyWith(
           isLoading: false,

@@ -14,6 +14,7 @@ import '../../../../core/services/storage_service.dart';
 import '../../../../features/account/data/user_data_local_data_source.dart';
 import '../../../../shared/shared.dart';
 import '../../../../shared/models/message.dart';
+import '../../../../shared/widgets/animated_search_bar.dart';
 import '../widgets/home_bottom_nav.dart';
 import '../widgets/home_drawer.dart';
 
@@ -141,11 +142,21 @@ class _HomeScreenState extends State<HomeScreen> {
         children: <Widget>[
           Text(
             'Hi, ',
-            style: AppTextStyles.h3.copyWith(color: AppColors.libraryGreen),
+            style: AppTextStyles.h3.copyWith(
+              fontSize: 22,
+              color: AppColors.libraryGreen,
+            ),
           ),
-          Text(
-            firstName,
-            style: AppTextStyles.h3.copyWith(color: AppColors.libraryGreen),
+          Expanded(
+            child: Text(
+              firstName,
+              style: AppTextStyles.h3.copyWith(
+                fontSize: 22,
+                color: AppColors.libraryGreen,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
           ),
         ],
       ),
@@ -242,42 +253,68 @@ class _TestNotificationPage extends StatelessWidget {
         ),
       ),
       child: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.spacing24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                const FlutterLogo(size: 120),
-                const SizedBox(height: AppSpacing.spacing24),
-                Text(
-                  'Test Notification Widget',
-                  style: AppTextStyles.h4.copyWith(
-                    color: AppColors.textPrimary,
-                  ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.spacing16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              // Animated search bar with rotating suggestions
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.spacing16),
+                child: AnimatedSearchBar(
+                  suggestions: const [
+                    'History',
+                    'Mathematics',
+                    'Humanity',
+                    'Science',
+                    'Artificial Intelligence',
+                    'Novels',
+                    'Programming',
+                  ],
+                  onTap: () => context.goTo(RouteNames.search),
+                  backgroundColor: AppColors.card,
+                  textColor: AppColors.textPrimary,
                 ),
-                const SizedBox(height: AppSpacing.spacing32),
-                SizedBox(
-                  width: double.infinity,
-                  height: AppDimensions.onboardingButtonHeight,
-                  child: FilledButton.icon(
-                    onPressed: () => _showTestNotification(context),
-                    icon: const Icon(Icons.notification_add),
-                    label: const Text('Show Notification'),
-                  ),
+              ),
+              const SizedBox(height: AppSpacing.spacing32),
+              // Rest of the test content
+              Padding(
+                padding: const EdgeInsets.all(AppSpacing.spacing24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    const FlutterLogo(size: 120),
+                    const SizedBox(height: AppSpacing.spacing24),
+                    Text(
+                      'Test Notification Widget',
+                      style: AppTextStyles.h4.copyWith(
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.spacing32),
+                    SizedBox(
+                      width: double.infinity,
+                      height: AppDimensions.onboardingButtonHeight,
+                      child: FilledButton.icon(
+                        onPressed: () => _showTestNotification(context),
+                        icon: const Icon(Icons.notification_add),
+                        label: const Text('Show Notification'),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.spacing16),
+                    SizedBox(
+                      width: double.infinity,
+                      height: AppDimensions.onboardingButtonHeight,
+                      child: OutlinedButton.icon(
+                        onPressed: () => _showTestNotificationNoRoute(context),
+                        icon: const Icon(Icons.notifications_none),
+                        label: const Text('Show Without Button'),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: AppSpacing.spacing16),
-                SizedBox(
-                  width: double.infinity,
-                  height: AppDimensions.onboardingButtonHeight,
-                  child: OutlinedButton.icon(
-                    onPressed: () => _showTestNotificationNoRoute(context),
-                    icon: const Icon(Icons.notifications_none),
-                    label: const Text('Show Without Button'),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

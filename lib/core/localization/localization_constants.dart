@@ -60,6 +60,9 @@ class LocalizationConstants {
   static const String userDataPhoneKey = 'user_data.profile.phone';
   static const String userDataThemeKey = 'user_data.appearance.theme';
   static const String userDataLanguageKey = 'user_data.appearance.language';
+  static const String userDataEnglishLanguageKey = 'user_data.appearance.english';
+  static const String userDataArabicLanguageKey = 'user_data.appearance.arabic';
+  static const String userDataChangeLanguageKey = 'user_data.appearance.change_language';
   static const String userDataSavedItemsKey = 'user_data.bookmarks.saved_items';
   static const String userDataBudgetBalanceKey = 'user_data.budgets.balance';
   static const String userDataLibraryItemsKey = 'user_data.library.items';

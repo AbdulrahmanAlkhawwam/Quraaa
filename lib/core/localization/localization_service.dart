@@ -9,12 +9,12 @@ class LocalizationService {
 
   static Future<void> ensureInitialized() => EasyLocalization.ensureInitialized();
 
-  static Widget wrap({required Widget child}) {
+  static Widget wrap({required Widget child, Locale? startLocale}) {
     return EasyLocalization(
       supportedLocales: SupportedLocales.all,
       path: LocalizationConstants.translationsPath,
       fallbackLocale: SupportedLocales.fallback,
-      startLocale: SupportedLocales.fallback,
+      startLocale: startLocale ?? SupportedLocales.fallback,
       saveLocale: false,
       useOnlyLangCode: true,
       child: child,

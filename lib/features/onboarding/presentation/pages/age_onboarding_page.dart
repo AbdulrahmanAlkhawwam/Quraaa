@@ -102,7 +102,6 @@ class _AgeOnboardingView extends StatelessWidget {
 
         return OnboardingScaffold(
           title: LocalizationConstants.onboardingAgeTitleKey.tr(),
-          cardColor: const Color(0xFF0A0A0A),
           leading: OnboardingBackButton(
             onPressed: () async {
               await sl<AuthLocalDataSource>().saveJourneyStage(
@@ -270,88 +269,81 @@ class _DateWheelPickerState extends State<_DateWheelPicker> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(AppRadius.radius24),
-      ),
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.spacing24),
-      child: Column(
-        children: [
-          // Column labels
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.spacing24),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    LocalizationConstants.onboardingAgeYearKey.tr(),
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.caption.copyWith(
-                      color: const Color(0xFF888888),
-                    ),
+    return Column(
+      children: [
+        // Column labels
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.spacing24),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  LocalizationConstants.onboardingAgeYearKey.tr(),
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textPrimary,
                   ),
                 ),
-                Expanded(
-                  child: Text(
-                    LocalizationConstants.onboardingAgeMonthKey.tr(),
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.caption.copyWith(
-                      color: const Color(0xFF888888),
-                    ),
+              ),
+              Expanded(
+                child: Text(
+                  LocalizationConstants.onboardingAgeMonthKey.tr(),
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textPrimary,
                   ),
                 ),
-                Expanded(
-                  child: Text(
-                    LocalizationConstants.onboardingAgeDayKey.tr(),
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.caption.copyWith(
-                      color: const Color(0xFF888888),
-                    ),
+              ),
+              Expanded(
+                child: Text(
+                  LocalizationConstants.onboardingAgeDayKey.tr(),
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textPrimary,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          const SizedBox(height: AppSpacing.spacing16),
-          Expanded(
-            child: Row(
-              children: [
-                Expanded(
-                  child: _WheelColumn(
-                    controller: _yearController,
-                    items: _years,
-                    onChanged: (_) {
-                      _updateDays();
-                      _notifyChange();
-                    },
-                    itemHeight: _itemHeight,
-                  ),
+        ),
+        const SizedBox(height: AppSpacing.spacing16),
+        Expanded(
+          child: Row(
+            children: [
+              Expanded(
+                child: _WheelColumn(
+                  controller: _yearController,
+                  items: _years,
+                  onChanged: (_) {
+                    _updateDays();
+                    _notifyChange();
+                  },
+                  itemHeight: _itemHeight,
                 ),
-                Expanded(
-                  child: _WheelColumn(
-                    controller: _monthController,
-                    items: _months,
-                    onChanged: (_) {
-                      _updateDays();
-                      _notifyChange();
-                    },
-                    itemHeight: _itemHeight,
-                  ),
+              ),
+              Expanded(
+                child: _WheelColumn(
+                  controller: _monthController,
+                  items: _months,
+                  onChanged: (_) {
+                    _updateDays();
+                    _notifyChange();
+                  },
+                  itemHeight: _itemHeight,
                 ),
-                Expanded(
-                  child: _WheelColumn(
-                    controller: _dayController,
-                    items: _days,
-                    onChanged: (_) => _notifyChange(),
-                    itemHeight: _itemHeight,
-                  ),
+              ),
+              Expanded(
+                child: _WheelColumn(
+                  controller: _dayController,
+                  items: _days,
+                  onChanged: (_) => _notifyChange(),
+                  itemHeight: _itemHeight,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -379,7 +371,7 @@ class _WheelColumn extends StatelessWidget {
           height: itemHeight + 12,
           margin: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
-            color: const Color(0xFF1E1E1E),
+            color: AppColors.primary100,
             borderRadius: BorderRadius.circular(AppRadius.radius12),
           ),
         ),
@@ -397,7 +389,7 @@ class _WheelColumn extends StatelessWidget {
               child: Text(
                 item.toString(),
                 style: AppTextStyles.bodyLarge.copyWith(
-                  color: AppColors.leafGreen,
+                  color: AppColors.libraryGreen,
                   fontWeight: FontWeight.w600,
                   fontSize: 22,
                 ),

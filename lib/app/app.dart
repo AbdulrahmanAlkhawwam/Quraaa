@@ -8,6 +8,7 @@ import '../core/di/injection_container.dart';
 import '../core/error_monitoring/navigation_tracker.dart';
 import '../core/localization/localization_constants.dart';
 import '../shared/theme/app_theme.dart';
+import '../shared/widgets/dev_debug_overlay.dart';
 
 class QuraaaApp extends StatefulWidget {
   const QuraaaApp({super.key});
@@ -17,7 +18,10 @@ class QuraaaApp extends StatefulWidget {
 }
 
 class _QuraaaAppState extends State<QuraaaApp> {
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+
   late final GoRouter _router = buildAppRouter(
+    navigatorKey: _navigatorKey,
     observers: <NavigatorObserver>[
       sl<NavigationTracker>().observer,
     ],
@@ -56,6 +60,14 @@ class _QuraaaAppState extends State<QuraaaApp> {
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,
+      builder: (BuildContext context, Widget? child) {
+        return Stack(
+          children: <Widget>[
+            child!,
+            DevDebugOverlay(navigatorKey: _navigatorKey),
+          ],
+        );
+      },
     );
   }
 }

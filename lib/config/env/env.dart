@@ -6,6 +6,9 @@ abstract class Env {
   static String get environment =>
       dotenv.maybeGet('APP_ENV') ?? (kReleaseMode ? 'production' : 'development');
 
+  static bool get isDev =>
+      environment == 'dev' || environment == 'development';
+
   static String get host => dotenv.maybeGet('HOST') ?? '127.0.0.1:8080';
 
   static String get baseUrl => dotenv.maybeGet('BASEURL') ?? 'api';

@@ -55,6 +55,7 @@ dependencies:
   internet_connection_checker_plus: ^3.1.0
   flutter_dotenv: ^6.0.1
   smooth_page_indicator: ^2.0.1
+  animations: ^2.0.11
   flutter_local_notifications: ^17.1.2
   permission_handler: ^11.3.0
   uuid: ^4.4.0
