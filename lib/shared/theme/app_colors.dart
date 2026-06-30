@@ -1,24 +1,43 @@
 import 'package:flutter/material.dart';
 
 abstract class AppColors {
-  static const Color primary = Color(0xFF16324F);
-  static const Color secondary = Color(0xFF2D6A4F);
-  static const Color backgroundLight = Color(0xFFF6F7FB);
-  static const Color surfaceLight = Color(0xFFFFFFFF);
-  static const Color backgroundDark = Color(0xFF0E1116);
-  static const Color surfaceDark = Color(0xFF181D25);
-  static const Color textPrimary = Color(0xFF243629);
-  static const Color textSecondary = Color(0xFF536458);
-  static const Color textMuted = Color(0xFFB7BEB8);
-  static const Color borderLight = Color(0xFFE3E8E2);
-  static const Color folderTab = Color(0xFF92D174);
-  static const Color folderBody = Color(0xFFB5E1A1);
-  static const Color pdfSurface = Color(0xFFF2938C);
-  static const Color pdfFold = Color(0xFFF5BBB6);
-  static const Color pdfLabel = Color(0xFFD33A2C);
-  static const Color unsupportedFileSurface = Color(0xFFEAF4E6);
-  static const Color unsupportedFileFold = Color(0xFFDDEED7);
-  static const Color unsupportedFileLabel = Color(0xFFD2E6CC);
-  static const Color noteSurface = Color(0xFFF1FAEC);
-  static const Color noteBorder = Color(0xFFDDEED7);
+  // Primary Scale
+  static const Color primary50 = Color(0xFFE3E8DF);
+  static const Color primary100 = Color(0xFFD5E1CE);
+  static const Color primary200 = Color(0xFFC3DAB8);
+  static const Color primary300 = Color(0xFFAED29A);
+  static const Color primary400 = Color(0xFF95C977);
+  static const Color primary500 = Color(0xFF74C14C);
+  static const Color primary600 = Color(0xFF5EAF37);
+  static const Color primary700 = Color(0xFF4A8D29);
+  static const Color primary800 = Color(0xFF33641A);
+  static const Color primary900 = Color(0xFF163A07);
+
+  // Neutral Scale
+  static const Color neutralBackground = Color(0xFFF4F5F1);
+  static const Color surface = Color(0xFFE6E8E3);
+  static const Color card = Color(0xFFFFFFFF);
+  static const Color textPrimary = Color(0xFF24311C);
+  static const Color textSecondary = Color(0xFF4A5942);
+  static const Color textTertiary = Color(0xFF7C8577);
+
+  // Semantics
+  static const Color success500 = Color(0xFF4A8D29);
+  static const Color warning500 = Color(0xFFA88032);
+  static const Color error500 = Color(0xFFA54747);
+
+  // Special Colors
+  static const Color libraryGreen = Color(0xFF163A07);
+  static const Color forestGreen = Color(0xFF33641A);
+  static const Color leafGreen = Color(0xFF74C14C);
+  static const Color woodBrown = Color(0xFF6A4B2A);
+  static const Color bookPaper = Color(0xFFF4F5F1);
+
+  // Backward compatibility mappings
+  static const Color primary = primary600;
+  static const Color secondary = forestGreen;
+  static const Color backgroundLight = neutralBackground;
+  static const Color surfaceLight = surface;
+  static const Color backgroundDark = neutralBackground;
+  static const Color surfaceDark = surface;
 }

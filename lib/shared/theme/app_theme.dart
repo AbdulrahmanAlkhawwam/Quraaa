@@ -9,28 +9,83 @@ abstract class AppTheme {
       useMaterial3: true,
       brightness: Brightness.light,
       fontFamily: 'Thmanyah Sans',
-      colorScheme: const ColorScheme.light(
-        primary: AppColors.primary,
-        secondary: AppColors.secondary,
-        surface: AppColors.surfaceLight,
+      scaffoldBackgroundColor: AppColors.neutralBackground,
+      cardColor: AppColors.card,
+      dividerColor: AppColors.primary100,
+      
+      colorScheme: const ColorScheme(
+        brightness: Brightness.light,
+        primary: AppColors.primary600,
+        onPrimary: AppColors.card,
+        primaryContainer: AppColors.primary100,
+        onPrimaryContainer: AppColors.primary900,
+        secondary: AppColors.forestGreen,
+        onSecondary: AppColors.card,
+        error: AppColors.error500,
+        onError: AppColors.card,
+        surface: AppColors.surface,
+        onSurface: AppColors.textPrimary,
+        onSurfaceVariant: AppColors.textSecondary,
+        outline: AppColors.primary100,
+        shadow: Colors.transparent,
       ),
-      scaffoldBackgroundColor: AppColors.backgroundLight,
+
+      dividerTheme: const DividerThemeData(
+        color: AppColors.primary100,
+        thickness: 1,
+        space: 1,
+      ),
+
+      cardTheme: const CardThemeData(
+        color: AppColors.card,
+        elevation: 0,
+        margin: EdgeInsets.zero,
+      ),
+
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary600,
+          foregroundColor: AppColors.card,
+          elevation: 0,
+          textStyle: AppTextStyles.buttonMedium,
+        ).copyWith(
+          overlayColor: WidgetStateProperty.resolveWith<Color?>((states) {
+            if (states.contains(WidgetState.pressed)) {
+              return AppColors.primary800;
+            }
+            if (states.contains(WidgetState.hovered)) {
+              return AppColors.primary700;
+            }
+            return null;
+          }),
+        ),
+      ),
+
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: AppColors.primary600,
+          foregroundColor: AppColors.card,
+          textStyle: AppTextStyles.buttonMedium,
+        ).copyWith(
+          overlayColor: WidgetStateProperty.resolveWith<Color?>((states) {
+            if (states.contains(WidgetState.pressed)) {
+              return AppColors.primary800;
+            }
+            if (states.contains(WidgetState.hovered)) {
+              return AppColors.primary700;
+            }
+            return null;
+          }),
+        ),
+      ),
+
       textTheme: AppTextStyles.textTheme(),
     );
   }
 
   static ThemeData dark() {
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.dark,
-      fontFamily: 'Thmanyah Sans',
-      colorScheme: const ColorScheme.dark(
-        primary: AppColors.primary,
-        secondary: AppColors.secondary,
-        surface: AppColors.surfaceDark,
-      ),
-      scaffoldBackgroundColor: AppColors.backgroundDark,
-      textTheme: AppTextStyles.textTheme(),
-    );
+    // Fallback to light theme to disable dark mode completely for now
+    return light();
   }
 }
+
