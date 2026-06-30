@@ -14,6 +14,8 @@ import '../../features/onboarding/presentation/pages/gender_onboarding_page.dart
 import '../../features/onboarding/presentation/pages/interests_onboarding_page.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../../features/profile/presentation/bloc/profile_event.dart';
+import '../../features/settings/presentation/pages/settings_screen.dart';
+import '../../features/subscription/presentation/pages/account_type_screen.dart';
 import '../../features/search/search.dart';
 import '../../core/connectivity/connection_status.dart';
 import '../../core/connectivity/connectivity_service.dart';
@@ -131,6 +133,16 @@ GoRouter buildAppRouter({
         builder: (context, state) => const SearchScreen(),
       ),
       GoRoute(
+        name: RouteNames.settings,
+        path: RouteNames.settings,
+        builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        name: RouteNames.subscriptionAccountType,
+        path: RouteNames.subscriptionAccountType,
+        builder: (context, state) => const AccountTypeScreen(),
+      ),
+      GoRoute(
         name: RouteNames.otpVerification,
         path: RouteNames.otpVerification,
         builder: (context, state) {
@@ -158,6 +170,8 @@ bool _isKnownRoute(String location) {
     RouteNames.home,
     RouteNames.profile,
     RouteNames.search,
+    RouteNames.settings,
+    RouteNames.subscriptionAccountType,
     RouteNames.auth,
     RouteNames.login,
     RouteNames.register,

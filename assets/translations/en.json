@@ -262,6 +262,32 @@
     "highlighted": "Highlight added",
     "selection_unavailable": "Text selection is not available for this page."
   },
+  "settings": {
+    "title": "Settings",
+    "search": {
+      "title": "Search settings",
+      "subtitle": "Find settings, books, and more",
+      "empty": "No settings found."
+    },
+    "tabs": {
+      "general": "General",
+      "notification": "Notifications",
+      "security": "Security",
+      "languages": "Languages"
+    },
+    "account_type": "Account Type"
+  },
+  "subscription": {
+    "account_type": {
+      "title": "Account Type",
+      "subtitle": "Choose the membership that fits you"
+    },
+    "plans": {
+      "free": "Free",
+      "plus": "Plus",
+      "premium": "Premium"
+    }
+  },
   "profile": {
     "menu": {
       "my_personal_information": "My Personal Information",

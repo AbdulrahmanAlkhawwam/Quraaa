@@ -138,6 +138,15 @@ class LocalizationConstants {
       'user_data.settings.security';
   static const String userDataSettingsLanguagesKey =
       'user_data.settings.languages';
+  static const String settingsScreenTitleKey = 'settings.title';
+  static const String settingsSearchTitleKey = 'settings.search.title';
+  static const String settingsSearchSubtitleKey = 'settings.search.subtitle';
+  static const String settingsSearchEmptyKey = 'settings.search.empty';
+  static const String settingsTabGeneralKey = 'settings.tabs.general';
+  static const String settingsTabNotificationKey = 'settings.tabs.notification';
+  static const String settingsTabSecurityKey = 'settings.tabs.security';
+  static const String settingsTabLanguagesKey = 'settings.tabs.languages';
+  static const String settingsAccountTypeKey = 'settings.account_type';
   static const String userDataFullNameKey = 'user_data.profile.full_name';
   static const String userDataBirthDateKey = 'user_data.profile.birth_date';
   static const String userDataCountryKey = 'user_data.profile.country';
@@ -350,4 +359,13 @@ class LocalizationConstants {
   static const String profileDialogNotDesignedTitleKey =
       'profile.dialog.not_designed.title';
 
+  // Subscription
+  static const String subscriptionAccountTypeTitleKey =
+      'subscription.account_type.title';
+  static const String subscriptionAccountTypeSubtitleKey =
+      'subscription.account_type.subtitle';
+  static const String subscriptionPlanFreeKey = 'subscription.plans.free';
+  static const String subscriptionPlanPlusKey = 'subscription.plans.plus';
+  static const String subscriptionPlanPremiumKey =
+      'subscription.plans.premium';
 }
