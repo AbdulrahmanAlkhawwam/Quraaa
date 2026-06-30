@@ -8,10 +8,10 @@ import '../../../../core/error_monitoring/user_context_provider.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import '../../../onboarding/domain/entities/gender_selection.dart';
+import '../../../onboarding/domain/entities/onboarding_draft.dart';
+import '../../../onboarding/domain/repositories/onboarding_repository.dart';
 import '../../data/datasources/local/auth_journey_local_data_source.dart';
-import '../../../../features/onboarding/domain/entities/onboarding_draft.dart';
 import '../../domain/repositories/auth_repository.dart';
-import '../../../../features/onboarding/domain/repositories/onboarding_repository.dart';
 import '../widgets/auth_credential_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -27,6 +27,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final OnboardingRepository _onboardingRepository =
       sl<OnboardingRepository>();
   final AuthRepository _authRepository = sl<AuthRepository>();
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -35,7 +36,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _goBack() async {
-    final AuthJourneyStage? previousStage = await _authJourney.getPreviousStage();
+    final AuthJourneyStage? previousStage =
+        await _authJourney.getPreviousStage();
     if (_shouldResumeOnboarding(previousStage)) {
       await _onboardingRepository.resetCompletion();
     }
@@ -43,9 +45,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       previousStage ?? AuthJourneyStage.auth,
       previousStage: AuthJourneyStage.register,
     );
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
     context.goTo(_routeForStage(previousStage));
   }
 
@@ -56,18 +56,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       name: 'Registered user',
       subscriptionStatus: 'active',
     );
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
     context.goTo(RouteNames.home);
   }
 
   Future<void> _continueAsGuest() async {
     await _authJourney.markGuestSession();
     await sl<UserContextProvider>().clearUser();
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
     context.goTo(RouteNames.home);
   }
 
@@ -77,6 +73,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       titleKey: LocalizationConstants.authRegisterTitleKey,
       seenFlag: 'register',
       showIdentityFields: true,
+      isLoading: _isLoading,
       onBackPressed: _goBack,
       onPrimaryPressed: _continueAsUser,
       onPrimaryPressedWithData: _submitRegistration,
@@ -85,36 +82,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _submitRegistration(AuthCredentialFormData data) async {
-    final OnboardingDraft onboardingDraft =
-        await _onboardingRepository.loadState();
-    final GenderSelection? selectedGender = onboardingDraft.selectedGender;
-    final int? birthYear = onboardingDraft.birthYear;
-    final int? birthMonth = onboardingDraft.birthMonth;
-    final int? birthDay = onboardingDraft.birthDay;
+    setState(() => _isLoading = true);
+    try {
+      final OnboardingDraft onboardingDraft =
+          await _onboardingRepository.loadState();
+      final GenderSelection? selectedGender = onboardingDraft.selectedGender;
+      final int? birthYear = onboardingDraft.birthYear;
+      final int? birthMonth = onboardingDraft.birthMonth;
+      final int? birthDay = onboardingDraft.birthDay;
 
-    if (selectedGender == null ||
-        birthYear == null ||
-        birthMonth == null ||
-        birthDay == null) {
-      if (!mounted) {
+      if (selectedGender == null ||
+          birthYear == null ||
+          birthMonth == null ||
+          birthDay == null) {
+        if (!mounted) return;
+        context.showErrorSnackBar(
+          message: const Message(
+            title: 'Registration incomplete',
+            value: 'Please finish onboarding before registering.',
+          ),
+        );
         return;
       }
-      context.showErrorSnackBar(
-        message: const Message(
-          title: 'Registration incomplete',
-          value: 'Please finish onboarding before registering.',
-        ),
-      );
-      return;
-    }
 
-    final String formattedDateOfBirth =
-        '${birthYear.toString().padLeft(4, '0')}-${birthMonth.toString().padLeft(2, '0')}-${birthDay.toString().padLeft(2, '0')}';
-    final List<String> interests = onboardingDraft.selectedInterests
-        .map((interest) => interest.key)
-        .toList(growable: false);
+      final String formattedDateOfBirth =
+          '${birthYear.toString().padLeft(4, '0')}-${birthMonth.toString().padLeft(2, '0')}-${birthDay.toString().padLeft(2, '0')}';
+      final List<String> interests = onboardingDraft.selectedInterests
+          .map((interest) => interest.key)
+          .toList(growable: false);
 
-    try {
       final tokens = await _authRepository.register(
         firstName: data.firstName,
         lastName: data.lastName,
@@ -136,20 +132,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
         subscriptionStatus: 'active',
       );
 
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
       context.goTo(RouteNames.home);
     } catch (error) {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
       context.showErrorSnackBar(
         message: Message(
           title: 'Registration failed',
           value: error.toString(),
         ),
       );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 

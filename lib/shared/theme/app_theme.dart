@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:quraaa/shared/shared.dart';
 
 import 'app_colors.dart';
-import 'app_spacing.dart';
 import 'styles/text_styles.dart';
 import 'styles/app_bar.dart';
 import 'styles/filled_button.dart';
@@ -26,7 +26,13 @@ abstract class AppTheme {
         thickness: 1,
         space: 1,
       ),
-
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        borderRadius: BorderRadius.circular(AppRadius.radius40),
+        linearMinHeight: 8,
+        strokeWidth: 8,
+        linearTrackColor: AppColors.primary600,
+        color: AppColors.primary100,
+      ),
       cardTheme: const CardThemeData(
         color: AppColors.card,
         elevation: 0,
@@ -36,7 +42,6 @@ abstract class AppTheme {
   }
 
   static ThemeData dark() {
-    // Fallback to light theme to disable dark mode completely for now
     return light();
   }
 }

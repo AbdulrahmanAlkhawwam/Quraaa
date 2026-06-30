@@ -10,7 +10,6 @@ AppBarTheme appBarStyle() => AppBarTheme(
   shadowColor: Colors.transparent,
   elevation: 0,
   scrolledUnderElevation: 0,
-  // centerTitle: true,
   titleSpacing: AppSpacing.spacing24,
   toolbarHeight: 64,
   iconTheme: const IconThemeData(color: AppColors.primary50),

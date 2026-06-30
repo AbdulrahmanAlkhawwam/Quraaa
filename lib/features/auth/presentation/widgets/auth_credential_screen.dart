@@ -22,6 +22,7 @@ class AuthCredentialScreen extends StatefulWidget {
     required this.onPrimaryPressed,
     this.onPrimaryPressedWithData,
     required this.onSecondaryPressed,
+    this.isLoading = false,
   });
 
   final String titleKey;
@@ -32,6 +33,7 @@ class AuthCredentialScreen extends StatefulWidget {
   final Future<void> Function(AuthCredentialFormData data)?
   onPrimaryPressedWithData;
   final VoidCallback onSecondaryPressed;
+  final bool isLoading;
 
   @override
   State<AuthCredentialScreen> createState() => _AuthCredentialScreenState();
@@ -107,7 +109,8 @@ class _AuthCredentialScreenState extends State<AuthCredentialScreen> {
               ),
             ),
             Positioned.fill(
-              child: SafeArea(
+              child: Align(
+                alignment: Alignment.bottomCenter,
                 child: Container(
                   width: double.infinity,
                   padding: EdgeInsets.fromLTRB(
@@ -115,8 +118,8 @@ class _AuthCredentialScreenState extends State<AuthCredentialScreen> {
                     AppSpacing.spacing32,
                     AppSpacing.spacing24,
                     AppSpacing.spacing24 +
-                        context.bottomPadding +
-                        context.bottomInsets,
+                        context.bottomPadding /*+
+                        context.bottomInsets*/,
                   ),
                   decoration: const BoxDecoration(
                     color: AppColors.primary50,
@@ -224,19 +227,19 @@ class _AuthCredentialScreenState extends State<AuthCredentialScreen> {
                               useBottomSheetSafeArea: true,
                             ),
                             countries: const <String>[
-                              'AE',
-                              'BH',
-                              'EG',
-                              'IQ',
-                              'JO',
-                              'KW',
-                              'LB',
-                              'OM',
-                              'QA',
-                              'SA',
+                              // 'AE',
+                              // 'BH',
+                              // 'EG',
+                              // 'IQ',
+                              // 'JO',
+                              // 'KW',
+                              // 'LB',
+                              // 'OM',
+                              // 'QA',
+                              // 'SA',
                               'SY',
                             ],
-                            initialValue: PhoneNumber(isoCode: 'AE'),
+                            initialValue: PhoneNumber(isoCode: 'SY'),
                             textFieldController: _phoneController,
                             keyboardType: TextInputType.phone,
                             textStyle: AppTextStyles.bodyLarge.copyWith(
@@ -318,29 +321,42 @@ class _AuthCredentialScreenState extends State<AuthCredentialScreen> {
                         SizedBox(
                           height: AppDimensions.onboardingButtonHeight,
                           child: FilledButton(
-                            onPressed: () {
-                              unawaited(
-                                sl<UserContextProvider>().recordAction(
-                                  'Auth primary button',
-                                ),
-                              );
-                              _submit();
-                            },
-                            child: Text(LocalizationConstants.authNextKey.tr()),
+                            onPressed: widget.isLoading
+                                ? null
+                                : () {
+                                    unawaited(
+                                      sl<UserContextProvider>().recordAction(
+                                        'Auth primary button',
+                                      ),
+                                    );
+                                    _submit();
+                                  },
+                            child: widget.isLoading
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.5,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : Text(LocalizationConstants.authNextKey.tr()),
                           ),
                         ),
                         const SizedBox(height: AppSpacing.spacing24),
                         SizedBox(
                           height: AppDimensions.onboardingButtonHeight,
                           child: OutlinedButton(
-                            onPressed: () {
-                              unawaited(
-                                sl<UserContextProvider>().recordAction(
-                                  'Auth secondary button',
-                                ),
-                              );
-                              widget.onSecondaryPressed();
-                            },
+                            onPressed: widget.isLoading
+                                ? null
+                                : () {
+                                    unawaited(
+                                      sl<UserContextProvider>().recordAction(
+                                        'Auth secondary button',
+                                      ),
+                                    );
+                                    widget.onSecondaryPressed();
+                                  },
                             child: Text(
                               LocalizationConstants.authContinueAsGuestKey.tr(),
                             ),

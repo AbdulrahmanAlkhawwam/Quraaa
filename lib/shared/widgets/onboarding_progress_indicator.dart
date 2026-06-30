@@ -17,7 +17,8 @@ class OnboardingProgressIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return
+      Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List<Widget>.generate(count, (index) {
         final bool active = index == activeIndex - 1;
@@ -32,7 +33,6 @@ class OnboardingProgressIndicator extends StatelessWidget {
           height: AppDimensions.onboardingDotSize,
           decoration: BoxDecoration(
             color: active ? AppColors.primary600 : AppColors.primary100,
-            borderRadius: BorderRadius.circular(AppRadius.radius40),
           ),
         );
       }),

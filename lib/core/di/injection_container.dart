@@ -3,7 +3,6 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../features/auth/data/datasources/remote/auth_remote_datasource.dart';
-import '../../features/auth/data/datasources/remote/auth_remote_datasource_impl.dart';
 import '../../features/auth/data/datasources/local/auth_journey_local_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
@@ -15,6 +14,7 @@ import '../../features/onboarding/domain/use_cases/load_onboarding_state_use_cas
 import '../../features/onboarding/domain/use_cases/save_birth_date_use_case.dart';
 import '../../features/onboarding/domain/use_cases/save_interests_use_case.dart';
 import '../../features/onboarding/domain/use_cases/save_gender_use_case.dart';
+import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import '../../features/onboarding/presentation/viewmodels/onboarding_view_model.dart';
 import '../error_monitoring/app_bloc_observer.dart';
@@ -185,6 +185,14 @@ void registerFeatureDependencies() {
   );
   sl.registerFactory<OnboardingBloc>(
     () => OnboardingBloc(sl<OnboardingViewModel>()),
+  );
+
+  sl.registerFactory<AuthBloc>(
+    () => AuthBloc(
+      authRepository: sl<AuthRepository>(),
+      authJourney: sl<AuthJourneyLocalDataSource>(),
+      userContext: sl<UserContextProvider>(),
+    ),
   );
 }
   if (!sl.isRegistered<PdfNoteDataSource>()) {

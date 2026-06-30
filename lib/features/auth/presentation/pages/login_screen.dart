@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../config/routes/route_names.dart';
@@ -7,9 +8,9 @@ import '../../../../core/di/injection_container.dart';
 import '../../../../core/error_monitoring/user_context_provider.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
+import '../../../onboarding/domain/repositories/onboarding_repository.dart';
 import '../../data/datasources/local/auth_journey_local_data_source.dart';
 import '../widgets/auth_credential_screen.dart';
-import '../../../../features/onboarding/domain/repositories/onboarding_repository.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -23,6 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
       sl<AuthJourneyLocalDataSource>();
   final OnboardingRepository _onboardingRepository =
       sl<OnboardingRepository>();
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -31,7 +33,8 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _goBack() async {
-    final AuthJourneyStage? previousStage = await _authJourney.getPreviousStage();
+    final AuthJourneyStage? previousStage =
+        await _authJourney.getPreviousStage();
     if (_shouldResumeOnboarding(previousStage)) {
       await _onboardingRepository.resetCompletion();
     }
@@ -39,32 +42,39 @@ class _LoginScreenState extends State<LoginScreen> {
       previousStage ?? AuthJourneyStage.auth,
       previousStage: AuthJourneyStage.login,
     );
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
     context.goTo(_routeForStage(previousStage));
   }
 
   Future<void> _continueAsUser(AuthCredentialFormData data) async {
-    await _authJourney.markAuthenticatedSession();
-    await sl<UserContextProvider>().setUser(
-      id: data.phoneNumber,
-      name: data.phoneNumber,
-      phone: data.phoneNumber,
-      subscriptionStatus: 'active',
-    );
-    if (!mounted) {
-      return;
+    setState(() => _isLoading = true);
+    try {
+      await _authJourney.markAuthenticatedSession();
+      await sl<UserContextProvider>().setUser(
+        id: data.phoneNumber,
+        name: data.phoneNumber,
+        phone: data.phoneNumber,
+        subscriptionStatus: 'active',
+      );
+      if (!mounted) return;
+      context.goTo(RouteNames.home);
+    } catch (error) {
+      if (!mounted) return;
+      context.showErrorSnackBar(
+        message: Message(
+          title: LocalizationConstants.authLoginTitleKey.tr(),
+          value: error.toString(),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
-    context.goTo(RouteNames.home);
   }
 
   Future<void> _continueAsGuest() async {
     await _authJourney.markGuestSession();
     await sl<UserContextProvider>().clearUser();
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
     context.goTo(RouteNames.home);
   }
 
@@ -73,6 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return AuthCredentialScreen(
       titleKey: LocalizationConstants.authLoginTitleKey,
       seenFlag: 'login',
+      isLoading: _isLoading,
       onBackPressed: _goBack,
       onPrimaryPressedWithData: _continueAsUser,
       onPrimaryPressed: () {},

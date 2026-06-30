@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:async' as BlocOverrides;
 import 'dart:isolate';
 import 'dart:ui';
 
@@ -25,39 +24,40 @@ import 'core/services/notification_service.dart';
 RawReceivePort? _isolateErrorPort;
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  AppLogger? appLogger;
 
-  await dotenv.load(fileName: '.env');
-  await LocalizationService.ensureInitialized();
-  await FirebaseService.initialize();
+  runZonedGuarded(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
+      await dotenv.load(fileName: '.env');
+      await LocalizationService.ensureInitialized();await FirebaseService.initialize();
 
   // Register the top-level background message handler before runApp.
   FirebaseMessaging.onBackgroundMessage(firebaseBackgroundMessageHandler);
+      await configureDependencies();
 
-  await configureDependencies();
+      appLogger = sl<AppLogger>();
+      await _initializeFirebase(appLogger!);
+      await appLogger!.initialize();
+      await _configureErrorHandlers(appLogger!);
+      await sl<AppDiagnosticsService>().logStartupSnapshot();
 
-  final AppLogger appLogger = sl<AppLogger>();
-  await _initializeFirebase(appLogger);
-  await appLogger.initialize();
-  await _configureErrorHandlers(appLogger);
-  await sl<AppDiagnosticsService>().logStartupSnapshot();
+      // If you need a Bloc observer, set it here before runApp:
+      // Bloc.observer = sl<AppBlocObserver>();
 
-  runZonedGuarded(
-    () {
-      BlocOverrides.runZoned(
-        () => runApp(LocalizationService.wrap(child: const QuraaaApp())),
-        // blocObserver: sl<AppBlocObserver>(),
-      );
+      runApp(LocalizationService.wrap(child: const QuraaaApp()));
     },
     (Object error, StackTrace stackTrace) {
-      unawaited(
-        appLogger.recordAsyncError(
-          error,
-          stackTrace,
-          source: 'runZonedGuarded',
-          fatal: true,
-        ),
-      );
+      if (appLogger != null) {
+        unawaited(
+          appLogger!.recordAsyncError(
+            error,
+            stackTrace,
+            source: 'runZonedGuarded',
+            fatal: true,
+          ),
+        );
+      }
     },
   );
 }
