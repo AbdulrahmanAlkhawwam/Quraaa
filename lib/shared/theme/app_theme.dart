@@ -1,29 +1,14 @@
 import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
-import 'app_text_styles.dart';
+import 'app_spacing.dart';
+import 'styles/text_styles.dart';
+import 'styles/app_bar.dart';
 import 'styles/filled_button.dart';
 import 'styles/outlined_button.dart';
 
 abstract class AppTheme {
   static ThemeData light() {
-    const ColorScheme colors = ColorScheme(
-      brightness: Brightness.light,
-      primary: AppColors.primary600,
-      onPrimary: AppColors.card,
-      primaryContainer: AppColors.primary100,
-      onPrimaryContainer: AppColors.primary900,
-      secondary: AppColors.forestGreen,
-      onSecondary: AppColors.card,
-      error: AppColors.error500,
-      onError: AppColors.card,
-      surface: AppColors.surface,
-      onSurface: AppColors.textPrimary,
-      onSurfaceVariant: AppColors.textSecondary,
-      outline: AppColors.primary100,
-      shadow: Colors.transparent,
-    );
-
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
@@ -31,10 +16,11 @@ abstract class AppTheme {
       scaffoldBackgroundColor: AppColors.neutralBackground,
       cardColor: AppColors.card,
       dividerColor: AppColors.primary100,
-      colorScheme: colors,
+      colorScheme: lightColors,
       textTheme: AppTextStyles.textTheme(),
-      filledButtonTheme: filledButtonTheme(colors),
-      outlinedButtonTheme: outlinedButtonTheme(colors),
+      appBarTheme: appBarStyle(),
+      filledButtonTheme: filledButtonTheme(lightColors),
+      outlinedButtonTheme: outlinedButtonTheme(lightColors),
       dividerTheme: const DividerThemeData(
         color: AppColors.primary100,
         thickness: 1,
@@ -54,4 +40,3 @@ abstract class AppTheme {
     return light();
   }
 }
-

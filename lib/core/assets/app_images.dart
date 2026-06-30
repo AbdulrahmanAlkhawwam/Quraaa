@@ -8,4 +8,6 @@ class AppImages {
   static const String authorPlaceholder = '${AppAssets.images}/author_placeholder.png';
   static const String profilePlaceholder = '${AppAssets.images}/profile_placeholder.png';
   static const String subscriptionBanner = '${AppAssets.images}/subscription_banner.png';
+
+  static const String onboardingBackground = '${AppAssets.images}/onboarding.jpg';
 }

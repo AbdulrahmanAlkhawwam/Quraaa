@@ -41,3 +41,20 @@ abstract class AppColors {
   static const Color backgroundDark = neutralBackground;
   static const Color surfaceDark = surface;
 }
+
+final ColorScheme lightColors = ColorScheme(
+  brightness: Brightness.light,
+  primary: AppColors.primary600,
+  onPrimary: AppColors.card,
+  primaryContainer: AppColors.primary100,
+  onPrimaryContainer: AppColors.primary900,
+  secondary: AppColors.forestGreen,
+  onSecondary: AppColors.card,
+  error: AppColors.error500,
+  onError: AppColors.card,
+  surface: AppColors.surface,
+  onSurface: AppColors.textPrimary,
+  onSurfaceVariant: AppColors.textSecondary,
+  outline: AppColors.primary100,
+  shadow: Colors.transparent,
+);

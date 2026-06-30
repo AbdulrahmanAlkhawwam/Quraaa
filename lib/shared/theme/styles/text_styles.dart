@@ -38,6 +38,13 @@ abstract class AppTextStyles {
     fontWeight: FontWeight.w500, // Medium
   );
 
+  static const TextStyle appBarTitle = TextStyle(
+    fontFamily: displayFont,
+    fontSize: 20,
+    fontWeight: FontWeight.w500,
+    height: 1.2,
+  );
+
   static const TextStyle titleMedium = TextStyle(
     fontFamily: displayFont,
     fontSize: 18,
@@ -106,4 +113,3 @@ abstract class AppTextStyles {
     );
   }
 }
-

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../app_colors.dart';
 import '../app_radius.dart';
-import '../app_text_styles.dart';
+import 'text_styles.dart';
 
 OutlinedButtonThemeData outlinedButtonTheme(ColorScheme colors) {
   return OutlinedButtonThemeData(

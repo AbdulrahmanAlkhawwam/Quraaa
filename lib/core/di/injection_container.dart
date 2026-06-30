@@ -1,4 +1,26 @@
 import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../features/auth/data/datasources/remote/auth_remote_datasource.dart';
+import '../../features/auth/data/datasources/remote/auth_remote_datasource_impl.dart';
+import '../../features/auth/data/datasources/local/auth_journey_local_data_source.dart';
+import '../../features/auth/data/repositories/auth_repository_impl.dart';
+import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../features/onboarding/data/datasources/local/onboarding_local_datasource.dart';
+import '../../features/onboarding/data/repositories/onboarding_repository_impl.dart';
+import '../../features/onboarding/domain/repositories/onboarding_repository.dart';
+import '../../features/onboarding/domain/use_cases/complete_onboarding_use_case.dart';
+import '../../features/onboarding/domain/use_cases/load_onboarding_state_use_case.dart';
+import '../../features/onboarding/domain/use_cases/save_birth_date_use_case.dart';
+import '../../features/onboarding/domain/use_cases/save_interests_use_case.dart';
+import '../../features/onboarding/domain/use_cases/save_gender_use_case.dart';
+import '../../features/onboarding/presentation/bloc/onboarding_bloc.dart';
+import '../../features/onboarding/presentation/viewmodels/onboarding_view_model.dart';
+import '../network/http_helper.dart';
+import '../services/firebase_notification_service.dart';
+import '../services/notification_service.dart';
+import '../services/storage_service_impl.dart';
+import '../services/storage_service.dart';
 
 import '../services/services.dart';
 import '../../features/local_explorer/data/datasources/local/local_explorer_platform_datasource.dart';
@@ -24,6 +46,10 @@ import '../../features/pdf_reader/presentation/bloc/pdf_reader_bloc.dart';
 final GetIt sl = GetIt.instance;
 
 Future<void> configureDependencies() async {
+  final SharedPreferences sharedPreferences =
+      await SharedPreferences.getInstance();
+  sl.registerSingleton<SharedPreferences>(sharedPreferences);
+
   registerCoreDependencies();
   registerFeatureDependencies();
   await initializeNotificationDependencies();
@@ -52,12 +78,72 @@ void registerFeatureDependencies() {
     );
   }
 
+void registerCoreDependencies() {
+  sl.registerLazySingleton<StorageService>(
+    () => StorageServiceImpl(sl<SharedPreferences>()),
+  );
+
+  sl.registerLazySingleton<HttpHelper>(() => HttpHelper());
+
+  sl.registerLazySingleton<NotificationService>(
+    () => FirebaseNotificationService(),
+  );
+}
+
+void registerFeatureDependencies() {
+  sl.registerLazySingleton<AuthJourneyLocalDataSource>(
+    () => AuthJourneyLocalDataSourceImpl(sl<StorageService>()),
+  );
   if (!sl.isRegistered<PdfRenderDataSource>()) {
     sl.registerLazySingleton<PdfRenderDataSource>(
       MethodChannelPdfRenderDataSource.new,
     );
   }
 
+  sl.registerLazySingleton<OnboardingLocalDataSource>(
+    () => OnboardingLocalDataSourceImpl(sl<StorageService>()),
+  );
+
+  sl.registerLazySingleton<OnboardingRepository>(
+    () => OnboardingRepositoryImpl(sl<OnboardingLocalDataSource>()),
+  );
+
+  sl.registerLazySingleton<AuthRemoteDataSource>(
+    () => AuthRemoteDataSourceImpl(sl<HttpHelper>()),
+  );
+
+  sl.registerLazySingleton<AuthRepository>(
+    () => AuthRepositoryImpl(sl<AuthRemoteDataSource>()),
+  );
+
+  sl.registerFactory<LoadOnboardingStateUseCase>(
+    () => LoadOnboardingStateUseCase(sl<OnboardingRepository>()),
+  );
+  sl.registerFactory<SaveBirthDateUseCase>(
+    () => SaveBirthDateUseCase(sl<OnboardingRepository>()),
+  );
+  sl.registerFactory<SaveGenderUseCase>(
+    () => SaveGenderUseCase(sl<OnboardingRepository>()),
+  );
+  sl.registerFactory<SaveInterestsUseCase>(
+    () => SaveInterestsUseCase(sl<OnboardingRepository>()),
+  );
+  sl.registerFactory<CompleteOnboardingUseCase>(
+    () => CompleteOnboardingUseCase(sl<OnboardingRepository>()),
+  );
+  sl.registerFactory<OnboardingViewModel>(
+    () => OnboardingViewModel(
+      sl<LoadOnboardingStateUseCase>(),
+      sl<SaveBirthDateUseCase>(),
+      sl<SaveGenderUseCase>(),
+      sl<SaveInterestsUseCase>(),
+      sl<CompleteOnboardingUseCase>(),
+    ),
+  );
+  sl.registerFactory<OnboardingBloc>(
+    () => OnboardingBloc(sl<OnboardingViewModel>()),
+  );
+}
   if (!sl.isRegistered<PdfNoteDataSource>()) {
     sl.registerLazySingleton<PdfNoteDataSource>(
       InMemoryPdfNoteDataSource.new,

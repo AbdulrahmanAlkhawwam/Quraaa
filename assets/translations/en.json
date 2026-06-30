@@ -9,9 +9,126 @@
     "save": "Save"
   },
   "auth": {
+    "screen": {
+      "start": "Let's Start",
+      "already_have_account": "I Have Already Account"
+    },
     "login": {
-      "title": "Welcome back",
-      "subtitle": "Sign in to continue"
+      "title": "Sign in"
+    },
+    "register": {
+      "title": "Sign up"
+    },
+    "phone": {
+      "label": "Phone Number",
+      "hint": "Enter Your Phone Number"
+    },
+    "password": {
+      "label": "Password",
+      "hint": "Enter Your Password"
+    },
+    "action": {
+      "next": "Next",
+      "continue_as_guest": "Continue As Guest"
+    }
+  },
+  "onboarding": {
+    "age": {
+      "title": "Choose Age",
+      "year": "Year",
+      "month": "Month",
+      "day": "Day",
+      "validation": {
+        "required": "This field is required",
+        "year_range": "Year must be between 1900 and the current year",
+        "month_range": "Month must be between 1 and 12",
+        "day_range": "Day must be between 1 and 31",
+        "invalid_date": "Please enter a valid date"
+      }
+    },
+    "gender": {
+      "title": "Choose Gander",
+      "boy": "Boy",
+      "girl": "Girl",
+      "next": "Next",
+      "skip": "Skip"
+    },
+    "interests": {
+      "title": "Your Interested",
+      "space_science": "Space Science",
+      "geography": "Geography",
+      "history": "History",
+      "encyclopedias": "Encyclopedias",
+      "patrols": "Patrols",
+      "culture": "Culture",
+      "science": "Science",
+      "novels": "Novels",
+      "policy": "Policy",
+      "dictionary": "Dictionary",
+      "education": "Education",
+      "technology": "Technology",
+      "art": "Art",
+      "literature": "Literature",
+      "other": "Other"
+    }
+  },
+  "user_data": {
+    "title": "Settings",
+    "subtitle": "Manage your profile and saved content",
+    "edit": "Edit",
+    "logout": "Log out",
+    "tabs": {
+      "profile": "Profile",
+      "appearance": "Appearance",
+      "bookmarks": "Bookmarks",
+      "budgets": "Budgets",
+      "library": "My Library",
+      "history": "History"
+    },
+    "profile": {
+      "full_name": "Full name",
+      "birth_date": "Birth date",
+      "country": "Country",
+      "phone": "Phone number"
+    },
+    "appearance": {
+      "theme": "Theme",
+      "language": "Language"
+    },
+    "bookmarks": {
+      "saved_items": "Saved items"
+    },
+    "budgets": {
+      "balance": "Balance"
+    },
+    "library": {
+      "items": "Library items"
+    },
+    "history": {
+      "operations": "Operations"
+    },
+    "edit": {
+      "profile": {
+        "title": "Edit Profile"
+      },
+      "appearance": {
+        "title": "Edit Appearance"
+      },
+      "bookmarks": {
+        "title": "Edit Bookmarks"
+      },
+      "budgets": {
+        "title": "Edit Budgets"
+      },
+      "library": {
+        "title": "Edit Library"
+      },
+      "history": {
+        "title": "Edit History"
+      },
+      "save_changes": "Save Changes",
+      "cancel": "Cancel",
+      "multiline_hint": "Enter one item per line."
     }
   },
   "explorer": {

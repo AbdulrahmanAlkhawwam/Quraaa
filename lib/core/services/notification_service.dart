@@ -1,9 +1,20 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../constants/firebase_constants.dart';
 import '../utils/logger.dart';
+abstract class NotificationService {
+  Future<void> initialize();
+
+  Future<void> requestPermission();
+
+  Future<String?> getToken();
+
+  Stream<RemoteMessage> get foregroundMessages;
+}
+
 
 /// Handles local notification display and FCM message presentation for the
 /// Quraaa app.
@@ -11,7 +22,7 @@ import '../utils/logger.dart';
 /// Uses [flutter_local_notifications] so notifications work on Android and
 /// iOS without relying on the custom native plugin from quraa_otp.
 class NotificationService {
-  /// Creates the notification service.
+  // / Creates the notification service.
   NotificationService({FlutterLocalNotificationsPlugin? plugin})
     : _plugin = plugin ?? FlutterLocalNotificationsPlugin();
 
@@ -21,8 +32,8 @@ class NotificationService {
 
   static int _notificationId = 0;
 
-  /// Initializes the plugin, creates the default Android notification channel,
-  /// and optionally requests notification permission.
+  // / Initializes the plugin, creates the default Android notification channel,
+  // / and optionally requests notification permission.
   Future<void> initialize({bool requestPermission = true}) async {
     if (_initialized) {
       return;
@@ -61,15 +72,15 @@ class NotificationService {
     _initialized = true;
   }
 
-  /// Requests the notification permission on platforms that require a runtime
-  /// request (Android 13+ and iOS).
+  // / Requests the notification permission on platforms that require a runtime
+  // / request (Android 13+ and iOS).
   Future<bool> requestNotificationPermission() async {
     final status = await Permission.notification.request();
     AppLogger.info('Permission.notification status: ${status.name}');
     return status.isGranted;
   }
 
-  /// Displays a local notification with the supplied [title] and [body].
+  // / Displays a local notification with the supplied [title] and [body].
   Future<void> showNotification({
     required String title,
     required String body,
