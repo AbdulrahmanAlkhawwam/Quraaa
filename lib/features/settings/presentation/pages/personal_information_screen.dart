@@ -5,6 +5,7 @@ import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_spacing.dart';
 import '../../../profile/presentation/bloc/profile_bloc.dart';
 import '../../../profile/presentation/bloc/profile_state.dart';
+import '../../../profile/presentation/extensions/profile_model_ui_extensions.dart';
 import '../../domain/entities/personal_information.dart';
 import '../widgets/personal_data_card.dart';
 import '../widgets/personal_data_section.dart';
@@ -25,7 +26,7 @@ class PersonalInformationScreen extends StatelessWidget {
 
         final PersonalInformation information = PersonalInformation(
           name: profile?.fullName ?? '',
-          gender: profile?.genderLabel ?? '',
+          gender: profile?.localizedGenderLabel ?? '',
           birthday: profile?.dateOfBirth ?? '',
           phone: profile?.phoneNumber ?? '',
           avatarUrl: profile?.profileImageUrl,

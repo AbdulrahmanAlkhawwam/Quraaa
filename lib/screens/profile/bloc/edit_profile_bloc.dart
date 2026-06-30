@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../shared/shared.dart';
 import 'edit_profile_event.dart';
 import 'edit_profile_state.dart';
 
@@ -59,23 +60,5 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
 }
 
 /// Palette colors exposed for the avatar background selector.
-const List<List<Color>> editProfileColorPalette = <List<Color>>[
-  <Color>[
-    Color(0xFFEF8E8F),
-    Color(0xFFF0A486),
-    Color(0xFFEDAF86),
-    Color(0xFFEDBA84),
-    Color(0xFFEBD577),
-    Color(0xFF8FD19E),
-    Color(0xFF79CAC5),
-  ],
-  <Color>[
-    Color(0xFF74C7CF),
-    Color(0xFF74C4DD),
-    Color(0xFF73A9DD),
-    Color(0xFF9A95DD),
-    Color(0xFFC584D7),
-    Color(0xFFC9B4A2),
-    Color(0xFFB5A79A),
-  ],
-];
+List<List<Color>> get editProfileColorPalette =>
+    AppColors.avatarBackgroundPalette;

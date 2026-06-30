@@ -1,6 +1,10 @@
+import 'package:equatable/equatable.dart';
 
-sealed class AuthEvent {
+sealed class AuthEvent with EquatableMixin {
   const AuthEvent();
+
+  @override
+  List<Object?> get props => const <Object?>[];
 }
 
 final class AuthLoginRequested extends AuthEvent {
@@ -8,6 +12,9 @@ final class AuthLoginRequested extends AuthEvent {
 
   final String phoneNumber;
   final String password;
+
+  @override
+  List<Object?> get props => <Object?>[phoneNumber, password];
 }
 
 final class AuthRegisterRequested extends AuthEvent {
@@ -28,4 +35,15 @@ final class AuthRegisterRequested extends AuthEvent {
   final int? gender;
   final String? dateOfBirth;
   final List<String>? categoryIds;
+
+  @override
+  List<Object?> get props => <Object?>[
+        firstName,
+        lastName,
+        phoneNumber,
+        password,
+        gender,
+        dateOfBirth,
+        categoryIds,
+      ];
 }

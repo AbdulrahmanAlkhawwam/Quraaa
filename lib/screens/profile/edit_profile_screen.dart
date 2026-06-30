@@ -1,9 +1,12 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import '../../shared/theme/styles/text_styles.dart';
+import '../../core/di/injection_container.dart';
+import '../../core/localization/localization_constants.dart';
+import '../../shared/shared.dart';
 import 'bloc/edit_profile_bloc.dart';
 import 'bloc/edit_profile_event.dart';
 import 'bloc/edit_profile_state.dart';
@@ -18,82 +21,93 @@ import 'widgets/profile_text_field.dart';
 class EditProfileScreen extends StatelessWidget {
   const EditProfileScreen({super.key});
 
-  static const Color _backgroundColor = Color(0xFFF7F7F5);
-  static const Color _titleColor = Color(0xFF243B18);
-  static const Color _sectionTitleColor = Color(0xFF2D3A27);
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => EditProfileBloc(),
+      create: (_) => sl<EditProfileBloc>(),
       child: Scaffold(
-        backgroundColor: _backgroundColor,
+        backgroundColor: AppColors.editProfileBackground,
         body: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: 40),
+            padding: const EdgeInsets.only(bottom: AppSpacing.spacing40),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildHeader(context),
-                const SizedBox(height: 24),
+                const _EditProfileHeader(),
+                const SizedBox(height: AppSpacing.spacing24),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.spacing24,
+                  ),
                   child: BlocBuilder<EditProfileBloc, EditProfileState>(
-                    builder: (BuildContext context, EditProfileState state) {
+                    builder: (
+                      BuildContext context,
+                      EditProfileState state,
+                    ) {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           ProfilePreviewCard(
                             backgroundColor: state.selectedBackgroundColor,
                           ),
-                          const SizedBox(height: 18),
+                          const SizedBox(height: AppSpacing.spacing18),
                           AvatarCustomizationTabs(
                             selectedTab: state.selectedTab,
                             onTabSelected: (int index) => context
                                 .read<EditProfileBloc>()
                                 .add(EditProfileTabSelected(index)),
                           ),
-                          const SizedBox(height: 18),
+                          const SizedBox(height: AppSpacing.spacing18),
                           ColorPalette(
                             selectedColor: state.selectedBackgroundColor,
                             onColorSelected: (Color color) => context
                                 .read<EditProfileBloc>()
                                 .add(EditProfileBackgroundColorSelected(color)),
                           ),
-                          const SizedBox(height: 26),
+                          const SizedBox(height: AppSpacing.spacing26),
                           Text(
-                            'Personal Data',
+                            LocalizationConstants
+                                .profileEditPersonalDataKey
+                                .tr(),
                             style: AppTextStyles.titleMedium.copyWith(
-                              color: _sectionTitleColor,
+                              color: AppColors.editProfileSectionTitle,
                             ),
                           ),
-                          const SizedBox(height: 18),
+                          const SizedBox(height: AppSpacing.spacing18),
                           ProfileTextField(
-                            label: 'Full Name',
+                            label: LocalizationConstants
+                                .profileEditFullNameKey
+                                .tr(),
                             initialValue: state.name,
                             onChanged: (String value) => context
                                 .read<EditProfileBloc>()
                                 .add(EditProfileNameChanged(value)),
                           ),
-                          const SizedBox(height: 18),
+                          const SizedBox(height: AppSpacing.spacing18),
                           GenderDropdown(
                             value: state.gender,
                             onChanged: (String value) => context
                                 .read<EditProfileBloc>()
                                 .add(EditProfileGenderChanged(value)),
                           ),
-                          const SizedBox(height: 18),
+                          const SizedBox(height: AppSpacing.spacing18),
                           ProfileTextField(
-                            label: 'Birth Date',
-                            hintText: '2005/04/21',
+                            label: LocalizationConstants
+                                .profileEditBirthDateKey
+                                .tr(),
+                            hintText: LocalizationConstants
+                                .profileEditBirthDateHintKey
+                                .tr(),
                             initialValue: state.birthDate,
                             onChanged: (String value) => context
                                 .read<EditProfileBloc>()
                                 .add(EditProfileBirthDateChanged(value)),
                           ),
-                          const SizedBox(height: 18),
+                          const SizedBox(height: AppSpacing.spacing18),
                           PhoneNumberField(
-                            countryCode: '+971',
+                            countryCode: LocalizationConstants
+                                .profileEditCountryCodeKey
+                                .tr(),
                             phoneNumber: state.phoneNumber,
                             onPhoneNumberChanged: (String value) => context
                                 .read<EditProfileBloc>()
@@ -111,36 +125,44 @@ class EditProfileScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildHeader(BuildContext context) {
+class _EditProfileHeader extends StatelessWidget {
+  const _EditProfileHeader();
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.spacing24,
+        vertical: AppSpacing.spacing12,
+      ),
       child: Row(
         children: [
           InkWell(
             onTap: () => Navigator.of(context).pop(),
-            borderRadius: BorderRadius.circular(12),
-            child: const Icon(
+            borderRadius: BorderRadius.circular(AppRadius.radius12),
+            child: Icon(
               CupertinoIcons.back,
-              color: Color(0xFF243B18),
+              color: AppColors.editProfileTitle,
               size: 24,
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: AppSpacing.spacing16),
           Expanded(
             child: Text(
-              'Edit Profile',
+              LocalizationConstants.profileEditTitleKey.tr(),
               style: AppTextStyles.h3.copyWith(
-                color: _titleColor,
+                color: AppColors.editProfileTitle,
               ),
             ),
           ),
           InkWell(
             onTap: () => _onSave(context),
-            borderRadius: BorderRadius.circular(12),
-            child: const HugeIcon(
+            borderRadius: BorderRadius.circular(AppRadius.radius12),
+            child: HugeIcon(
               icon: HugeIcons.strokeRoundedSave,
-              color: Color(0xFF243B18),
+              color: AppColors.editProfileTitle,
               size: 26,
             ),
           ),
@@ -151,8 +173,10 @@ class EditProfileScreen extends StatelessWidget {
 
   void _onSave(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Profile saved - Coming Soon'),
+      SnackBar(
+        content: Text(
+          LocalizationConstants.profileEditSaveComingSoonKey.tr(),
+        ),
       ),
     );
   }

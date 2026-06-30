@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/routes/route_names.dart';
@@ -12,8 +13,11 @@ import '../../domain/use_cases/save_birth_date_use_case.dart';
 import '../../domain/use_cases/save_category_id_use_case.dart';
 import '../../domain/use_cases/save_gender_use_case.dart';
 
-sealed class OnboardingEvent {
+sealed class OnboardingEvent with EquatableMixin {
   const OnboardingEvent();
+
+  @override
+  List<Object?> get props => const <Object?>[];
 }
 
 final class OnboardingStarted extends OnboardingEvent {
@@ -24,18 +28,27 @@ final class OnboardingAgeYearChanged extends OnboardingEvent {
   const OnboardingAgeYearChanged(this.year);
 
   final int? year;
+
+  @override
+  List<Object?> get props => <Object?>[year];
 }
 
 final class OnboardingAgeMonthChanged extends OnboardingEvent {
   const OnboardingAgeMonthChanged(this.month);
 
   final int? month;
+
+  @override
+  List<Object?> get props => <Object?>[month];
 }
 
 final class OnboardingAgeDayChanged extends OnboardingEvent {
   const OnboardingAgeDayChanged(this.day);
 
   final int? day;
+
+  @override
+  List<Object?> get props => <Object?>[day];
 }
 
 final class OnboardingAgeNextRequested extends OnboardingEvent {
@@ -46,12 +59,18 @@ final class OnboardingGenderSelected extends OnboardingEvent {
   const OnboardingGenderSelected(this.gender);
 
   final GenderSelection gender;
+
+  @override
+  List<Object?> get props => <Object?>[gender];
 }
 
 final class OnboardingCategorySelected extends OnboardingEvent {
   const OnboardingCategorySelected(this.categoryId);
 
   final String categoryId;
+
+  @override
+  List<Object?> get props => <Object?>[categoryId];
 }
 
 final class OnboardingInterestsNextRequested extends OnboardingEvent {
@@ -70,7 +89,7 @@ final class OnboardingNavigationCompleted extends OnboardingEvent {
   const OnboardingNavigationCompleted();
 }
 
-class OnboardingState {
+class OnboardingState extends Equatable {
   const OnboardingState({
     this.birthYear,
     this.birthMonth,
@@ -184,23 +203,31 @@ class OnboardingState {
           : errorMessage as String?,
     );
   }
+
+  @override
+  List<Object?> get props => <Object?>[
+        birthYear,
+        birthMonth,
+        birthDay,
+        selectedGender,
+        categories,
+        selectedCategoryIds,
+        isLoading,
+        isCompleted,
+        navigationTarget,
+        errorMessage,
+      ];
 }
 
 class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
   OnboardingBloc({
-    required LoadOnboardingStateUseCase loadOnboardingStateUseCase,
-    required SaveBirthDateUseCase saveBirthDateUseCase,
-    required SaveGenderUseCase saveGenderUseCase,
-    required SaveCategoryIdUseCase saveCategoryIdUseCase,
-    required LoadCategoriesUseCase loadCategoriesUseCase,
-    required CompleteOnboardingUseCase completeOnboardingUseCase,
-  })  : _loadOnboardingStateUseCase = loadOnboardingStateUseCase,
-        _saveBirthDateUseCase = saveBirthDateUseCase,
-        _saveGenderUseCase = saveGenderUseCase,
-        _saveCategoryIdUseCase = saveCategoryIdUseCase,
-        _loadCategoriesUseCase = loadCategoriesUseCase,
-        _completeOnboardingUseCase = completeOnboardingUseCase,
-        super(const OnboardingState()) {
+    required this._loadOnboardingStateUseCase,
+    required this._saveBirthDateUseCase,
+    required this._saveGenderUseCase,
+    required this._saveCategoryIdUseCase,
+    required this._loadCategoriesUseCase,
+    required this._completeOnboardingUseCase,
+  })  : super(const OnboardingState()) {
     on<OnboardingStarted>(_onStarted);
     on<OnboardingAgeYearChanged>(_onAgeYearChanged);
     on<OnboardingAgeMonthChanged>(_onAgeMonthChanged);
@@ -222,7 +249,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
   final CompleteOnboardingUseCase _completeOnboardingUseCase;
 
   Future<void> _onStarted(
-    OnboardingStarted _event,
+    OnboardingStarted event,
     Emitter<OnboardingState> emit,
   ) async {
     emit(state.copyWith(isLoading: true, errorMessage: null));
@@ -291,7 +318,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
   }
 
   Future<void> _onAgeNextRequested(
-    OnboardingAgeNextRequested _event,
+    OnboardingAgeNextRequested event,
     Emitter<OnboardingState> emit,
   ) async {
     if (!state.canContinueAge) {
@@ -366,7 +393,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
   }
 
   Future<void> _onCategoryNextRequested(
-    OnboardingInterestsNextRequested _event,
+    OnboardingInterestsNextRequested event,
     Emitter<OnboardingState> emit,
   ) async {
     if (!state.canContinueCategory) {
@@ -394,7 +421,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
   }
 
   Future<void> _onSkipRequested(
-    OnboardingSkipRequested _event,
+    OnboardingSkipRequested event,
     Emitter<OnboardingState> emit,
   ) async {
     emit(state.copyWith(isLoading: true, errorMessage: null));
@@ -418,7 +445,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
   }
 
   Future<void> _onNextRequested(
-    OnboardingNextRequested _event,
+    OnboardingNextRequested event,
     Emitter<OnboardingState> emit,
   ) async {
     if (!state.canContinueGender) {
@@ -446,7 +473,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
   }
 
   Future<void> _onNavigationCompleted(
-    OnboardingNavigationCompleted _event,
+    OnboardingNavigationCompleted event,
     Emitter<OnboardingState> emit,
   ) async {
     emit(state.copyWith(navigationTarget: null));

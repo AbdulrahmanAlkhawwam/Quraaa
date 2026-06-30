@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../shared/shared.dart';
 import '../../search.dart';
-import 'home_search_bar.dart';
 
 /// A search widget for the home screen that uses [OpenContainer] from the
 /// `animations` package to create a smooth "search bar into expanded search"

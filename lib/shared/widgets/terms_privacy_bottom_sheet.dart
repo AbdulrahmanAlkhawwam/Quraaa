@@ -1,10 +1,12 @@
-import 'package:flutter/material.dart';
-import '../../core/localization/localization_constants.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+
+import '../../core/localization/localization_constants.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_radius.dart';
 import '../theme/app_spacing.dart';
 import '../theme/styles/text_styles.dart';
+import 'bottom_sheet_drag_handle.dart';
 
 class TermsPrivacyBottomSheet extends StatelessWidget {
   const TermsPrivacyBottomSheet({super.key});
@@ -17,6 +19,85 @@ class TermsPrivacyBottomSheet extends StatelessWidget {
       builder: (BuildContext context) => const TermsPrivacyBottomSheet(),
     );
   }
+
+  static const List<_SectionConfig> _sections = <_SectionConfig>[
+    _SectionConfig(
+      titleKey: LocalizationConstants.termsPrivacyAcceptanceKey,
+      descKey: LocalizationConstants.termsPrivacyAcceptanceDescKey,
+    ),
+    _SectionConfig(
+      titleKey: LocalizationConstants.termsPrivacyEligibilityKey,
+      descKey: LocalizationConstants.termsPrivacyEligibilityDescKey,
+    ),
+    _SectionConfig(
+      titleKey: LocalizationConstants.termsPrivacyUserAccountKey,
+      descKey: LocalizationConstants.termsPrivacyUserAccountDescKey,
+    ),
+    _SectionConfig(
+      titleKey: LocalizationConstants.termsPrivacyUseOfPlatformKey,
+      descKey: LocalizationConstants.termsPrivacyUseOfPlatformDescKey,
+    ),
+    _SectionConfig(
+      titleKey: LocalizationConstants.termsPrivacyDigitalContentKey,
+      descKey: LocalizationConstants.termsPrivacyDigitalContentDescKey,
+    ),
+    _SectionConfig(
+      titleKey: LocalizationConstants.termsPrivacyMarketplaceKey,
+      descKey: LocalizationConstants.termsPrivacyMarketplaceDescKey,
+    ),
+    _SectionConfig(
+      titleKey: LocalizationConstants.termsPrivacyAuthorContentKey,
+      descKey: LocalizationConstants.termsPrivacyAuthorContentDescKey,
+    ),
+    _SectionConfig(
+      titleKey: LocalizationConstants.termsPrivacyAIFeaturesKey,
+      descKey: LocalizationConstants.termsPrivacyAIFeaturesDescKey,
+    ),
+    _SectionConfig(
+      titleKey: LocalizationConstants.termsPrivacyCommunityGuidelinesKey,
+      descKey: LocalizationConstants.termsPrivacyCommunityGuidelinesDescKey,
+    ),
+    _SectionConfig(
+      titleKey: LocalizationConstants.termsPrivacyPaymentsKey,
+      descKey: LocalizationConstants.termsPrivacyPaymentsDescKey,
+    ),
+    _SectionConfig(
+      titleKey: LocalizationConstants.termsPrivacySubscriptionsKey,
+      descKey: LocalizationConstants.termsPrivacySubscriptionsDescKey,
+    ),
+    _SectionConfig(
+      titleKey: LocalizationConstants.termsPrivacyRefundPolicyKey,
+      descKey: LocalizationConstants.termsPrivacyRefundPolicyDescKey,
+    ),
+    _SectionConfig(
+      titleKey: LocalizationConstants.termsPrivacyPrivacyKey,
+      descKey: LocalizationConstants.termsPrivacyPrivacyDescKey,
+    ),
+    _SectionConfig(
+      titleKey: LocalizationConstants.termsPrivacyIntellectualPropertyKey,
+      descKey: LocalizationConstants.termsPrivacyIntellectualPropertyDescKey,
+    ),
+    _SectionConfig(
+      titleKey: LocalizationConstants.termsPrivacyServiceAvailabilityKey,
+      descKey: LocalizationConstants.termsPrivacyServiceAvailabilityDescKey,
+    ),
+    _SectionConfig(
+      titleKey: LocalizationConstants.termsPrivacyAccountSuspensionKey,
+      descKey: LocalizationConstants.termsPrivacyAccountSuspensionDescKey,
+    ),
+    _SectionConfig(
+      titleKey: LocalizationConstants.termsPrivacyLimitationOfLiabilityKey,
+      descKey: LocalizationConstants.termsPrivacyLimitationOfLiabilityDescKey,
+    ),
+    _SectionConfig(
+      titleKey: LocalizationConstants.termsPrivacyChangesToTermsKey,
+      descKey: LocalizationConstants.termsPrivacyChangesToTermsDescKey,
+    ),
+    _SectionConfig(
+      titleKey: LocalizationConstants.termsPrivacyContactUsKey,
+      descKey: LocalizationConstants.termsPrivacyContactUsDescKey,
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -44,16 +125,7 @@ class TermsPrivacyBottomSheet extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    const SizedBox(height: AppSpacing.spacing12),
-                    Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: AppColors.textTertiary.withAlpha(76),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.spacing16),
+                    const BottomSheetDragHandle(),
                     Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: AppSpacing.spacing24,
@@ -103,120 +175,16 @@ class TermsPrivacyBottomSheet extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: AppSpacing.spacing24),
-                      _buildSection(
-                        context,
-                        number: '1',
-                        title: LocalizationConstants.termsPrivacyAcceptanceKey.tr(),
-                        content: LocalizationConstants.termsPrivacyAcceptanceDescKey.tr(),
-                      ),
-                      _buildSection(
-                        context,
-                        number: '2',
-                        title: LocalizationConstants.termsPrivacyEligibilityKey.tr(),
-                        content: LocalizationConstants.termsPrivacyEligibilityDescKey.tr(),
-                      ),
-                      _buildSection(
-                        context,
-                        number: '3',
-                        title: LocalizationConstants.termsPrivacyUserAccountKey.tr(),
-                        content: LocalizationConstants.termsPrivacyUserAccountDescKey.tr(),
-                      ),
-                      _buildSection(
-                        context,
-                        number: '4',
-                        title: LocalizationConstants.termsPrivacyUseOfPlatformKey.tr(),
-                        content: LocalizationConstants.termsPrivacyUseOfPlatformDescKey.tr(),
-                      ),
-                      _buildSection(
-                        context,
-                        number: '5',
-                        title: LocalizationConstants.termsPrivacyDigitalContentKey.tr(),
-                        content: LocalizationConstants.termsPrivacyDigitalContentDescKey.tr(),
-                      ),
-                      _buildSection(
-                        context,
-                        number: '6',
-                        title: LocalizationConstants.termsPrivacyMarketplaceKey.tr(),
-                        content: LocalizationConstants.termsPrivacyMarketplaceDescKey.tr(),
-                      ),
-                      _buildSection(
-                        context,
-                        number: '7',
-                        title: LocalizationConstants.termsPrivacyAuthorContentKey.tr(),
-                        content: LocalizationConstants.termsPrivacyAuthorContentDescKey.tr(),
-                      ),
-                      _buildSection(
-                        context,
-                        number: '8',
-                        title: LocalizationConstants.termsPrivacyAIFeaturesKey.tr(),
-                        content: LocalizationConstants.termsPrivacyAIFeaturesDescKey.tr(),
-                      ),
-                      _buildSection(
-                        context,
-                        number: '9',
-                        title: LocalizationConstants.termsPrivacyCommunityGuidelinesKey.tr(),
-                        content: LocalizationConstants.termsPrivacyCommunityGuidelinesDescKey.tr(),
-                      ),
-                      _buildSection(
-                        context,
-                        number: '10',
-                        title: LocalizationConstants.termsPrivacyPaymentsKey.tr(),
-                        content: LocalizationConstants.termsPrivacyPaymentsDescKey.tr(),
-                      ),
-                      _buildSection(
-                        context,
-                        number: '11',
-                        title: LocalizationConstants.termsPrivacySubscriptionsKey.tr(),
-                        content: LocalizationConstants.termsPrivacySubscriptionsDescKey.tr(),
-                      ),
-                      _buildSection(
-                        context,
-                        number: '12',
-                        title: LocalizationConstants.termsPrivacyRefundPolicyKey.tr(),
-                        content: LocalizationConstants.termsPrivacyRefundPolicyDescKey.tr(),
-                      ),
-                      _buildSection(
-                        context,
-                        number: '13',
-                        title: LocalizationConstants.termsPrivacyPrivacyKey.tr(),
-                        content: LocalizationConstants.termsPrivacyPrivacyDescKey.tr(),
-                      ),
-                      _buildSection(
-                        context,
-                        number: '14',
-                        title: LocalizationConstants.termsPrivacyIntellectualPropertyKey.tr(),
-                        content: LocalizationConstants.termsPrivacyIntellectualPropertyDescKey.tr(),
-                      ),
-                      _buildSection(
-                        context,
-                        number: '15',
-                        title: LocalizationConstants.termsPrivacyServiceAvailabilityKey.tr(),
-                        content: LocalizationConstants.termsPrivacyServiceAvailabilityDescKey.tr(),
-                      ),
-                      _buildSection(
-                        context,
-                        number: '16',
-                        title: LocalizationConstants.termsPrivacyAccountSuspensionKey.tr(),
-                        content: LocalizationConstants.termsPrivacyAccountSuspensionDescKey.tr(),
-                      ),
-                      _buildSection(
-                        context,
-                        number: '17',
-                        title: LocalizationConstants.termsPrivacyLimitationOfLiabilityKey.tr(),
-                        content: LocalizationConstants.termsPrivacyLimitationOfLiabilityDescKey.tr(),
-                      ),
-                      _buildSection(
-                        context,
-                        number: '18',
-                        title: LocalizationConstants.termsPrivacyChangesToTermsKey.tr(),
-                        content: LocalizationConstants.termsPrivacyChangesToTermsDescKey.tr(),
-                      ),
-                      _buildSection(
-                        context,
-                        number: '19',
-                        title: LocalizationConstants.termsPrivacyContactUsKey.tr(),
-                        content: LocalizationConstants.termsPrivacyContactUsDescKey.tr(),
-                      ),
+                      ..._sections.asMap().entries.map((entry) {
+                        final int index = entry.key;
+                        final _SectionConfig section = entry.value;
+                        return _buildSection(
+                          context,
+                          number: '${index + 1}',
+                          title: section.titleKey.tr(),
+                          content: section.descKey.tr(),
+                        );
+                      }),
                       const SizedBox(height: AppSpacing.spacing24 + 24),
                     ],
                   ),
@@ -246,7 +214,7 @@ class TermsPrivacyBottomSheet extends StatelessWidget {
               Container(
                 width: 24,
                 height: 24,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColors.primary100,
                   shape: BoxShape.circle,
                 ),
@@ -286,6 +254,13 @@ class TermsPrivacyBottomSheet extends StatelessWidget {
       ),
     );
   }
+}
+
+class _SectionConfig {
+  const _SectionConfig({required this.titleKey, required this.descKey});
+
+  final String titleKey;
+  final String descKey;
 }
 
 class TermsPrivacyTextButton extends StatelessWidget {

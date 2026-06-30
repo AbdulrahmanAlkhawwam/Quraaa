@@ -30,11 +30,13 @@ import '../error_monitoring/navigation_tracker.dart';
 import '../error_monitoring/error_report_cache.dart';
 import '../error_monitoring/telegram_notification_service.dart';
 import '../error_monitoring/user_context_provider.dart';
+import '../../features/account/data/user_data_local_data_source.dart';
 import '../../features/profile/data/datasources/profile_local_data_source.dart';
 import '../../features/profile/data/datasources/profile_remote_data_source.dart';
 import '../../features/profile/data/repositories/profile_repository_impl.dart';
 import '../../features/profile/domain/repositories/profile_repository.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
+import '../../screens/profile/bloc/edit_profile_bloc.dart';
 import '../network/auth_interceptor.dart';
 import '../network/http_helper.dart';
 import '../services/app_diagnostics_service.dart';
@@ -114,6 +116,10 @@ void registerCoreDependencies() {
 
   sl.registerLazySingleton<UserLocalDataSource>(
     () => UserLocalDataSourceImpl(sl<StorageService>()),
+  );
+
+  sl.registerLazySingleton<UserDataLocalDataSource>(
+    () => UserDataLocalDataSource(sl<StorageService>()),
   );
 
   sl.registerLazySingleton<DeviceInfoProvider>(() => DeviceInfoProvider());
@@ -278,6 +284,8 @@ void registerFeatureDependencies() {
       profileLocalDataSource: sl<ProfileLocalDataSource>(),
     ),
   );
+
+  sl.registerFactory<EditProfileBloc>(EditProfileBloc.new);
 }
   if (!sl.isRegistered<PdfNoteDataSource>()) {
     sl.registerLazySingleton<PdfNoteDataSource>(

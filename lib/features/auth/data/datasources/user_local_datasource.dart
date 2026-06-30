@@ -1,7 +1,6 @@
 import '../../../../core/domain/entities/location.dart';
 import '../../../../core/services/storage_service.dart';
 
-import '../../domain/entities/user.dart';
 import '../mappers/user_mapper.dart';
 import '../models/user_model.dart';
 

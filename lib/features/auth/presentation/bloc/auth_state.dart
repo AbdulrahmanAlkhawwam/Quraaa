@@ -1,6 +1,10 @@
+import 'package:equatable/equatable.dart';
 
-sealed class AuthState {
+sealed class AuthState with EquatableMixin {
   const AuthState();
+
+  @override
+  List<Object?> get props => const <Object?>[];
 }
 
 final class AuthInitial extends AuthState {
@@ -19,6 +23,9 @@ final class AuthError extends AuthState {
   const AuthError(this.error);
 
   final Object? error;
+
+  @override
+  List<Object?> get props => <Object?>[error];
 
   @override
   String toString() => 'AuthError(error: $error)';

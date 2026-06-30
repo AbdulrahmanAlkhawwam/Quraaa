@@ -14,6 +14,7 @@ import '../../features/auth/data/datasources/user_local_datasource.dart';
 import '../../features/auth/data/models/user_model.dart';
 import '../../features/profile/data/models/profile_model.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
+import '../../features/profile/presentation/extensions/profile_model_ui_extensions.dart';
 import '../../features/profile/presentation/bloc/profile_state.dart';
 import '../../features/profile/presentation/widgets/profile_info_shimmer.dart';
 import '../../features/settings/presentation/widgets/profile_avatar.dart';
@@ -32,9 +33,7 @@ class AppShell extends StatefulWidget {
 }
 
 class _AppShellState extends State<AppShell> {
-  final UserDataLocalDataSource _dataSource = UserDataLocalDataSource(
-    sl<StorageService>(),
-  );
+  final UserDataLocalDataSource _dataSource = sl<UserDataLocalDataSource>();
   final UserLocalDataSource _authDataSource = sl<UserLocalDataSource>();
 
   UserDataTab _selectedTab = UserDataTab.settings;
@@ -360,7 +359,7 @@ class _AppShellState extends State<AppShell> {
         profile.fullName,
         profile.phoneNumber ?? snapshot.phone,
         profile.dateOfBirth ?? snapshot.birthDate,
-        profile.genderLabel,
+        profile.localizedGenderLabel,
       ],
     );
   }
@@ -815,8 +814,8 @@ class _UserDataEditScreenState extends State<UserDataEditScreen> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppColors.libraryGreen.withOpacity(0.92),
-                  AppColors.primary900.withOpacity(0.96),
+                  AppColors.libraryGreen.withValues(alpha: 0.92),
+                  AppColors.primary900.withValues(alpha: 0.96),
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
@@ -982,16 +981,16 @@ class _BlurHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(28 /*AppRadius.radius28*/),
+      borderRadius: BorderRadius.circular(28),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
         child: Container(
           height: 78,
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.spacing12),
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.18),
-            border: Border.all(color: Colors.white.withOpacity(0.08)),
-            borderRadius: BorderRadius.circular(28 /*AppRadius.radius28*/),
+            color: Colors.black.withValues(alpha: 0.18),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+            borderRadius: BorderRadius.circular(28),
           ),
           child: Row(
             children: [
@@ -1040,7 +1039,7 @@ class _HeaderButton extends StatelessWidget {
       onPressed: onPressed,
       icon: icon,
       size: 52,
-      backgroundColor: Colors.white.withOpacity(0.12),
+      backgroundColor: Colors.white.withValues(alpha: 0.12),
       iconColor: Colors.white,
     );
   }
@@ -1069,7 +1068,7 @@ class _IconButtonShell extends StatelessWidget {
       child: Material(
         color: backgroundColor,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18 /*AppRadius.radius18*/),
+          borderRadius: BorderRadius.circular(18),
         ),
         child: IconButton(
           onPressed: onPressed,

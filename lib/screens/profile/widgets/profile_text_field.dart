@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../shared/theme/app_colors.dart';
+import '../../../shared/theme/app_dimensions.dart';
+import '../../../shared/theme/app_radius.dart';
+import '../../../shared/theme/app_spacing.dart';
 import '../../../shared/theme/styles/text_styles.dart';
 
 /// Rounded outlined text field used in the Edit Profile form.
@@ -27,14 +31,12 @@ class ProfileTextField extends StatelessWidget {
   final bool readOnly;
   final VoidCallback? onTap;
 
-  static const double _height = 64;
-  static const double _radius = 16;
   static const double _borderWidth = 1.2;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: _height,
+      height: AppDimensions.profileFieldHeight,
       child: TextFormField(
         controller: controller,
         initialValue: initialValue,
@@ -43,7 +45,7 @@ class ProfileTextField extends StatelessWidget {
         readOnly: readOnly,
         onTap: onTap,
         style: AppTextStyles.bodyMedium.copyWith(
-          color: const Color(0xFF243B18),
+          color: AppColors.editProfileTitle,
         ),
         decoration: InputDecoration(
           labelText: label,
@@ -51,37 +53,31 @@ class ProfileTextField extends StatelessWidget {
           suffixIcon: suffixIcon,
           floatingLabelBehavior: FloatingLabelBehavior.auto,
           labelStyle: AppTextStyles.bodySmall.copyWith(
-            color: const Color(0xFF8A9A84),
+            color: AppColors.editProfileHint,
           ),
           hintStyle: AppTextStyles.bodyMedium.copyWith(
-            color: const Color(0xFF8A9A84),
+            color: AppColors.editProfileHint,
           ),
           filled: true,
-          fillColor: Colors.white,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(_radius),
-            borderSide: const BorderSide(
-              color: Color(0xFFBED6AE),
-              width: _borderWidth,
-            ),
+          fillColor: AppColors.card,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.spacing18,
+            vertical: AppSpacing.spacing18,
           ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(_radius),
-            borderSide: const BorderSide(
-              color: Color(0xFFBED6AE),
-              width: _borderWidth,
-            ),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(_radius),
-            borderSide: const BorderSide(
-              color: Color(0xFF243B18),
-              width: _borderWidth,
-            ),
-          ),
+          border: _outlineBorder(AppColors.editProfileBorder),
+          enabledBorder: _outlineBorder(AppColors.editProfileBorder),
+          focusedBorder: _outlineBorder(AppColors.editProfileTitle),
         ),
+      ),
+    );
+  }
+
+  OutlineInputBorder _outlineBorder(Color color) {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppRadius.radius16),
+      borderSide: BorderSide(
+        color: color,
+        width: _borderWidth,
       ),
     );
   }

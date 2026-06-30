@@ -1,12 +1,15 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../../core/localization/localization_constants.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
 import '../theme/app_radius.dart';
 import '../theme/app_spacing.dart';
 import '../theme/styles/text_styles.dart';
+import 'bottom_sheet_drag_handle.dart';
 
 /// Future: replace [image] with [NotificationBadge] enum to show a pre-defined badge widget.
 // enum NotificationBadge { lv1, lv2, lv3, bestReader, ... }
@@ -67,17 +70,7 @@ class NotificationBottomSheet extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: AppSpacing.spacing12),
-              // Drag handle
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.textTertiary.withAlpha(76),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.spacing8),
+              const BottomSheetDragHandle(),
               // Close button
               Padding(
                 padding: const EdgeInsets.symmetric(
@@ -140,7 +133,9 @@ class NotificationBottomSheet extends StatelessWidget {
                               ),
                             ),
                             child: Text(
-                              buttonLabel ?? 'Continue',
+                              buttonLabel ??
+                                  LocalizationConstants.notificationContinueKey
+                                      .tr(),
                               style: AppTextStyles.buttonLarge,
                             ),
                           ),

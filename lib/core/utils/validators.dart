@@ -5,7 +5,7 @@ class Validators {
 
   //region Name
 
-  static bool nameNotEmpty(String? value) => value != null && value.trim().isNotEmpty;
+  static bool nameNotEmpty(String? value) => requiredField(value);
 
   static bool nameMaxLength(String? value, {int maxLength = 50}) =>
       value != null && value.length <= maxLength;
@@ -44,7 +44,7 @@ class Validators {
 
   //region Password
 
-  static bool passwordNotEmpty(String? value) => value != null && value.isNotEmpty;
+  static bool passwordNotEmpty(String? value) => phoneNotEmpty(value);
 
   static bool passwordMinLength(String? value, {int minLength = 6}) =>
       value != null && value.length >= minLength;

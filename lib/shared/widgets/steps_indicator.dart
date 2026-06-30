@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_colors.dart';
-import '../theme/app_dimensions.dart';
-import '../theme/app_radius.dart';
-import '../theme/app_spacing.dart';
+import 'onboarding_progress_indicator.dart';
 
+/// Dotted step indicator.
+///
+/// [activeIndex] is 0-based. This widget delegates to
+/// [OnboardingProgressIndicator] after converting to a 1-based index.
 class StepsIndicator extends StatelessWidget {
   const StepsIndicator({
     super.key,
@@ -17,25 +18,9 @@ class StepsIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List<Widget>.generate(count, (index) {
-        final bool active = index == activeIndex;
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          margin: EdgeInsetsDirectional.only(
-            end: index == count - 1 ? 0 : AppSpacing.spacing8,
-          ),
-          width: active
-              ? AppDimensions.onboardingDotActiveWidth
-              : AppDimensions.onboardingDotSize,
-          height: AppDimensions.onboardingDotSize,
-          decoration: BoxDecoration(
-            color: active ? AppColors.primary600 : AppColors.primary100,
-            borderRadius: BorderRadius.circular(AppRadius.radius40),
-          ),
-        );
-      }),
+    return OnboardingProgressIndicator(
+      activeIndex: activeIndex + 1,
+      count: count,
     );
   }
 }

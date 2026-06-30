@@ -1,19 +1,15 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../config/routes/route_names.dart';
 import '../../../../core/di/injection_container.dart';
-import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/services/notification_service.dart';
-import '../../../../core/services/storage_service.dart';
 import '../../../../features/account/data/user_data_local_data_source.dart';
 import '../../../../shared/shared.dart';
-import '../../../../shared/models/message.dart';
 import '../../../../shared/widgets/animated_search_bar.dart';
 import '../widgets/home_bottom_nav.dart';
 import '../widgets/home_drawer.dart';
@@ -31,10 +27,8 @@ class _HomeScreenState extends State<HomeScreen> {
   NotificationService? _notificationService;
   int _selectedIndex = 0;
   int _previousIndex = 0;
-  int _notificationCount = 0;
   final List<RemoteMessage> _notifications = <RemoteMessage>[];
   StreamSubscription<RemoteMessage>? _notificationSub;
-  bool _notificationsReady = false;
   UserDataSnapshot? _userSnapshot;
 
   @override
@@ -45,8 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadUserData() async {
-    final UserDataLocalDataSource dataSource =
-        UserDataLocalDataSource(sl<StorageService>());
+    final UserDataLocalDataSource dataSource = sl<UserDataLocalDataSource>();
     final UserDataSnapshot snapshot = await dataSource.load();
     if (!mounted) return;
     setState(() => _userSnapshot = snapshot);
@@ -71,8 +64,6 @@ class _HomeScreenState extends State<HomeScreen> {
       _notificationSub = _notificationService!.foregroundMessages.listen(
         _onNotificationReceived,
       );
-      if (!mounted) return;
-      setState(() => _notificationsReady = true);
     } catch (e) {
       // Firebase not configured or unavailable – skip silently.
       debugPrint('HomeScreen: notifications unavailable ($e)');
@@ -83,7 +74,6 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!mounted) return;
     setState(() {
       _notifications.add(message);
-      _notificationCount = _notifications.length;
     });
     context.showSuccessSnackBar(
       message: Message(
@@ -98,20 +88,6 @@ class _HomeScreenState extends State<HomeScreen> {
       _previousIndex = _selectedIndex;
       _selectedIndex = index;
     });
-  }
-
-  void _openNotifications() {
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (BuildContext context) => _NotificationsSheet(
-        notifications: _notifications,
-        onClear: () => setState(() {
-          _notifications.clear();
-          _notificationCount = 0;
-        }),
-      ),
-    );
   }
 
   @override
@@ -177,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ? Image.file(
                     File(profileImage),
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Center(
+                    errorBuilder: (_, _, _) => Center(
                       child: HugeIcon(
                         icon: HugeIcons.strokeRoundedUser,
                         color: AppColors.primary600,
@@ -407,105 +383,4 @@ class _PlaceholderPage extends StatelessWidget {
   }
 }
 
-/// Bottom sheet to display received notifications.
-class _NotificationsSheet extends StatelessWidget {
-  const _NotificationsSheet({
-    required this.notifications,
-    required this.onClear,
-  });
 
-  final List<RemoteMessage> notifications;
-  final VoidCallback onClear;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(AppSpacing.spacing16),
-      child: Material(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(AppRadius.radius32),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.spacing20),
-              child: Row(
-                children: <Widget>[
-                  HugeIcon(
-                    icon: HugeIcons.strokeRoundedNotification01,
-                    color: AppColors.libraryGreen,
-                    size: 24,
-                  ),
-                  const SizedBox(width: AppSpacing.spacing12),
-                  Expanded(
-                    child: Text(
-                      'Notifications',
-                      style: AppTextStyles.h3.copyWith(
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                  ),
-                  if (notifications.isNotEmpty)
-                    TextButton(
-                      onPressed: () {
-                        onClear();
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text('Clear'),
-                    ),
-                ],
-              ),
-            ),
-            const Divider(height: 1),
-            if (notifications.isEmpty)
-              const Padding(
-                padding: EdgeInsets.all(AppSpacing.spacing32),
-                child: Text(
-                  'No notifications yet',
-                  style: TextStyle(color: AppColors.textSecondary),
-                ),
-              )
-            else
-              Flexible(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: notifications.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final RemoteMessage msg = notifications[index];
-                    return ListTile(
-                      leading: Container(
-                        padding: const EdgeInsets.all(AppSpacing.spacing8),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary100,
-                          borderRadius: BorderRadius.circular(AppRadius.radius12),
-                        ),
-                        child: HugeIcon(
-                          icon: HugeIcons.strokeRoundedNotification01,
-                          color: AppColors.primary600,
-                          size: 20,
-                        ),
-                      ),
-                      title: Text(
-                        msg.notification?.title ?? 'Notification',
-                        style: AppTextStyles.bodyLarge.copyWith(
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      subtitle: Text(
-                        msg.notification?.body ?? '',
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            const SizedBox(height: AppSpacing.spacing16),
-          ],
-        ),
-      ),
-    );
-  }
-}

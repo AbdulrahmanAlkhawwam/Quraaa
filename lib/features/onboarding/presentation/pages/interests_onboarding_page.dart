@@ -16,7 +16,8 @@ class InterestsOnboardingPage extends StatefulWidget {
   const InterestsOnboardingPage({super.key});
 
   @override
-  State<InterestsOnboardingPage> createState() => _InterestsOnboardingPageState();
+  State<InterestsOnboardingPage> createState() =>
+      _InterestsOnboardingPageState();
 }
 
 class _InterestsOnboardingPageState extends State<InterestsOnboardingPage> {
@@ -54,7 +55,8 @@ class _InterestsOnboardingPageState extends State<InterestsOnboardingPage> {
             }
           },
           child: BlocListener<OnboardingBloc, OnboardingState>(
-            listenWhen: (p, c) => p.errorMessage != c.errorMessage && c.errorMessage != null,
+            listenWhen: (p, c) =>
+                p.errorMessage != c.errorMessage && c.errorMessage != null,
             listener: (context, state) {
               final msg = state.errorMessage;
               if (msg != null) {
@@ -113,12 +115,17 @@ class _InterestsOnboardingView extends StatelessWidget {
             child: state.categories.isEmpty
                 ? state.isLoading
                     ? const Center(child: CircularProgressIndicator())
-                    : const Center(child: Text('No categories available'))
+                    : Center(
+                        child: Text(
+                          LocalizationConstants.onboardingInterestsEmptyKey.tr(),
+                        ),
+                      )
                 : Wrap(
                     spacing: AppSpacing.spacing12,
                     runSpacing: AppSpacing.spacing12,
                     children: state.categories.map((category) {
-                      final selected = state.selectedCategoryIds.contains(category.id);
+                      final selected =
+                          state.selectedCategoryIds.contains(category.id);
                       return _InterestChip(
                         label: context.locale.languageCode == 'ar'
                             ? category.nameAr
@@ -126,7 +133,8 @@ class _InterestsOnboardingView extends StatelessWidget {
                         selected: selected,
                         onTap: state.isLoading
                             ? null
-                            : () => _onCategorySelected(context, category.id),
+                            : () =>
+                                _onCategorySelected(context, category.id),
                       );
                     }).toList(),
                   ),

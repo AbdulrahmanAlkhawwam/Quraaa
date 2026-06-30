@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quraaa/shared/shared.dart';
 
-import 'app_colors.dart';
-import 'styles/text_styles.dart';
 import 'styles/app_bar.dart';
 import 'styles/filled_button.dart';
 import 'styles/outlined_button.dart';

@@ -23,8 +23,7 @@ class GenderOnboardingPage extends StatefulWidget {
 }
 
 class _GenderOnboardingPageState extends State<GenderOnboardingPage> {
-  final AuthLocalDataSource _authJourney =
-      sl<AuthLocalDataSource>();
+  final AuthLocalDataSource _authJourney = sl<AuthLocalDataSource>();
 
   @override
   void initState() {
@@ -56,7 +55,8 @@ class _GenderOnboardingPageState extends State<GenderOnboardingPage> {
             }
           },
           child: BlocListener<OnboardingBloc, OnboardingState>(
-            listenWhen: (p, c) => p.errorMessage != c.errorMessage && c.errorMessage != null,
+            listenWhen: (p, c) =>
+                p.errorMessage != c.errorMessage && c.errorMessage != null,
             listener: (context, state) {
               final msg = state.errorMessage;
               if (msg != null) {
@@ -124,7 +124,9 @@ class _GenderOnboardingView extends StatelessWidget {
                     ),
                     actions: [
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.spacing24,
+                        ),
                         child: TextButton(
                           onPressed: () {
                             unawaited(
@@ -194,7 +196,9 @@ class _GenderOnboardingView extends StatelessWidget {
                                                   ),
                                       ),
                                     ),
-                                    const SizedBox(width: AppSpacing.spacing16),
+                                    const SizedBox(
+                                      width: AppSpacing.spacing16,
+                                    ),
                                     Expanded(
                                       child: _GenderCard(
                                         gender: GenderSelection.girl,
@@ -238,8 +242,7 @@ class _GenderOnboardingView extends StatelessWidget {
                                             )
                                       : null,
                                   child: Text(
-                                    LocalizationConstants.onboardingNextKey
-                                        .tr(),
+                                    LocalizationConstants.onboardingNextKey.tr(),
                                   ),
                                 ),
                               );
@@ -274,12 +277,10 @@ class _GenderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color backgroundColor = selected
-        ? AppColors.primary50
-        : AppColors.card;
-    final Color borderColor = selected
-        ? AppColors.primary300
-        : AppColors.surface;
+    final Color backgroundColor =
+        selected ? AppColors.primary50 : AppColors.card;
+    final Color borderColor =
+        selected ? AppColors.primary300 : AppColors.surface;
 
     return Semantics(
       button: true,
@@ -350,13 +351,7 @@ class _GenderAvatar extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: baseColor.withAlpha(50),
-                blurRadius: 12,
-                offset: const Offset(0, 6),
-              ),
-            ],
+            boxShadow: AppShadows.avatarGlow(baseColor),
           ),
           child: Center(
             child: Stack(
@@ -365,7 +360,7 @@ class _GenderAvatar extends StatelessWidget {
                 HugeIcon(
                   icon: icon,
                   size: AppDimensions.onboardingAvatarSize * 0.42,
-                  color: Colors.white,
+                  color: AppColors.card,
                 ),
                 Positioned(
                   bottom: 0,
@@ -375,7 +370,7 @@ class _GenderAvatar extends StatelessWidget {
                     height: AppDimensions.onboardingAvatarSize * 0.42,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white.withAlpha(60),
+                      color: AppColors.card.withAlpha(60),
                     ),
                   ),
                 ),

@@ -72,7 +72,7 @@ class DioLoggingInterceptor extends Interceptor {
     unawaited(
       _logger.error(
         err,
-        stackTrace: err.stackTrace ?? StackTrace.current,
+        stackTrace: err.stackTrace,
         source: 'dio',
         message: err.message ?? 'Request failed.',
         apiMethod: err.requestOptions.method,

@@ -50,9 +50,6 @@ Future<void> main() async {
       await _configureErrorHandlers(appLogger!);
       await sl<AppDiagnosticsService>().logStartupSnapshot();
 
-      // If you need a Bloc observer, set it here before runApp:
-      // Bloc.observer = sl<AppBlocObserver>();
-
       runApp(
         LocalizationService.wrap(
           startLocale: startLocale,

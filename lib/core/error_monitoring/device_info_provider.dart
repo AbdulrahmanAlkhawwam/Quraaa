@@ -35,15 +35,15 @@ class DeviceInfoProvider {
     if (kIsWeb) {
       return DeviceSnapshot(
         platform: 'web',
-        deviceModel: deviceData.model?.isNotEmpty == true
-            ? deviceData.model!
+        deviceModel: deviceData.model.isNotEmpty
+            ? deviceData.model
             : (deviceData.deviceName.isNotEmpty
                 ? deviceData.deviceName
                 : (clientInfo.softwareName.isNotEmpty
                     ? clientInfo.softwareName
                     : 'web')),
-        manufacturer: deviceData.brand?.isNotEmpty == true
-            ? deviceData.brand!
+        manufacturer: deviceData.brand.isNotEmpty
+            ? deviceData.brand
             : (clientInfo.softwareName.isNotEmpty
                 ? clientInfo.softwareName
                 : 'web'),
@@ -56,18 +56,18 @@ class DeviceInfoProvider {
         appVersion: clientInfo.applicationVersion,
         buildNumber: clientInfo.applicationBuildCode,
         appName: clientInfo.applicationName,
-        environment: clientInfo.applicationId ?? 'web',
+        environment: clientInfo.applicationId,
       );
     }
 
     if (defaultTargetPlatform == TargetPlatform.android) {
       return DeviceSnapshot(
         platform: 'android',
-        deviceModel: deviceData.model?.isNotEmpty == true
-            ? deviceData.model!
+        deviceModel: deviceData.model.isNotEmpty
+            ? deviceData.model
             : deviceData.deviceName,
-        manufacturer: deviceData.brand?.isNotEmpty == true
-            ? deviceData.brand!
+        manufacturer: deviceData.brand.isNotEmpty
+            ? deviceData.brand
             : 'unknown',
         osVersion: deviceData.systemVersion.isNotEmpty
             ? deviceData.systemVersion
@@ -78,15 +78,15 @@ class DeviceInfoProvider {
         appVersion: clientInfo.applicationVersion,
         buildNumber: clientInfo.applicationBuildCode,
         appName: clientInfo.applicationName,
-        environment: clientInfo.applicationId ?? 'unknown',
+        environment: clientInfo.applicationId,
       );
     }
 
     if (defaultTargetPlatform == TargetPlatform.iOS) {
       return DeviceSnapshot(
         platform: 'ios',
-        deviceModel: deviceData.model?.isNotEmpty == true
-            ? deviceData.model!
+        deviceModel: deviceData.model.isNotEmpty
+            ? deviceData.model
             : deviceData.deviceName,
         manufacturer: 'Apple',
         osVersion: deviceData.systemVersion.isNotEmpty
@@ -98,17 +98,17 @@ class DeviceInfoProvider {
         appVersion: clientInfo.applicationVersion,
         buildNumber: clientInfo.applicationBuildCode,
         appName: clientInfo.applicationName,
-        environment: clientInfo.applicationId ?? 'unknown',
+        environment: clientInfo.applicationId,
       );
     }
 
     return DeviceSnapshot(
       platform: defaultTargetPlatform.name,
-      deviceModel: deviceData.model?.isNotEmpty == true
-          ? deviceData.model!
+      deviceModel: deviceData.model.isNotEmpty == true
+          ? deviceData.model
           : deviceData.deviceName,
-      manufacturer: deviceData.brand?.isNotEmpty == true
-          ? deviceData.brand!
+      manufacturer: deviceData.brand.isNotEmpty == true
+          ? deviceData.brand
           : defaultTargetPlatform.name,
       osVersion: deviceData.systemVersion.isNotEmpty
           ? deviceData.systemVersion
@@ -117,7 +117,7 @@ class DeviceInfoProvider {
       appVersion: clientInfo.applicationVersion,
       buildNumber: clientInfo.applicationBuildCode,
       appName: clientInfo.applicationName,
-      environment: clientInfo.applicationId ?? 'unknown',
+      environment: clientInfo.applicationId,
     );
   }
 }

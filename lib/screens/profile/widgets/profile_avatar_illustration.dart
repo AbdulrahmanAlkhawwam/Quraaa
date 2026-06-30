@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../shared/theme/app_colors.dart';
+import '../../../shared/theme/app_dimensions.dart';
+import '../../../shared/theme/app_radius.dart';
+
 /// Simple avatar illustration used inside the profile preview card.
 ///
 /// Built from basic shapes so no external asset is required. The illustration
@@ -7,7 +11,6 @@ import 'package:flutter/material.dart';
 class ProfileAvatarIllustration extends StatelessWidget {
   const ProfileAvatarIllustration({super.key});
 
-  static const double _height = 170;
   static const double _headSize = 72;
   static const double _bodyWidth = 132;
   static const double _bodyHeight = 86;
@@ -15,7 +18,7 @@ class ProfileAvatarIllustration extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: _height,
+      height: AppDimensions.avatarIllustrationHeight,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -23,20 +26,20 @@ class ProfileAvatarIllustration extends StatelessWidget {
             width: _headSize,
             height: _headSize,
             decoration: const BoxDecoration(
-              color: Color(0xFF243B18),
+              color: AppColors.editProfileTitle,
               shape: BoxShape.circle,
             ),
           ),
           Container(
             width: _bodyWidth,
             height: _bodyHeight,
-            decoration: const BoxDecoration(
-              color: Color(0xFF243B18),
+            decoration: BoxDecoration(
+              color: AppColors.editProfileTitle,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(_bodyWidth / 2),
                 topRight: Radius.circular(_bodyWidth / 2),
-                bottomLeft: Radius.circular(16),
-                bottomRight: Radius.circular(16),
+                bottomLeft: const Radius.circular(AppRadius.radius16),
+                bottomRight: const Radius.circular(AppRadius.radius16),
               ),
             ),
           ),

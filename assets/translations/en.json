@@ -6,7 +6,8 @@
     "ok": "OK",
     "cancel": "Cancel",
     "retry": "Retry",
-    "save": "Save"
+    "save": "Save",
+    "close": "Close"
   },
   "auth": {
     "screen": {
@@ -41,7 +42,8 @@
       "hint": "Enter Your Phone Number",
       "validation": {
         "required": "Phone number is required.",
-        "format": "Invalid international phone number format. It must start with '+' and include a valid country code."
+        "format": "Invalid international phone number format. It must start with '+' and include a valid country code.",
+        "valid": "Please enter a valid phone number and country."
       }
     },
     "date_of_birth": {
@@ -78,6 +80,26 @@
     "action": {
       "next": "Next",
       "continue_as_guest": "Continue As Guest"
+    },
+    "otp": {
+      "title": "Verification OTP",
+      "description": "Enter the code sent to your phone number {phone} ... or give us access to see the messages and go check the code",
+      "number_is_wrong": "number is wrong",
+      "resend": "Resend it",
+      "resend_countdown": "Resend ({count})"
+    },
+    "location": {
+      "title": "Get Your Place",
+      "description": "Can us Get your Location for make delivery service available",
+      "only_when_use_app": "Only When Use App",
+      "always": "Take Permission Always",
+      "maybe_later": "Maybe Later"
+    },
+    "notification": {
+      "title": "Notification Permission!",
+      "description": "Do you want to receive notification from us to be up to date!",
+      "take_permission": "Take Permission",
+      "maybe_later": "Maybe Later"
     }
   },
   "onboarding": {
@@ -103,6 +125,7 @@
     },
     "interests": {
       "title": "Your Interested",
+      "empty": "No categories available",
       "space_science": "Space Science",
       "geography": "Geography",
       "history": "History",
@@ -141,7 +164,12 @@
       "full_name": "Full name",
       "birth_date": "Birth date",
       "country": "Country",
-      "phone": "Phone number"
+      "phone": "Phone number",
+      "gender": {
+        "male": "Male",
+        "female": "Female",
+        "prefer_not_to_say": "Prefer not to say"
+      }
     },
     "appearance": {
       "theme": "Theme",
@@ -233,6 +261,48 @@
     "copied": "Text copied",
     "highlighted": "Highlight added",
     "selection_unavailable": "Text selection is not available for this page."
+  },
+  "profile": {
+    "menu": {
+      "my_personal_information": "My Personal Information",
+      "my_locations": "My Locations",
+      "payment_information": "Payment Information",
+      "my_personal_files": "My Personal Files",
+      "my_badges": "My Badges"
+    },
+    "coming_soon": {
+      "title": "Coming Soon",
+      "message": "{feature} feature is under development."
+    },
+    "dialog": {
+      "not_designed": {
+        "title": "{title}",
+        "content": "This screen has not been designed yet."
+      }
+    }
+  },
+  "edit_profile": {
+    "title": "Edit Profile",
+    "personal_data": "Personal Data",
+    "full_name": "Full Name",
+    "gender": "Gender",
+    "gender_male": "Male",
+    "gender_female": "Female",
+    "birth_date": "Birth Date",
+    "birth_date_hint": "2005/04/21",
+    "phone_number": "Phone Number",
+    "country_code": "+971",
+    "save_coming_soon": "Profile saved - Coming Soon",
+    "tabs": {
+      "background": "Background",
+      "hair": "Hair",
+      "beard": "Beard",
+      "mustache": "Mustache",
+      "clothing": "Clothing"
+    }
+  },
+  "notification": {
+    "continue": "Continue"
   },
   "errors": {
     "unknown": {

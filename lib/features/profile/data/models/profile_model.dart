@@ -40,24 +40,6 @@ class ProfileModel extends Equatable {
     return firstName ?? lastName ?? '';
   }
 
-  /// Maps the integer [gender] value to a human readable label.
-  ///
-  /// - 0 -> Male
-  /// - 1 -> Female
-  /// - 2 -> Prefer not to say
-  String get genderLabel {
-    switch (gender) {
-      case 0:
-        return 'Male';
-      case 1:
-        return 'Female';
-      case 2:
-        return 'Prefer not to say';
-      default:
-        return '';
-    }
-  }
-
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
     return ProfileModel(
       userId: json['userId'] as String?,

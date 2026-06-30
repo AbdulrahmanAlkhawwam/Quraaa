@@ -3,6 +3,11 @@ class LocalizationConstants {
 
   static const String translationsPath = 'assets/translations';
   static const String appNameKey = 'app.name';
+  static const String commonOkKey = 'common.ok';
+  static const String commonCancelKey = 'common.cancel';
+  static const String commonRetryKey = 'common.retry';
+  static const String commonSaveKey = 'common.save';
+  static const String commonCloseKey = 'common.close';
   static const String authStartKey = 'auth.screen.start';
   static const String authAlreadyHaveAccountKey = 'auth.screen.already_have_account';
   static const String authCreateNewAccountKey = 'auth.screen.create_new_account';
@@ -38,8 +43,8 @@ class LocalizationConstants {
       'auth.last_name.validation.max_length';
   static const String authPhoneRequiredErrorKey =
       'auth.phone.validation.required';
-  static const String authPhoneFormatErrorKey =
-      'auth.phone.validation.format';
+  static const String authPhoneFormatErrorKey = 'auth.phone.validation.format';
+  static const String authPhoneValidErrorKey = 'auth.phone.validation.valid';
   static const String authDateOfBirthRequiredErrorKey =
       'auth.date_of_birth.validation.required';
   static const String authDateOfBirthInvalidErrorKey =
@@ -52,6 +57,13 @@ class LocalizationConstants {
       'auth.interests.validation.invalid';
   static const String authNextKey = 'auth.action.next';
   static const String authContinueAsGuestKey = 'auth.action.continue_as_guest';
+  static const String authOtpNumberIsWrongKey = 'auth.otp.number_is_wrong';
+  static const String authOtpResendCountdownKey = 'auth.otp.resend_countdown';
+  static const String authLocationDescriptionKey = 'auth.location.description';
+  static const String authLocationOnlyWhenUseAppKey =
+      'auth.location.only_when_use_app';
+  static const String authNotificationDescriptionKey =
+      'auth.notification.description';
   static const String onboardingGenderTitleKey = 'onboarding.gender.title';
   static const String onboardingBoyKey = 'onboarding.gender.boy';
   static const String onboardingGirlKey = 'onboarding.gender.girl';
@@ -61,27 +73,49 @@ class LocalizationConstants {
   static const String onboardingAgeYearKey = 'onboarding.age.year';
   static const String onboardingAgeMonthKey = 'onboarding.age.month';
   static const String onboardingAgeDayKey = 'onboarding.age.day';
-  static const String onboardingAgeRequiredKey = 'onboarding.age.validation.required';
-  static const String onboardingAgeYearRangeKey = 'onboarding.age.validation.year_range';
-  static const String onboardingAgeMonthRangeKey = 'onboarding.age.validation.month_range';
-  static const String onboardingAgeDayRangeKey = 'onboarding.age.validation.day_range';
-  static const String onboardingAgeInvalidDateKey = 'onboarding.age.validation.invalid_date';
-  static const String onboardingInterestsTitleKey = 'onboarding.interests.title';
-  static const String onboardingInterestSpaceScienceKey = 'onboarding.interests.space_science';
-  static const String onboardingInterestGeographyKey = 'onboarding.interests.geography';
-  static const String onboardingInterestHistoryKey = 'onboarding.interests.history';
-  static const String onboardingInterestEncyclopediasKey = 'onboarding.interests.encyclopedias';
-  static const String onboardingInterestPatrolsKey = 'onboarding.interests.patrols';
-  static const String onboardingInterestCultureKey = 'onboarding.interests.culture';
-  static const String onboardingInterestScienceKey = 'onboarding.interests.science';
-  static const String onboardingInterestNovelsKey = 'onboarding.interests.novels';
-  static const String onboardingInterestPolicyKey = 'onboarding.interests.policy';
-  static const String onboardingInterestDictionaryKey = 'onboarding.interests.dictionary';
-  static const String onboardingInterestEducationKey = 'onboarding.interests.education';
-  static const String onboardingInterestTechnologyKey = 'onboarding.interests.technology';
+  static const String onboardingAgeRequiredKey =
+      'onboarding.age.validation.required';
+  static const String onboardingAgeYearRangeKey =
+      'onboarding.age.validation.year_range';
+  static const String onboardingAgeMonthRangeKey =
+      'onboarding.age.validation.month_range';
+  static const String onboardingAgeDayRangeKey =
+      'onboarding.age.validation.day_range';
+  static const String onboardingAgeInvalidDateKey =
+      'onboarding.age.validation.invalid_date';
+  static const String onboardingInterestsTitleKey =
+      'onboarding.interests.title';
+  static const String onboardingInterestsEmptyKey =
+      'onboarding.interests.empty';
+  static const String onboardingInterestSpaceScienceKey =
+      'onboarding.interests.space_science';
+  static const String onboardingInterestGeographyKey =
+      'onboarding.interests.geography';
+  static const String onboardingInterestHistoryKey =
+      'onboarding.interests.history';
+  static const String onboardingInterestEncyclopediasKey =
+      'onboarding.interests.encyclopedias';
+  static const String onboardingInterestPatrolsKey =
+      'onboarding.interests.patrols';
+  static const String onboardingInterestCultureKey =
+      'onboarding.interests.culture';
+  static const String onboardingInterestScienceKey =
+      'onboarding.interests.science';
+  static const String onboardingInterestNovelsKey =
+      'onboarding.interests.novels';
+  static const String onboardingInterestPolicyKey =
+      'onboarding.interests.policy';
+  static const String onboardingInterestDictionaryKey =
+      'onboarding.interests.dictionary';
+  static const String onboardingInterestEducationKey =
+      'onboarding.interests.education';
+  static const String onboardingInterestTechnologyKey =
+      'onboarding.interests.technology';
   static const String onboardingInterestArtKey = 'onboarding.interests.art';
-  static const String onboardingInterestLiteratureKey = 'onboarding.interests.literature';
-  static const String onboardingInterestOtherKey = 'onboarding.interests.other';
+  static const String onboardingInterestLiteratureKey =
+      'onboarding.interests.literature';
+  static const String onboardingInterestOtherKey =
+      'onboarding.interests.other';
   static const String userDataTitleKey = 'user_data.title';
   static const String userDataSubtitleKey = 'user_data.subtitle';
   static const String userDataEditKey = 'user_data.edit';
@@ -108,68 +142,160 @@ class LocalizationConstants {
   static const String userDataBirthDateKey = 'user_data.profile.birth_date';
   static const String userDataCountryKey = 'user_data.profile.country';
   static const String userDataPhoneKey = 'user_data.profile.phone';
+  static const String userDataGenderMaleKey = 'user_data.profile.gender.male';
+  static const String userDataGenderFemaleKey =
+      'user_data.profile.gender.female';
+  static const String userDataGenderPreferNotToSayKey =
+      'user_data.profile.gender.prefer_not_to_say';
   static const String userDataThemeKey = 'user_data.appearance.theme';
   static const String userDataLanguageKey = 'user_data.appearance.language';
-  static const String userDataEnglishLanguageKey = 'user_data.appearance.english';
-  static const String userDataArabicLanguageKey = 'user_data.appearance.arabic';
-  static const String userDataChangeLanguageKey = 'user_data.appearance.change_language';
+  static const String userDataEnglishLanguageKey =
+      'user_data.appearance.english';
+  static const String userDataArabicLanguageKey =
+      'user_data.appearance.arabic';
+  static const String userDataChangeLanguageKey =
+      'user_data.appearance.change_language';
   static const String userDataSavedItemsKey = 'user_data.bookmarks.saved_items';
   static const String userDataBudgetBalanceKey = 'user_data.budgets.balance';
   static const String userDataLibraryItemsKey = 'user_data.library.items';
   static const String userDataOperationsKey = 'user_data.history.operations';
-  static const String userDataEditProfileTitleKey = 'user_data.edit.profile.title';
-  static const String userDataEditAppearanceTitleKey = 'user_data.edit.appearance.title';
-  static const String userDataEditBookmarksTitleKey = 'user_data.edit.bookmarks.title';
-  static const String userDataEditBudgetsTitleKey = 'user_data.edit.budgets.title';
-  static const String userDataEditLibraryTitleKey = 'user_data.edit.library.title';
-  static const String userDataEditHistoryTitleKey = 'user_data.edit.history.title';
+  static const String userDataEditProfileTitleKey =
+      'user_data.edit.profile.title';
+  static const String userDataEditAppearanceTitleKey =
+      'user_data.edit.appearance.title';
+  static const String userDataEditBookmarksTitleKey =
+      'user_data.edit.bookmarks.title';
+  static const String userDataEditBudgetsTitleKey =
+      'user_data.edit.budgets.title';
+  static const String userDataEditLibraryTitleKey =
+      'user_data.edit.library.title';
+  static const String userDataEditHistoryTitleKey =
+      'user_data.edit.history.title';
   static const String userDataSaveChangesKey = 'user_data.edit.save_changes';
   static const String userDataCancelKey = 'user_data.edit.cancel';
-  static const String userDataEditMultilineHintKey = 'user_data.edit.multiline_hint';
+  static const String userDataEditMultilineHintKey =
+      'user_data.edit.multiline_hint';
+  static const String profileMenuPersonalInfoKey =
+      'profile.menu.my_personal_information';
+  static const String profileMenuLocationsKey = 'profile.menu.my_locations';
+  static const String profileMenuPaymentInfoKey =
+      'profile.menu.payment_information';
+  static const String profileMenuPersonalFilesKey =
+      'profile.menu.my_personal_files';
+  static const String profileMenuBadgesKey = 'profile.menu.my_badges';
+  static const String profileComingSoonTitleKey =
+      'profile.coming_soon.title';
+  static const String profileComingSoonMessageKey =
+      'profile.coming_soon.message';
+  static const String profileDialogNotDesignedContentKey =
+      'profile.dialog.not_designed.content';
+  static const String profileEditTitleKey = 'edit_profile.title';
+  static const String profileEditPersonalDataKey =
+      'edit_profile.personal_data';
+  static const String profileEditFullNameKey = 'edit_profile.full_name';
+  static const String profileEditGenderKey = 'edit_profile.gender';
+  static const String profileEditGenderMaleKey = 'edit_profile.gender_male';
+  static const String profileEditGenderFemaleKey =
+      'edit_profile.gender_female';
+  static const String profileEditBirthDateKey = 'edit_profile.birth_date';
+  static const String profileEditBirthDateHintKey =
+      'edit_profile.birth_date_hint';
+  static const String profileEditPhoneNumberKey =
+      'edit_profile.phone_number';
+  static const String profileEditCountryCodeKey = 'edit_profile.country_code';
+  static const String profileEditSaveComingSoonKey =
+      'edit_profile.save_coming_soon';
+  static const String avatarTabBackgroundKey = 'edit_profile.tabs.background';
+  static const String avatarTabHairKey = 'edit_profile.tabs.hair';
+  static const String avatarTabBeardKey = 'edit_profile.tabs.beard';
+  static const String avatarTabMustacheKey = 'edit_profile.tabs.mustache';
+  static const String avatarTabClothingKey = 'edit_profile.tabs.clothing';
+  static const String notificationContinueKey = 'notification.continue';
   static const String termsPrivacyTitleKey = 'terms_privacy.title';
-  static const String termsPrivacyLastUpdatedKey = 'terms_privacy.last_updated';
+  static const String termsPrivacyLastUpdatedKey =
+      'terms_privacy.last_updated';
   static const String termsPrivacyWelcomeKey = 'terms_privacy.welcome';
-  static const String termsPrivacyAcceptanceKey = 'terms_privacy.sections.acceptance.title';
-  static const String termsPrivacyAcceptanceDescKey = 'terms_privacy.sections.acceptance.desc';
-  static const String termsPrivacyEligibilityKey = 'terms_privacy.sections.eligibility.title';
-  static const String termsPrivacyEligibilityDescKey = 'terms_privacy.sections.eligibility.desc';
-  static const String termsPrivacyUserAccountKey = 'terms_privacy.sections.user_account.title';
-  static const String termsPrivacyUserAccountDescKey = 'terms_privacy.sections.user_account.desc';
-  static const String termsPrivacyUseOfPlatformKey = 'terms_privacy.sections.use_of_platform.title';
-  static const String termsPrivacyUseOfPlatformDescKey = 'terms_privacy.sections.use_of_platform.desc';
-  static const String termsPrivacyDigitalContentKey = 'terms_privacy.sections.digital_content.title';
-  static const String termsPrivacyDigitalContentDescKey = 'terms_privacy.sections.digital_content.desc';
-  static const String termsPrivacyMarketplaceKey = 'terms_privacy.sections.marketplace.title';
-  static const String termsPrivacyMarketplaceDescKey = 'terms_privacy.sections.marketplace.desc';
-  static const String termsPrivacyAuthorContentKey = 'terms_privacy.sections.author_content.title';
-  static const String termsPrivacyAuthorContentDescKey = 'terms_privacy.sections.author_content.desc';
-  static const String termsPrivacyAIFeaturesKey = 'terms_privacy.sections.ai_features.title';
-  static const String termsPrivacyAIFeaturesDescKey = 'terms_privacy.sections.ai_features.desc';
-  static const String termsPrivacyCommunityGuidelinesKey = 'terms_privacy.sections.community_guidelines.title';
-  static const String termsPrivacyCommunityGuidelinesDescKey = 'terms_privacy.sections.community_guidelines.desc';
-  static const String termsPrivacyPaymentsKey = 'terms_privacy.sections.payments.title';
-  static const String termsPrivacyPaymentsDescKey = 'terms_privacy.sections.payments.desc';
-  static const String termsPrivacySubscriptionsKey = 'terms_privacy.sections.subscriptions.title';
-  static const String termsPrivacySubscriptionsDescKey = 'terms_privacy.sections.subscriptions.desc';
-  static const String termsPrivacyRefundPolicyKey = 'terms_privacy.sections.refund_policy.title';
-  static const String termsPrivacyRefundPolicyDescKey = 'terms_privacy.sections.refund_policy.desc';
-  static const String termsPrivacyPrivacyKey = 'terms_privacy.sections.privacy.title';
-  static const String termsPrivacyPrivacyDescKey = 'terms_privacy.sections.privacy.desc';
-  static const String termsPrivacyIntellectualPropertyKey = 'terms_privacy.sections.intellectual_property.title';
-  static const String termsPrivacyIntellectualPropertyDescKey = 'terms_privacy.sections.intellectual_property.desc';
-  static const String termsPrivacyServiceAvailabilityKey = 'terms_privacy.sections.service_availability.title';
-  static const String termsPrivacyServiceAvailabilityDescKey = 'terms_privacy.sections.service_availability.desc';
-  static const String termsPrivacyAccountSuspensionKey = 'terms_privacy.sections.account_suspension.title';
-  static const String termsPrivacyAccountSuspensionDescKey = 'terms_privacy.sections.account_suspension.desc';
-  static const String termsPrivacyLimitationOfLiabilityKey = 'terms_privacy.sections.limitation_of_liability.title';
-  static const String termsPrivacyLimitationOfLiabilityDescKey = 'terms_privacy.sections.limitation_of_liability.desc';
-  static const String termsPrivacyChangesToTermsKey = 'terms_privacy.sections.changes_to_terms.title';
-  static const String termsPrivacyChangesToTermsDescKey = 'terms_privacy.sections.changes_to_terms.desc';
-  static const String termsPrivacyContactUsKey = 'terms_privacy.sections.contact_us.title';
-  static const String termsPrivacyContactUsDescKey = 'terms_privacy.sections.contact_us.desc';
+  static const String termsPrivacyAcceptanceKey =
+      'terms_privacy.sections.acceptance.title';
+  static const String termsPrivacyAcceptanceDescKey =
+      'terms_privacy.sections.acceptance.desc';
+  static const String termsPrivacyEligibilityKey =
+      'terms_privacy.sections.eligibility.title';
+  static const String termsPrivacyEligibilityDescKey =
+      'terms_privacy.sections.eligibility.desc';
+  static const String termsPrivacyUserAccountKey =
+      'terms_privacy.sections.user_account.title';
+  static const String termsPrivacyUserAccountDescKey =
+      'terms_privacy.sections.user_account.desc';
+  static const String termsPrivacyUseOfPlatformKey =
+      'terms_privacy.sections.use_of_platform.title';
+  static const String termsPrivacyUseOfPlatformDescKey =
+      'terms_privacy.sections.use_of_platform.desc';
+  static const String termsPrivacyDigitalContentKey =
+      'terms_privacy.sections.digital_content.title';
+  static const String termsPrivacyDigitalContentDescKey =
+      'terms_privacy.sections.digital_content.desc';
+  static const String termsPrivacyMarketplaceKey =
+      'terms_privacy.sections.marketplace.title';
+  static const String termsPrivacyMarketplaceDescKey =
+      'terms_privacy.sections.marketplace.desc';
+  static const String termsPrivacyAuthorContentKey =
+      'terms_privacy.sections.author_content.title';
+  static const String termsPrivacyAuthorContentDescKey =
+      'terms_privacy.sections.author_content.desc';
+  static const String termsPrivacyAIFeaturesKey =
+      'terms_privacy.sections.ai_features.title';
+  static const String termsPrivacyAIFeaturesDescKey =
+      'terms_privacy.sections.ai_features.desc';
+  static const String termsPrivacyCommunityGuidelinesKey =
+      'terms_privacy.sections.community_guidelines.title';
+  static const String termsPrivacyCommunityGuidelinesDescKey =
+      'terms_privacy.sections.community_guidelines.desc';
+  static const String termsPrivacyPaymentsKey =
+      'terms_privacy.sections.payments.title';
+  static const String termsPrivacyPaymentsDescKey =
+      'terms_privacy.sections.payments.desc';
+  static const String termsPrivacySubscriptionsKey =
+      'terms_privacy.sections.subscriptions.title';
+  static const String termsPrivacySubscriptionsDescKey =
+      'terms_privacy.sections.subscriptions.desc';
+  static const String termsPrivacyRefundPolicyKey =
+      'terms_privacy.sections.refund_policy.title';
+  static const String termsPrivacyRefundPolicyDescKey =
+      'terms_privacy.sections.refund_policy.desc';
+  static const String termsPrivacyPrivacyKey =
+      'terms_privacy.sections.privacy.title';
+  static const String termsPrivacyPrivacyDescKey =
+      'terms_privacy.sections.privacy.desc';
+  static const String termsPrivacyIntellectualPropertyKey =
+      'terms_privacy.sections.intellectual_property.title';
+  static const String termsPrivacyIntellectualPropertyDescKey =
+      'terms_privacy.sections.intellectual_property.desc';
+  static const String termsPrivacyServiceAvailabilityKey =
+      'terms_privacy.sections.service_availability.title';
+  static const String termsPrivacyServiceAvailabilityDescKey =
+      'terms_privacy.sections.service_availability.desc';
+  static const String termsPrivacyAccountSuspensionKey =
+      'terms_privacy.sections.account_suspension.title';
+  static const String termsPrivacyAccountSuspensionDescKey =
+      'terms_privacy.sections.account_suspension.desc';
+  static const String termsPrivacyLimitationOfLiabilityKey =
+      'terms_privacy.sections.limitation_of_liability.title';
+  static const String termsPrivacyLimitationOfLiabilityDescKey =
+      'terms_privacy.sections.limitation_of_liability.desc';
+  static const String termsPrivacyChangesToTermsKey =
+      'terms_privacy.sections.changes_to_terms.title';
+  static const String termsPrivacyChangesToTermsDescKey =
+      'terms_privacy.sections.changes_to_terms.desc';
+  static const String termsPrivacyContactUsKey =
+      'terms_privacy.sections.contact_us.title';
+  static const String termsPrivacyContactUsDescKey =
+      'terms_privacy.sections.contact_us.desc';
   static const String termsPrivacyAgreeKey = 'terms_privacy.action.agree';
-  static const String termsPrivacyContinueTextPart1Key = 'terms_privacy.footer.continue_part1';
-  static const String termsPrivacyContinueTextPart2Key = 'terms_privacy.footer.continue_part2';
+  static const String termsPrivacyContinueTextPart1Key =
+      'terms_privacy.footer.continue_part1';
+  static const String termsPrivacyContinueTextPart2Key =
+      'terms_privacy.footer.continue_part2';
 
   static const String retryKey = 'common.retry';
   static const String explorerTitleKey = 'explorer.title';
@@ -207,4 +333,21 @@ class LocalizationConstants {
   static const String pdfReaderHighlightedKey = 'pdf_reader.highlighted';
   static const String pdfReaderSelectionUnavailableKey =
       'pdf_reader.selection_unavailable';
+  // Auth OTP / Permissions (additional keys)
+  static const String authOtpTitleKey = 'auth.otp.title';
+  static const String authOtpDescriptionKey = 'auth.otp.description';
+  static const String authOtpResendKey = 'auth.otp.resend';
+  static const String authLocationTitleKey = 'auth.location.title';
+  static const String authLocationAlwaysKey = 'auth.location.always';
+  static const String authLocationMaybeLaterKey = 'auth.location.maybe_later';
+  static const String authNotificationTitleKey = 'auth.notification.title';
+  static const String authNotificationTakePermissionKey =
+      'auth.notification.take_permission';
+  static const String authNotificationMaybeLaterKey =
+      'auth.notification.maybe_later';
+
+  // Profile dialog
+  static const String profileDialogNotDesignedTitleKey =
+      'profile.dialog.not_designed.title';
+
 }

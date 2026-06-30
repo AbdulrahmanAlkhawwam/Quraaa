@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
+import '../theme/app_radius.dart';
 import '../theme/app_spacing.dart';
 
+/// Dotted progress indicator used during onboarding.
+///
+/// [activeIndex] is 1-based. Pass [activeIndex] = 1 to highlight the first dot.
 class OnboardingProgressIndicator extends StatelessWidget {
   const OnboardingProgressIndicator({
     super.key,
@@ -31,6 +35,7 @@ class OnboardingProgressIndicator extends StatelessWidget {
           height: AppDimensions.onboardingDotSize,
           decoration: BoxDecoration(
             color: active ? AppColors.primary600 : AppColors.primary100,
+            borderRadius: BorderRadius.circular(AppRadius.radius40),
           ),
         );
       }),

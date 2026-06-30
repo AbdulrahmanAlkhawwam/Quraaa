@@ -1,10 +1,12 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
+import '../../../shared/theme/app_colors.dart';
+
 /// Immutable state for the Edit Profile screen.
-@immutable
-class EditProfileState {
+class EditProfileState extends Equatable {
   const EditProfileState({
-    this.selectedBackgroundColor = const Color(0xFFDCE9D4),
+    this.selectedBackgroundColor = AppColors.editProfileBackground,
     this.selectedTab = 0,
     this.name = 'Abdulrahman Alkhawwam',
     this.gender = 'Male',
@@ -37,4 +39,14 @@ class EditProfileState {
       phoneNumber: phoneNumber ?? this.phoneNumber,
     );
   }
+
+  @override
+  List<Object?> get props => <Object?>[
+        selectedBackgroundColor,
+        selectedTab,
+        name,
+        gender,
+        birthDate,
+        phoneNumber,
+      ];
 }

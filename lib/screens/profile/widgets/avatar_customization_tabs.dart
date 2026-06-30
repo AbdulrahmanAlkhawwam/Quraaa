@@ -1,7 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import '../../../shared/theme/styles/text_styles.dart';
+import '../../../core/localization/localization_constants.dart';
+import '../../../shared/shared.dart';
 
 /// Customization panel that lets the user pick which avatar feature to edit.
 class AvatarCustomizationTabs extends StatelessWidget {
@@ -14,71 +16,90 @@ class AvatarCustomizationTabs extends StatelessWidget {
   final int selectedTab;
   final ValueChanged<int> onTabSelected;
 
-  static const double _height = 90;
-  static const double _radius = 18;
-  static const double _selectedRadius = 12;
-
   static const List<_TabConfig> _tabs = <_TabConfig>[
-    _TabConfig(label: 'Background', icon: HugeIcons.strokeRoundedPaintBrush02),
-    _TabConfig(label: 'Hair', icon: HugeIcons.strokeRoundedUser),
-    _TabConfig(label: 'Beard', icon: HugeIcons.strokeRoundedUserAccount),
-    _TabConfig(label: 'Mustache', icon: HugeIcons.strokeRoundedUser),
-    _TabConfig(label: 'Clothing', icon: HugeIcons.strokeRoundedShirt01),
+    _TabConfig(
+      labelKey: LocalizationConstants.avatarTabBackgroundKey,
+      icon: HugeIcons.strokeRoundedPaintBrush02,
+    ),
+    _TabConfig(
+      labelKey: LocalizationConstants.avatarTabHairKey,
+      icon: HugeIcons.strokeRoundedUser,
+    ),
+    _TabConfig(
+      labelKey: LocalizationConstants.avatarTabBeardKey,
+      icon: HugeIcons.strokeRoundedUserAccount,
+    ),
+    _TabConfig(
+      labelKey: LocalizationConstants.avatarTabMustacheKey,
+      icon: HugeIcons.strokeRoundedUser,
+    ),
+    _TabConfig(
+      labelKey: LocalizationConstants.avatarTabClothingKey,
+      icon: HugeIcons.strokeRoundedShirt01,
+    ),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: _height,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      height: AppDimensions.profileFieldHeight + AppSpacing.spacing26,
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.spacing8,
+        vertical: AppSpacing.spacing10,
+      ),
       decoration: BoxDecoration(
-        color: const Color(0xFFF4F6F1),
-        borderRadius: BorderRadius.circular(_radius),
+        color: AppColors.avatarTabBackground,
+        borderRadius: BorderRadius.circular(AppRadius.radius18),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: List<Widget>.generate(
           _tabs.length,
-          (int index) => _buildTab(index),
+          (int index) => _buildTab(context, index),
         ),
       ),
     );
   }
 
-  Widget _buildTab(int index) {
+  Widget _buildTab(BuildContext context, int index) {
     final _TabConfig tab = _tabs[index];
     final bool isSelected = index == selectedTab;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeInOut,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.spacing10,
+        vertical: AppSpacing.spacing8,
+      ),
       decoration: BoxDecoration(
-        color: isSelected ? const Color(0xFFE8F2DE) : Colors.transparent,
-        borderRadius: BorderRadius.circular(_selectedRadius),
+        color: isSelected
+            ? AppColors.avatarTabSelected
+            : Colors.transparent,
+        borderRadius: BorderRadius.circular(AppRadius.radius12),
       ),
       child: InkWell(
         onTap: () => onTabSelected(index),
-        borderRadius: BorderRadius.circular(_selectedRadius),
+        borderRadius: BorderRadius.circular(AppRadius.radius12),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             HugeIcon(
               icon: tab.icon,
               color: isSelected
-                  ? const Color(0xFF2D3A27)
-                  : const Color(0xFF8A9A84),
+                  ? AppColors.editProfileSectionTitle
+                  : AppColors.editProfileHint,
               size: 24,
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: AppSpacing.spacing6),
             Text(
-              tab.label,
+              tab.labelKey.tr(),
               style: AppTextStyles.bodySmall.copyWith(
                 fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
                 color: isSelected
-                    ? const Color(0xFF2D3A27)
-                    : const Color(0xFF8A9A84),
+                    ? AppColors.editProfileSectionTitle
+                    : AppColors.editProfileHint,
               ),
             ),
           ],
@@ -89,11 +110,8 @@ class AvatarCustomizationTabs extends StatelessWidget {
 }
 
 class _TabConfig {
-  const _TabConfig({
-    required this.label,
-    required this.icon,
-  });
+  const _TabConfig({required this.labelKey, required this.icon});
 
-  final String label;
+  final String labelKey;
   final List<List<dynamic>> icon;
 }

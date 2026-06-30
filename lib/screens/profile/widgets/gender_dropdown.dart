@@ -1,6 +1,12 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../../../core/localization/localization_constants.dart';
+import '../../../shared/theme/app_colors.dart';
+import '../../../shared/theme/app_dimensions.dart';
+import '../../../shared/theme/app_radius.dart';
+import '../../../shared/theme/app_spacing.dart';
 import '../../../shared/theme/styles/text_styles.dart';
 
 /// Dropdown field for gender that matches the rounded outlined style of
@@ -15,56 +21,38 @@ class GenderDropdown extends StatelessWidget {
   final String value;
   final ValueChanged<String> onChanged;
 
-  static const double _height = 64;
-  static const double _radius = 16;
   static const double _borderWidth = 1.2;
 
-  static const List<String> _options = <String>[
-    'Male',
-    'Female',
+  static final List<String> _optionKeys = <String>[
+    LocalizationConstants.profileEditGenderMaleKey,
+    LocalizationConstants.profileEditGenderFemaleKey,
   ];
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: _height,
+      height: AppDimensions.profileFieldHeight,
       child: InputDecorator(
         decoration: InputDecoration(
-          labelText: 'Gender',
+          labelText: LocalizationConstants.profileEditGenderKey.tr(),
           floatingLabelBehavior: FloatingLabelBehavior.auto,
           labelStyle: AppTextStyles.bodySmall.copyWith(
-            color: const Color(0xFF8A9A84),
+            color: AppColors.editProfileHint,
           ),
           filled: true,
-          fillColor: Colors.white,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(_radius),
-            borderSide: const BorderSide(
-              color: Color(0xFFBED6AE),
-              width: _borderWidth,
-            ),
+          fillColor: AppColors.card,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.spacing18,
+            vertical: AppSpacing.spacing18,
           ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(_radius),
-            borderSide: const BorderSide(
-              color: Color(0xFFBED6AE),
-              width: _borderWidth,
-            ),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(_radius),
-            borderSide: const BorderSide(
-              color: Color(0xFF243B18),
-              width: _borderWidth,
-            ),
-          ),
+          border: _outlineBorder(AppColors.editProfileBorder),
+          enabledBorder: _outlineBorder(AppColors.editProfileBorder),
+          focusedBorder: _outlineBorder(AppColors.editProfileTitle),
           suffixIcon: Padding(
-            padding: const EdgeInsets.only(right: 12),
+            padding: const EdgeInsets.only(right: AppSpacing.spacing12),
             child: HugeIcon(
               icon: HugeIcons.strokeRoundedArrowDown01,
-              color: const Color(0xFF243B18),
+              color: AppColors.editProfileTitle,
               size: 20,
             ),
           ),
@@ -78,14 +66,15 @@ class GenderDropdown extends StatelessWidget {
             value: value,
             isExpanded: true,
             icon: const SizedBox.shrink(),
-            dropdownColor: Colors.white,
+            dropdownColor: AppColors.card,
             style: AppTextStyles.bodyMedium.copyWith(
-              color: const Color(0xFF243B18),
+              color: AppColors.editProfileTitle,
             ),
-            items: _options.map((String option) {
+            items: _optionKeys.map((String key) {
+              final String label = key.tr();
               return DropdownMenuItem<String>(
-                value: option,
-                child: Text(option),
+                value: label,
+                child: Text(label),
               );
             }).toList(),
             onChanged: (String? newValue) {
@@ -95,6 +84,16 @@ class GenderDropdown extends StatelessWidget {
             },
           ),
         ),
+      ),
+    );
+  }
+
+  OutlineInputBorder _outlineBorder(Color color) {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppRadius.radius16),
+      borderSide: BorderSide(
+        color: color,
+        width: _borderWidth,
       ),
     );
   }

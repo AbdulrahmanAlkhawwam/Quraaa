@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../bloc/edit_profile_bloc.dart';
+import '../../../shared/theme/app_colors.dart';
+import '../../../shared/theme/app_dimensions.dart';
+import '../../../shared/theme/app_radius.dart';
+import '../../../shared/theme/app_spacing.dart';
 
 /// Two-row color palette for selecting the avatar background color.
 class ColorPalette extends StatelessWidget {
@@ -13,15 +16,13 @@ class ColorPalette extends StatelessWidget {
   final Color selectedColor;
   final ValueChanged<Color> onColorSelected;
 
-  static const double _colorSize = 44;
-  static const double _colorRadius = 10;
-  static const double _horizontalSpacing = 16;
-  static const double _verticalSpacing = 14;
+  static const double _horizontalSpacing = AppSpacing.spacing16;
+  static const double _verticalSpacing = AppSpacing.spacing14;
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: editProfileColorPalette.map((List<Color> row) {
+      children: AppColors.avatarBackgroundPalette.map((List<Color> row) {
         return Padding(
           padding: const EdgeInsets.only(bottom: _verticalSpacing),
           child: SingleChildScrollView(
@@ -72,14 +73,14 @@ class _ColorSwatch extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeInOut,
-      width: ColorPalette._colorSize,
-      height: ColorPalette._colorSize,
+      width: AppDimensions.profileSwatchSize,
+      height: AppDimensions.profileSwatchSize,
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(ColorPalette._colorRadius),
+        borderRadius: BorderRadius.circular(AppRadius.radius10),
         border: isSelected
             ? Border.all(
-                color: const Color(0xFF243B18),
+                color: AppColors.editProfileTitle,
                 width: 2.5,
               )
             : null,
@@ -88,7 +89,7 @@ class _ColorSwatch extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(ColorPalette._colorRadius),
+          borderRadius: BorderRadius.circular(AppRadius.radius10),
         ),
       ),
     );

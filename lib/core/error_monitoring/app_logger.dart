@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:developer' as developer;
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 
 import '../../config/env/env.dart';
 import 'crashlytics_service.dart';
@@ -87,16 +86,12 @@ typedef LoggerService = AppLogger;
 
 class AppLoggerImpl implements AppLogger {
   AppLoggerImpl({
-    required CrashlyticsService crashlyticsService,
-    required TelegramNotificationService telegramNotificationService,
-    required NavigationTracker navigationTracker,
-    required UserContextProvider userContextProvider,
-    required DeviceInfoProvider deviceInfoProvider,
-  })  : _crashlyticsService = crashlyticsService,
-        _telegramNotificationService = telegramNotificationService,
-        _navigationTracker = navigationTracker,
-        _userContextProvider = userContextProvider,
-        _deviceInfoProvider = deviceInfoProvider;
+    required this._crashlyticsService,
+    required this._telegramNotificationService,
+    required this._navigationTracker,
+    required this._userContextProvider,
+    required this._deviceInfoProvider,
+  });
 
   final CrashlyticsService _crashlyticsService;
   final TelegramNotificationService _telegramNotificationService;

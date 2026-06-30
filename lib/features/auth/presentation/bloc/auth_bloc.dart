@@ -12,17 +12,12 @@ import 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc({
-    required LoginUseCase loginUseCase,
-    required RegisterUseCase registerUseCase,
-    required AuthLocalDataSource authJourney,
-    required UserLocalDataSource userCache,
-    required UserContextProvider userContext,
-  }) : _loginUseCase = loginUseCase,
-       _registerUseCase = registerUseCase,
-       _authJourney = authJourney,
-       _userCache = userCache,
-       _userContext = userContext,
-       super(const AuthInitial()) {
+    required this._loginUseCase,
+    required this._registerUseCase,
+    required this._authJourney,
+    required this._userCache,
+    required this._userContext,
+  }) : super(const AuthInitial()) {
     on<AuthLoginRequested>(_onLoginRequested);
     on<AuthRegisterRequested>(_onRegisterRequested);
   }

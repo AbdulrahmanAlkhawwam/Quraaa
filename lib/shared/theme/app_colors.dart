@@ -33,6 +33,38 @@ abstract class AppColors {
   static const Color woodBrown = Color(0xFF6A4B2A);
   static const Color bookPaper = Color(0xFFF4F5F1);
 
+  // Edit Profile / Avatar
+  static const Color editProfileBackground = Color(0xFFF7F7F5);
+  static const Color editProfileTitle = Color(0xFF243B18);
+  static const Color editProfileSectionTitle = Color(0xFF2D3A27);
+  static const Color editProfileHint = Color(0xFF8A9A84);
+  static const Color editProfileBorder = Color(0xFFBED6AE);
+  static const Color avatarTabBackground = Color(0xFFF4F6F1);
+  static const Color avatarTabSelected = Color(0xFFE8F2DE);
+  static const Color avatarDefaultBackground = Color(0xFFDCE9D4);
+
+  /// Two-row palette used for the avatar background selector.
+  static const List<List<Color>> avatarBackgroundPalette = <List<Color>>[
+    <Color>[
+      Color(0xFFEF8E8F),
+      Color(0xFFF0A486),
+      Color(0xFFEDAF86),
+      Color(0xFFEDBA84),
+      Color(0xFFEBD577),
+      Color(0xFF8FD19E),
+      Color(0xFF79CAC5),
+    ],
+    <Color>[
+      Color(0xFF74C7CF),
+      Color(0xFF74C4DD),
+      Color(0xFF73A9DD),
+      Color(0xFF9A95DD),
+      Color(0xFFC584D7),
+      Color(0xFFC9B4A2),
+      Color(0xFFB5A79A),
+    ],
+  ];
+
   // Backward compatibility mappings
   static const Color primary = primary600;
   static const Color secondary = forestGreen;
