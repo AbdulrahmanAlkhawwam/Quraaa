@@ -9,7 +9,7 @@ import '../../core/di/injection_container.dart';
 import '../../core/error_monitoring/user_context_provider.dart';
 import '../../core/localization/localization_constants.dart';
 import '../../core/services/storage_service.dart';
-import '../../features/auth/data/datasources/local/auth_journey_local_data_source.dart';
+import '../../features/auth/data/datasources/auth_local_datasource.dart';
 import '../../features/account/data/user_data_local_data_source.dart';
 import '../shared.dart';
 
@@ -56,7 +56,7 @@ class _AppShellState extends State<AppShell> {
   }
 
   Future<void> _logout() async {
-    await sl<AuthJourneyLocalDataSource>().clearSession();
+    await sl<AuthLocalDataSource>().clearSession();
     await sl<UserContextProvider>().clearUser();
     if (!mounted) {
       return;

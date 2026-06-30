@@ -1,7 +1,7 @@
+import 'package:client_information/client_information.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../config/env/env.dart';
 import '../error_monitoring/app_logger.dart';
@@ -17,7 +17,7 @@ class AppDiagnosticsService {
     }
 
     try {
-      final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+      final ClientInformation clientInfo = await ClientInformation.fetch();
       final List<ConnectivityResult> transports =
           await Connectivity().checkConnectivity();
       final bool hasInternetAccess =
@@ -25,15 +25,15 @@ class AppDiagnosticsService {
       final String? latestVersion = Env.latestVersion;
       final bool hasNewVersion =
           latestVersion != null &&
-              _isVersionOlder(packageInfo.version, latestVersion);
+          _isVersionOlder(clientInfo.applicationVersion, latestVersion);
 
       _logger.info(
         'Startup snapshot',
         source: 'AppDiagnosticsService',
         data: <String, Object?>{
-          'app': packageInfo.appName,
-          'version': packageInfo.version,
-          'buildNumber': packageInfo.buildNumber,
+          'app': clientInfo.applicationName,
+          'version': clientInfo.applicationVersion,
+          'buildNumber': clientInfo.applicationBuildCode,
           'baseUrl': Env.apiBaseUrl,
           'networkTransports': transports
               .map((ConnectivityResult result) => result.name)

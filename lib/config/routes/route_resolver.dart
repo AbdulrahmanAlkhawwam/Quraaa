@@ -1,14 +1,14 @@
 import '../../core/di/injection_container.dart';
-import '../../features/auth/data/datasources/local/auth_journey_local_data_source.dart'
-    show AuthJourneyLocalDataSource, AuthJourneyStage, AuthSessionMode;
+import '../../features/auth/data/datasources/auth_local_datasource.dart'
+    show AuthLocalDataSource, AuthJourneyStage, AuthSessionMode;
 import '../../features/onboarding/domain/entities/onboarding_draft.dart';
 import '../../features/onboarding/domain/repositories/onboarding_repository.dart';
 import 'route_names.dart';
 
 Future<String> resolveStartupRoute() async {
   final OnboardingRepository onboardingRepository = sl<OnboardingRepository>();
-  final AuthJourneyLocalDataSource authJourney =
-      sl<AuthJourneyLocalDataSource>();
+  final AuthLocalDataSource authJourney =
+      sl<AuthLocalDataSource>();
 
   final OnboardingDraft onboardingDraft = await onboardingRepository.loadState();
   final AuthSessionMode? sessionMode = await authJourney.getSessionMode();

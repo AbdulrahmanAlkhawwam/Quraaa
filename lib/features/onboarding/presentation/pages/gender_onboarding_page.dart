@@ -11,7 +11,7 @@ import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import '../../../../shared/widgets/onboarding_progress_indicator.dart';
-import '../../../auth/data/datasources/local/auth_journey_local_data_source.dart';
+import '../../../auth/data/datasources/auth_local_datasource.dart';
 import '../../domain/entities/gender_selection.dart';
 import '../bloc/onboarding_bloc.dart';
 
@@ -23,8 +23,8 @@ class GenderOnboardingPage extends StatefulWidget {
 }
 
 class _GenderOnboardingPageState extends State<GenderOnboardingPage> {
-  final AuthJourneyLocalDataSource _authJourney =
-      sl<AuthJourneyLocalDataSource>();
+  final AuthLocalDataSource _authJourney =
+      sl<AuthLocalDataSource>();
 
   @override
   void initState() {
@@ -89,7 +89,7 @@ class _GenderOnboardingView extends StatelessWidget {
                     leading: IconButton(
                       onPressed: () {
                         unawaited(
-                          sl<AuthJourneyLocalDataSource>().saveJourneyStage(
+                          sl<AuthLocalDataSource>().saveJourneyStage(
                             AuthJourneyStage.auth,
                             previousStage: AuthJourneyStage.onboarding,
                           ),
@@ -109,7 +109,7 @@ class _GenderOnboardingView extends StatelessWidget {
                         child: TextButton(
                           onPressed: () {
                             unawaited(
-                              sl<AuthJourneyLocalDataSource>().saveJourneyStage(
+                              sl<AuthLocalDataSource>().saveJourneyStage(
                                 AuthJourneyStage.register,
                                 previousStage: AuthJourneyStage.onboarding,
                               ),

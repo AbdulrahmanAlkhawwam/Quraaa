@@ -1,7 +1,7 @@
-import 'package:device_info_plus/device_info_plus.dart';
+import 'package:client_information/client_information.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:package_info_plus/package_info_plus.dart';
+import 'package:flutter_device_info_plus/flutter_device_info_plus.dart';
 
 class DeviceInfoProvider {
   DeviceInfoProvider();
@@ -27,67 +27,97 @@ class DeviceInfoProvider {
   }
 
   Future<DeviceSnapshot> _loadSnapshot() async {
-    final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    final ClientInformation clientInfo = await ClientInformation.fetch();
     final Locale locale = WidgetsBinding.instance.platformDispatcher.locale;
-    final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    final deviceInfo = FlutterDeviceInfoPlus();
+    final deviceData = await deviceInfo.getDeviceInfo();
 
     if (kIsWeb) {
-      final WebBrowserInfo browserInfo = await deviceInfo.webBrowserInfo;
       return DeviceSnapshot(
         platform: 'web',
-        deviceModel: browserInfo.browserName.toString(),
-        manufacturer: browserInfo.vendor ?? 'web',
-        osVersion: browserInfo.userAgent ?? 'unknown',
+        deviceModel: deviceData.model?.isNotEmpty == true
+            ? deviceData.model!
+            : (deviceData.deviceName.isNotEmpty
+                ? deviceData.deviceName
+                : (clientInfo.softwareName.isNotEmpty
+                    ? clientInfo.softwareName
+                    : 'web')),
+        manufacturer: deviceData.brand?.isNotEmpty == true
+            ? deviceData.brand!
+            : (clientInfo.softwareName.isNotEmpty
+                ? clientInfo.softwareName
+                : 'web'),
+        osVersion: deviceData.systemVersion.isNotEmpty
+            ? deviceData.systemVersion
+            : (clientInfo.osVersion.isNotEmpty
+                ? '${clientInfo.osName} ${clientInfo.osVersion}'
+                : 'unknown'),
         locale: locale.toLanguageTag(),
-        appVersion: packageInfo.version,
-        buildNumber: packageInfo.buildNumber,
-        appName: packageInfo.appName,
-        environment: packageInfo.packageName,
+        appVersion: clientInfo.applicationVersion,
+        buildNumber: clientInfo.applicationBuildCode,
+        appName: clientInfo.applicationName,
+        environment: clientInfo.applicationId ?? 'web',
       );
     }
 
     if (defaultTargetPlatform == TargetPlatform.android) {
-      final AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
       return DeviceSnapshot(
         platform: 'android',
-        deviceModel: androidInfo.model,
-        manufacturer: androidInfo.manufacturer.isNotEmpty
-            ? androidInfo.manufacturer
-            : androidInfo.brand,
-        osVersion: androidInfo.version.release,
+        deviceModel: deviceData.model?.isNotEmpty == true
+            ? deviceData.model!
+            : deviceData.deviceName,
+        manufacturer: deviceData.brand?.isNotEmpty == true
+            ? deviceData.brand!
+            : 'unknown',
+        osVersion: deviceData.systemVersion.isNotEmpty
+            ? deviceData.systemVersion
+            : (clientInfo.osVersion.isNotEmpty
+                ? clientInfo.osVersion
+                : 'unknown'),
         locale: locale.toLanguageTag(),
-        appVersion: packageInfo.version,
-        buildNumber: packageInfo.buildNumber,
-        appName: packageInfo.appName,
-        environment: packageInfo.packageName,
+        appVersion: clientInfo.applicationVersion,
+        buildNumber: clientInfo.applicationBuildCode,
+        appName: clientInfo.applicationName,
+        environment: clientInfo.applicationId ?? 'unknown',
       );
     }
 
     if (defaultTargetPlatform == TargetPlatform.iOS) {
-      final IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
       return DeviceSnapshot(
         platform: 'ios',
-        deviceModel: iosInfo.model,
+        deviceModel: deviceData.model?.isNotEmpty == true
+            ? deviceData.model!
+            : deviceData.deviceName,
         manufacturer: 'Apple',
-        osVersion: iosInfo.systemVersion,
+        osVersion: deviceData.systemVersion.isNotEmpty
+            ? deviceData.systemVersion
+            : (clientInfo.osVersion.isNotEmpty
+                ? clientInfo.osVersion
+                : 'unknown'),
         locale: locale.toLanguageTag(),
-        appVersion: packageInfo.version,
-        buildNumber: packageInfo.buildNumber,
-        appName: packageInfo.appName,
-        environment: packageInfo.packageName,
+        appVersion: clientInfo.applicationVersion,
+        buildNumber: clientInfo.applicationBuildCode,
+        appName: clientInfo.applicationName,
+        environment: clientInfo.applicationId ?? 'unknown',
       );
     }
 
     return DeviceSnapshot(
       platform: defaultTargetPlatform.name,
-      deviceModel: defaultTargetPlatform.name,
-      manufacturer: defaultTargetPlatform.name,
-      osVersion: 'unknown',
+      deviceModel: deviceData.model?.isNotEmpty == true
+          ? deviceData.model!
+          : deviceData.deviceName,
+      manufacturer: deviceData.brand?.isNotEmpty == true
+          ? deviceData.brand!
+          : defaultTargetPlatform.name,
+      osVersion: deviceData.systemVersion.isNotEmpty
+          ? deviceData.systemVersion
+          : 'unknown',
       locale: locale.toLanguageTag(),
-      appVersion: packageInfo.version,
-      buildNumber: packageInfo.buildNumber,
-      appName: packageInfo.appName,
-      environment: packageInfo.packageName,
+      appVersion: clientInfo.applicationVersion,
+      buildNumber: clientInfo.applicationBuildCode,
+      appName: clientInfo.applicationName,
+      environment: clientInfo.applicationId ?? 'unknown',
     );
   }
 }

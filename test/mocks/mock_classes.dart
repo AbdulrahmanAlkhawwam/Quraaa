@@ -2,8 +2,8 @@ import 'package:mocktail/mocktail.dart';
 
 import 'package:quraaa/core/connectivity/connectivity_service.dart';
 import 'package:quraaa/core/sync/sync_manager.dart';
-import 'package:quraaa/features/auth/data/datasources/local/auth_local_datasource.dart';
-import 'package:quraaa/features/auth/data/datasources/remote/auth_remote_datasource.dart';
+import 'package:quraaa/features/auth/data/datasources/auth_local_datasource.dart';
+import 'package:quraaa/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:quraaa/features/auth/domain/repositories/auth_repository.dart';
 import 'package:quraaa/features/auth/domain/use_cases/login_use_case.dart';
 

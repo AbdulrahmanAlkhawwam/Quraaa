@@ -10,3 +10,4 @@ export 'extensions/app_context.dart';
 export 'models/message.dart';
 export 'widgets/app_shell.dart';
 export 'widgets/onboarding_scaffold.dart';
+export 'widgets/phone_number_input.dart';

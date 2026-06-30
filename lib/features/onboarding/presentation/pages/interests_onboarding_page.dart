@@ -8,7 +8,7 @@ import '../../../../config/routes/route_names.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
-import '../../../auth/data/datasources/local/auth_journey_local_data_source.dart';
+import '../../../auth/data/datasources/auth_local_datasource.dart';
 import '../../domain/entities/interest_selection.dart';
 import '../bloc/onboarding_bloc.dart';
 
@@ -20,8 +20,7 @@ class InterestsOnboardingPage extends StatefulWidget {
 }
 
 class _InterestsOnboardingPageState extends State<InterestsOnboardingPage> {
-  final AuthJourneyLocalDataSource _authJourney =
-      sl<AuthJourneyLocalDataSource>();
+  final AuthLocalDataSource _authJourney = sl<AuthLocalDataSource>();
 
   @override
   void initState() {
@@ -29,32 +28,6 @@ class _InterestsOnboardingPageState extends State<InterestsOnboardingPage> {
     unawaited(
       _authJourney.saveJourneyStage(AuthJourneyStage.onboardingInterests),
     );
-  }
-
-  Future<void> _goBack() async {
-    await _authJourney.saveJourneyStage(
-      AuthJourneyStage.onboardingAge,
-      previousStage: AuthJourneyStage.onboardingInterests,
-    );
-    if (!mounted) return;
-    context.goTo(RouteNames.onboardingAge);
-  }
-
-  Future<void> _skip() async {
-    await _authJourney.saveJourneyStage(
-      AuthJourneyStage.register,
-      previousStage: AuthJourneyStage.onboardingInterests,
-    );
-    if (!mounted) return;
-    context.read<OnboardingBloc>().add(const OnboardingSkipRequested());
-  }
-
-  void _onInterestToggled(InterestSelection interest) {
-    context.read<OnboardingBloc>().add(OnboardingInterestToggled(interest));
-  }
-
-  void _onNext() {
-    context.read<OnboardingBloc>().add(const OnboardingInterestsNextRequested());
   }
 
   @override
@@ -81,44 +54,77 @@ class _InterestsOnboardingPageState extends State<InterestsOnboardingPage> {
               );
             }
           },
-          child: Builder(
-            builder: (context) {
-              return BlocBuilder<OnboardingBloc, OnboardingState>(
-                builder: (context, state) {
-                  return OnboardingScaffold(
-                    title: LocalizationConstants.onboardingInterestsTitleKey.tr(),
-                    leading: OnboardingBackButton(onPressed: _goBack),
-                    actions: [OnboardingSkipButton(onPressed: _skip)],
-                    activeIndex: 3,
-                    totalSteps: 3,
-                    content: SingleChildScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      child: Wrap(
-                        spacing: AppSpacing.spacing12,
-                        runSpacing: AppSpacing.spacing12,
-                        children: InterestSelection.values.map((interest) {
-                          final selected = state.selectedInterests.contains(interest);
-                          return _InterestChip(
-                            label: _interestLabel(interest),
-                            selected: selected,
-                            onTap: state.isLoading
-                                ? null
-                                : () => _onInterestToggled(interest),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                    bottomButton: OnboardingNextButton(
-                      onPressed: state.canContinueInterests ? _onNext : null,
-                      isLoading: state.isLoading,
-                    ),
-                  );
-                },
-              );
-            },
-          ),
+          child: const _InterestsOnboardingView(),
         ),
       ),
+    );
+  }
+}
+
+class _InterestsOnboardingView extends StatelessWidget {
+  const _InterestsOnboardingView();
+
+  Future<void> _goBack(BuildContext context) async {
+    await sl<AuthLocalDataSource>().saveJourneyStage(
+      AuthJourneyStage.onboardingAge,
+      previousStage: AuthJourneyStage.onboardingInterests,
+    );
+    if (context.mounted) context.goTo(RouteNames.onboardingAge);
+  }
+
+  Future<void> _skip(BuildContext context) async {
+    await sl<AuthLocalDataSource>().saveJourneyStage(
+      AuthJourneyStage.register,
+      previousStage: AuthJourneyStage.onboardingInterests,
+    );
+    if (context.mounted) {
+      context.read<OnboardingBloc>().add(const OnboardingSkipRequested());
+    }
+  }
+
+  void _onInterestToggled(BuildContext context, InterestSelection interest) {
+    context.read<OnboardingBloc>().add(OnboardingInterestToggled(interest));
+  }
+
+  void _onNext(BuildContext context) {
+    context.read<OnboardingBloc>().add(const OnboardingInterestsNextRequested());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<OnboardingBloc, OnboardingState>(
+      builder: (context, state) {
+        return OnboardingScaffold(
+          title: LocalizationConstants.onboardingInterestsTitleKey.tr(),
+          leading: OnboardingBackButton(onPressed: () => _goBack(context)),
+          actions: [OnboardingSkipButton(onPressed: () => _skip(context))],
+          activeIndex: 3,
+          totalSteps: 3,
+          content: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Wrap(
+              spacing: AppSpacing.spacing12,
+              runSpacing: AppSpacing.spacing12,
+              children: InterestSelection.values.map((interest) {
+                final selected = state.selectedInterests.contains(interest);
+                return _InterestChip(
+                  label: _interestLabel(interest),
+                  selected: selected,
+                  onTap: state.isLoading
+                      ? null
+                      : () => _onInterestToggled(context, interest),
+                );
+              }).toList(),
+            ),
+          ),
+          bottomButton: OnboardingNextButton(
+            onPressed: state.canContinueInterests
+                ? () => _onNext(context)
+                : null,
+            isLoading: state.isLoading,
+          ),
+        );
+      },
     );
   }
 
