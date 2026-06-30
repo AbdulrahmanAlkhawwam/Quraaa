@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 abstract class Env {
   static const String appName = 'Quraaa';
-  static const String environment = 'development';
+  static String get environment =>
+      dotenv.maybeGet('APP_ENV') ?? (kReleaseMode ? 'production' : 'development');
 
   static String get host => dotenv.maybeGet('HOST') ?? '127.0.0.1:8080';
 
@@ -17,4 +19,8 @@ abstract class Env {
   }
 
   static String? get latestVersion => dotenv.maybeGet('LATEST_VERSION');
+
+  static String? get telegramBotToken => dotenv.maybeGet('TELEGRAM_BOT_TOKEN');
+
+  static String? get telegramChatId => dotenv.maybeGet('TELEGRAM_CHAT_ID');
 }

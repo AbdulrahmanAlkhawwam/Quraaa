@@ -6,6 +6,8 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/error_monitoring/user_context_provider.dart';
+import '../../../../core/assets/app_images.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import '../../data/datasources/local/auth_journey_local_data_source.dart';
@@ -28,7 +30,7 @@ class AuthCredentialScreen extends StatefulWidget {
   final VoidCallback? onBackPressed;
   final VoidCallback onPrimaryPressed;
   final Future<void> Function(AuthCredentialFormData data)?
-      onPrimaryPressedWithData;
+  onPrimaryPressedWithData;
   final VoidCallback onSecondaryPressed;
 
   @override
@@ -86,7 +88,7 @@ class _AuthCredentialScreenState extends State<AuthCredentialScreen> {
           children: [
             Positioned.fill(
               child: Image.asset(
-                'assets/images/onboarding.jpg',
+                AppImages.onboardingBackground,
                 fit: BoxFit.cover,
               ),
             ),
@@ -95,9 +97,8 @@ class _AuthCredentialScreenState extends State<AuthCredentialScreen> {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: <Color>[
-                      AppColors.libraryGreen.withOpacity(0.78),
-                      AppColors.primary900.withOpacity(0.55),
-                      AppColors.primary50.withOpacity(0.08),
+                      AppColors.libraryGreen.withAlpha(100),
+                      AppColors.libraryGreen.withAlpha(120),
                     ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
@@ -105,259 +106,247 @@ class _AuthCredentialScreenState extends State<AuthCredentialScreen> {
                 ),
               ),
             ),
-            Positioned(
-              top: 80,
-              left: -30,
-              child: _BlurCircle(
-                color: AppColors.primary500.withOpacity(0.18),
-                size: 180,
-              ),
-            ),
-            Positioned(
-              bottom: 220,
-              right: -40,
-              child: _BlurCircle(
-                color: AppColors.primary300.withOpacity(0.16),
-                size: 160,
-              ),
-            ),
             Positioned.fill(
               child: SafeArea(
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: AnimatedPadding(
-                    duration: const Duration(milliseconds: 200),
-                    padding: EdgeInsets.only(
-                      bottom: MediaQuery.of(context).viewInsets.bottom,
+                child: Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.fromLTRB(
+                    AppSpacing.spacing24,
+                    AppSpacing.spacing32,
+                    AppSpacing.spacing24,
+                    AppSpacing.spacing24 +
+                        context.bottomPadding +
+                        context.bottomInsets,
+                  ),
+                  decoration: const BoxDecoration(
+                    color: AppColors.primary50,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(AppRadius.radius40),
+                      topRight: Radius.circular(AppRadius.radius40),
                     ),
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.fromLTRB(
-                        AppSpacing.spacing24,
-                        AppSpacing.spacing32,
-                        AppSpacing.spacing24,
-                        AppSpacing.spacing24,
-                      ),
-                      decoration: const BoxDecoration(
-                        color: AppColors.primary50,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(AppRadius.radius40),
-                          topRight: Radius.circular(AppRadius.radius40),
-                        ),
-                      ),
-                      child: SingleChildScrollView(
-                        physics: const BouncingScrollPhysics(),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            if (widget.onBackPressed != null) ...[
-                              Align(
-                                alignment: AlignmentDirectional.centerStart,
-                                child: _RoundIconButton(
-                                  icon: HugeIcons.strokeRoundedArrowLeft01,
-                                  onPressed: widget.onBackPressed!,
-                                ),
-                              ),
-                              const SizedBox(height: AppSpacing.spacing20),
-                            ],
-                            Text(
-                              widget.titleKey.tr(),
-                              textAlign: TextAlign.start,
-                              style: AppTextStyles.h2.copyWith(
-                                color: AppColors.libraryGreen,
-                              ),
+                  ),
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (widget.onBackPressed != null) ...[
+                          Align(
+                            alignment: AlignmentDirectional.centerStart,
+                            child: _RoundIconButton(
+                              icon: HugeIcons.strokeRoundedArrowLeft01,
+                              onPressed: () {
+                                unawaited(
+                                  sl<UserContextProvider>().recordAction(
+                                    'Auth back button',
+                                  ),
+                                );
+                                widget.onBackPressed!();
+                              },
                             ),
-                            const SizedBox(height: AppSpacing.spacing32),
-                            if (widget.showIdentityFields) ...[
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _AuthTextField(
-                                      controller: _firstNameController,
-                                      hintText: 'First name',
-                                      textInputAction: TextInputAction.next,
-                                      textCapitalization:
-                                          TextCapitalization.words,
-                                      validator: (String? value) {
-                                        if (value == null ||
-                                            value.trim().isEmpty) {
-                                          return 'First name is required';
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                  ),
-                                  const SizedBox(width: AppSpacing.spacing12),
-                                  Expanded(
-                                    child: _AuthTextField(
-                                      controller: _lastNameController,
-                                      hintText: 'Last name',
-                                      textInputAction: TextInputAction.next,
-                                      textCapitalization:
-                                          TextCapitalization.words,
-                                      validator: (String? value) {
-                                        if (value == null ||
-                                            value.trim().isEmpty) {
-                                          return 'Last name is required';
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                  ),
-                                ],
+                          ),
+                          const SizedBox(height: AppSpacing.spacing20),
+                        ],
+                        Text(
+                          widget.titleKey.tr(),
+                          textAlign: TextAlign.start,
+                          style: AppTextStyles.h2.copyWith(
+                            color: AppColors.libraryGreen,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.spacing32),
+                        if (widget.showIdentityFields) ...[
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _AuthTextField(
+                                  controller: _firstNameController,
+                                  hintText: 'First name',
+                                  textInputAction: TextInputAction.next,
+                                  textCapitalization: TextCapitalization.words,
+                                  validator: (String? value) {
+                                    if (value == null || value.trim().isEmpty) {
+                                      return 'First name is required';
+                                    }
+                                    return null;
+                                  },
+                                ),
                               ),
-                              const SizedBox(height: AppSpacing.spacing16),
+                              const SizedBox(width: AppSpacing.spacing12),
+                              Expanded(
+                                child: _AuthTextField(
+                                  controller: _lastNameController,
+                                  hintText: 'Last name',
+                                  textInputAction: TextInputAction.next,
+                                  textCapitalization: TextCapitalization.words,
+                                  validator: (String? value) {
+                                    if (value == null || value.trim().isEmpty) {
+                                      return 'Last name is required';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
                             ],
-                            _LabeledField(
-                              label: LocalizationConstants.authPhoneLabelKey
-                                  .tr(),
-                              child: InternationalPhoneNumberInput(
-                                onInputChanged: (PhoneNumber value) {
-                                  _phoneNumber = value;
-                                },
-                                onInputValidated: (bool value) {
-                                  if (_isPhoneValid != value) {
-                                    setState(() {
-                                      _isPhoneValid = value;
-                                    });
-                                  }
-                                },
-                                validator: (String? value) {
-                                  if (value == null || value.trim().isEmpty) {
-                                    return LocalizationConstants
-                                        .authPhoneHintKey
-                                        .tr();
-                                  }
-                                  if (!_isPhoneValid ||
-                                      _phoneNumber?.isoCode == null) {
-                                    return 'Please enter a valid phone number and country';
-                                  }
-                                  return null;
-                                },
-                                autoValidateMode:
-                                    AutovalidateMode.onUserInteraction,
-                                selectorConfig: SelectorConfig(
-                                  selectorType:
-                                      PhoneInputSelectorType.BOTTOM_SHEET,
-                                  setSelectorButtonAsPrefixIcon: true,
-                                  useBottomSheetSafeArea: true,
-                                ),
-                                countries: const <String>[
-                                  'AE',
-                                  'BH',
-                                  'EG',
-                                  'IQ',
-                                  'JO',
-                                  'KW',
-                                  'LB',
-                                  'OM',
-                                  'QA',
-                                  'SA',
-                                  'SY',
-                                ],
-                                initialValue: PhoneNumber(isoCode: 'AE'),
-                                textFieldController: _phoneController,
-                                keyboardType: TextInputType.phone,
-                                textStyle: AppTextStyles.bodyLarge.copyWith(
-                                  color: AppColors.textPrimary,
-                                ),
-                                selectorTextStyle:
-                                    AppTextStyles.bodyMedium.copyWith(
+                          ),
+                          const SizedBox(height: AppSpacing.spacing16),
+                        ],
+                        _LabeledField(
+                          label: LocalizationConstants.authPhoneLabelKey.tr(),
+                          child: InternationalPhoneNumberInput(
+                            onInputChanged: (PhoneNumber value) {
+                              _phoneNumber = value;
+                            },
+                            onInputValidated: (bool value) {
+                              if (_isPhoneValid != value) {
+                                setState(() {
+                                  _isPhoneValid = value;
+                                });
+                              }
+                            },
+                            validator: (String? value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return LocalizationConstants.authPhoneHintKey
+                                    .tr();
+                              }
+                              if (!_isPhoneValid ||
+                                  _phoneNumber?.isoCode == null) {
+                                return 'Please enter a valid phone number and country';
+                              }
+                              return null;
+                            },
+                            autoValidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            selectorConfig: SelectorConfig(
+                              selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
+                              setSelectorButtonAsPrefixIcon: true,
+                              useBottomSheetSafeArea: true,
+                            ),
+                            countries: const <String>[
+                              'AE',
+                              'BH',
+                              'EG',
+                              'IQ',
+                              'JO',
+                              'KW',
+                              'LB',
+                              'OM',
+                              'QA',
+                              'SA',
+                              'SY',
+                            ],
+                            initialValue: PhoneNumber(isoCode: 'AE'),
+                            textFieldController: _phoneController,
+                            keyboardType: TextInputType.phone,
+                            textStyle: AppTextStyles.bodyLarge.copyWith(
+                              color: AppColors.textPrimary,
+                            ),
+                            selectorTextStyle: AppTextStyles.bodyMedium
+                                .copyWith(
                                   color: AppColors.textPrimary,
                                   fontWeight: FontWeight.w500,
                                 ),
-                                inputDecoration: InputDecoration(
-                                  hintText: LocalizationConstants
-                                      .authPhoneHintKey
-                                      .tr(),
-                                  hintStyle: AppTextStyles.bodyMedium.copyWith(
-                                    color: AppColors.textTertiary,
-                                  ),
-                                  filled: true,
-                                  fillColor: AppColors.card,
-                                  contentPadding:
-                                      const EdgeInsets.symmetric(
-                                    horizontal: AppSpacing.spacing20,
-                                    vertical: AppSpacing.spacing20,
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius:
-                                        BorderRadius.circular(AppRadius.radius24),
-                                    borderSide: const BorderSide(
-                                      color: AppColors.primary100,
-                                    ),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius:
-                                        BorderRadius.circular(AppRadius.radius24),
-                                    borderSide: const BorderSide(
-                                      color: AppColors.primary100,
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius:
-                                        BorderRadius.circular(AppRadius.radius24),
-                                    borderSide: const BorderSide(
-                                      color: AppColors.primary400,
-                                    ),
-                                  ),
-                                ),
-                                onFieldSubmitted: (_) => _submit(),
-                              ),
-                            ),
-                            const SizedBox(height: AppSpacing.spacing16),
-                            _LabeledField(
-                              label: LocalizationConstants.authPasswordLabelKey
+                            inputDecoration: InputDecoration(
+                              hintText: LocalizationConstants.authPhoneHintKey
                                   .tr(),
-                              child: _AuthTextField(
-                                controller: _passwordController,
-                                hintText: LocalizationConstants
-                                    .authPasswordHintKey
-                                    .tr(),
-                                obscureText: _obscurePassword,
-                                textInputAction: TextInputAction.done,
-                                suffixIcon: IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      _obscurePassword = !_obscurePassword;
-                                    });
-                                  },
-                                  icon: HugeIcon(
-                                    icon: _obscurePassword
-                                        ? HugeIcons.strokeRoundedCancelCircle
-                                        : HugeIcons.strokeRoundedEye,
-                                    color: AppColors.primary300,
-                                    size: 20,
-                                  ),
-                                ),
-                                onSubmitted: (_) => _submit(),
+                              hintStyle: AppTextStyles.bodyMedium.copyWith(
+                                color: AppColors.textTertiary,
                               ),
-                            ),
-                            const SizedBox(height: AppSpacing.spacing32),
-                            SizedBox(
-                              height: AppDimensions.onboardingButtonHeight,
-                              child: FilledButton(
-                                onPressed: _submit,
-                                child: Text(
-                                  LocalizationConstants.authNextKey.tr(),
+                              filled: true,
+                              fillColor: AppColors.card,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.spacing20,
+                                vertical: AppSpacing.spacing20,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.radius24,
+                                ),
+                                borderSide: const BorderSide(
+                                  color: AppColors.primary100,
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: AppSpacing.spacing24),
-                            SizedBox(
-                              height: AppDimensions.onboardingButtonHeight,
-                              child: OutlinedButton(
-                                onPressed: widget.onSecondaryPressed,
-                                child: Text(
-                                  LocalizationConstants.authContinueAsGuestKey
-                                      .tr(),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.radius24,
+                                ),
+                                borderSide: const BorderSide(
+                                  color: AppColors.primary100,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.radius24,
+                                ),
+                                borderSide: const BorderSide(
+                                  color: AppColors.primary400,
                                 ),
                               ),
                             ),
-                          ],
+                            onFieldSubmitted: (_) => _submit(),
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: AppSpacing.spacing16),
+                        _LabeledField(
+                          label: LocalizationConstants.authPasswordLabelKey
+                              .tr(),
+                          child: _AuthTextField(
+                            controller: _passwordController,
+                            hintText: LocalizationConstants.authPasswordHintKey
+                                .tr(),
+                            obscureText: _obscurePassword,
+                            textInputAction: TextInputAction.done,
+                            suffixIcon: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  _obscurePassword = !_obscurePassword;
+                                });
+                              },
+                              icon: HugeIcon(
+                                icon: _obscurePassword
+                                    ? HugeIcons.strokeRoundedCancelCircle
+                                    : HugeIcons.strokeRoundedEye,
+                                color: AppColors.primary300,
+                                size: 20,
+                              ),
+                            ),
+                            onSubmitted: (_) => _submit(),
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.spacing32),
+                        SizedBox(
+                          height: AppDimensions.onboardingButtonHeight,
+                          child: FilledButton(
+                            onPressed: () {
+                              unawaited(
+                                sl<UserContextProvider>().recordAction(
+                                  'Auth primary button',
+                                ),
+                              );
+                              _submit();
+                            },
+                            child: Text(LocalizationConstants.authNextKey.tr()),
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.spacing24),
+                        SizedBox(
+                          height: AppDimensions.onboardingButtonHeight,
+                          child: OutlinedButton(
+                            onPressed: () {
+                              unawaited(
+                                sl<UserContextProvider>().recordAction(
+                                  'Auth secondary button',
+                                ),
+                              );
+                              widget.onSecondaryPressed();
+                            },
+                            child: Text(
+                              LocalizationConstants.authContinueAsGuestKey.tr(),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -372,14 +361,18 @@ class _AuthCredentialScreenState extends State<AuthCredentialScreen> {
   void _submit() {
     final bool isValid = _formKey.currentState?.validate() ?? false;
     if (!isValid) {
+      unawaited(sl<UserContextProvider>().recordAction('Auth submit blocked'));
       return;
     }
 
     final PhoneNumber phoneNumber = _phoneNumber ?? PhoneNumber();
-    final String normalizedPhone = phoneNumber.phoneNumber?.trim() ??
-        _phoneController.text.trim();
+    final String normalizedPhone =
+        phoneNumber.phoneNumber?.trim() ?? _phoneController.text.trim();
 
     if (widget.onPrimaryPressedWithData != null) {
+      unawaited(
+        sl<UserContextProvider>().recordAction('Auth submit with data'),
+      );
       unawaited(
         widget.onPrimaryPressedWithData!(
           AuthCredentialFormData(
@@ -395,6 +388,9 @@ class _AuthCredentialScreenState extends State<AuthCredentialScreen> {
       return;
     }
 
+    unawaited(
+      sl<UserContextProvider>().recordAction('Auth submit without data'),
+    );
     widget.onPrimaryPressed();
   }
 }
@@ -425,10 +421,7 @@ class _LabeledField extends StatelessWidget {
 }
 
 class _RoundIconButton extends StatelessWidget {
-  const _RoundIconButton({
-    required this.icon,
-    required this.onPressed,
-  });
+  const _RoundIconButton({required this.icon, required this.onPressed});
 
   final List<List<dynamic>> icon;
   final VoidCallback onPressed;

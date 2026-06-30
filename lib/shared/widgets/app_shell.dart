@@ -6,6 +6,7 @@ import 'package:hugeicons/hugeicons.dart';
 
 import '../../config/routes/route_names.dart';
 import '../../core/di/injection_container.dart';
+import '../../core/error_monitoring/user_context_provider.dart';
 import '../../core/localization/localization_constants.dart';
 import '../../core/services/storage_service.dart';
 import '../../features/auth/data/datasources/local/auth_journey_local_data_source.dart';
@@ -56,6 +57,7 @@ class _AppShellState extends State<AppShell> {
 
   Future<void> _logout() async {
     await sl<AuthJourneyLocalDataSource>().clearSession();
+    await sl<UserContextProvider>().clearUser();
     if (!mounted) {
       return;
     }
@@ -133,7 +135,7 @@ class _AppShellState extends State<AppShell> {
                       children: [
                         _BlurHeader(
                           title: LocalizationConstants.userDataTitleKey.tr(),
-                          onBackPressed: () => print("back")/*context.back()*/,
+                          onBackPressed: () => context.back(),
                           onActionPressed: () => _openEditor(_selectedTab),
                           actionIcon: HugeIcons.strokeRoundedPencil,
                           rtl: rtl,

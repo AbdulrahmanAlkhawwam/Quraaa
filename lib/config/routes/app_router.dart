@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/pages/auth_screen.dart';
@@ -12,9 +13,12 @@ import '../../features/pdf_reader/presentation/pages/pdf_reader_page.dart';
 import 'route_names.dart';
 import 'route_resolver.dart';
 
-GoRouter buildAppRouter() {
+GoRouter buildAppRouter({
+  List<NavigatorObserver> observers = const <NavigatorObserver>[],
+}) {
   return GoRouter(
     initialLocation: RouteNames.splash,
+    observers: observers,
     redirect: (context, state) {
       final String location = state.matchedLocation;
 
@@ -31,40 +35,49 @@ GoRouter buildAppRouter() {
     },
     routes: <RouteBase>[
       GoRoute(
+        name: RouteNames.splash,
         path: RouteNames.splash,
         builder: (context, state) => const SplashScreen(),
       ),
       GoRoute(
+        name: RouteNames.auth,
         path: RouteNames.auth,
         builder: (context, state) => const AuthScreen(),
       ),
       GoRoute(
+        name: RouteNames.onboarding,
         path: RouteNames.onboarding,
         builder: (context, state) => const GenderOnboardingPage(),
       ),
       GoRoute(
+        name: RouteNames.onboardingAge,
         path: RouteNames.onboardingAge,
         builder: (context, state) => const AgeOnboardingPage(),
       ),
       GoRoute(
+        name: RouteNames.onboardingInterests,
         path: RouteNames.onboardingInterests,
         builder: (context, state) => const InterestsOnboardingPage(),
       ),
       GoRoute(
+        name: RouteNames.login,
         path: RouteNames.login,
         builder: (context, state) => const LoginScreen(),
       ),
       GoRoute(
+        name: RouteNames.register,
         path: RouteNames.register,
         builder: (context, state) => const RegisterScreen(),
       ),
       GoRoute(
+        name: RouteNames.routeBridge,
         path: RouteNames.routeBridge,
         redirect: (context, state) =>
             resolveBridgeRoute(state.uri.queryParameters['route']) ??
             RouteNames.splash,
       ),
       GoRoute(
+        name: RouteNames.home,
         path: RouteNames.explorer,
         builder: (context, state) => const LocalExplorerPage(),
       ),

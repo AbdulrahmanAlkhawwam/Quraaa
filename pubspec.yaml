@@ -46,6 +46,7 @@ dependencies:
   hugeicons: ^1.1.7
   firebase_core: ^4.10.0
   firebase_messaging: ^16.3.0
+  firebase_crashlytics: ^5.2.4
   intl_phone_number_input: ^0.7.5
   cupertino_calendar_picker: ^2.2.6
   device_info_plus: ^13.1.0

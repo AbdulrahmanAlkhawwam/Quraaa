@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 
 import '../../../../config/routes/route_names.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/error_monitoring/user_context_provider.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import '../../data/datasources/local/auth_journey_local_data_source.dart';
-import '../../../../features/onboarding/domain/repositories/onboarding_repository.dart';
 import '../widgets/auth_credential_screen.dart';
+import '../../../../features/onboarding/domain/repositories/onboarding_repository.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -44,8 +45,14 @@ class _LoginScreenState extends State<LoginScreen> {
     context.goTo(_routeForStage(previousStage));
   }
 
-  Future<void> _continueAsUser() async {
+  Future<void> _continueAsUser(AuthCredentialFormData data) async {
     await _authJourney.markAuthenticatedSession();
+    await sl<UserContextProvider>().setUser(
+      id: data.phoneNumber,
+      name: data.phoneNumber,
+      phone: data.phoneNumber,
+      subscriptionStatus: 'active',
+    );
     if (!mounted) {
       return;
     }
@@ -54,6 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _continueAsGuest() async {
     await _authJourney.markGuestSession();
+    await sl<UserContextProvider>().clearUser();
     if (!mounted) {
       return;
     }
@@ -66,7 +74,8 @@ class _LoginScreenState extends State<LoginScreen> {
       titleKey: LocalizationConstants.authLoginTitleKey,
       seenFlag: 'login',
       onBackPressed: _goBack,
-      onPrimaryPressed: _continueAsUser,
+      onPrimaryPressedWithData: _continueAsUser,
+      onPrimaryPressed: () {},
       onSecondaryPressed: _continueAsGuest,
     );
   }

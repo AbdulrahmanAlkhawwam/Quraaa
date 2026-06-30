@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../config/routes/route_names.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/error_monitoring/user_context_provider.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import '../../../onboarding/domain/entities/gender_selection.dart';
@@ -50,6 +51,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _continueAsUser() async {
     await _authJourney.markAuthenticatedSession();
+    await sl<UserContextProvider>().setUser(
+      id: 'registered-user',
+      name: 'Registered user',
+      subscriptionStatus: 'active',
+    );
     if (!mounted) {
       return;
     }
@@ -58,6 +64,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _continueAsGuest() async {
     await _authJourney.markGuestSession();
+    await sl<UserContextProvider>().clearUser();
     if (!mounted) {
       return;
     }
@@ -121,6 +128,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       await _authJourney.markAuthenticatedSession(
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
+      );
+      await sl<UserContextProvider>().setUser(
+        id: data.phoneNumber,
+        name: '${data.firstName} ${data.lastName}'.trim(),
+        phone: data.phoneNumber,
+        subscriptionStatus: 'active',
       );
 
       if (!mounted) {

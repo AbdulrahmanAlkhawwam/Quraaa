@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../../core/di/injection_container.dart';
+import '../../core/error_monitoring/user_context_provider.dart';
 import '../models/message.dart';
 
 extension AppNavigation on BuildContext {
@@ -9,6 +13,7 @@ extension AppNavigation on BuildContext {
     String route, {
     Object? extra,
   }) {
+    unawaited(sl<UserContextProvider>().recordAction('Push route: $route'));
     return GoRouter.of(this).push<T>(route, extra: extra);
   }
 
@@ -16,6 +21,7 @@ extension AppNavigation on BuildContext {
     String route, {
     Object? extra,
   }) {
+    unawaited(sl<UserContextProvider>().recordAction('Go route: $route'));
     GoRouter.of(this).go(route, extra: extra);
   }
 
@@ -26,7 +32,10 @@ extension AppNavigation on BuildContext {
   //   return pushReplacement<T, T>(route, extra: extra);
   // }
 
-  void back<T extends Object?>([T? result]) => pop(result);
+  void back<T extends Object?>([T? result]) {
+    unawaited(sl<UserContextProvider>().recordAction('Back navigation'));
+    pop(result);
+  }
 }
 
 extension AppThemeX on BuildContext {

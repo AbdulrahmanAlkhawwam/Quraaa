@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 import '../../config/env/env.dart';
 
 class HttpHelper {
-  HttpHelper() : _dio = Dio(_baseOptions());
+  HttpHelper(this._dio);
 
   final Dio _dio;
 
@@ -30,5 +30,9 @@ class HttpHelper {
       data: data,
       options: options,
     );
+  }
+
+  static Dio buildDio(List<Interceptor> interceptors) {
+    return Dio(_baseOptions())..interceptors.addAll(interceptors);
   }
 }

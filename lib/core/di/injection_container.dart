@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../features/auth/data/datasources/remote/auth_remote_datasource.dart';
@@ -16,7 +17,16 @@ import '../../features/onboarding/domain/use_cases/save_interests_use_case.dart'
 import '../../features/onboarding/domain/use_cases/save_gender_use_case.dart';
 import '../../features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import '../../features/onboarding/presentation/viewmodels/onboarding_view_model.dart';
+import '../error_monitoring/app_bloc_observer.dart';
+import '../error_monitoring/app_logger.dart';
+import '../error_monitoring/crashlytics_service.dart';
+import '../error_monitoring/device_info_provider.dart';
+import '../error_monitoring/dio_logging_interceptor.dart';
+import '../error_monitoring/navigation_tracker.dart';
+import '../error_monitoring/telegram_notification_service.dart';
+import '../error_monitoring/user_context_provider.dart';
 import '../network/http_helper.dart';
+import '../services/app_diagnostics_service.dart';
 import '../services/firebase_notification_service.dart';
 import '../services/notification_service.dart';
 import '../services/storage_service_impl.dart';
@@ -83,10 +93,43 @@ void registerCoreDependencies() {
     () => StorageServiceImpl(sl<SharedPreferences>()),
   );
 
-  sl.registerLazySingleton<HttpHelper>(() => HttpHelper());
+  sl.registerLazySingleton<DeviceInfoProvider>(() => DeviceInfoProvider());
+  sl.registerLazySingleton<NavigationTracker>(() => NavigationTracker());
+  sl.registerLazySingleton<UserContextProvider>(
+    () => UserContextProvider(sl<StorageService>()),
+  );
+  sl.registerLazySingleton<CrashlyticsService>(() => CrashlyticsService());
+  sl.registerLazySingleton<TelegramNotificationService>(
+    () => TelegramNotificationService(),
+  );
+  sl.registerLazySingleton<AppLogger>(
+    () => AppLoggerImpl(
+      crashlyticsService: sl<CrashlyticsService>(),
+      telegramNotificationService: sl<TelegramNotificationService>(),
+      navigationTracker: sl<NavigationTracker>(),
+      userContextProvider: sl<UserContextProvider>(),
+      deviceInfoProvider: sl<DeviceInfoProvider>(),
+    ),
+  );
+  sl.registerLazySingleton<AppBlocObserver>(
+    () => AppBlocObserver(sl<AppLogger>()),
+  );
+  sl.registerLazySingleton<DioLoggingInterceptor>(
+    () => DioLoggingInterceptor(sl<AppLogger>()),
+  );
+  sl.registerLazySingleton<Dio>(
+    () => HttpHelper.buildDio(<Interceptor>[
+      sl<DioLoggingInterceptor>(),
+    ]),
+  );
+  sl.registerLazySingleton<HttpHelper>(() => HttpHelper(sl<Dio>()));
 
   sl.registerLazySingleton<NotificationService>(
     () => FirebaseNotificationService(),
+  );
+
+  sl.registerLazySingleton<AppDiagnosticsService>(
+    () => AppDiagnosticsService(sl<AppLogger>()),
   );
 }
 
