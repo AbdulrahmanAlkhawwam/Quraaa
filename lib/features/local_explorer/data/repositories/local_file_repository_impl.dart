@@ -10,11 +10,10 @@ import '../models/local_directory_snapshot_model.dart';
 
 class LocalFileRepositoryImpl implements LocalFileRepository {
   const LocalFileRepositoryImpl({
-    required LocalExplorerPlatformDataSource platformDataSource,
-    required LocalFileSystemDataSource fileSystemDataSource,
+    required this._platformDataSource,
+    required this._fileSystemDataSource,
     this._snapshotMapper = const LocalDirectorySnapshotMapper(),
-  })  : _platformDataSource = platformDataSource,
-        _fileSystemDataSource = fileSystemDataSource;
+  });
 
   final LocalExplorerPlatformDataSource _platformDataSource;
   final LocalFileSystemDataSource _fileSystemDataSource;

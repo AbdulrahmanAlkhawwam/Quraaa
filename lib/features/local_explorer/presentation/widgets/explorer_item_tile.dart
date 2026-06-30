@@ -31,7 +31,7 @@ class ExplorerItemTile extends StatelessWidget {
         return Opacity(
           opacity: isEnabled ? 1 : 0.36,
           child: InkWell(
-            borderRadius: BorderRadius.circular(AppRadius.md),
+            borderRadius: BorderRadius.circular(AppRadius.radius16),
             onTap: !isEnabled
                 ? null
                 : () {
@@ -60,7 +60,7 @@ class ExplorerItemTile extends StatelessWidget {
                             ),
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.sm),
+                  const SizedBox(height: AppSpacing.spacing8),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
@@ -78,7 +78,7 @@ class ExplorerItemTile extends StatelessWidget {
                               ),
                         ),
                       ),
-                      const SizedBox(width: AppSpacing.sm),
+                      const SizedBox(width: AppSpacing.spacing8),
                       Text(
                         _trailingLabel(entry),
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(

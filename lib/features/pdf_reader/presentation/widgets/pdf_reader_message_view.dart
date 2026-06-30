@@ -18,12 +18,12 @@ class PdfReaderMessageView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xl),
+        padding: const EdgeInsets.all(AppSpacing.spacing32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             HugeIcon(icon: icon, color: AppColors.secondary, size: 56),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.spacing16),
             Text(
               message,
               textAlign: TextAlign.center,

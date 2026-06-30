@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'dart:typed_data';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -148,12 +147,12 @@ class _PdfPageImageState extends State<PdfPageImage> {
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         color: AppColors.surfaceLight,
-                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                        borderRadius: BorderRadius.circular(AppRadius.radius8),
                         border: Border.all(color: AppColors.borderLight),
                         boxShadow: AppShadows.elevation1,
                       ),
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                        borderRadius: BorderRadius.circular(AppRadius.radius8),
                         child: SizedBox.expand(
                           child: Stack(
                             fit: StackFit.expand,
@@ -453,7 +452,7 @@ class _PdfPageImageState extends State<PdfPageImage> {
           textLayer: textLayer,
           pageSize: pageSize,
         );
-        bounds = bounds == null ? localRect : _mergeRects(bounds!, localRect);
+        bounds = bounds == null ? localRect : _mergeRects(bounds, localRect);
       }
     }
 

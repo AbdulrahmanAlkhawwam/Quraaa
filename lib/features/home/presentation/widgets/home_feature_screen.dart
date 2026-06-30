@@ -60,9 +60,9 @@ class HomeFeatureScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(AppSpacing.spacing16),
                   decoration: BoxDecoration(
-                    color: accentColor.withOpacity(0.12),
+                    color: accentColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(AppRadius.radius32),
-                    border: Border.all(color: accentColor.withOpacity(0.18)),
+                    border: Border.all(color: accentColor.withValues(alpha: 0.18)),
                   ),
                   child: Row(
                     children: <Widget>[
@@ -70,7 +70,7 @@ class HomeFeatureScreen extends StatelessWidget {
                         width: 72,
                         height: 72,
                         decoration: BoxDecoration(
-                          color: accentColor.withOpacity(0.18),
+                          color: accentColor.withValues(alpha: 0.18),
                           shape: BoxShape.circle,
                         ),
                         child: HugeIcon(

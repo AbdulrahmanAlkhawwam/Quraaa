@@ -34,30 +34,30 @@ class _PdfNoteDialogState extends State<PdfNoteDialog> {
     final bool hasSelectedText = widget.selectedText.trim().isNotEmpty;
 
     return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+      insetPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.spacing24),
       backgroundColor: Colors.transparent,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 360),
         child: DecoratedBox(
           decoration: BoxDecoration(
             color: AppColors.surfaceLight,
-            borderRadius: BorderRadius.circular(AppRadius.md),
+            borderRadius: BorderRadius.circular(AppRadius.radius16),
             border: Border.all(color: AppColors.borderLight),
             boxShadow: AppShadows.elevation1,
           ),
           child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.lg),
+            padding: const EdgeInsets.all(AppSpacing.spacing24),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 _DialogHeader(hasSelectedText: hasSelectedText),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.spacing16),
                 _NoteContext(
                   selectedText: widget.selectedText,
                   hasSelectedText: hasSelectedText,
                 ),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.spacing16),
                 TextField(
                   controller: _controller,
                   minLines: 3,
@@ -71,13 +71,13 @@ class _PdfNoteDialogState extends State<PdfNoteDialog> {
                     filled: true,
                     fillColor: AppColors.backgroundLight,
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                      borderRadius: BorderRadius.circular(AppRadius.radius8),
                       borderSide: const BorderSide(
                         color: AppColors.borderLight,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                      borderRadius: BorderRadius.circular(AppRadius.radius8),
                       borderSide: const BorderSide(
                         color: AppColors.secondary,
                         width: 1.4,
@@ -88,7 +88,7 @@ class _PdfNoteDialogState extends State<PdfNoteDialog> {
                         color: AppColors.textPrimary,
                       ),
                 ),
-                const SizedBox(height: AppSpacing.lg),
+                const SizedBox(height: AppSpacing.spacing24),
                 Row(
                   children: <Widget>[
                     Expanded(
@@ -98,7 +98,7 @@ class _PdfNoteDialogState extends State<PdfNoteDialog> {
                           foregroundColor: AppColors.textPrimary,
                           side: const BorderSide(color: AppColors.noteBorder),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(AppRadius.sm),
+                            borderRadius: BorderRadius.circular(AppRadius.radius8),
                           ),
                         ),
                         child: Text(
@@ -106,7 +106,7 @@ class _PdfNoteDialogState extends State<PdfNoteDialog> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: AppSpacing.sm),
+                    const SizedBox(width: AppSpacing.spacing8),
                     Expanded(
                       child: FilledButton(
                         onPressed: () {
@@ -116,7 +116,7 @@ class _PdfNoteDialogState extends State<PdfNoteDialog> {
                           backgroundColor: AppColors.secondary,
                           foregroundColor: AppColors.surfaceLight,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(AppRadius.sm),
+                            borderRadius: BorderRadius.circular(AppRadius.radius8),
                           ),
                         ),
                         child: Text(
@@ -150,7 +150,7 @@ class _DialogHeader extends StatelessWidget {
             shape: BoxShape.circle,
           ),
           child: Padding(
-            padding: EdgeInsets.all(AppSpacing.sm),
+            padding: EdgeInsets.all(AppSpacing.spacing8),
             child: HugeIcon(
               icon: HugeIcons.strokeRoundedStickyNote02,
               color: AppColors.secondary,
@@ -158,7 +158,7 @@ class _DialogHeader extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: AppSpacing.sm),
+        const SizedBox(width: AppSpacing.spacing8),
         Expanded(
           child: Text(
             hasSelectedText
@@ -189,11 +189,11 @@ class _NoteContext extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: AppColors.noteSurface,
-        borderRadius: BorderRadius.circular(AppRadius.sm),
+        borderRadius: BorderRadius.circular(AppRadius.radius8),
         border: Border.all(color: AppColors.noteBorder),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.sm),
+        padding: const EdgeInsets.all(AppSpacing.spacing8),
         child: Text(
           hasSelectedText
               ? selectedText

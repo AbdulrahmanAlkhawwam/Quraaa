@@ -2,10 +2,6 @@ import 'dart:async';
 import 'dart:isolate';
 import 'dart:ui';
 
-import 'package:easy_localization/easy_localization.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -18,8 +14,8 @@ import 'core/error_monitoring/telegram_notification_service.dart';
 import 'core/localization/localization_service.dart';
 import 'core/localization/supported_locales.dart';
 import 'core/services/app_diagnostics_service.dart';
-import 'core/services/services.dart';
-import 'core/services/firebase_notification_service.dart';
+import 'core/services/firebase_messaging_service.dart';
+import 'core/services/firebase_service.dart';
 import 'core/services/notification_service.dart';
 import 'core/services/storage_service.dart';
 
@@ -32,10 +28,12 @@ Future<void> main() async {
     () async {
       WidgetsFlutterBinding.ensureInitialized();
       await dotenv.load(fileName: '.env');
-      await LocalizationService.ensureInitialized();await FirebaseService.initialize();
+      await LocalizationService.ensureInitialized();
+      await FirebaseService.initialize();
 
-  // Register the top-level background message handler before runApp.
-  FirebaseMessaging.onBackgroundMessage(firebaseBackgroundMessageHandler);
+      // Register the top-level background message handler before runApp.
+      FirebaseMessaging.onBackgroundMessage(firebaseBackgroundMessageHandler);
+
       await configureDependencies();
 
       final StorageService storageService = sl<StorageService>();
@@ -73,9 +71,6 @@ Future<void> main() async {
 
 Future<void> _initializeFirebase(AppLogger appLogger) async {
   try {
-    await Firebase.initializeApp();
-    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-
     final NotificationService notificationService = sl<NotificationService>();
     await notificationService.initialize();
   } catch (error, stackTrace) {

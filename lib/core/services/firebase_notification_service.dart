@@ -22,12 +22,14 @@ class FirebaseNotificationService implements NotificationService {
   bool get _isFirebaseReady => Firebase.apps.isNotEmpty;
 
   @override
-  Future<void> initialize() async {
+  Future<void> initialize({bool shouldRequestPermission = true}) async {
     if (!_isFirebaseReady) {
       return;
     }
     _messaging = FirebaseMessaging.instance;
-    await requestPermission();
+    if (shouldRequestPermission) {
+      await requestPermission();
+    }
 
     FirebaseMessaging.onMessage.listen(_foregroundMessages.add);
     FirebaseMessaging.onMessageOpenedApp.listen(_foregroundMessages.add);
@@ -46,6 +48,10 @@ class FirebaseNotificationService implements NotificationService {
   }
 
   @override
+  Future<void> handleForegroundMessage(RemoteMessage message) async {
+    _foregroundMessages.add(message);
+  }
+
   Future<String?> getToken() async {
     if (_messaging == null) return null;
     return _messaging!.getToken();

@@ -30,27 +30,27 @@ class PdfReaderControls extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.sm,
-        AppSpacing.lg,
-        AppSpacing.md,
+        AppSpacing.spacing24,
+        AppSpacing.spacing8,
+        AppSpacing.spacing24,
+        AppSpacing.spacing16,
       ),
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: AppColors.surfaceLight,
-          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderRadius: BorderRadius.circular(AppRadius.radius16),
           border: Border.all(color: AppColors.borderLight),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.sm,
-            vertical: AppSpacing.xs,
+            horizontal: AppSpacing.spacing8,
+            vertical: AppSpacing.spacing4,
           ),
           child: Wrap(
             alignment: WrapAlignment.center,
             crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.xs,
+            spacing: AppSpacing.spacing8,
+            runSpacing: AppSpacing.spacing4,
             children: <Widget>[
               _ReaderArrowButton(
                 icon: HugeIcons.strokeRoundedArrowLeft01,
@@ -142,7 +142,7 @@ class _TwoPageModeToggle extends StatelessWidget {
           color: AppColors.secondary,
           size: 20,
         ),
-        const SizedBox(width: AppSpacing.xs),
+        const SizedBox(width: AppSpacing.spacing4),
         Text(
           LocalizationConstants.pdfReaderTwoPageModeKey.tr(),
           style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -152,7 +152,7 @@ class _TwoPageModeToggle extends StatelessWidget {
         Switch.adaptive(
           value: enabled,
           onChanged: onChanged,
-          activeColor: AppColors.secondary,
+          activeThumbColor: AppColors.secondary,
         ),
       ],
     );

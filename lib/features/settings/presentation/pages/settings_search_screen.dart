@@ -120,7 +120,7 @@ class _SettingsSearchScreenState extends State<SettingsSearchScreen> {
                       )
                     : ListView.separated(
                         itemCount: results.length,
-                        separatorBuilder: (_, __) =>
+                        separatorBuilder: (_, _) =>
                             const SizedBox(height: AppSpacing.spacing12),
                         itemBuilder: (BuildContext context, int index) {
                           final _SettingsShortcut shortcut = results[index];

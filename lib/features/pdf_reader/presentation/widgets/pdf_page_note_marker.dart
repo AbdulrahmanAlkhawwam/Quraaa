@@ -45,13 +45,13 @@ class PdfPageNoteMarker extends StatelessWidget {
           color: Colors.transparent,
           child: InkWell(
             onTap: () => onPressed(note),
-            borderRadius: BorderRadius.circular(AppRadius.sm),
+            borderRadius: BorderRadius.circular(AppRadius.radius8),
             child: Opacity(
               opacity: 0.38,
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   color: AppColors.noteSurface,
-                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                  borderRadius: BorderRadius.circular(AppRadius.radius8),
                   border: Border.all(color: AppColors.secondary),
                   boxShadow: AppShadows.elevation1,
                 ),

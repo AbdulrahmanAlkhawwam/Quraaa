@@ -1,0 +1,125 @@
+00:00 +0: loading C:/Users/User/StudioProjects/Quraaa/test/core/errors/error_mapper_test.dart
+00:00 +0: C:/Users/User/StudioProjects/Quraaa/test/core/errors/error_mapper_test.dart: ErrorMapper maps unknown error to exception and failure
+00:00 +1: C:/Users/User/StudioProjects/Quraaa/test/core/errors/error_mapper_test.dart: ErrorMapper maps network error to exception and failure
+00:00 +2: C:/Users/User/StudioProjects/Quraaa/test/core/errors/error_mapper_test.dart: ErrorMapper maps resource not found to exception and failure
+00:00 +3: C:/Users/User/StudioProjects/Quraaa/test/core/errors/error_mapper_test.dart: ErrorMapper maps wrong password retry to exception and failure
+00:00 +4: C:/Users/User/StudioProjects/Quraaa/test/core/errors/error_mapper_test.dart: ErrorMapper maps payment required to exception and failure
+00:00 +5: C:/Users/User/StudioProjects/Quraaa/test/core/errors/error_mapper_test.dart: ErrorMapper maps conflict to exception and failure
+00:00 +6: C:/Users/User/StudioProjects/Quraaa/test/core/utils/image_helper_test.dart: ImageHelper isSvg returns true for lowercase svg extension
+00:00 +7: C:/Users/User/StudioProjects/Quraaa/test/core/utils/image_helper_test.dart: ImageHelper isSvg returns true for uppercase svg extension
+00:00 +8: C:/Users/User/StudioProjects/Quraaa/test/core/utils/image_helper_test.dart: ImageHelper isSvg returns true for svg in network url
+00:00 +9: C:/Users/User/StudioProjects/Quraaa/test/core/utils/image_helper_test.dart: ImageHelper isSvg returns true for svg url with query parameters
+00:00 +10: C:/Users/User/StudioProjects/Quraaa/test/core/utils/image_helper_test.dart: ImageHelper isSvg returns false for non-svg extension
+00:00 +11: C:/Users/User/StudioProjects/Quraaa/test/core/utils/image_helper_test.dart: ImageHelper isSvg returns false when svg appears in path but not extension
+00:00 +12: C:/Users/User/StudioProjects/Quraaa/test/core/utils/image_helper_test.dart: ImageHelper isSvg trims whitespace before checking
+00:00 +13: C:/Users/User/StudioProjects/Quraaa/test/core/utils/image_helper_test.dart: ImageHelper detectSource detects inline svg string
+00:00 +14: C:/Users/User/StudioProjects/Quraaa/test/core/utils/image_helper_test.dart: ImageHelper detectSource detects inline xml svg string
+00:00 +15: C:/Users/User/StudioProjects/Quraaa/test/core/utils/image_helper_test.dart: ImageHelper detectSource detects asset path
+00:00 +16: C:/Users/User/StudioProjects/Quraaa/test/core/utils/image_helper_test.dart: ImageHelper detectSource detects https url
+00:00 +17: C:/Users/User/StudioProjects/Quraaa/test/core/utils/image_helper_test.dart: ImageHelper detectSource detects http url
+00:00 +18: C:/Users/User/StudioProjects/Quraaa/test/core/utils/image_helper_test.dart: ImageHelper detectSource detects file path when isFile is true
+00:00 +19: C:/Users/User/StudioProjects/Quraaa/test/core/utils/image_helper_test.dart: ImageHelper detectSource returns unknown for unmatched path
+00:00 +20: C:/Users/User/StudioProjects/Quraaa/test/core/utils/image_helper_test.dart: ImageHelper detectSource returns file for unmatched path when isFile is true
+00:00 +21: C:/Users/User/StudioProjects/Quraaa/test/core/utils/image_helper_test.dart: ImageHelper detectSource trims whitespace before detecting
+00:01 +22: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.requiredField returns false for null
+00:01 +23: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.requiredField returns false for empty or whitespace-only strings
+00:01 +24: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.requiredField returns true for non-empty strings
+00:01 +25: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.passwordNotEmpty returns false for null or empty values
+00:01 +26: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.passwordNotEmpty returns true for any non-empty value
+00:01 +27: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.passwordMinLength returns false when value is null or shorter than default 6
+00:01 +28: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.passwordMinLength returns true when value length is at least 6
+00:01 +29: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.passwordMinLength respects custom minimum length
+00:01 +30: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.passwordHasDigit returns false when value has no digits
+00:01 +31: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.passwordHasDigit returns true when value contains at least one digit
+00:01 +32: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.validatePassword returns emptyError for null or empty value
+00:01 +33: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.validatePassword returns minLengthError for short value
+00:01 +34: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.validatePassword returns digitError for value without digits
+00:01 +35: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.validatePassword returns null for valid password
+00:01 +36: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.validatePassword reports empty error before min-length and digit errors
+00:01 +37: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.validatePassword reports min-length error before digit error
+00:01 +38: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.nameNotEmpty returns false for null or whitespace-only values
+00:01 +39: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.nameNotEmpty returns true for non-empty values
+00:01 +40: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.nameMaxLength returns false when value exceeds max length
+00:01 +41: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.nameMaxLength returns true when value length is within limit
+00:01 +42: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.validateName returns emptyError for null or whitespace-only value
+00:01 +43: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.validateName returns maxLengthError for overly long value
+00:01 +44: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.validateName returns null for valid name
+00:01 +45: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.phoneNotEmpty returns false for null or empty value
+00:01 +46: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.phoneNotEmpty returns true for non-empty value
+00:01 +47: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.phoneStartsWithPlus returns false when value does not start with +
+00:01 +48: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.phoneStartsWithPlus returns true when value starts with +
+00:01 +49: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.validatePhone returns emptyError when value is null or empty
+00:01 +50: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.validatePhone returns formatError when isValid is false
+00:01 +51: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.validatePhone returns null for valid phone
+00:01 +52: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.dateOfBirth dateOfBirthNotEmpty returns false when any part is null
+00:01 +53: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.dateOfBirth dateOfBirthNotEmpty returns true when all parts are present
+00:01 +54: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.dateOfBirth dateOfBirthValid returns false for invalid calendar dates
+00:01 +55: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.dateOfBirth dateOfBirthValid returns true for valid calendar dates
+00:01 +56: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.dateOfBirth dateOfBirthIsPast returns false for future dates
+00:01 +57: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.dateOfBirth dateOfBirthAgeInRange returns false outside 5-100
+00:01 +58: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.dateOfBirth dateOfBirthAgeInRange returns true for age exactly at boundaries
+00:01 +59: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.dateOfBirth validateDateOfBirth reports empty before invalid
+00:01 +60: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.dateOfBirth validateDateOfBirth returns invalidError for future date
+00:01 +61: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.dateOfBirth validateDateOfBirth returns null for valid adult date
+00:01 +62: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.genderValid returns false for null
+00:01 +63: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.genderValid returns true for valid enum values
+00:01 +64: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.validateGender returns invalidError for null
+00:01 +65: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.validateGender returns null for valid gender
+00:01 +66: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.interests interestsNotEmpty returns false for null or empty list
+00:01 +67: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.interests interestsNotEmpty returns true for non-empty list
+00:01 +68: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.interests interestsExist returns false when list contains invalid ids
+00:01 +69: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.interests interestsExist returns true when all ids are valid
+00:01 +70: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.interests validateInterests reports empty before invalid
+00:01 +71: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.interests validateInterests returns invalidError for unknown ids
+00:01 +72: C:/Users/User/StudioProjects/Quraaa/test/core/utils/validators_test.dart: Validators.interests validateInterests returns null for valid selection
+00:01 +73: C:/Users/User/StudioProjects/Quraaa/test/features/auth/data/repositories/auth_repository_impl_test.dart: AuthRepositoryImpl online fetch
+00:01 +74: C:/Users/User/StudioProjects/Quraaa/test/features/auth/data/repositories/auth_repository_impl_test.dart: AuthRepositoryImpl offline fetch
+00:01 +75: C:/Users/User/StudioProjects/Quraaa/test/features/auth/data/repositories/auth_repository_impl_test.dart: AuthRepositoryImpl sync scenario
+00:01 +76: C:/Users/User/StudioProjects/Quraaa/test/features/auth/data/repositories/auth_repository_impl_test.dart: AuthRepositoryImpl remote failure
+00:01 +77: C:/Users/User/StudioProjects/Quraaa/test/features/auth/data/repositories/auth_repository_impl_test.dart: AuthRepositoryImpl local failure
+00:02 +78: C:/Users/User/StudioProjects/Quraaa/test/features/auth/domain/use_cases/login_use_case_test.dart: LoginUseCase success
+00:02 +79: C:/Users/User/StudioProjects/Quraaa/test/features/auth/domain/use_cases/login_use_case_test.dart: LoginUseCase failure
+00:02 +80: C:/Users/User/StudioProjects/Quraaa/test/features/auth/domain/use_cases/login_use_case_test.dart: LoginUseCase invalid input
+00:04 +81: C:/Users/User/StudioProjects/Quraaa/test/features/auth/presentation/bloc/auth_bloc_test.dart: (setUpAll)
+00:04 +81: C:/Users/User/StudioProjects/Quraaa/test/features/auth/presentation/bloc/auth_bloc_test.dart: AuthBloc initial state is AuthState with init status
+00:04 +82: C:/Users/User/StudioProjects/Quraaa/test/features/auth/presentation/bloc/auth_bloc_test.dart: AuthBloc AuthLoginRequested emits loading then success on success
+00:04 +83: C:/Users/User/StudioProjects/Quraaa/test/features/auth/presentation/bloc/auth_bloc_test.dart: AuthBloc AuthLoginRequested emits loading then error on failure
+00:04 +84: C:/Users/User/StudioProjects/Quraaa/test/features/auth/presentation/bloc/auth_bloc_test.dart: AuthBloc AuthRegisterRequested emits loading then success on success
+00:04 +85: C:/Users/User/StudioProjects/Quraaa/test/features/auth/presentation/bloc/auth_bloc_test.dart: AuthBloc AuthRegisterRequested joins first and last name when provided
+00:04 +86: C:/Users/User/StudioProjects/Quraaa/test/features/auth/presentation/bloc/auth_bloc_test.dart: AuthBloc AuthRegisterRequested emits loading then error on failure
+00:04 +87: C:/Users/User/StudioProjects/Quraaa/test/features/auth/presentation/bloc/auth_bloc_test.dart: AuthBloc AuthStarted marks auth seen and resets state
+00:04 +88: C:/Users/User/StudioProjects/Quraaa/test/features/auth/presentation/bloc/auth_bloc_test.dart: AuthBloc AuthOnboardingRequested emits navigation loading then navigate to onboarding
+00:04 +89: C:/Users/User/StudioProjects/Quraaa/test/features/auth/presentation/bloc/auth_bloc_test.dart: AuthBloc AuthLoginRequestedFromAuth emits navigation loading then navigate to login
+00:04 +90: C:/Users/User/StudioProjects/Quraaa/test/features/auth/presentation/bloc/auth_bloc_test.dart: (tearDownAll)
+00:04 +90: C:/Users/User/StudioProjects/Quraaa/test/shared/theme/styles/filled_button_test.dart: filledButtonTheme resolves background and foreground colors from the color scheme
+00:04 +91: C:/Users/User/StudioProjects/Quraaa/test/shared/theme/styles/filled_button_test.dart: filledButtonTheme adapts colors for the dark color scheme
+00:04 +92: C:/Users/User/StudioProjects/Quraaa/test/shared/theme/styles/filled_button_test.dart: filledButtonTheme uses the correct minimum size and padding
+00:04 +93: C:/Users/User/StudioProjects/Quraaa/test/shared/theme/styles/filled_button_test.dart: filledButtonTheme uses a rounded rectangle shape with radius 32
+00:04 +94: C:/Users/User/StudioProjects/Quraaa/test/shared/theme/styles/filled_button_test.dart: filledButtonTheme applies disabled colors from the color scheme
+00:05 +95: C:/Users/User/StudioProjects/Quraaa/test/shared/theme/styles/outlined_button_test.dart: outlinedButtonTheme resolves foreground and background colors from the color scheme
+00:05 +96: C:/Users/User/StudioProjects/Quraaa/test/shared/theme/styles/outlined_button_test.dart: outlinedButtonTheme adapts colors for the dark color scheme
+00:05 +97: C:/Users/User/StudioProjects/Quraaa/test/shared/theme/styles/outlined_button_test.dart: outlinedButtonTheme uses the correct outline color and disabled outline color
+00:05 +98: C:/Users/User/StudioProjects/Quraaa/test/shared/theme/styles/outlined_button_test.dart: outlinedButtonTheme uses the correct minimum size and padding
+00:05 +99: C:/Users/User/StudioProjects/Quraaa/test/shared/theme/styles/outlined_button_test.dart: outlinedButtonTheme uses a rounded rectangle shape with radius 32
+00:05 +100: C:/Users/User/StudioProjects/Quraaa/test/shared/theme/styles/text_button_test.dart: textButtonTheme resolves foreground color from the color scheme
+00:05 +101: C:/Users/User/StudioProjects/Quraaa/test/shared/theme/styles/text_button_test.dart: textButtonTheme adapts foreground color for the dark color scheme
+00:05 +102: C:/Users/User/StudioProjects/Quraaa/test/shared/theme/styles/text_button_test.dart: textButtonTheme uses the correct padding
+00:05 +103: C:/Users/User/StudioProjects/Quraaa/test/shared/theme/styles/text_button_test.dart: textButtonTheme applies disabled foreground color from the color scheme
+00:05 +104: C:/Users/User/StudioProjects/Quraaa/test/shared/theme/styles/text_button_test.dart: textButtonTheme applies theme-aware overlay colors for pressed and hovered states
+00:07 +105: C:/Users/User/StudioProjects/Quraaa/test/shared/widgets/app_image_test.dart: AppImage shows error widget when url is null
+00:08 +106: C:/Users/User/StudioProjects/Quraaa/test/shared/widgets/app_image_test.dart: AppImage shows default placeholder when url is null
+00:08 +107: C:/Users/User/StudioProjects/Quraaa/test/shared/widgets/app_image_test.dart: AppImage renders SvgPicture.string for inline svg
+00:08 +108: C:/Users/User/StudioProjects/Quraaa/test/shared/widgets/app_image_test.dart: AppImage renders SvgPicture.string for inline xml svg
+00:08 +109: C:/Users/User/StudioProjects/Quraaa/test/shared/widgets/app_image_test.dart: AppImage renders Image.asset for asset image
+00:09 +110: C:/Users/User/StudioProjects/Quraaa/test/shared/widgets/app_image_test.dart: AppImage renders SvgPicture.asset for asset svg
+00:09 +111: C:/Users/User/StudioProjects/Quraaa/test/shared/widgets/app_image_test.dart: AppImage renders SvgPicture.asset for uppercase asset svg extension
+00:09 +112: C:/Users/User/StudioProjects/Quraaa/test/shared/widgets/app_image_test.dart: AppImage renders Image.network for network image
+00:09 +113: C:/Users/User/StudioProjects/Quraaa/test/shared/widgets/app_image_test.dart: AppImage shows error widget for unrecognized url
+00:09 +114: C:/Users/User/StudioProjects/Quraaa/test/shared/widgets/app_image_test.dart: AppImage shows placeholder for unrecognized url
+00:09 +115: C:/Users/User/StudioProjects/Quraaa/test/shared/widgets/app_image_test.dart: AppImage uses custom placeholder when provided
+00:09 +116: C:/Users/User/StudioProjects/Quraaa/test/shared/widgets/app_image_test.dart: AppImage applies width and height to the rendered image
+00:09 +117: C:/Users/User/StudioProjects/Quraaa/test/shared/widgets/app_image_test.dart: AppImage applies color to image
+00:09 +118: C:/Users/User/StudioProjects/Quraaa/test/shared/widgets/app_image_test.dart: AppImage applies color filter to svg
+00:09 +119: C:/Users/User/StudioProjects/Quraaa/test/shared/widgets/app_image_test.dart: AppImage animated placeholder wraps icon in FadeTransition
+00:09 +120: C:/Users/User/StudioProjects/Quraaa/test/shared/widgets/app_image_test.dart: AppImage placeholder icon size is clamped to a non-negative value
+00:09 +121: All tests passed!

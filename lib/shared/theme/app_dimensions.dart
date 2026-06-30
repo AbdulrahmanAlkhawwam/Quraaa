@@ -23,4 +23,7 @@ abstract class AppDimensions {
   // Shared widgets
   static const double dragHandleWidth = 40;
   static const double dragHandleHeight = 4;
+
+  // Reader / explorer layout
+  static const double pageMaxWidth = 800;
 }

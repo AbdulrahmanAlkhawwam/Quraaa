@@ -24,7 +24,7 @@ class ExplorerList extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView.separated(
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.only(bottom: AppSpacing.xl),
+      padding: const EdgeInsets.only(bottom: AppSpacing.spacing32),
       itemBuilder: (BuildContext context, int index) {
         final LocalFileEntry entry = entries[index];
         final bool enabled = entry.isSupported;

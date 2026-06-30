@@ -18,13 +18,13 @@ class ExplorerNote extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: AppColors.noteSurface,
-        borderRadius: BorderRadius.circular(AppRadius.sm),
+        borderRadius: BorderRadius.circular(AppRadius.radius8),
         border: Border.all(color: AppColors.noteBorder),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.sm,
+          horizontal: AppSpacing.spacing16,
+          vertical: AppSpacing.spacing8,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

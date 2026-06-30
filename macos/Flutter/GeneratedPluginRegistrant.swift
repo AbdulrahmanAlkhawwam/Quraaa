@@ -10,9 +10,8 @@ import firebase_core
 import firebase_crashlytics
 import firebase_messaging
 import flutter_device_info_plus
-import geolocator_apple
-import package_info_plus
 import flutter_local_notifications
+import geolocator_apple
 import shared_preferences_foundation
 import sqflite_darwin
 
@@ -22,8 +21,8 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   FLTFirebaseCrashlyticsPlugin.register(with: registry.registrar(forPlugin: "FLTFirebaseCrashlyticsPlugin"))
   FLTFirebaseMessagingPlugin.register(with: registry.registrar(forPlugin: "FLTFirebaseMessagingPlugin"))
   FlutterDeviceInfoPlusPlugin.register(with: registry.registrar(forPlugin: "FlutterDeviceInfoPlusPlugin"))
-  GeolocatorPlugin.register(with: registry.registrar(forPlugin: "GeolocatorPlugin"))
   FlutterLocalNotificationsPlugin.register(with: registry.registrar(forPlugin: "FlutterLocalNotificationsPlugin"))
+  GeolocatorPlugin.register(with: registry.registrar(forPlugin: "GeolocatorPlugin"))
   SharedPreferencesPlugin.register(with: registry.registrar(forPlugin: "SharedPreferencesPlugin"))
   SqflitePlugin.register(with: registry.registrar(forPlugin: "SqflitePlugin"))
 }

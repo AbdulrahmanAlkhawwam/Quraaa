@@ -23,10 +23,10 @@ class PdfReaderHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.md,
-        AppSpacing.lg,
-        AppSpacing.sm,
+        AppSpacing.spacing24,
+        AppSpacing.spacing16,
+        AppSpacing.spacing24,
+        AppSpacing.spacing8,
       ),
       child: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
@@ -54,11 +54,11 @@ class PdfReaderHeader extends StatelessWidget {
                 Row(
                   children: <Widget>[
                     leading,
-                    const SizedBox(width: AppSpacing.sm),
+                    const SizedBox(width: AppSpacing.spacing8),
                     Expanded(child: title),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: AppSpacing.spacing8),
                 Row(
                   children: <Widget>[
                     const Spacer(),
@@ -72,9 +72,9 @@ class PdfReaderHeader extends StatelessWidget {
           return Row(
             children: <Widget>[
               leading,
-              const SizedBox(width: AppSpacing.sm),
+              const SizedBox(width: AppSpacing.spacing8),
               Expanded(child: title),
-              const SizedBox(width: AppSpacing.md),
+              const SizedBox(width: AppSpacing.spacing16),
               counter,
             ],
           );

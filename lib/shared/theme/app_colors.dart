@@ -76,6 +76,20 @@ abstract class AppColors {
     ],
   ];
 
+  // File / explorer semantics
+  static const Color textMuted = textTertiary;
+  static const Color borderLight = primary100;
+  static const Color pdfLabel = error500;
+  static const Color pdfSurface = Color(0xFFFBEAEA);
+  static const Color pdfFold = error500;
+  static const Color unsupportedFileLabel = textTertiary;
+  static const Color unsupportedFileSurface = surface;
+  static const Color unsupportedFileFold = textTertiary;
+  static const Color folderTab = primary600;
+  static const Color folderBody = primary300;
+  static const Color noteSurface = Color(0xFFFFF8E1);
+  static const Color noteBorder = warning500;
+
   // Backward compatibility mappings
   static const Color primary = primary600;
   static const Color secondary = forestGreen;

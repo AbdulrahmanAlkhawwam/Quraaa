@@ -45,6 +45,13 @@ abstract class AppTextStyles {
     height: 1.2,
   );
 
+  static TextStyle explorerTitle() => const TextStyle(
+    fontFamily: displayFont,
+    fontSize: 18,
+    fontWeight: FontWeight.w500,
+    height: 1.2,
+  );
+
   static const TextStyle titleMedium = TextStyle(
     fontFamily: displayFont,
     fontSize: 18,

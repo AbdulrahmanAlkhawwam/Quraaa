@@ -25,7 +25,6 @@ import '../../core/connectivity/connection_status.dart';
 import '../../core/connectivity/connectivity_service.dart';
 import '../../core/di/injection_container.dart';
 import '../../features/splash/presentation/pages/splash_screen.dart';
-import '../../features/local_explorer/presentation/pages/local_explorer_page.dart';
 import '../../features/pdf_reader/presentation/pages/pdf_reader_page.dart';
 import '../../shared/widgets/app_shell.dart';
 import 'route_names.dart';

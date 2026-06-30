@@ -22,7 +22,6 @@ import '../../features/auth/domain/use_cases/login_use_case.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import '../error_monitoring/app_bloc_observer.dart';
-import '../error_monitoring/app_logger.dart';
 import '../error_monitoring/crashlytics_service.dart';
 import '../error_monitoring/device_info_provider.dart';
 import '../error_monitoring/dio_logging_interceptor.dart';
@@ -44,9 +43,7 @@ import '../services/app_diagnostics_service.dart';
 import '../connectivity/connectivity_service.dart';
 import '../connectivity/connectivity_service_impl.dart';
 import '../services/firebase_notification_service.dart';
-import '../services/notification_service.dart';
 import '../services/storage_service_impl.dart';
-import '../services/storage_service.dart';
 
 import '../services/services.dart';
 import '../../features/local_explorer/data/datasources/local/local_explorer_platform_datasource.dart';
@@ -82,29 +79,6 @@ Future<void> configureDependencies() async {
 }
 
 void registerCoreDependencies() {
-  sl
-    ..registerLazySingleton<NotificationService>(NotificationService.new)
-    ..registerLazySingleton<FirebaseMessagingService>(
-      () => FirebaseMessagingService(
-        notificationService: sl<NotificationService>(),
-      ),
-    );
-}
-
-void registerFeatureDependencies() {
-  if (!sl.isRegistered<LocalExplorerPlatformDataSource>()) {
-    sl.registerLazySingleton<LocalExplorerPlatformDataSource>(
-      LocalExplorerPlatformDataSource.new,
-    );
-  }
-
-  if (!sl.isRegistered<LocalFileSystemDataSource>()) {
-    sl.registerLazySingleton<LocalFileSystemDataSource>(
-      () => createLocalFileSystemDataSource(sl()),
-    );
-  }
-
-void registerCoreDependencies() {
   sl.registerLazySingleton<StorageService>(
     () => StorageServiceImpl(sl<SharedPreferences>()),
   );
@@ -131,6 +105,10 @@ void registerCoreDependencies() {
   sl.registerLazySingleton<CrashlyticsService>(() => CrashlyticsService());
   sl.registerLazySingleton<ErrorReportCache>(
     () => ErrorReportCache(sl<StorageService>()),
+  );
+
+  sl.registerLazySingleton<ConnectivityService>(
+    () => ConnectivityServiceImpl(),
   );
 
   sl.registerLazySingleton<TelegramNotificationService>(
@@ -165,16 +143,22 @@ void registerCoreDependencies() {
   );
   sl.registerLazySingleton<HttpHelper>(() => HttpHelper(sl<Dio>()));
 
+  sl.registerLazySingleton<LocalNotificationService>(
+    LocalNotificationService.new,
+  );
+
   sl.registerLazySingleton<NotificationService>(
     () => FirebaseNotificationService(),
   );
 
-  sl.registerLazySingleton<AppDiagnosticsService>(
-    () => AppDiagnosticsService(sl<AppLogger>()),
+  sl.registerLazySingleton<FirebaseMessagingService>(
+    () => FirebaseMessagingService(
+      notificationService: sl<LocalNotificationService>(),
+    ),
   );
 
-  sl.registerLazySingleton<ConnectivityService>(
-    () => ConnectivityServiceImpl(),
+  sl.registerLazySingleton<AppDiagnosticsService>(
+    () => AppDiagnosticsService(sl<AppLogger>()),
   );
 
   sl.registerLazySingleton<AppThemeCubit>(
@@ -183,16 +167,27 @@ void registerCoreDependencies() {
 }
 
 void registerFeatureDependencies() {
-  sl.registerLazySingleton<AuthLocalDataSource>(
-    () => AuthLocalDataSourceImpl(sl<StorageService>()),
-  );
+  if (!sl.isRegistered<LocalExplorerPlatformDataSource>()) {
+    sl.registerLazySingleton<LocalExplorerPlatformDataSource>(
+      LocalExplorerPlatformDataSource.new,
+    );
+  }
 
-  sl.registerLazySingleton<UserLocalDataSource>(
-    () => UserLocalDataSourceImpl(sl<StorageService>()),
-  );
+  if (!sl.isRegistered<LocalFileSystemDataSource>()) {
+    sl.registerLazySingleton<LocalFileSystemDataSource>(
+      () => createLocalFileSystemDataSource(sl()),
+    );
+  }
+
   if (!sl.isRegistered<PdfRenderDataSource>()) {
     sl.registerLazySingleton<PdfRenderDataSource>(
       MethodChannelPdfRenderDataSource.new,
+    );
+  }
+
+  if (!sl.isRegistered<PdfNoteDataSource>()) {
+    sl.registerLazySingleton<PdfNoteDataSource>(
+      InMemoryPdfNoteDataSource.new,
     );
   }
 
@@ -291,12 +286,6 @@ void registerFeatureDependencies() {
   );
 
   sl.registerFactory<EditProfileBloc>(EditProfileBloc.new);
-}
-  if (!sl.isRegistered<PdfNoteDataSource>()) {
-    sl.registerLazySingleton<PdfNoteDataSource>(
-      InMemoryPdfNoteDataSource.new,
-    );
-  }
 
   if (!sl.isRegistered<PdfReaderRepository>()) {
     sl.registerLazySingleton<PdfReaderRepository>(
@@ -394,7 +383,7 @@ Future<void> initializeNotificationDependencies() async {
   final notificationService = sl<NotificationService>();
   final messagingService = sl<FirebaseMessagingService>();
 
-  await notificationService.initialize(requestPermission: true);
+  await notificationService.initialize(shouldRequestPermission: true);
   await messagingService.requestPermissions();
   await messagingService.subscribeToDefaultTopic();
   messagingService.listenToForegroundMessages();

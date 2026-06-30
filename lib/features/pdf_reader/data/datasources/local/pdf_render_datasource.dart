@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:flutter/services.dart';
 
 import '../../../domain/entities/pdf_text_layer.dart';
@@ -23,8 +21,8 @@ abstract class PdfRenderDataSource {
 
 class MethodChannelPdfRenderDataSource implements PdfRenderDataSource {
   MethodChannelPdfRenderDataSource({
-    MethodChannel channel = const MethodChannel('quraaa/pdf_renderer'),
-  }) : _channel = channel;
+    this._channel = const MethodChannel('quraaa/pdf_renderer'),
+  });
 
   final MethodChannel _channel;
 

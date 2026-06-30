@@ -5,7 +5,7 @@ import '../../../../../core/errors/exceptions.dart';
 
 class LocalExplorerPlatformDataSource {
   LocalExplorerPlatformDataSource({
-    MethodChannel this._channel = const MethodChannel('quraaa/local_explorer'),
+    this._channel = const MethodChannel('quraaa/local_explorer'),
   });
 
   final MethodChannel _channel;

@@ -25,13 +25,13 @@ class PdfSelectionToolbarPosition extends StatelessWidget {
 
     final double left = _clampDouble(
       bounds.left,
-      AppSpacing.sm,
-      math.max(AppSpacing.sm, pageSize.width - 174),
+      AppSpacing.spacing8,
+      math.max(AppSpacing.spacing8, pageSize.width - 174),
     );
     final double top = _clampDouble(
       bounds.top - 54,
-      AppSpacing.sm,
-      math.max(AppSpacing.sm, pageSize.height - 54),
+      AppSpacing.spacing8,
+      math.max(AppSpacing.spacing8, pageSize.height - 54),
     );
 
     return Positioned(
