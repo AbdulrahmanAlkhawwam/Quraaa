@@ -30,6 +30,12 @@ import '../error_monitoring/navigation_tracker.dart';
 import '../error_monitoring/error_report_cache.dart';
 import '../error_monitoring/telegram_notification_service.dart';
 import '../error_monitoring/user_context_provider.dart';
+import '../../features/profile/data/datasources/profile_local_data_source.dart';
+import '../../features/profile/data/datasources/profile_remote_data_source.dart';
+import '../../features/profile/data/repositories/profile_repository_impl.dart';
+import '../../features/profile/domain/repositories/profile_repository.dart';
+import '../../features/profile/presentation/bloc/profile_bloc.dart';
+import '../network/auth_interceptor.dart';
 import '../network/http_helper.dart';
 import '../services/app_diagnostics_service.dart';
 import '../connectivity/connectivity_service.dart';
@@ -100,6 +106,16 @@ void registerCoreDependencies() {
     () => StorageServiceImpl(sl<SharedPreferences>()),
   );
 
+  // Auth token storage must be available to the network layer so the auth
+  // interceptor can attach tokens to outgoing requests.
+  sl.registerLazySingleton<AuthLocalDataSource>(
+    () => AuthLocalDataSourceImpl(sl<StorageService>()),
+  );
+
+  sl.registerLazySingleton<UserLocalDataSource>(
+    () => UserLocalDataSourceImpl(sl<StorageService>()),
+  );
+
   sl.registerLazySingleton<DeviceInfoProvider>(() => DeviceInfoProvider());
   sl.registerLazySingleton<NavigationTracker>(() => NavigationTracker());
   sl.registerLazySingleton<UserContextProvider>(
@@ -131,8 +147,14 @@ void registerCoreDependencies() {
   sl.registerLazySingleton<DioLoggingInterceptor>(
     () => DioLoggingInterceptor(sl<AppLogger>()),
   );
+  sl.registerLazySingleton<AuthInterceptor>(
+    () => AuthInterceptor(sl<AuthLocalDataSource>()),
+  );
   sl.registerLazySingleton<Dio>(
-    () => HttpHelper.buildDio(<Interceptor>[sl<DioLoggingInterceptor>()]),
+    () => HttpHelper.buildDio(<Interceptor>[
+      sl<AuthInterceptor>(),
+      sl<DioLoggingInterceptor>(),
+    ]),
   );
   sl.registerLazySingleton<HttpHelper>(() => HttpHelper(sl<Dio>()));
 
@@ -230,6 +252,30 @@ void registerFeatureDependencies() {
       authJourney: sl<AuthLocalDataSource>(),
       userCache: sl<UserLocalDataSource>(),
       userContext: sl<UserContextProvider>(),
+    ),
+  );
+
+  // Profile binding feature
+  sl.registerLazySingleton<ProfileLocalDataSource>(
+    () => ProfileLocalDataSourceImpl(sl<StorageService>()),
+  );
+
+  sl.registerLazySingleton<ProfileRemoteDataSource>(
+    () => ProfileRemoteDataSourceImpl(sl<HttpHelper>()),
+  );
+
+  sl.registerLazySingleton<ProfileRepository>(
+    () => ProfileRepositoryImpl(sl<ProfileRemoteDataSource>()),
+  );
+
+  sl.registerFactory<ProfileBloc>(
+    () => ProfileBloc(
+      profileRepository: sl<ProfileRepository>(),
+      authRepository: sl<AuthRepository>(),
+      authLocalDataSource: sl<AuthLocalDataSource>(),
+      userLocalDataSource: sl<UserLocalDataSource>(),
+      connectivityService: sl<ConnectivityService>(),
+      profileLocalDataSource: sl<ProfileLocalDataSource>(),
     ),
   );
 }

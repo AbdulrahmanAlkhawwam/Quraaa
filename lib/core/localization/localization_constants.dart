@@ -88,10 +88,22 @@ class LocalizationConstants {
   static const String userDataLogoutKey = 'user_data.logout';
   static const String userDataProfileTabKey = 'user_data.tabs.profile';
   static const String userDataAppearanceTabKey = 'user_data.tabs.appearance';
+  static const String userDataSettingsTabKey = 'user_data.tabs.settings';
+  static const String userDataBooksTabKey = 'user_data.tabs.books';
+  static const String userDataBadgesTabKey = 'user_data.tabs.badges';
+  static const String userDataFoldersTabKey = 'user_data.tabs.folders';
   static const String userDataBookmarksTabKey = 'user_data.tabs.bookmarks';
   static const String userDataBudgetsTabKey = 'user_data.tabs.budgets';
   static const String userDataLibraryTabKey = 'user_data.tabs.library';
   static const String userDataHistoryTabKey = 'user_data.tabs.history';
+  static const String userDataSettingsAppearanceKey =
+      'user_data.settings.appearance';
+  static const String userDataSettingsNotificationManagementKey =
+      'user_data.settings.notification_management';
+  static const String userDataSettingsSecurityKey =
+      'user_data.settings.security';
+  static const String userDataSettingsLanguagesKey =
+      'user_data.settings.languages';
   static const String userDataFullNameKey = 'user_data.profile.full_name';
   static const String userDataBirthDateKey = 'user_data.profile.birth_date';
   static const String userDataCountryKey = 'user_data.profile.country';

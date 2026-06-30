@@ -45,6 +45,16 @@ class AuthRepositoryImpl extends BaseRepository<User>
   }
 
   @override
+  Future<User> refreshToken({
+    required String refreshToken,
+  }) async {
+    final Map<String, Object?> response = await _remoteDataSource.refreshToken(
+      refreshToken: refreshToken,
+    );
+    return AuthMapper.fromJson(response);
+  }
+
+  @override
   Future<User> getCached() {
     throw UnimplementedError();
   }

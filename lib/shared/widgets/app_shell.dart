@@ -1,29 +1,28 @@
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../config/routes/route_names.dart';
 import '../../core/di/injection_container.dart';
 import '../../core/localization/localization_constants.dart';
-import '../../core/localization/localization_service.dart';
-import '../../core/localization/supported_locales.dart';
 import '../../core/services/storage_service.dart';
 import '../../features/account/data/user_data_local_data_source.dart';
 import '../../features/auth/data/datasources/user_local_datasource.dart';
 import '../../features/auth/data/models/user_model.dart';
+import '../../features/profile/data/models/profile_model.dart';
+import '../../features/profile/presentation/bloc/profile_bloc.dart';
+import '../../features/profile/presentation/bloc/profile_state.dart';
+import '../../features/profile/presentation/widgets/profile_info_shimmer.dart';
+import '../../features/settings/presentation/widgets/profile_avatar.dart';
 import '../shared.dart';
 
-enum UserDataTab {
-  profile,
-  edit,
-  idCard,
-  badges,
-  history,
-  settings,
-}
+const double _backIconSize = 24;
+const double _chevronIconSize = 20;
+
+enum UserDataTab { profile, edit, idCard, badges, history, settings }
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
@@ -33,13 +32,19 @@ class AppShell extends StatefulWidget {
 }
 
 class _AppShellState extends State<AppShell> {
-  final UserDataLocalDataSource _dataSource =
-      UserDataLocalDataSource(sl<StorageService>());
+  final UserDataLocalDataSource _dataSource = UserDataLocalDataSource(
+    sl<StorageService>(),
+  );
   final UserLocalDataSource _authDataSource = sl<UserLocalDataSource>();
 
-  UserDataTab _selectedTab = UserDataTab.profile;
+  UserDataTab _selectedTab = UserDataTab.settings;
   UserDataSnapshot? _snapshot;
   bool _loading = true;
+
+  static const double _headerExpandedHeight = 340;
+  static const double _headerToolbarHeight = 64;
+  static const double _headerBottomHeight = 212;
+  static const double _avatarOverlap = 40;
 
   @override
   void initState() {
@@ -73,7 +78,9 @@ class _AppShellState extends State<AppShell> {
     UserModel user,
   ) {
     return UserDataSnapshot(
-      fullName: user.fullName.isNotEmpty ? user.fullName : localSnapshot.fullName,
+      fullName: user.fullName.isNotEmpty
+          ? user.fullName
+          : localSnapshot.fullName,
       birthDate: user.birthday ?? localSnapshot.birthDate,
       country: user.country ?? localSnapshot.country,
       phone: user.phoneNumber ?? localSnapshot.phone,
@@ -84,6 +91,31 @@ class _AppShellState extends State<AppShell> {
       libraryItems: localSnapshot.libraryItems,
       operations: localSnapshot.operations,
       profileImage: localSnapshot.profileImage,
+    );
+  }
+
+  UserDataSnapshot _mergeProfile(
+    UserDataSnapshot localSnapshot,
+    ProfileModel? profile,
+  ) {
+    if (profile == null) {
+      return localSnapshot;
+    }
+
+    return UserDataSnapshot(
+      fullName: profile.fullName.isNotEmpty
+          ? profile.fullName
+          : localSnapshot.fullName,
+      birthDate: profile.dateOfBirth ?? localSnapshot.birthDate,
+      country: localSnapshot.country,
+      phone: profile.phoneNumber ?? localSnapshot.phone,
+      theme: localSnapshot.theme,
+      language: localSnapshot.language,
+      bookmarks: localSnapshot.bookmarks,
+      budgetBalance: localSnapshot.budgetBalance,
+      libraryItems: localSnapshot.libraryItems,
+      operations: localSnapshot.operations,
+      profileImage: profile.profileImageUrl ?? localSnapshot.profileImage,
     );
   }
 
@@ -119,124 +151,98 @@ class _AppShellState extends State<AppShell> {
 
     if (_loading || snapshot == null) {
       return const Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.neutralBackground,
         body: Center(child: CircularProgressIndicator()),
       );
     }
 
-    final String? profileImage = snapshot.profileImage;
-    final bool hasImage = profileImage != null && profileImage.isNotEmpty;
+    return BlocConsumer<ProfileBloc, ProfileState>(
+      listenWhen: (ProfileState previous, ProfileState current) =>
+          current.error != previous.error ||
+          current.requiresLogin != previous.requiresLogin,
+      listener: (BuildContext context, ProfileState profileState) {
+        if (profileState.error != null) {
+          context.showResolvedErrorSnackBar(profileState.error);
+        }
+        if (profileState.requiresLogin && context.mounted) {
+          context.goTo(RouteNames.auth);
+        }
+      },
+      builder: (BuildContext context, ProfileState profileState) {
+        final UserDataSnapshot mergedSnapshot = _mergeProfile(
+          snapshot,
+          profileState.profile,
+        );
+        final String? profileImageUrl = mergedSnapshot.profileImage;
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 300,
-            toolbarHeight: 64,
-            pinned: true,
-            backgroundColor: AppColors.primary50,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(AppRadius.radius40),
-                bottomRight: Radius.circular(AppRadius.radius40),
-              ),
-            ),
-            leading: IconButton(
-              onPressed: () => context.back(),
-              icon: HugeIcon(
-                icon: HugeIcons.strokeRoundedArrowLeft01,
-                color: AppColors.libraryGreen,
-                size: 24,
-              ),
-            ),
-            centerTitle: true,
-            title: Text(
-              'settings',
-              style: AppTextStyles.h3.copyWith(color: AppColors.libraryGreen),
-            ),
-            actions: [
-              IconButton(
-                onPressed: () => _openEditor(_selectedTab),
-                icon: HugeIcon(
-                  icon: HugeIcons.strokeRoundedEdit03,
-                  color: AppColors.libraryGreen,
-                  size: 24,
-                ),
-              ),
-            ],
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                decoration: const BoxDecoration(
-                  color: AppColors.primary50,
+        return Scaffold(
+          backgroundColor: AppColors.neutralBackground,
+          body: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                expandedHeight: _headerExpandedHeight,
+                toolbarHeight: _headerToolbarHeight,
+                pinned: true,
+                backgroundColor: AppColors.primary50,
+                shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(AppRadius.radius40),
                     bottomRight: Radius.circular(AppRadius.radius40),
                   ),
                 ),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 80),
-                    // Avatar
-                    Container(
-                      width: 140,
-                      height: 140,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary100,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: AppColors.card,
-                          width: 4,
-                        ),
+                leading: IconButton(
+                  onPressed: () => context.back(),
+                  icon: HugeIcon(
+                    icon: HugeIcons.strokeRoundedArrowLeft01,
+                    color: AppColors.libraryGreen,
+                    size: _backIconSize,
+                  ),
+                ),
+                centerTitle: true,
+                title: Text(
+                  _tabTitle(context),
+                  style: AppTextStyles.h3.copyWith(
+                    color: AppColors.libraryGreen,
+                  ),
+                ),
+                flexibleSpace: const FlexibleSpaceBar(
+                  background: ColoredBox(color: AppColors.primary50),
+                ),
+                bottom: PreferredSize(
+                  preferredSize: const Size.fromHeight(_headerBottomHeight),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Transform.translate(
+                        offset: const Offset(0, -_avatarOverlap),
+                        child: ProfileAvatar(imagePath: profileImageUrl),
                       ),
-                      clipBehavior: Clip.antiAlias,
-                      child: hasImage
-                          ? Image.file(
-                              File(profileImage),
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Center(
-                                child: HugeIcon(
-                                  icon: HugeIcons.strokeRoundedUser,
-                                  color: AppColors.primary500,
-                                  size: 64,
-                                ),
-                              ),
-                            )
-                          : Center(
-                              child: HugeIcon(
-                                icon: HugeIcons.strokeRoundedUser,
-                                color: AppColors.primary500,
-                                size: 64,
-                              ),
-                            ),
-                    ),
-                    const SizedBox(height: 24),
-                  ],
+                      _buildTabBar(),
+                      const SizedBox(height: AppSpacing.spacing16),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(56),
-              child: Container(
-                color: Colors.white,
-                child: _buildTabBar(),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.spacing24,
+                  ),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: AppSpacing.spacing8),
+                      _buildContent(mergedSnapshot, profileState),
+                      const SizedBox(height: AppSpacing.spacing24),
+                      _buildLogoutButton(),
+                      const SizedBox(height: AppSpacing.spacing32),
+                    ],
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
-          // Content
-          SliverToBoxAdapter(
-            child: Column(
-              children: [
-                const SizedBox(height: AppSpacing.spacing16),
-                _buildContent(snapshot),
-                const SizedBox(height: AppSpacing.spacing24),
-                _buildLogoutButton(),
-                const SizedBox(height: AppSpacing.spacing32),
-              ],
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -246,58 +252,28 @@ class _AppShellState extends State<AppShell> {
       child: SingleChildScrollView(
         primary: false,
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.spacing24,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.spacing24),
         child: Row(
           children: [
-            _IconTab(
-              icon: HugeIcons.strokeRoundedUser,
-              label: 'Profile',
-              selected: _selectedTab == UserDataTab.profile,
-              onTap: () => setState(() {
-                _selectedTab = UserDataTab.profile;
-              }),
+            _buildTab(
+              LocalizationConstants.userDataProfileTabKey.tr(),
+              UserDataTab.profile,
             ),
-            _IconTab(
-              icon: HugeIcons.strokeRoundedPaintBrush02,
-              label: '',
-              selected: _selectedTab == UserDataTab.edit,
-              onTap: () => setState(() {
-                _selectedTab = UserDataTab.edit;
-              }),
+            _buildTab(
+              LocalizationConstants.userDataSettingsTabKey.tr(),
+              UserDataTab.settings,
             ),
-            _IconTab(
-              icon: HugeIcons.strokeRoundedId,
-              label: '',
-              selected: _selectedTab == UserDataTab.idCard,
-              onTap: () => setState(() {
-                _selectedTab = UserDataTab.idCard;
-              }),
+            _buildTab(
+              LocalizationConstants.userDataBooksTabKey.tr(),
+              UserDataTab.edit,
             ),
-            _IconTab(
-              icon: HugeIcons.strokeRoundedAward01,
-              label: '',
-              selected: _selectedTab == UserDataTab.badges,
-              onTap: () => setState(() {
-                _selectedTab = UserDataTab.badges;
-              }),
+            _buildTab(
+              LocalizationConstants.userDataBadgesTabKey.tr(),
+              UserDataTab.badges,
             ),
-            _IconTab(
-              icon: HugeIcons.strokeRoundedClock01,
-              label: '',
-              selected: _selectedTab == UserDataTab.history,
-              onTap: () => setState(() {
-                _selectedTab = UserDataTab.history;
-              }),
-            ),
-            _IconTab(
-              icon: HugeIcons.strokeRoundedSettings01,
-              label: '',
-              selected: _selectedTab == UserDataTab.settings,
-              onTap: () => setState(() {
-                _selectedTab = UserDataTab.settings;
-              }),
+            _buildTab(
+              LocalizationConstants.userDataFoldersTabKey.tr(),
+              UserDataTab.history,
             ),
           ],
         ),
@@ -305,84 +281,121 @@ class _AppShellState extends State<AppShell> {
     );
   }
 
-  Widget _buildContent(UserDataSnapshot snapshot) {
-    return switch (_selectedTab) {
-      UserDataTab.profile => _buildProfileMenu(snapshot),
-      UserDataTab.edit => _buildDataCard(snapshot),
-      UserDataTab.idCard => _buildDataCard(snapshot),
-      UserDataTab.badges => _buildDataCard(snapshot),
-      UserDataTab.history => _buildDataCard(snapshot),
-      UserDataTab.settings => _buildDataCard(snapshot),
-    };
-  }
-
-  Widget _buildProfileMenu(UserDataSnapshot snapshot) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.spacing24),
-      child: Column(
-        children: [
-          _MenuItem(
-            title: 'My Personal Information',
-            onTap: () => _openEditor(UserDataTab.idCard),
-          ),
-          const SizedBox(height: AppSpacing.spacing8),
-          _MenuItem(
-            title: 'My Locations',
-            onTap: () {
-              context.showSuccessSnackBar(
-                message: const Message(
-                  title: 'Coming Soon',
-                  value: 'Locations feature is under development.',
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: AppSpacing.spacing8),
-          _MenuItem(
-            title: 'Payment Information',
-            onTap: () => _openEditor(UserDataTab.badges),
-          ),
-          const SizedBox(height: AppSpacing.spacing8),
-          _MenuItem(
-            title: 'My Personal Files',
-            onTap: () => _openEditor(UserDataTab.badges),
-          ),
-          const SizedBox(height: AppSpacing.spacing8),
-          _MenuItem(
-            title: 'My Badges',
-            onTap: () => setState(() => _selectedTab = UserDataTab.badges),
-          ),
-        ],
-      ),
+  Widget _buildTab(String label, UserDataTab tab) {
+    return _SegmentTab(
+      label: label,
+      selected: _selectedTab == tab,
+      onTap: () => setState(() => _selectedTab = tab),
     );
   }
 
-  Widget _buildDataCard(UserDataSnapshot snapshot) {
-    if (_selectedTab == UserDataTab.settings) {
-      return _buildSettingsCard(snapshot);
+  Widget _buildContent(UserDataSnapshot snapshot, ProfileState profileState) {
+    return switch (_selectedTab) {
+      UserDataTab.profile => _buildProfileMenu(snapshot, profileState),
+      UserDataTab.settings => _buildSettingsCard(),
+      UserDataTab.edit ||
+      UserDataTab.idCard ||
+      UserDataTab.badges ||
+      UserDataTab.history => _buildDataCard(snapshot),
+    };
+  }
+
+  Widget _buildProfileMenu(
+    UserDataSnapshot snapshot,
+    ProfileState profileState,
+  ) {
+    final List<_ProfileMenuEntry> entries = <_ProfileMenuEntry>[
+      _ProfileMenuEntry(
+        title: 'My Personal Information',
+        onTap: () => _openEditor(UserDataTab.idCard),
+      ),
+      _ProfileMenuEntry(
+        title: 'My Locations',
+        onTap: () =>
+            _showComingSoonSnack('Locations feature is under development.'),
+      ),
+      _ProfileMenuEntry(
+        title: 'Payment Information',
+        onTap: () => _openEditor(UserDataTab.badges),
+      ),
+      _ProfileMenuEntry(
+        title: 'My Personal Files',
+        onTap: () => _openEditor(UserDataTab.badges),
+      ),
+      _ProfileMenuEntry(
+        title: 'My Badges',
+        onTap: () => setState(() => _selectedTab = UserDataTab.badges),
+      ),
+    ];
+
+    return Column(
+      children: <Widget>[
+        _buildProfileInfoCard(snapshot, profileState),
+        const SizedBox(height: AppSpacing.spacing16),
+        ..._intersperse(
+          entries
+              .map((entry) => _MenuItem(title: entry.title, onTap: entry.onTap))
+              .toList(),
+          const SizedBox(height: AppSpacing.spacing8),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProfileInfoCard(
+    UserDataSnapshot snapshot,
+    ProfileState profileState,
+  ) {
+    if (profileState.loading) {
+      return const ProfileInfoShimmer();
     }
 
+    final ProfileModel? profile = profileState.profile;
+    if (profile == null) {
+      return const SizedBox.shrink();
+    }
+
+    return _DataCard(
+      values: <String>[
+        profile.fullName,
+        profile.phoneNumber ?? snapshot.phone,
+        profile.dateOfBirth ?? snapshot.birthDate,
+        profile.genderLabel,
+      ],
+    );
+  }
+
+  void _showComingSoonSnack(String message) {
+    context.showSuccessSnackBar(
+      message: Message(title: 'Coming Soon', value: message),
+    );
+  }
+
+  List<Widget> _intersperse(List<Widget> items, Widget separator) {
+    if (items.isEmpty) {
+      return items;
+    }
+
+    final List<Widget> result = <Widget>[items.first];
+    for (int i = 1; i < items.length; i++) {
+      result
+        ..add(separator)
+        ..add(items[i]);
+    }
+    return result;
+  }
+
+  Widget _buildDataCard(UserDataSnapshot snapshot) {
     final List<String> values = switch (_selectedTab) {
-      UserDataTab.edit => <String>[
-          snapshot.fullName,
-          snapshot.birthDate,
-          snapshot.country,
-          snapshot.phone,
-        ],
-      UserDataTab.idCard => <String>[
-          snapshot.fullName,
-          snapshot.birthDate,
-          snapshot.country,
-          snapshot.phone,
-        ],
-      UserDataTab.badges => <String>[
-          snapshot.budgetBalance,
-        ],
+      UserDataTab.edit || UserDataTab.idCard => <String>[
+        snapshot.fullName,
+        snapshot.birthDate,
+        snapshot.country,
+        snapshot.phone,
+      ],
+      UserDataTab.badges => <String>[snapshot.budgetBalance],
       UserDataTab.history => snapshot.operations,
-      UserDataTab.settings => <String>[
-          snapshot.theme,
-          snapshot.language,
-        ],
+      UserDataTab.settings => <String>[snapshot.theme, snapshot.language],
       UserDataTab.profile => <String>[],
     };
 
@@ -390,277 +403,163 @@ class _AppShellState extends State<AppShell> {
       return const SizedBox.shrink();
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.spacing24),
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: AppColors.card,
-          borderRadius: BorderRadius.circular(AppRadius.radius32),
-          border: Border.all(
-            color: AppColors.primary100,
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: values.asMap().entries.map((entry) {
-            final int index = entry.key;
-            final String value = entry.value;
-            final bool isLast = index == values.length - 1;
-
-            return Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.spacing20,
-                    vertical: AppSpacing.spacing16,
-                  ),
-                  child: Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: Text(
-                      value,
-                      style: AppTextStyles.bodyLarge.copyWith(
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                  ),
-                ),
-                if (!isLast)
-                  const Divider(
-                    height: 1,
-                    indent: AppSpacing.spacing20,
-                    endIndent: AppSpacing.spacing20,
-                    color: AppColors.primary100,
-                  ),
-              ],
-            );
-          }).toList(),
-        ),
-      ),
-    );
+    return _DataCard(values: values);
   }
 
-  Widget _buildSettingsCard(UserDataSnapshot snapshot) {
-    final String languageLabel = snapshot.language == 'ar'
-        ? LocalizationConstants.userDataArabicLanguageKey.tr()
-        : LocalizationConstants.userDataEnglishLanguageKey.tr();
+  Widget _buildSettingsCard() {
+    final List<String> settingsTitles = <String>[
+      LocalizationConstants.userDataSettingsAppearanceKey.tr(),
+      LocalizationConstants.userDataSettingsNotificationManagementKey.tr(),
+      LocalizationConstants.userDataSettingsSecurityKey.tr(),
+      LocalizationConstants.userDataSettingsLanguagesKey.tr(),
+    ];
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.spacing24),
-      child: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: AppColors.card,
-              borderRadius: BorderRadius.circular(AppRadius.radius32),
-              border: Border.all(
-                color: AppColors.primary100,
+    return Column(
+      children: _intersperse(
+        settingsTitles
+            .map(
+              (title) => _MenuItem(
+                title: title,
+                backgroundColor: AppColors.card,
+                borderRadius: AppRadius.radius24,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.spacing20,
+                  vertical: AppSpacing.spacing20,
+                ),
+                boxShadow: AppShadows.elevation1,
+                onTap: () => _showPlaceholderDialog(title),
               ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Theme row
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.spacing20,
-                    vertical: AppSpacing.spacing16,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        LocalizationConstants.userDataThemeKey.tr(),
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        snapshot.theme,
-                        style: AppTextStyles.bodyLarge.copyWith(
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(
-                  height: 1,
-                  indent: AppSpacing.spacing20,
-                  endIndent: AppSpacing.spacing20,
-                  color: AppColors.primary100,
-                ),
-                // Language row with change button
-                InkWell(
-                  onTap: () => _showLanguagePicker(snapshot),
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(AppRadius.radius32),
-                    bottomRight: Radius.circular(AppRadius.radius32),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.spacing20,
-                      vertical: AppSpacing.spacing16,
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                LocalizationConstants.userDataLanguageKey.tr(),
-                                style: AppTextStyles.bodySmall.copyWith(
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                languageLabel,
-                                style: AppTextStyles.bodyLarge.copyWith(
-                                  color: AppColors.textPrimary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary50,
-                            borderRadius: BorderRadius.circular(AppRadius.radius16),
-                          ),
-                          child: Text(
-                            LocalizationConstants.userDataChangeLanguageKey.tr(),
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: AppColors.primary600,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+            )
+            .toList(),
+        const SizedBox(height: AppSpacing.spacing8),
       ),
     );
   }
 
-  Future<void> _showLanguagePicker(UserDataSnapshot snapshot) async {
-    final Locale? selectedLocale = await showModalBottomSheet<Locale>(
+  void _showPlaceholderDialog(String title) {
+    showDialog<void>(
       context: context,
-      backgroundColor: Colors.transparent,
       builder: (BuildContext ctx) {
-        return Container(
-          margin: const EdgeInsets.all(AppSpacing.spacing16),
-          decoration: BoxDecoration(
-            color: AppColors.card,
-            borderRadius: BorderRadius.circular(AppRadius.radius32),
-          ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.spacing24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    LocalizationConstants.userDataChangeLanguageKey.tr(),
-                    style: AppTextStyles.h4.copyWith(
-                      color: AppColors.textPrimary,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: AppSpacing.spacing20),
-                  _LanguageOption(
-                    label: LocalizationConstants.userDataEnglishLanguageKey.tr(),
-                    locale: SupportedLocales.english,
-                    isSelected: snapshot.language == 'en' ||
-                        context.locale == SupportedLocales.english,
-                    onTap: () => Navigator.of(ctx).pop(SupportedLocales.english),
-                  ),
-                  const SizedBox(height: AppSpacing.spacing12),
-                  _LanguageOption(
-                    label: LocalizationConstants.userDataArabicLanguageKey.tr(),
-                    locale: SupportedLocales.arabic,
-                    isSelected: snapshot.language == 'ar' ||
-                        context.locale == SupportedLocales.arabic,
-                    onTap: () => Navigator.of(ctx).pop(SupportedLocales.arabic),
-                  ),
-                  const SizedBox(height: AppSpacing.spacing16),
-                ],
-              ),
+        return AlertDialog(
+          title: Text(title),
+          content: const Text('This screen has not been designed yet.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('Close'),
             ),
-          ),
+          ],
         );
       },
     );
-
-    if (selectedLocale != null && mounted) {
-      await context.setLocale(selectedLocale);
-      final String languageCode = selectedLocale.languageCode;
-      await _dataSource.saveAppearance(
-        theme: snapshot.theme,
-        language: languageCode,
-      );
-      await _load();
-    }
   }
 
   Widget _buildLogoutButton() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.spacing24),
-      child: SizedBox(
-        width: double.infinity,
-        height: AppDimensions.onboardingButtonHeight,
-        child: FilledButton(
-          onPressed: _logout,
-          style: FilledButton.styleFrom(
-            backgroundColor: AppColors.error500,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppRadius.radius32),
-            ),
+    return SizedBox(
+      width: double.infinity,
+      height: AppDimensions.onboardingButtonHeight,
+      child: FilledButton(
+        onPressed: _logout,
+        style: FilledButton.styleFrom(
+          backgroundColor: AppColors.error500,
+          foregroundColor: AppColors.card,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.radius32),
           ),
-          child: Text(LocalizationConstants.userDataLogoutKey.tr()),
         ),
+        child: Text(LocalizationConstants.userDataLogoutKey.tr()),
       ),
     );
   }
 
   String _tabTitle(BuildContext context) {
     return switch (_selectedTab) {
-      UserDataTab.profile => 'Profile',
-      UserDataTab.edit => 'Edit',
-      UserDataTab.idCard => 'ID Card',
-      UserDataTab.badges => 'Badges',
-      UserDataTab.history => 'History',
-      UserDataTab.settings => 'Settings',
+      UserDataTab.profile => LocalizationConstants.userDataProfileTabKey.tr(),
+      UserDataTab.edit => LocalizationConstants.userDataBooksTabKey.tr(),
+      UserDataTab.idCard => LocalizationConstants.userDataProfileTabKey.tr(),
+      UserDataTab.badges => LocalizationConstants.userDataBadgesTabKey.tr(),
+      UserDataTab.history => LocalizationConstants.userDataFoldersTabKey.tr(),
+      UserDataTab.settings => LocalizationConstants.userDataTitleKey.tr(),
     };
   }
 }
 
 // ---------------------------------------------------------------------------
-// Icon-only tab (active tab shows label too)
+// Data class describing a single entry in the profile menu.
 // ---------------------------------------------------------------------------
-class _IconTab extends StatelessWidget {
-  const _IconTab({
-    required this.icon,
+class _ProfileMenuEntry {
+  const _ProfileMenuEntry({required this.title, required this.onTap});
+
+  final String title;
+  final VoidCallback onTap;
+}
+
+// ---------------------------------------------------------------------------
+// Card that displays a list of read-only values separated by dividers.
+// ---------------------------------------------------------------------------
+class _DataCard extends StatelessWidget {
+  const _DataCard({required this.values});
+
+  final List<String> values;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: AppColors.card,
+        borderRadius: BorderRadius.circular(AppRadius.radius32),
+        border: Border.all(color: AppColors.primary100),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: values.asMap().entries.map((entry) {
+          final int index = entry.key;
+          final String value = entry.value;
+          final bool isLast = index == values.length - 1;
+
+          return Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.spacing20,
+                  vertical: AppSpacing.spacing16,
+                ),
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(
+                    value,
+                    style: AppTextStyles.bodyLarge.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ),
+              ),
+              if (!isLast)
+                const Divider(
+                  height: 1,
+                  indent: AppSpacing.spacing20,
+                  endIndent: AppSpacing.spacing20,
+                  color: AppColors.primary100,
+                ),
+            ],
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Rounded segmented tab used in the account tab bar.
+// ---------------------------------------------------------------------------
+class _SegmentTab extends StatelessWidget {
+  const _SegmentTab({
     required this.label,
     required this.selected,
     required this.onTap,
   });
 
-  final List<List<dynamic>> icon;
   final String label;
   final bool selected;
   final VoidCallback onTap;
@@ -673,34 +572,22 @@ class _IconTab extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppRadius.radius16),
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+          duration: AppDurations.short,
+          curve: Curves.easeInOut,
           padding: EdgeInsets.symmetric(
             horizontal: selected ? AppSpacing.spacing16 : AppSpacing.spacing12,
             vertical: AppSpacing.spacing12,
           ),
           decoration: BoxDecoration(
-            color: selected ? AppColors.primary50 : Colors.transparent,
+            color: selected ? AppColors.primary600 : Colors.transparent,
             borderRadius: BorderRadius.circular(AppRadius.radius16),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              HugeIcon(
-                icon: icon,
-                color: AppColors.primary600,
-                size: 24,
-              ),
-              if (selected && label.isNotEmpty) ...[
-                const SizedBox(width: 8),
-                Text(
-                  label,
-                  style: AppTextStyles.bodyLarge.copyWith(
-                    color: AppColors.primary600,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ],
+          child: Text(
+            label,
+            style: AppTextStyles.bodyLarge.copyWith(
+              color: selected ? AppColors.card : AppColors.textSecondary,
+              fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+            ),
           ),
         ),
       ),
@@ -715,24 +602,33 @@ class _MenuItem extends StatelessWidget {
   const _MenuItem({
     required this.title,
     required this.onTap,
+    this.backgroundColor = AppColors.primary50,
+    this.borderRadius = AppRadius.radius16,
+    this.contentPadding = const EdgeInsets.symmetric(
+      horizontal: AppSpacing.spacing20,
+      vertical: AppSpacing.spacing16,
+    ),
+    this.boxShadow,
   });
 
   final String title;
   final VoidCallback onTap;
+  final Color backgroundColor;
+  final double borderRadius;
+  final EdgeInsetsGeometry contentPadding;
+  final List<BoxShadow>? boxShadow;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(AppRadius.radius16),
+      borderRadius: BorderRadius.circular(borderRadius),
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.spacing20,
-          vertical: AppSpacing.spacing16,
-        ),
+        padding: contentPadding,
         decoration: BoxDecoration(
-          color: AppColors.primary50,
-          borderRadius: BorderRadius.circular(AppRadius.radius16),
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(borderRadius),
+          boxShadow: boxShadow,
         ),
         child: Row(
           children: [
@@ -747,66 +643,8 @@ class _MenuItem extends StatelessWidget {
             HugeIcon(
               icon: HugeIcons.strokeRoundedArrowRight01,
               color: AppColors.primary600,
-              size: 20,
+              size: _chevronIconSize,
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// =============================================================================
-// Language Option
-// =============================================================================
-class _LanguageOption extends StatelessWidget {
-  const _LanguageOption({
-    required this.label,
-    required this.locale,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final String label;
-  final Locale locale;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppRadius.radius16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.spacing20,
-          vertical: AppSpacing.spacing16,
-        ),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary50 : AppColors.primary100,
-          borderRadius: BorderRadius.circular(AppRadius.radius16),
-          border: Border.all(
-            color: isSelected ? AppColors.primary600 : Colors.transparent,
-            width: 1.5,
-          ),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                label,
-                style: AppTextStyles.bodyLarge.copyWith(
-                  color: isSelected ? AppColors.primary600 : AppColors.textPrimary,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                ),
-              ),
-            ),
-            if (isSelected)
-              HugeIcon(
-                icon: HugeIcons.strokeRoundedCheckmarkCircle01,
-                color: AppColors.primary600,
-                size: 24,
-              ),
           ],
         ),
       ),
@@ -868,7 +706,9 @@ class _UserDataEditScreenState extends State<UserDataEditScreen> {
         break;
       case UserDataTab.settings:
         _oneController.text = widget.snapshot.theme;
-        _twoController.text = widget.snapshot.language == 'ar' ? 'Arabic' : 'English';
+        _twoController.text = widget.snapshot.language == 'ar'
+            ? 'Arabic'
+            : 'English';
         break;
       case UserDataTab.history:
         _oneController.text = widget.snapshot.operations.join('\n');
@@ -1033,7 +873,8 @@ class _UserDataEditScreenState extends State<UserDataEditScreen> {
                           if (_isMultiLineTab) ...[
                             const SizedBox(height: AppSpacing.spacing12),
                             Text(
-                              LocalizationConstants.userDataEditMultilineHintKey.tr(),
+                              LocalizationConstants.userDataEditMultilineHintKey
+                                  .tr(),
                               style: AppTextStyles.bodySmall.copyWith(
                                 color: AppColors.textSecondary,
                               ),
@@ -1046,7 +887,8 @@ class _UserDataEditScreenState extends State<UserDataEditScreen> {
                             child: FilledButton(
                               onPressed: _save,
                               child: Text(
-                                LocalizationConstants.userDataSaveChangesKey.tr(),
+                                LocalizationConstants.userDataSaveChangesKey
+                                    .tr(),
                               ),
                             ),
                           ),
@@ -1096,14 +938,10 @@ class _UserDataEditScreenState extends State<UserDataEditScreen> {
     return switch (widget.tab) {
       UserDataTab.profile ||
       UserDataTab.edit ||
-      UserDataTab.idCard =>
-        LocalizationConstants.userDataFullNameKey.tr(),
-      UserDataTab.badges =>
-        LocalizationConstants.userDataBudgetBalanceKey.tr(),
-      UserDataTab.settings =>
-        LocalizationConstants.userDataThemeKey.tr(),
-      UserDataTab.history =>
-        LocalizationConstants.userDataOperationsKey.tr(),
+      UserDataTab.idCard => LocalizationConstants.userDataFullNameKey.tr(),
+      UserDataTab.badges => LocalizationConstants.userDataBudgetBalanceKey.tr(),
+      UserDataTab.settings => LocalizationConstants.userDataThemeKey.tr(),
+      UserDataTab.history => LocalizationConstants.userDataOperationsKey.tr(),
     };
   }
 
@@ -1111,10 +949,8 @@ class _UserDataEditScreenState extends State<UserDataEditScreen> {
     return switch (widget.tab) {
       UserDataTab.profile ||
       UserDataTab.edit ||
-      UserDataTab.idCard =>
-        LocalizationConstants.userDataBirthDateKey.tr(),
-      UserDataTab.settings =>
-        LocalizationConstants.userDataLanguageKey.tr(),
+      UserDataTab.idCard => LocalizationConstants.userDataBirthDateKey.tr(),
+      UserDataTab.settings => LocalizationConstants.userDataLanguageKey.tr(),
       _ => '',
     };
   }
@@ -1151,23 +987,16 @@ class _BlurHeader extends StatelessWidget {
         filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
         child: Container(
           height: 78,
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.spacing12,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.spacing12),
           decoration: BoxDecoration(
             color: Colors.black.withOpacity(0.18),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.08),
-            ),
+            border: Border.all(color: Colors.white.withOpacity(0.08)),
             borderRadius: BorderRadius.circular(28 /*AppRadius.radius28*/),
           ),
           child: Row(
             children: [
               if (rtl) ...[
-                _HeaderButton(
-                  icon: actionIcon,
-                  onPressed: onActionPressed,
-                ),
+                _HeaderButton(icon: actionIcon, onPressed: onActionPressed),
                 const Spacer(),
                 Text(
                   title,
@@ -1189,10 +1018,7 @@ class _BlurHeader extends StatelessWidget {
                   style: AppTextStyles.h3.copyWith(color: Colors.white),
                 ),
                 const Spacer(),
-                _HeaderButton(
-                  icon: actionIcon,
-                  onPressed: onActionPressed,
-                ),
+                _HeaderButton(icon: actionIcon, onPressed: onActionPressed),
               ],
             ],
           ),
@@ -1203,10 +1029,7 @@ class _BlurHeader extends StatelessWidget {
 }
 
 class _HeaderButton extends StatelessWidget {
-  const _HeaderButton({
-    required this.icon,
-    required this.onPressed,
-  });
+  const _HeaderButton({required this.icon, required this.onPressed});
 
   final List<List<dynamic>> icon;
   final VoidCallback onPressed;

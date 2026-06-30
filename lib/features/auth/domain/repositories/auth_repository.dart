@@ -15,4 +15,8 @@ abstract class AuthRepository {
     String? dateOfBirth,
     List<String>? categoryIds,
   });
+
+  Future<User> refreshToken({
+    required String refreshToken,
+  });
 }

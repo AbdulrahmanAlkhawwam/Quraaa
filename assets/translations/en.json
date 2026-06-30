@@ -128,6 +128,10 @@
     "tabs": {
       "profile": "Profile",
       "appearance": "Appearance",
+      "settings": "Settings",
+      "books": "Books",
+      "badges": "Badges",
+      "folders": "Folders",
       "bookmarks": "Bookmarks",
       "budgets": "Budgets",
       "library": "My Library",
@@ -145,6 +149,12 @@
       "english": "English",
       "arabic": "Arabic",
       "change_language": "Change Language"
+    },
+    "settings": {
+      "appearance": "Appearance",
+      "notification_management": "Notification Management",
+      "security": "Security",
+      "languages": "Languages"
     },
     "bookmarks": {
       "saved_items": "Saved items"

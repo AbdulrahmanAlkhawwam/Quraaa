@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/pages/otp_verification_screen.dart';
@@ -11,6 +12,8 @@ import '../../features/auth/presentation/pages/register_screen.dart';
 import '../../features/onboarding/presentation/pages/age_onboarding_page.dart';
 import '../../features/onboarding/presentation/pages/gender_onboarding_page.dart';
 import '../../features/onboarding/presentation/pages/interests_onboarding_page.dart';
+import '../../features/profile/presentation/bloc/profile_bloc.dart';
+import '../../features/profile/presentation/bloc/profile_event.dart';
 import '../../features/search/search.dart';
 import '../../core/connectivity/connection_status.dart';
 import '../../core/connectivity/connectivity_service.dart';
@@ -103,7 +106,11 @@ GoRouter buildAppRouter({
       GoRoute(
         name: RouteNames.profile,
         path: RouteNames.profile,
-        builder: (context, state) => AppShell(),
+        builder: (context, state) => BlocProvider<ProfileBloc>(
+          create: (BuildContext context) =>
+          sl<ProfileBloc>()..add(const ProfileLoadRequested()),
+          child: const AppShell(),
+        ),
       ),
       GoRoute(
         name: RouteNames.pdfReaderName,

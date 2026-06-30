@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/errors/error_mapper.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/network/endpoints.dart';
@@ -20,6 +21,10 @@ abstract class AuthRemoteDataSource {
     int? gender,
     String? dateOfBirth,
     List<String>? categoryIds,
+  });
+
+  Future<Map<String, Object?>> refreshToken({
+    required String refreshToken,
   });
 }
 
@@ -98,6 +103,36 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       throw UnknownException(
         message: error.message ?? 'Unable to register.',
+      );
+    }
+  }
+
+  @override
+  Future<Map<String, Object?>> refreshToken({
+    required String refreshToken,
+  }) async {
+    try {
+      final Response<dynamic> response = await _httpHelper.post(
+        ApiEndpoints.refreshToken,
+        data: <String, Object?>{
+          'refreshToken': refreshToken,
+        },
+      );
+
+      final dynamic data = response.data;
+      if (data is Map<String, dynamic>) {
+        return data.cast<String, Object?>();
+      }
+
+      throw const UnknownException(message: 'Invalid refresh token response.');
+    } on DioException catch (error) {
+      final dynamic payload = error.response?.data;
+      if (payload is Map<String, dynamic>) {
+        throw ErrorMapper.map(payload);
+      }
+
+      throw UnknownException(
+        message: error.message ?? 'Unable to refresh session.',
       );
     }
   }

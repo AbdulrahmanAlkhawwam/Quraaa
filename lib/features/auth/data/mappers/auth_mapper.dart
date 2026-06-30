@@ -18,7 +18,7 @@ class AuthMapper {
       'password': ?password,
       'gender': ?gender,
       'dateOfBirth': ?dateOfBirth,
-      'categoryIds': ?categoryIds,
+      'Interests': ?categoryIds,
     };
   }
 

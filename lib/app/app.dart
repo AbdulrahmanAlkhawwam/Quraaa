@@ -1,12 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../config/routes/app_router.dart';
 import '../core/di/injection_container.dart';
 import '../core/error_monitoring/navigation_tracker.dart';
 import '../core/localization/localization_constants.dart';
+import '../features/profile/presentation/bloc/profile_bloc.dart';
 import '../shared/theme/app_theme.dart';
 import '../shared/widgets/dev_debug_overlay.dart';
 
@@ -50,24 +52,27 @@ class _QuraaaAppState extends State<QuraaaApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: LocalizationConstants.appNameKey.tr(),
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
-      themeMode: ThemeMode.system,
-      routerConfig: _router,
-      localizationsDelegates: context.localizationDelegates,
-      supportedLocales: context.supportedLocales,
-      locale: context.locale,
-      builder: (BuildContext context, Widget? child) {
-        return Stack(
-          children: <Widget>[
-            child!,
-            DevDebugOverlay(navigatorKey: _navigatorKey),
-          ],
-        );
-      },
+    return BlocProvider<ProfileBloc>(
+      create: (BuildContext context) => sl<ProfileBloc>(),
+      child: MaterialApp.router(
+        title: LocalizationConstants.appNameKey.tr(),
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light(),
+        darkTheme: AppTheme.dark(),
+        themeMode: ThemeMode.system,
+        routerConfig: _router,
+        localizationsDelegates: context.localizationDelegates,
+        supportedLocales: context.supportedLocales,
+        locale: context.locale,
+        builder: (BuildContext context, Widget? child) {
+          return Stack(
+            children: <Widget>[
+              child!,
+              DevDebugOverlay(navigatorKey: _navigatorKey),
+            ],
+          );
+        },
+      ),
     );
   }
 }
