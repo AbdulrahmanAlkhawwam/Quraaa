@@ -8,4 +8,5 @@ class AppIcons {
   static const String search = '${AppAssets.icons}/search.svg';
   static const String bookmark = '${AppAssets.icons}/bookmark.svg';
   static const String notifications = '${AppAssets.icons}/notifications.svg';
+  static const String man = '${AppAssets.icons}/man.svg';
 }

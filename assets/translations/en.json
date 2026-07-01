@@ -56,6 +56,71 @@
     "highlighted": "Highlight added",
     "selection_unavailable": "Text selection is not available for this page."
   },
+  "settings": {
+    "title": "settings",
+    "searchHint": "Search in setting !",
+    "tabs": {
+      "profile": "Profile",
+      "library": "Library",
+      "badges": "Badges",
+      "activity": "Activity",
+      "settings": "Settings"
+    },
+    "profile": {
+      "myPersonalInformation": "My Personal Information",
+      "myLocations": "My Locations",
+      "paymentInformation": "Payment Information",
+      "myPersonalFiles": "My Personal Files",
+      "myBadges": "My Badges",
+      "accountType": "Account Type",
+      "changePassword": "Change Password"
+    },
+    "library": {
+      "myBooks": "My Books",
+      "downloads": "Downloads",
+      "wishlist": "Wishlist",
+      "collections": "Collections"
+    },
+    "badges": {
+      "recentBadges": "Recent Badges",
+      "achievementLevels": "Achievement Levels"
+    },
+    "activity": {
+      "readingTime": "Reading Time",
+      "lastOpenedBooks": "Last Opened Books"
+    },
+    "settingsSections": {
+      "appearance": "Appearance",
+      "notificationManagement": "Notification Management",
+      "securityManage": "Security Manage",
+      "languages": "Languages"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "lightMode": "Light Mode",
+      "darkMode": "Dark Mode",
+      "deviceSystem": "Device System (Recommended)"
+    },
+    "notification": {
+      "title": "Notification",
+      "newUpdate": "New Update",
+      "ads": "Ads",
+      "payment": "Payment",
+      "newBookVersion": "New Book Version",
+      "finishBook": "Finish Book",
+      "getNewBadge": "Get New Badge",
+      "upgradeLevel": "Upgrade Level"
+    },
+    "language": {
+      "title": "Language",
+      "english": "English",
+      "arabic": "Arabic",
+      "spanish": "Spanish",
+      "france": "France",
+      "germany": "Germany"
+    },
+    "logout": "Log out"
+  },
   "errors": {
     "unknown": {
       "title": "Unknown error",

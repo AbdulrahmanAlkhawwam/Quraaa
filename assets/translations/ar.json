@@ -56,6 +56,71 @@
     "highlighted": "تم تمييز النص",
     "selection_unavailable": "تحديد النص غير متاح لهذه الصفحة."
   },
+  "settings": {
+    "title": "الإعدادات",
+    "searchHint": "ابحث في الإعدادات !",
+    "tabs": {
+      "profile": "الملف الشخصي",
+      "library": "المكتبة",
+      "badges": "الإنجازات",
+      "activity": "النشاط",
+      "settings": "الإعدادات"
+    },
+    "profile": {
+      "myPersonalInformation": "معلوماتي الشخصية",
+      "myLocations": "مواقعي",
+      "paymentInformation": "معلومات الدفع",
+      "myPersonalFiles": "ملفاتي الشخصية",
+      "myBadges": "شاراتي",
+      "accountType": "نوع الحساب",
+      "changePassword": "تغيير كلمة المرور"
+    },
+    "library": {
+      "myBooks": "كتبي",
+      "downloads": "التنزيلات",
+      "wishlist": "المفضلة",
+      "collections": "المجموعات"
+    },
+    "badges": {
+      "recentBadges": "أحدث الإنجازات",
+      "achievementLevels": "مستويات الإنجاز"
+    },
+    "activity": {
+      "readingTime": "وقت القراءة",
+      "lastOpenedBooks": "آخر الكتب المفتوحة"
+    },
+    "settingsSections": {
+      "appearance": "المظهر",
+      "notificationManagement": "إدارة الإشعارات",
+      "securityManage": "إدارة الأمان",
+      "languages": "اللغات"
+    },
+    "appearance": {
+      "title": "المظهر",
+      "lightMode": "الوضع الفاتح",
+      "darkMode": "الوضع الداكن",
+      "deviceSystem": "حسب الجهاز (موصى به)"
+    },
+    "notification": {
+      "title": "الإشعارات",
+      "newUpdate": "تحديث جديد",
+      "ads": "الإعلانات",
+      "payment": "الدفع",
+      "newBookVersion": "إصدار جديد من الكتاب",
+      "finishBook": "إنهاء الكتاب",
+      "getNewBadge": "الحصول على شارة جديدة",
+      "upgradeLevel": "ترقية المستوى"
+    },
+    "language": {
+      "title": "اللغة",
+      "english": "English",
+      "arabic": "العربية",
+      "spanish": "Español",
+      "france": "Français",
+      "germany": "Deutsch"
+    },
+    "logout": "تسجيل الخروج"
+  },
   "errors": {
     "unknown": {
       "title": "خطأ غير معروف",

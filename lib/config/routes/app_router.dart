@@ -3,11 +3,13 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/local_explorer/presentation/pages/local_explorer_page.dart';
 import '../../features/pdf_reader/presentation/pages/pdf_reader_page.dart';
+import '../../features/settings/presentation/pages/account_type_page.dart';
+import '../../features/settings/presentation/pages/settings_page.dart';
 import 'route_names.dart';
 
 GoRouter buildAppRouter() {
   return GoRouter(
-    initialLocation: RouteNames.home,
+    initialLocation: RouteNames.settings,
     routes: <RouteBase>[
       GoRoute(
         path: RouteNames.home,
@@ -33,6 +35,14 @@ GoRouter buildAppRouter() {
             name: name ?? 'PDF',
           );
         },
+      ),
+      GoRoute(
+        path: RouteNames.settings,
+        builder: (context, state) => const SettingsPage(),
+      ),
+      GoRoute(
+        path: RouteNames.settingsAccountType,
+        builder: (context, state) => const AccountTypePage(),
       ),
     ],
   );

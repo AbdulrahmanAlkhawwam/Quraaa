@@ -43,6 +43,7 @@ dependencies:
   go_router: ^16.0.0
   dio: ^5.9.2
   hugeicons: ^1.1.7
+  flutter_svg: ^2.3.0
 
   # Firebase & notifications (migrated from quraa_otp)
   firebase_core: ^2.32.0
