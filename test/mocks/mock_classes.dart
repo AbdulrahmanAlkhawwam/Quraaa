@@ -9,6 +9,7 @@ import 'package:quraaa/features/auth/domain/repositories/auth_repository.dart';
 import 'package:quraaa/features/auth/data/datasources/user_local_datasource.dart';
 import 'package:quraaa/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:quraaa/features/auth/domain/use_cases/register_use_case.dart';
+import 'package:quraaa/features/settings/domain/repositories/settings_repository.dart';
 
 class MockAuthRepository extends Mock implements AuthRepository {}
 
@@ -27,3 +28,4 @@ class MockLoginUseCase extends Mock implements LoginUseCase {}
 class MockRegisterUseCase extends Mock implements RegisterUseCase {}
 
 class MockUserContextProvider extends Mock implements UserContextProvider {}
+class MockSettingsRepository extends Mock implements SettingsRepository {}
