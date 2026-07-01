@@ -61,7 +61,7 @@ class ExplorerHeader extends StatelessWidget {
           color: AppColors.secondary,
           iconSize: 25,
         ),
-        const SizedBox(width: AppSpacing.sm),
+        const SizedBox(width: AppSpacing.spacing8),
         IconButton(
           tooltip: MaterialLocalizations.of(context).refreshIndicatorSemanticLabel,
           onPressed: onRefresh,

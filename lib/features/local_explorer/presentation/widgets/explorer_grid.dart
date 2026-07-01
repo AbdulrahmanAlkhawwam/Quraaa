@@ -28,11 +28,11 @@ class ExplorerGrid extends StatelessWidget {
 
         return GridView.builder(
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.only(bottom: AppSpacing.xl),
+          padding: const EdgeInsets.only(bottom: AppSpacing.spacing32),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: columns,
-            mainAxisSpacing: AppSpacing.md,
-            crossAxisSpacing: AppSpacing.md,
+            mainAxisSpacing: AppSpacing.spacing16,
+            crossAxisSpacing: AppSpacing.spacing16,
             childAspectRatio: 1.15,
           ),
           itemBuilder: (BuildContext context, int index) {

@@ -32,12 +32,12 @@ class BreadcrumbBar extends StatelessWidget {
           final bool isLast = index == breadcrumbs.length - 1;
 
           return InkWell(
-            borderRadius: BorderRadius.circular(AppRadius.sm),
+            borderRadius: BorderRadius.circular(AppRadius.radius8),
             onTap: isLast ? null : () => onSelected(segment),
             child: Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.xs,
-                vertical: AppSpacing.xs,
+                horizontal: AppSpacing.spacing4,
+                vertical: AppSpacing.spacing4,
               ),
               child: Text(
                 segment.label,
@@ -51,7 +51,7 @@ class BreadcrumbBar extends StatelessWidget {
         },
         separatorBuilder: (BuildContext context, int index) {
           return const Padding(
-            padding: EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+            padding: EdgeInsets.symmetric(horizontal: AppSpacing.spacing4),
             child: HugeIcon(
               icon: HugeIcons.strokeRoundedArrowRight01,
               color: AppColors.textMuted,

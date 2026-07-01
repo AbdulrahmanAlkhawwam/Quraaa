@@ -1,0 +1,41 @@
+import 'package:dio/dio.dart';
+
+import '../../../../core/errors/error_mapper.dart';
+import '../../../../core/errors/exceptions.dart';
+import '../../../../core/network/endpoints.dart';
+import '../../../../core/network/http_helper.dart';
+import '../models/category_model.dart';
+
+abstract class OnboardingRemoteDataSource {
+  Future<List<CategoryModel>> getCategories();
+}
+
+class OnboardingRemoteDataSourceImpl implements OnboardingRemoteDataSource {
+  const OnboardingRemoteDataSourceImpl(this._httpHelper);
+
+  final HttpHelper _httpHelper;
+
+  @override
+  Future<List<CategoryModel>> getCategories() async {
+    try {
+      final Response<dynamic> response = await _httpHelper.get(
+        Endpoints.categories,
+      );
+      final dynamic data = response.data;
+      if (data is List<dynamic>) {
+        return data
+            .map((item) => CategoryModel.fromJson(item as Map<String, dynamic>))
+            .toList();
+      }
+      throw const UnknownException(message: 'Invalid categories response.');
+    } on DioException catch (error) {
+      final dynamic payload = error.response?.data;
+      if (payload is Map<String, dynamic>) {
+        throw ErrorMapper.map(payload);
+      }
+      throw UnknownException(
+        message: error.message ?? 'Unable to load categories.',
+      );
+    }
+  }
+}

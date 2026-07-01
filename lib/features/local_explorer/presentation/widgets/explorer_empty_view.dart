@@ -13,7 +13,7 @@ class ExplorerEmptyView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xl),
+        padding: const EdgeInsets.all(AppSpacing.spacing32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
@@ -22,14 +22,14 @@ class ExplorerEmptyView extends StatelessWidget {
               color: AppColors.textMuted,
               size: 56,
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.spacing16),
             Text(
               LocalizationConstants.explorerEmptyTitleKey.tr(),
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: AppColors.textPrimary,
                   ),
             ),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: AppSpacing.spacing8),
             Text(
               LocalizationConstants.explorerEmptyMessageKey.tr(),
               textAlign: TextAlign.center,

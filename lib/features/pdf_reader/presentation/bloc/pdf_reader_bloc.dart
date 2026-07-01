@@ -133,15 +133,11 @@ final class PdfReaderLoadFailure extends PdfReaderState {
 
 class PdfReaderBloc extends Bloc<PdfReaderEvent, PdfReaderState> {
   PdfReaderBloc({
-    required GetPdfPageCountUseCase getPageCount,
-    required LoadPdfTextNotesUseCase loadNotes,
-    required SavePdfTextNoteUseCase saveNote,
-    required DeletePdfTextNoteUseCase deleteNote,
-  })  : _getPageCount = getPageCount,
-        _loadNotes = loadNotes,
-        _saveNote = saveNote,
-        _deleteNote = deleteNote,
-        super(const PdfReaderInitial()) {
+    required this._getPageCount,
+    required this._loadNotes,
+    required this._saveNote,
+    required this._deleteNote,
+  }) : super(const PdfReaderInitial()) {
     on<PdfReaderStarted>(_onStarted);
     on<PdfReaderPageChanged>(_onPageChanged);
     on<PdfReaderPreviousPageRequested>(_onPreviousPageRequested);

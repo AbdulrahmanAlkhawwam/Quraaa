@@ -40,8 +40,7 @@ final class UnknownFailure extends _BaseFailure {
 
 final class OperationFailedFailure extends _BaseFailure {
   const OperationFailedFailure({
-    super.code = ErrorCodes.operationFailedRetry,
-    String? message,
+    super.code = ErrorCodes.operationFailedRetry, String? message,
   }) : super(
          title: 'Operation Failed',
          message: message ?? 'The operation failed. Please try again.',
@@ -59,8 +58,7 @@ final class OperationCancelledFailure extends _BaseFailure {
 
 final class NetworkFailure extends _BaseFailure {
   const NetworkFailure({
-    super.code = ErrorCodes.networkErrorRetry,
-    String? message,
+    super.code = ErrorCodes.networkErrorRetry, String? message,
   }) : super(
          title: 'Network Error',
          message: message ?? 'A network error occurred. Please try again.',
@@ -95,8 +93,7 @@ final class BadRequestFailure extends _BaseFailure {
 
 final class UnauthorizedFailure extends _BaseFailure {
   const UnauthorizedFailure({
-    super.code = ErrorCodes.unauthorized,
-    String? message,
+    super.code = ErrorCodes.unauthorized, String? message,
   }) : super(
          title: 'Unauthorized',
          message: message ?? 'Authentication failed.',
@@ -115,8 +112,7 @@ final class ForbiddenFailure extends _BaseFailure {
 
 final class NotFoundFailure extends _BaseFailure {
   const NotFoundFailure({
-    super.code = ErrorCodes.resourceNotFound,
-    String? message,
+    super.code = ErrorCodes.resourceNotFound, String? message,
   }) : super(
          title: 'Not Found',
          message: message ?? 'The requested resource was not found.',
@@ -125,8 +121,7 @@ final class NotFoundFailure extends _BaseFailure {
 
 final class ValidationFailure extends _BaseFailure {
   const ValidationFailure({
-    super.code = ErrorCodes.validationFailed,
-    String? message,
+    super.code = ErrorCodes.validationFailed, String? message,
   }) : super(
          title: 'Validation Error',
          message: message ?? 'Please check the submitted data.',
@@ -166,8 +161,8 @@ final class RedirectionFailure extends _BaseFailure {
     String? message,
   }) : super(
          title: 'Redirection',
-         message: message ?? 'The request requires redirection.',
-       );
+          message: message ?? 'The request requires redirection.',
+        );
 
   final Uri? redirectUri;
 
@@ -187,8 +182,7 @@ final class TooManyRequestsFailure extends _BaseFailure {
 
 final class PaymentRequiredFailure extends _BaseFailure {
   const PaymentRequiredFailure({
-    super.code = ErrorCodes.paymentRequired,
-    String? message,
+    super.code = ErrorCodes.paymentRequired, String? message,
   }) : super(
          title: 'Payment Required',
          message: message ?? 'A payment is required to continue.',
@@ -201,14 +195,13 @@ final class SubscriptionFailure extends _BaseFailure {
     String? message,
   }) : super(
          title: 'Subscription Error',
-         message: message ?? 'Your subscription does not allow this action.',
-       );
+          message: message ?? 'Your subscription does not allow this action.',
+        );
 }
 
 final class InternalFailure extends _BaseFailure {
   const InternalFailure({
-    super.code = ErrorCodes.internalServerError,
-    String? message,
+    super.code = ErrorCodes.internalServerError, String? message,
   }) : super(
          title: 'Internal Error',
          message: message ?? 'An internal server error occurred.',
@@ -222,8 +215,8 @@ final class ServerFailure extends _BaseFailure {
     String? message,
   }) : super(
          title: 'Server Error',
-         message: message ?? 'A server error occurred.',
-       );
+          message: message ?? 'A server error occurred.',
+        );
 
   final int? statusCode;
 

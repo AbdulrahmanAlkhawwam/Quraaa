@@ -14,12 +14,12 @@ class FirebaseMessagingService {
   /// Creates the Firebase messaging service.
   FirebaseMessagingService({
     FirebaseMessaging? messaging,
-    NotificationService? notificationService,
+    LocalNotificationService? notificationService,
   }) : _messaging = messaging ?? FirebaseMessaging.instance,
-       _notificationService = notificationService ?? NotificationService();
+       _notificationService = notificationService ?? LocalNotificationService();
 
   final FirebaseMessaging _messaging;
-  final NotificationService _notificationService;
+  final LocalNotificationService _notificationService;
 
   /// Requests FCM notification permission on platforms that require it.
   Future<bool> requestPermissions() async {
@@ -114,8 +114,8 @@ Future<void> firebaseBackgroundMessageHandler(RemoteMessage message) async {
 
   // The plugin is initialized manually here because the main isolate services
   // are not available in the background isolate.
-  final notificationService = NotificationService();
-  await notificationService.initialize(requestPermission: false);
+  final notificationService = LocalNotificationService();
+  await notificationService.initialize(shouldRequestPermission: false);
   await notificationService.showNotificationFromRemoteMessage(message);
 
   AppLogger.info('Background FCM message handled: ${message.messageId}');

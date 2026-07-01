@@ -1,4 +1,5 @@
-abstract class LoggerService {
-  void debug(String message);
-  void error(String message, {Object? error, StackTrace? stackTrace});
-}
+import '../error_monitoring/app_logger.dart';
+
+export '../error_monitoring/app_logger.dart';
+
+typedef LoggerService = AppLogger;

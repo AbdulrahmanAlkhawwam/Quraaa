@@ -14,4 +14,11 @@ class SupportedLocales {
   static const Locale fallback = english;
 
   static bool isRtl(Locale locale) => locale.languageCode == arabic.languageCode;
+
+  static Locale fromCode(String? languageCode) {
+    return switch (languageCode) {
+      'ar' => arabic,
+      _ => english,
+    };
+  }
 }

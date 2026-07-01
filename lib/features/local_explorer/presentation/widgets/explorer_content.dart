@@ -40,9 +40,9 @@ class ExplorerContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.lg,
-        AppSpacing.lg,
+        AppSpacing.spacing24,
+        AppSpacing.spacing24,
+        AppSpacing.spacing24,
         0,
       ),
       child: Column(
@@ -55,17 +55,17 @@ class ExplorerContent extends StatelessWidget {
             onToggleView: onToggleView,
             onRefresh: onRefresh,
           ),
-          const SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: AppSpacing.spacing32),
           BreadcrumbBar(
             breadcrumbs: snapshot.breadcrumbs,
             onSelected: onBreadcrumbSelected,
           ),
-          const SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: AppSpacing.spacing8),
           ExplorerNote(
             title: LocalizationConstants.explorerNoteTitleKey.tr(),
             message: LocalizationConstants.explorerNoteMessageKey.tr(),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.spacing16),
           Expanded(
             child: snapshot.entries.isEmpty
                 ? const ExplorerEmptyView()

@@ -26,13 +26,13 @@ class PdfPageCounterBadge extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: AppColors.noteSurface,
-        borderRadius: BorderRadius.circular(AppRadius.sm),
+        borderRadius: BorderRadius.circular(AppRadius.radius8),
         border: Border.all(color: AppColors.noteBorder),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.sm,
-          vertical: AppSpacing.xs,
+          horizontal: AppSpacing.spacing8,
+          vertical: AppSpacing.spacing4,
         ),
         child: Text(
           '$page / $total',

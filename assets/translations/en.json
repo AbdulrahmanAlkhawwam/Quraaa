@@ -6,12 +6,218 @@
     "ok": "OK",
     "cancel": "Cancel",
     "retry": "Retry",
-    "save": "Save"
+    "save": "Save",
+    "close": "Close"
   },
   "auth": {
+    "screen": {
+      "start": "Let's Start",
+      "already_have_account": "I Have Already Account",
+      "create_new_account": "Create new Account"
+    },
     "login": {
-      "title": "Welcome back",
-      "subtitle": "Sign in to continue"
+      "title": "Sign in"
+    },
+    "register": {
+      "title": "Sign up"
+    },
+    "first_name": {
+      "label": "First Name",
+      "hint": "Enter Your First Name",
+      "validation": {
+        "required": "First name is required.",
+        "max_length": "First name must not exceed 50 characters."
+      }
+    },
+    "last_name": {
+      "label": "Last Name",
+      "hint": "Enter Your Last Name",
+      "validation": {
+        "required": "Last name is required.",
+        "max_length": "Last name must not exceed 50 characters."
+      }
+    },
+    "phone": {
+      "label": "Phone Number",
+      "hint": "Enter Your Phone Number",
+      "validation": {
+        "required": "Phone number is required.",
+        "format": "Invalid international phone number format. It must start with '+' and include a valid country code.",
+        "valid": "Please enter a valid phone number and country."
+      }
+    },
+    "date_of_birth": {
+      "validation": {
+        "required": "Date of birth is required.",
+        "invalid": "Date of birth is invalid or the user's age is too young."
+      }
+    },
+    "gender": {
+      "validation": {
+        "invalid": "The provided gender value is invalid."
+      }
+    },
+    "interests": {
+      "validation": {
+        "empty": "You must select at least one interest.",
+        "invalid": "One or more interest IDs do not exist in the system."
+      }
+    },
+    "password": {
+      "label": "Password",
+      "hint": "Enter Your Password",
+      "validation": {
+        "required": "Password is required.",
+        "min_length": "Password must be at least 6 characters long.",
+        "digit": "Password must contain at least one digit."
+      },
+      "requirement": {
+        "not_empty": "Password is not empty",
+        "min_length": "Minimum 6 characters",
+        "digit": "Contains at least one digit (0-9)"
+      }
+    },
+    "action": {
+      "next": "Next",
+      "continue_as_guest": "Continue As Guest"
+    },
+    "otp": {
+      "title": "Verification OTP",
+      "description": "Enter the code sent to your phone number {phone} ... or give us access to see the messages and go check the code",
+      "number_is_wrong": "number is wrong",
+      "resend": "Resend it",
+      "resend_countdown": "Resend ({count})"
+    },
+    "location": {
+      "title": "Get Your Place",
+      "description": "Can us Get your Location for make delivery service available",
+      "only_when_use_app": "Only When Use App",
+      "always": "Take Permission Always",
+      "maybe_later": "Maybe Later"
+    },
+    "notification": {
+      "title": "Notification Permission!",
+      "description": "Do you want to receive notification from us to be up to date!",
+      "take_permission": "Take Permission",
+      "maybe_later": "Maybe Later"
+    }
+  },
+  "onboarding": {
+    "age": {
+      "title": "Choose Age",
+      "year": "Year",
+      "month": "Month",
+      "day": "Day",
+      "validation": {
+        "required": "This field is required",
+        "year_range": "Year must be between 1900 and the current year",
+        "month_range": "Month must be between 1 and 12",
+        "day_range": "Day must be between 1 and 31",
+        "invalid_date": "Please enter a valid date"
+      }
+    },
+    "gender": {
+      "title": "Choose Gander",
+      "boy": "Boy",
+      "girl": "Girl",
+      "next": "Next",
+      "skip": "Skip"
+    },
+    "interests": {
+      "title": "Your Interested",
+      "empty": "No categories available",
+      "space_science": "Space Science",
+      "geography": "Geography",
+      "history": "History",
+      "encyclopedias": "Encyclopedias",
+      "patrols": "Patrols",
+      "culture": "Culture",
+      "science": "Science",
+      "novels": "Novels",
+      "policy": "Policy",
+      "dictionary": "Dictionary",
+      "education": "Education",
+      "technology": "Technology",
+      "art": "Art",
+      "literature": "Literature",
+      "other": "Other"
+    }
+  },
+  "user_data": {
+    "title": "Settings",
+    "subtitle": "Manage your profile and saved content",
+    "edit": "Edit",
+    "logout": "Log out",
+    "tabs": {
+      "profile": "Profile",
+      "appearance": "Appearance",
+      "settings": "Settings",
+      "books": "Books",
+      "badges": "Badges",
+      "folders": "Folders",
+      "bookmarks": "Bookmarks",
+      "budgets": "Budgets",
+      "library": "My Library",
+      "history": "History"
+    },
+    "profile": {
+      "full_name": "Full name",
+      "birth_date": "Birth date",
+      "country": "Country",
+      "phone": "Phone number",
+      "gender": {
+        "male": "Male",
+        "female": "Female",
+        "prefer_not_to_say": "Prefer not to say"
+      }
+    },
+    "appearance": {
+      "theme": "Theme",
+      "language": "Language",
+      "english": "English",
+      "arabic": "Arabic",
+      "change_language": "Change Language"
+    },
+    "settings": {
+      "appearance": "Appearance",
+      "notification_management": "Notification Management",
+      "security": "Security",
+      "languages": "Languages"
+    },
+    "bookmarks": {
+      "saved_items": "Saved items"
+    },
+    "budgets": {
+      "balance": "Balance"
+    },
+    "library": {
+      "items": "Library items"
+    },
+    "history": {
+      "operations": "Operations"
+    },
+    "edit": {
+      "profile": {
+        "title": "Edit Profile"
+      },
+      "appearance": {
+        "title": "Edit Appearance"
+      },
+      "bookmarks": {
+        "title": "Edit Bookmarks"
+      },
+      "budgets": {
+        "title": "Edit Budgets"
+      },
+      "library": {
+        "title": "Edit Library"
+      },
+      "history": {
+        "title": "Edit History"
+      },
+      "save_changes": "Save Changes",
+      "cancel": "Cancel",
+      "multiline_hint": "Enter one item per line."
     }
   },
   "explorer": {
@@ -55,6 +261,115 @@
     "copied": "Text copied",
     "highlighted": "Highlight added",
     "selection_unavailable": "Text selection is not available for this page."
+  },
+  "settings": {
+    "title": "Settings",
+    "search": {
+      "title": "Search settings",
+      "subtitle": "Find settings, books, and more",
+      "empty": "No settings found."
+    },
+    "tabs": {
+      "general": "General",
+      "notification": "Notifications",
+      "security": "Security",
+      "languages": "Languages"
+    },
+    "account_type": {
+      "title": "Account Type",
+      "subtitle": "Choose the membership that fits you"
+    },
+    "shortcuts": {
+      "appearance": {
+        "subtitle": "Theme and layout options"
+      },
+      "notifications": {
+        "subtitle": "Push, email, and reminder preferences"
+      },
+      "security": {
+        "subtitle": "Password and privacy controls"
+      },
+      "languages": {
+        "subtitle": "Arabic and English"
+      }
+    },
+    "theme": {
+      "title": "Theme",
+      "subtitle": "Choose how Quraaa looks across the app",
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark",
+      "system_desc": "Follow your device appearance settings.",
+      "light_desc": "Always use the light reading experience.",
+      "dark_desc": "Switch to a darker view for low light."
+    },
+    "language": {
+      "title": "Language",
+      "subtitle": "Choose the language used in the app",
+      "english": "English",
+      "arabic": "Arabic",
+      "english_desc": "Use the app in English.",
+      "arabic_desc": "Use the app in Arabic."
+    },
+    "notification": {
+      "title": "Notifications",
+      "subtitle": "Stay updated with alerts and reminders",
+      "body": "Allow notifications so you can receive book updates, reminders, and important account alerts.",
+      "action": "Enable notifications"
+    }
+  },
+  "subscription": {
+    "account_type": {
+      "title": "Account Type",
+      "subtitle": "Choose the membership that fits you"
+    },
+    "plans": {
+      "free": "Free",
+      "plus": "Plus",
+      "premium": "Premium"
+    }
+  },
+  "profile": {
+    "menu": {
+      "my_personal_information": "My Personal Information",
+      "my_locations": "My Locations",
+      "payment_information": "Payment Information",
+      "my_personal_files": "My Personal Files",
+      "my_badges": "My Badges"
+    },
+    "coming_soon": {
+      "title": "Coming Soon",
+      "message": "{feature} feature is under development."
+    },
+    "dialog": {
+      "not_designed": {
+        "title": "{title}",
+        "content": "This screen has not been designed yet."
+      }
+    }
+  },
+  "edit_profile": {
+    "title": "Edit Profile",
+    "personal_data": "Personal Data",
+    "full_name": "Full Name",
+    "gender": "Gender",
+    "gender_male": "Male",
+    "gender_female": "Female",
+    "birth_date": "Birth Date",
+    "birth_date_hint": "2005/04/21",
+    "phone_number": "Phone Number",
+    "country_code": "+971",
+    "save_coming_soon": "Profile saved - Coming Soon",
+    "tabs": {
+      "background": "Background",
+      "hair": "Hair",
+      "beard": "Beard",
+      "mustache": "Mustache",
+      "clothing": "Clothing"
+    }
+  },
+  "notification": {
+    "continue": "Continue"
   },
   "errors": {
     "unknown": {
@@ -112,6 +427,96 @@
     "redirection": {
       "title": "Redirection",
       "message": "The request needs to be redirected."
+    }
+  },
+  "terms_privacy": {
+    "title": "Terms & Conditions",
+    "last_updated": "Last Updated: June 20, 2026",
+    "welcome": "Welcome to Quraaa. By creating an account, accessing, or using our services, you agree to these Terms & Conditions. If you do not agree, please do not use Quraaa.",
+    "sections": {
+      "acceptance": {
+        "title": "Acceptance of Terms",
+        "desc": "By using Quraaa, you confirm that you have read, understood, and agree to be bound by these Terms & Conditions and our Privacy Policy."
+      },
+      "eligibility": {
+        "title": "Eligibility",
+        "desc": "You must be at least the minimum legal age required in your country to use Quraaa or have permission from a parent or legal guardian."
+      },
+      "user_account": {
+        "title": "User Account",
+        "desc": "When creating an account, you agree to: Provide accurate and complete information. Keep your account credentials secure. Be responsible for all activities under your account. Notify us immediately if you believe your account has been accessed without your permission."
+      },
+      "use_of_platform": {
+        "title": "Use of the Platform",
+        "desc": "You agree to use Quraaa only for lawful purposes. You must not: Violate any applicable laws or regulations. Share copyrighted content without permission. Upload malicious software or harmful content. Attempt to access systems or data without authorization. Harass, threaten, or abuse other users. Use automated tools to collect data without permission."
+      },
+      "digital_content": {
+        "title": "Digital Content",
+        "desc": "Books, audiobooks, summaries, and other digital content available on Quraaa are protected by copyright and intellectual property laws. Unless explicitly permitted, you may not: Copy, Redistribute, Resell, Modify, Publish, or Share purchased digital content. Your purchases grant you a personal, non-transferable license to access the content."
+      },
+      "marketplace": {
+        "title": "Marketplace",
+        "desc": "Users may buy or sell eligible books through Quraaa. Sellers are responsible for: Accurate product descriptions. Legal ownership of listed items. Shipping physical books when applicable. Quraaa may remove listings that violate these Terms."
+      },
+      "author_content": {
+        "title": "Author Content",
+        "desc": "Authors retain ownership of the content they publish. By publishing on Quraaa, you grant us a non-exclusive license to host, display, distribute, and promote your content through the platform. Authors are responsible for ensuring they own all rights to the content they upload."
+      },
+      "ai_features": {
+        "title": "AI Features",
+        "desc": "Quraaa may provide AI-powered services including: Book summaries, Reading assistance, Recommendations, Translation support. AI-generated content is provided for informational purposes only and may not always be accurate or complete."
+      },
+      "community_guidelines": {
+        "title": "Community Guidelines",
+        "desc": "Users must communicate respectfully. The following content is prohibited: Hate speech, Harassment, Spam, Fraud, Illegal content, Offensive or harmful material. We reserve the right to remove content or suspend accounts that violate these guidelines."
+      },
+      "payments": {
+        "title": "Payments",
+        "desc": "Certain features require payment. By making a purchase, you agree that: Prices may change without prior notice. Payments are processed through authorized payment providers. Taxes may apply depending on your location."
+      },
+      "subscriptions": {
+        "title": "Subscriptions",
+        "desc": "Subscription plans renew according to the selected billing cycle unless canceled before renewal. Subscription benefits may change as the platform evolves."
+      },
+      "refund_policy": {
+        "title": "Refund Policy",
+        "desc": "Refund eligibility depends on the type of purchase and applicable laws. Digital purchases may not be refundable once accessed unless required by law."
+      },
+      "privacy": {
+        "title": "Privacy",
+        "desc": "Your use of Quraaa is also governed by our Privacy Policy, which explains how we collect, use, and protect your personal information."
+      },
+      "intellectual_property": {
+        "title": "Intellectual Property",
+        "desc": "All platform branding, logos, designs, software, and services are owned by Quraaa or its licensors and are protected by applicable intellectual property laws."
+      },
+      "service_availability": {
+        "title": "Service Availability",
+        "desc": "We strive to provide uninterrupted access but cannot guarantee that the platform will always be available. Maintenance, updates, or technical issues may temporarily affect service availability."
+      },
+      "account_suspension": {
+        "title": "Account Suspension",
+        "desc": "We may suspend or terminate accounts that: Violate these Terms. Engage in fraudulent activity. Abuse platform services. Infringe intellectual property rights."
+      },
+      "limitation_of_liability": {
+        "title": "Limitation of Liability",
+        "desc": "To the maximum extent permitted by law, Quraaa shall not be liable for indirect, incidental, or consequential damages resulting from the use of the platform."
+      },
+      "changes_to_terms": {
+        "title": "Changes to These Terms",
+        "desc": "We may update these Terms & Conditions from time to time. Significant changes will be communicated through the application or other appropriate channels. Continued use of Quraaa after updates constitutes acceptance of the revised Terms."
+      },
+      "contact_us": {
+        "title": "Contact Us",
+        "desc": "If you have any questions regarding these Terms & Conditions, please contact us through the support channels provided within the application."
+      }
+    },
+    "action": {
+      "agree": "I Agree"
+    },
+    "footer": {
+      "continue_part1": "By continuing, you accept our ",
+      "continue_part2": "Terms & Privacy"
     }
   }
 }

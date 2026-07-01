@@ -26,11 +26,11 @@ class PdfSelectionToolbar extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: AppColors.secondary,
-        borderRadius: BorderRadius.circular(AppRadius.sm),
+        borderRadius: BorderRadius.circular(AppRadius.radius8),
         boxShadow: AppShadows.elevation1,
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.spacing4),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[

@@ -26,7 +26,9 @@ final class OperationFailedException extends _BaseException {
   const OperationFailedException({
     super.code = ErrorCodes.operationFailedRetry,
     String? message,
-  }) : super(message: message ?? 'The operation failed. Please try again.');
+  }) : super(
+         message: message ?? 'The operation failed. Please try again.',
+       );
 }
 
 final class OperationCancelledException extends _BaseException {
@@ -41,7 +43,9 @@ final class NetworkException extends _BaseException {
   const NetworkException({
     super.code = ErrorCodes.networkErrorRetry,
     String? message,
-  }) : super(message: message ?? 'A network error occurred. Please try again.');
+  }) : super(
+         message: message ?? 'A network error occurred. Please try again.',
+       );
 }
 
 final class NoInternetException extends _BaseException {
@@ -87,14 +91,18 @@ final class NotFoundException extends _BaseException {
   const NotFoundException({
     super.code = ErrorCodes.resourceNotFound,
     String? message,
-  }) : super(message: message ?? 'The requested resource was not found.');
+  }) : super(
+         message: message ?? 'The requested resource was not found.',
+       );
 }
 
 final class ValidationException extends _BaseException {
   const ValidationException({
     super.code = ErrorCodes.validationFailed,
     String? message,
-  }) : super(message: message ?? 'Please check the submitted data.');
+  }) : super(
+         message: message ?? 'Please check the submitted data.',
+       );
 }
 
 final class ConflictException extends _BaseException {
@@ -125,7 +133,9 @@ final class RedirectionException extends _BaseException {
     super.code = ErrorCodes.redirection,
     this.redirectUri,
     String? message,
-  }) : super(message: message ?? 'The request requires redirection.');
+  }) : super(
+         message: message ?? 'The request requires redirection.',
+       );
 
   final Uri? redirectUri;
 }
@@ -143,7 +153,9 @@ final class PaymentRequiredException extends _BaseException {
   const PaymentRequiredException({
     super.code = ErrorCodes.paymentRequired,
     String? message,
-  }) : super(message: message ?? 'A payment is required to continue.');
+  }) : super(
+         message: message ?? 'A payment is required to continue.',
+       );
 }
 
 final class SubscriptionException extends _BaseException {
@@ -159,7 +171,9 @@ final class InternalException extends _BaseException {
   const InternalException({
     super.code = ErrorCodes.internalServerError,
     String? message,
-  }) : super(message: message ?? 'An internal server error occurred.');
+  }) : super(
+         message: message ?? 'An internal server error occurred.',
+       );
 }
 
 final class ServerException extends _BaseException {

@@ -1,20 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:quraaa/shared/shared.dart';
 
-import 'app_colors.dart';
-import 'app_text_styles.dart';
+import 'styles/app_bar.dart';
+import 'styles/filled_button.dart';
+import 'styles/outlined_button.dart';
+import 'styles/text_button.dart';
+import 'styles/text_input_feild.dart';
 
 abstract class AppTheme {
   static ThemeData light() {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      colorScheme: const ColorScheme.light(
-        primary: AppColors.primary,
-        secondary: AppColors.secondary,
-        surface: AppColors.surfaceLight,
-      ),
-      scaffoldBackgroundColor: AppColors.backgroundLight,
+      fontFamily: 'Thmanyah Sans',
+      scaffoldBackgroundColor: AppColors.neutralBackground,
+      cardColor: AppColors.card,
+      dividerColor: AppColors.primary100,
+      colorScheme: lightColors,
       textTheme: AppTextStyles.textTheme(),
+      appBarTheme: appBarStyle(lightColors),
+      filledButtonTheme: filledButtonTheme(lightColors),
+      outlinedButtonTheme: outlinedButtonTheme(lightColors),
+      textButtonTheme: textButtonTheme(lightColors),
+      inputDecorationTheme: textInputFeildTheme(lightColors),
+      dividerTheme: const DividerThemeData(
+        color: AppColors.primary100,
+        thickness: 1,
+        space: 1,
+      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        borderRadius: BorderRadius.circular(AppRadius.radius40),
+        linearMinHeight: 8,
+        strokeWidth: 8,
+        linearTrackColor: AppColors.primary600,
+        color: AppColors.primary100,
+      ),
+      cardTheme: const CardThemeData(
+        color: AppColors.card,
+        elevation: 0,
+        margin: EdgeInsets.zero,
+      ),
     );
   }
 
@@ -22,13 +47,37 @@ abstract class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      colorScheme: const ColorScheme.dark(
-        primary: AppColors.primary,
-        secondary: AppColors.secondary,
-        surface: AppColors.surfaceDark,
+      fontFamily: 'Thmanyah Sans',
+      scaffoldBackgroundColor: AppColors.neutralBackgroundDark,
+      cardColor: AppColors.cardDark,
+      dividerColor: AppColors.outlineDark,
+      colorScheme: darkColors,
+      textTheme: AppTextStyles.textTheme().apply(
+        bodyColor: AppColors.textPrimaryDark,
+        displayColor: AppColors.textPrimaryDark,
       ),
-      scaffoldBackgroundColor: AppColors.backgroundDark,
-      textTheme: AppTextStyles.textTheme(),
+      appBarTheme: appBarStyle(darkColors),
+      filledButtonTheme: filledButtonTheme(darkColors),
+      outlinedButtonTheme: outlinedButtonTheme(darkColors),
+      textButtonTheme: textButtonTheme(darkColors),
+      inputDecorationTheme: textInputFeildTheme(darkColors),
+      dividerTheme: const DividerThemeData(
+        color: AppColors.outlineDark,
+        thickness: 1,
+        space: 1,
+      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        borderRadius: BorderRadius.circular(AppRadius.radius40),
+        linearMinHeight: 8,
+        strokeWidth: 8,
+        linearTrackColor: AppColors.primary800,
+        color: AppColors.primary400,
+      ),
+      cardTheme: const CardThemeData(
+        color: AppColors.cardDark,
+        elevation: 0,
+        margin: EdgeInsets.zero,
+      ),
     );
   }
 }

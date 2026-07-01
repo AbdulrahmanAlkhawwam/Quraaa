@@ -20,7 +20,7 @@ class ExplorerFailureView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xl),
+        padding: const EdgeInsets.all(AppSpacing.spacing32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
@@ -29,7 +29,7 @@ class ExplorerFailureView extends StatelessWidget {
               color: AppColors.pdfLabel,
               size: 52,
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.spacing16),
             Text(
               message,
               textAlign: TextAlign.center,
@@ -37,7 +37,7 @@ class ExplorerFailureView extends StatelessWidget {
                     color: AppColors.textPrimary,
                   ),
             ),
-            const SizedBox(height: AppSpacing.lg),
+            const SizedBox(height: AppSpacing.spacing24),
             OutlinedButton.icon(
               onPressed: onRetry,
               icon: const HugeIcon(

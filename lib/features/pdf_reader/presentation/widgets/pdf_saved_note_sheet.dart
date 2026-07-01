@@ -23,10 +23,10 @@ class PdfSavedNoteSheet extends StatelessWidget {
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(
-          AppSpacing.lg,
-          AppSpacing.md,
-          AppSpacing.lg,
-          AppSpacing.lg,
+          AppSpacing.spacing24,
+          AppSpacing.spacing16,
+          AppSpacing.spacing24,
+          AppSpacing.spacing24,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -39,7 +39,7 @@ class PdfSavedNoteSheet extends StatelessWidget {
                   color: AppColors.secondary,
                   size: 24,
                 ),
-                const SizedBox(width: AppSpacing.sm),
+                const SizedBox(width: AppSpacing.spacing8),
                 Expanded(
                   child: Text(
                     hasSelectedText
@@ -54,15 +54,15 @@ class PdfSavedNoteSheet extends StatelessWidget {
               ],
             ),
             if (hasSelectedText) ...<Widget>[
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.spacing16),
               DecoratedBox(
                 decoration: BoxDecoration(
                   color: AppColors.noteSurface,
-                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                  borderRadius: BorderRadius.circular(AppRadius.radius8),
                   border: Border.all(color: AppColors.noteBorder),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.sm),
+                  padding: const EdgeInsets.all(AppSpacing.spacing8),
                   child: Text(
                     note.selectedText,
                     maxLines: 4,
@@ -74,14 +74,14 @@ class PdfSavedNoteSheet extends StatelessWidget {
                 ),
               ),
             ],
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.spacing16),
             Text(
               note.note,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: AppColors.textPrimary,
                   ),
             ),
-            const SizedBox(height: AppSpacing.lg),
+            const SizedBox(height: AppSpacing.spacing24),
             Row(
               children: <Widget>[
                 TextButton.icon(

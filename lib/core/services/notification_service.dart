@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -5,15 +7,27 @@ import 'package:permission_handler/permission_handler.dart';
 import '../constants/firebase_constants.dart';
 import '../utils/logger.dart';
 
+/// Cross-platform notification contract used by the UI and the Firebase
+/// messaging layer.
+abstract class NotificationService {
+  Future<void> initialize({bool shouldRequestPermission = true});
+
+  Future<void> requestPermission();
+
+  Stream<RemoteMessage> get foregroundMessages;
+
+  Future<void> handleForegroundMessage(RemoteMessage message);
+}
+
 /// Handles local notification display and FCM message presentation for the
 /// Quraaa app.
 ///
 /// Uses [flutter_local_notifications] so notifications work on Android and
 /// iOS without relying on the custom native plugin from quraa_otp.
-class NotificationService {
+class LocalNotificationService implements NotificationService {
   /// Creates the notification service.
-  NotificationService({FlutterLocalNotificationsPlugin? plugin})
-    : _plugin = plugin ?? FlutterLocalNotificationsPlugin();
+  LocalNotificationService({FlutterLocalNotificationsPlugin? plugin})
+      : _plugin = plugin ?? FlutterLocalNotificationsPlugin();
 
   final FlutterLocalNotificationsPlugin _plugin;
 
@@ -21,9 +35,16 @@ class NotificationService {
 
   static int _notificationId = 0;
 
+  final StreamController<RemoteMessage> _foregroundMessages =
+      StreamController<RemoteMessage>.broadcast();
+
+  @override
+  Stream<RemoteMessage> get foregroundMessages => _foregroundMessages.stream;
+
   /// Initializes the plugin, creates the default Android notification channel,
   /// and optionally requests notification permission.
-  Future<void> initialize({bool requestPermission = true}) async {
+  @override
+  Future<void> initialize({bool shouldRequestPermission = true}) async {
     if (_initialized) {
       return;
     }
@@ -33,8 +54,8 @@ class NotificationService {
     );
 
     // Darwin settings cover iOS and macOS. Permission is requested through
-    // [requestNotificationPermission] to keep a single cross-platform entry
-    // point, so alert/badge/sound request flags are disabled here.
+    // [requestPermission] to keep a single cross-platform entry point,
+    // so alert/badge/sound request flags are disabled here.
     const darwinSettings = DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
@@ -54,8 +75,8 @@ class NotificationService {
 
     await _createDefaultChannel();
 
-    if (requestPermission) {
-      await requestNotificationPermission();
+    if (shouldRequestPermission) {
+      await requestPermission();
     }
 
     _initialized = true;
@@ -63,6 +84,12 @@ class NotificationService {
 
   /// Requests the notification permission on platforms that require a runtime
   /// request (Android 13+ and iOS).
+  @override
+  Future<void> requestPermission() async {
+    await requestNotificationPermission();
+  }
+
+  /// Requests the notification permission and returns whether it was granted.
   Future<bool> requestNotificationPermission() async {
     final status = await Permission.notification.request();
     AppLogger.info('Permission.notification status: ${status.name}');
@@ -75,7 +102,7 @@ class NotificationService {
     required String body,
     String? payload,
   }) async {
-    await initialize(requestPermission: false);
+    await initialize(shouldRequestPermission: false);
 
     final androidDetails = AndroidNotificationDetails(
       FirebaseConstants.defaultChannelId,
@@ -117,7 +144,9 @@ class NotificationService {
 
   /// Handles an incoming foreground FCM message by presenting a local
   /// notification when the payload contains a body.
+  @override
   Future<void> handleForegroundMessage(RemoteMessage message) async {
+    _foregroundMessages.add(message);
     await showNotificationFromRemoteMessage(message);
   }
 
@@ -162,8 +191,7 @@ class NotificationService {
 
     await _plugin
         .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >()
+            AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
   }
 

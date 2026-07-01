@@ -1,7 +1,7 @@
-abstract class UseCase<R, Params> {
+abstract class UseCase<T, Params> {
   const UseCase();
 
-  Future<R> call(Params params);
+  Future<T> call(Params params);
 }
 
 class NoParams {

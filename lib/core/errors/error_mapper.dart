@@ -108,112 +108,112 @@ class ErrorMapper {
 
   static Failure mapExceptionToFailure(AppException exception) {
     switch (exception) {
-      case UnknownException _:
+      case UnknownException():
         return UnknownFailure(message: exception.message);
-      case OperationCancelledException _:
+      case OperationCancelledException():
         return OperationCancelledFailure(message: exception.message);
-      case OperationFailedException _:
+      case OperationFailedException():
         return OperationFailedFailure(
           code: exception.code,
           message: exception.message,
         );
-      case NoInternetException _:
+      case NoInternetException():
         return NoInternetFailure(message: exception.message);
-      case NetworkException _:
+      case NetworkException():
         return NetworkFailure(code: exception.code, message: exception.message);
-      case TimeoutException _:
+      case TimeoutException():
         return TimeoutFailure(message: exception.message);
-      case BadRequestException _:
+      case BadRequestException():
         return BadRequestFailure(
           code: exception.code,
           message: exception.message,
         );
-      case UnauthorizedException _:
+      case UnauthorizedException():
         return UnauthorizedFailure(
           code: exception.code,
           message: exception.message,
         );
-      case ForbiddenException _:
+      case ForbiddenException():
         return ForbiddenFailure(message: exception.message);
-      case NotFoundException _:
+      case NotFoundException():
         return NotFoundFailure(
           code: exception.code,
           message: exception.message,
         );
-      case ValidationException _:
+      case ValidationException():
         return ValidationFailure(
           code: exception.code,
           message: exception.message,
         );
-      case ConflictException _:
+      case ConflictException():
         return ConflictFailure(
           code: exception.code,
           message: exception.message,
         );
-      case GoneException _:
+      case GoneException():
         return GoneFailure(message: exception.message);
-      case PreconditionFailedException _:
+      case PreconditionFailedException():
         return PreconditionFailedFailure(message: exception.message);
-      // case RedirectionException:
-      //   return RedirectionFailure(
-      //     code: exception.code,
-      //     redirectUri: exception.redirectUri,
-      //     message: exception.message,
-      //   );
-      case TooManyRequestsException _:
+      case RedirectionException():
+        return RedirectionFailure(
+          code: exception.code,
+          redirectUri: exception.redirectUri,
+          message: exception.message,
+        );
+      case TooManyRequestsException():
         return TooManyRequestsFailure(message: exception.message);
-      case PaymentRequiredException _:
+      case PaymentRequiredException():
         return PaymentRequiredFailure(
           code: exception.code,
           message: exception.message,
         );
-      case SubscriptionException _:
+      case SubscriptionException():
         return SubscriptionFailure(
           code: exception.code,
           message: exception.message,
         );
-      case InternalException _:
+      case InternalException():
         return InternalFailure(
           code: exception.code,
           message: exception.message,
         );
-      case ServerException _:
+      case ServerException():
         return ServerFailure(
           code: exception.code,
           // statusCode: exception.statusCode,
           message: exception.message,
         );
-      case MethodNotAllowedException _:
+      case MethodNotAllowedException():
         return MethodNotAllowedFailure(message: exception.message);
-      case CacheReadException _:
+      case CacheReadException():
         return CacheReadFailure(message: exception.message);
-      case CacheWriteException _:
+      case CacheWriteException():
         return CacheWriteFailure(message: exception.message);
-      case OfflineSyncException _:
+      case OfflineSyncException():
         return OfflineSyncFailure(message: exception.message);
-      case DownloadException _:
+      case DownloadException():
         return DownloadFailure(message: exception.message);
-      case InsufficientStorageException _:
+      case InsufficientStorageException():
         return InsufficientStorageFailure(message: exception.message);
-      case FileAccessDeniedException _:
+      case FileAccessDeniedException():
         return FileAccessDeniedFailure(message: exception.message);
-      case LoginFailedException _:
+      case LoginFailedException():
         return LoginFailure(message: exception.message);
-      case TokenExpiredException _:
+      case TokenExpiredException():
         return TokenExpiredFailure(message: exception.message);
-      case UserNotFoundException _:
+      case UserNotFoundException():
         return UserNotFoundFailure(message: exception.message);
-      case OrganizationNotFoundException _:
+      case OrganizationNotFoundException():
         return OrganizationNotFoundFailure(message: exception.message);
-      case StudentAlreadyExistsException _:
+      case StudentAlreadyExistsException():
         return StudentAlreadyExistsFailure(message: exception.message);
-      case EnrollmentException _:
+      case EnrollmentException():
         return EnrollmentFailure(message: exception.message);
-      case AlreadyEnrolledException _:
+      case AlreadyEnrolledException():
         return AlreadyEnrolledFailure(message: exception.message);
-      case CourseNotFoundException _:
+      case CourseNotFoundException():
         return CourseNotFoundFailure(message: exception.message);
-      case DataNotFoundException _:
+      case DataNotFoundException():
         return DataNotFoundFailure(message: exception.message);
       default:
         return UnknownFailure(message: exception.message);
