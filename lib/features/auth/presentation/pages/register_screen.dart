@@ -81,8 +81,8 @@ class _RegisterViewState extends State<_RegisterView> {
   Future<void> _loadOnboardingData() async {
     try {
       final OnboardingDraft draft = await _onboardingRepository.loadState();
-      final List<Category> categories =
-          await _onboardingRepository.getCategories();
+      final List<Category> categories = await _onboardingRepository
+          .getCategories();
       if (!mounted) return;
       setState(() {
         _selectedGender = draft.selectedGender;
@@ -120,55 +120,50 @@ class _RegisterViewState extends State<_RegisterView> {
   }
 
   String? get _firstNameError => Validators.validateName(
-        _firstNameController.text,
-        emptyError: LocalizationConstants.authFirstNameRequiredErrorKey.tr(),
-        maxLengthError:
-            LocalizationConstants.authFirstNameMaxLengthErrorKey.tr(),
-      );
+    _firstNameController.text,
+    emptyError: LocalizationConstants.authFirstNameRequiredErrorKey.tr(),
+    maxLengthError: LocalizationConstants.authFirstNameMaxLengthErrorKey.tr(),
+  );
 
   String? get _lastNameError => Validators.validateName(
-        _lastNameController.text,
-        emptyError: LocalizationConstants.authLastNameRequiredErrorKey.tr(),
-        maxLengthError:
-            LocalizationConstants.authLastNameMaxLengthErrorKey.tr(),
-      );
+    _lastNameController.text,
+    emptyError: LocalizationConstants.authLastNameRequiredErrorKey.tr(),
+    maxLengthError: LocalizationConstants.authLastNameMaxLengthErrorKey.tr(),
+  );
 
   String? get _phoneError => Validators.validatePhone(
-        _phoneController.text,
-        emptyError: LocalizationConstants.authPhoneRequiredErrorKey.tr(),
-        formatError: LocalizationConstants.authPhoneFormatErrorKey.tr(),
-        isValid: _isPhoneFormatValid,
-      );
+    _phoneController.text,
+    emptyError: LocalizationConstants.authPhoneRequiredErrorKey.tr(),
+    formatError: LocalizationConstants.authPhoneFormatErrorKey.tr(),
+    isValid: _isPhoneFormatValid,
+  );
 
   String? get _passwordError => Validators.validatePassword(
-        _passwordController.text,
-        emptyError: LocalizationConstants.authPasswordRequiredErrorKey.tr(),
-        minLengthError:
-            LocalizationConstants.authPasswordMinLengthErrorKey.tr(),
-        digitError: LocalizationConstants.authPasswordDigitErrorKey.tr(),
-      );
+    _passwordController.text,
+    emptyError: LocalizationConstants.authPasswordRequiredErrorKey.tr(),
+    minLengthError: LocalizationConstants.authPasswordMinLengthErrorKey.tr(),
+    digitError: LocalizationConstants.authPasswordDigitErrorKey.tr(),
+  );
 
   String? get _dateOfBirthError => Validators.validateDateOfBirth(
-        year: _birthYear,
-        month: _birthMonth,
-        day: _birthDay,
-        emptyError:
-            LocalizationConstants.authDateOfBirthRequiredErrorKey.tr(),
-        invalidError:
-            LocalizationConstants.authDateOfBirthInvalidErrorKey.tr(),
-      );
+    year: _birthYear,
+    month: _birthMonth,
+    day: _birthDay,
+    emptyError: LocalizationConstants.authDateOfBirthRequiredErrorKey.tr(),
+    invalidError: LocalizationConstants.authDateOfBirthInvalidErrorKey.tr(),
+  );
 
   String? get _genderError => Validators.validateGender(
-        _selectedGender,
-        invalidError: LocalizationConstants.authGenderInvalidErrorKey.tr(),
-      );
+    _selectedGender,
+    invalidError: LocalizationConstants.authGenderInvalidErrorKey.tr(),
+  );
 
   String? get _interestsError => Validators.validateInterests(
-        categoryIds: _selectedCategoryIds,
-        validCategoryIds: _validCategoryIds,
-        emptyError: LocalizationConstants.authInterestsEmptyErrorKey.tr(),
-        invalidError: LocalizationConstants.authInterestsInvalidErrorKey.tr(),
-      );
+    categoryIds: _selectedCategoryIds,
+    validCategoryIds: _validCategoryIds,
+    emptyError: LocalizationConstants.authInterestsEmptyErrorKey.tr(),
+    invalidError: LocalizationConstants.authInterestsInvalidErrorKey.tr(),
+  );
 
   bool get _canSubmit {
     if (_isLoadingOnboarding) return false;
@@ -192,10 +187,7 @@ class _RegisterViewState extends State<_RegisterView> {
     BuildContext context, {
     String? phoneNumber,
   }) async {
-    context.goTo(
-      RouteNames.otpVerification,
-      extra: phoneNumber,
-    );
+    context.goTo(RouteNames.otpVerification, extra: phoneNumber);
   }
 
   Future<void> _submitRegistration() async {
@@ -256,6 +248,7 @@ class _RegisterViewState extends State<_RegisterView> {
         child: Form(
           key: _formKey,
           child: AppLayout(
+            expandContent: true,
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               child: Column(
@@ -274,8 +267,7 @@ class _RegisterViewState extends State<_RegisterView> {
                     label: LocalizationConstants.authFirstNameLabelKey.tr(),
                     child: AuthTextField(
                       controller: _firstNameController,
-                      hintText:
-                          LocalizationConstants.authFirstNameHintKey.tr(),
+                      hintText: LocalizationConstants.authFirstNameHintKey.tr(),
                       textInputAction: TextInputAction.next,
                       textCapitalization: TextCapitalization.words,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -295,8 +287,7 @@ class _RegisterViewState extends State<_RegisterView> {
                     label: LocalizationConstants.authLastNameLabelKey.tr(),
                     child: AuthTextField(
                       controller: _lastNameController,
-                      hintText:
-                          LocalizationConstants.authLastNameHintKey.tr(),
+                      hintText: LocalizationConstants.authLastNameHintKey.tr(),
                       textInputAction: TextInputAction.next,
                       textCapitalization: TextCapitalization.words,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -352,8 +343,7 @@ class _RegisterViewState extends State<_RegisterView> {
                               .tr(),
                           isValid: _isPhoneFormatValid,
                         ),
-                        autoValidateMode:
-                            AutovalidateMode.onUserInteraction,
+                        autoValidateMode: AutovalidateMode.onUserInteraction,
                         onFieldSubmitted: _submitRegistration,
                         hintText: LocalizationConstants.authPhoneHintKey.tr(),
                       ),
@@ -364,8 +354,7 @@ class _RegisterViewState extends State<_RegisterView> {
                     label: LocalizationConstants.authPasswordLabelKey.tr(),
                     child: AuthTextField(
                       controller: _passwordController,
-                      hintText:
-                          LocalizationConstants.authPasswordHintKey.tr(),
+                      hintText: LocalizationConstants.authPasswordHintKey.tr(),
                       obscureText: _obscurePassword,
                       textInputAction: TextInputAction.done,
                       suffixIcon: IconButton(
@@ -399,9 +388,7 @@ class _RegisterViewState extends State<_RegisterView> {
                     ),
                   ),
                   const SizedBox(height: AppSpacing.spacing12),
-                  _PasswordChecklist(
-                    password: _passwordController.text,
-                  ),
+                  _PasswordChecklist(password: _passwordController.text),
                   const SizedBox(height: AppSpacing.spacing16),
                   _OnboardingValidationSummary(
                     isLoading: _isLoadingOnboarding,
@@ -415,8 +402,8 @@ class _RegisterViewState extends State<_RegisterView> {
                       return SizedBox(
                         height: AppDimensions.onboardingButtonHeight,
                         child: FilledButton(
-                          onPressed: state.status == AuthStatus.loading ||
-                                  !_canSubmit
+                          onPressed:
+                              state.status == AuthStatus.loading || !_canSubmit
                               ? null
                               : () {
                                   unawaited(
@@ -435,9 +422,7 @@ class _RegisterViewState extends State<_RegisterView> {
                                     color: AppColors.card,
                                   ),
                                 )
-                              : Text(
-                                  LocalizationConstants.authNextKey.tr(),
-                                ),
+                              : Text(LocalizationConstants.authNextKey.tr()),
                         ),
                       );
                     },
@@ -521,10 +506,7 @@ class _PasswordChecklist extends StatelessWidget {
 }
 
 class _PasswordRequirementItem extends StatelessWidget {
-  const _PasswordRequirementItem({
-    required this.isMet,
-    required this.text,
-  });
+  const _PasswordRequirementItem({required this.isMet, required this.text});
 
   final bool isMet;
   final String text;
@@ -547,10 +529,7 @@ class _PasswordRequirementItem extends StatelessWidget {
           ),
           child: AnimatedSwitcher(
             duration: AppDurations.medium,
-            transitionBuilder: (
-              Widget child,
-              Animation<double> animation,
-            ) {
+            transitionBuilder: (Widget child, Animation<double> animation) {
               return ScaleTransition(scale: animation, child: child);
             },
             child: isMet
@@ -560,9 +539,7 @@ class _PasswordRequirementItem extends StatelessWidget {
                     size: 14,
                     key: ValueKey<String>('check'),
                   )
-                : const SizedBox.shrink(
-                    key: ValueKey<String>('empty'),
-                  ),
+                : const SizedBox.shrink(key: ValueKey<String>('empty')),
           ),
         ),
         const SizedBox(width: AppSpacing.spacing12),

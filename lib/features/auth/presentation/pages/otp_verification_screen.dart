@@ -48,22 +48,15 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     _defaultPinTheme = PinTheme(
       width: AppDimensions.pinWidth,
       height: AppDimensions.pinHeight,
-      textStyle: AppTextStyles.h4.copyWith(
-        color: AppColors.leafGreen,
-      ),
+      textStyle: AppTextStyles.h4.copyWith(color: AppColors.leafGreen),
       decoration: BoxDecoration(
         color: AppColors.card,
         borderRadius: BorderRadius.circular(AppRadius.radius12),
-        border: Border.all(
-          color: AppColors.primary200,
-        ),
+        border: Border.all(color: AppColors.primary200),
       ),
     );
     _focusedPinTheme = _defaultPinTheme.copyDecorationWith(
-      border: Border.all(
-        color: AppColors.leafGreen,
-        width: 2,
-      ),
+      border: Border.all(color: AppColors.leafGreen, width: 2),
       boxShadow: AppShadows.pinFocused(AppColors.leafGreen),
     );
     _submittedPinTheme = _defaultPinTheme.copyWith(
@@ -107,8 +100,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     final bool locationSeen = await _authJourney.isLocationPermissionSeen();
     if (!context.mounted) return;
     if (locationSeen) {
-      final bool notificationSeen =
-          await _authJourney.isNotificationPermissionSeen();
+      final bool notificationSeen = await _authJourney
+          .isNotificationPermissionSeen();
       if (!context.mounted) return;
       if (notificationSeen) {
         context.goTo(RouteNames.home);
@@ -150,6 +143,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     return OfflineRouteGuard(
       child: AppLayout(
         resizeToAvoidBottomInset: true,
+        expandContent: true,
         header: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.spacing16,
@@ -159,18 +153,13 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             children: [
               IconButton(
                 onPressed: () => context.back(),
-                icon: const Icon(
-                  Icons.arrow_back_ios,
-                  color: AppColors.card,
-                ),
+                icon: const Icon(Icons.arrow_back_ios, color: AppColors.card),
               ),
               Expanded(
                 child: Text(
                   LocalizationConstants.authOtpTitleKey.tr(),
                   textAlign: TextAlign.center,
-                  style: AppTextStyles.h3.copyWith(
-                    color: AppColors.card,
-                  ),
+                  style: AppTextStyles.h3.copyWith(color: AppColors.card),
                 ),
               ),
               const SizedBox(width: AppSpacing.spacing48),
@@ -209,9 +198,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   autofocus: true,
                   showCursor: true,
                   onCompleted: (_) => _verifyOtp(),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                  ],
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
                 ),
               ),
@@ -238,9 +225,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     child: OutlinedButton(
                       onPressed: _onNumberIsWrong,
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(
-                          color: AppColors.primary200,
-                        ),
+                        side: const BorderSide(color: AppColors.primary200),
                         foregroundColor: AppColors.libraryGreen,
                       ),
                       child: Text(
@@ -262,11 +247,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                       child: Text(
                         _resendCountdown > 0
                             ? LocalizationConstants.authOtpResendCountdownKey
-                                .tr(
-                                namedArgs: {
-                                  'count': '$_resendCountdown',
-                                },
-                              )
+                                  .tr(namedArgs: {'count': '$_resendCountdown'})
                             : LocalizationConstants.authOtpResendKey.tr(),
                       ),
                     ),

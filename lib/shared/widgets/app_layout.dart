@@ -19,6 +19,7 @@ class AppLayout extends StatelessWidget {
       AppSpacing.spacing24,
     ),
     this.resizeToAvoidBottomInset = true,
+    this.expandContent = false,
     super.key,
   });
 
@@ -28,53 +29,61 @@ class AppLayout extends StatelessWidget {
   final double topRadius;
   final EdgeInsetsGeometry padding;
   final bool resizeToAvoidBottomInset;
+  final bool expandContent;
 
   @override
   Widget build(BuildContext context) {
+    Widget contentCard = Container(
+      padding: padding,
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(topRadius)),
+      ),
+      child: SafeArea(child: child),
+    );
+
+    if (expandContent) {
+      contentCard = Expanded(child: contentCard);
+    }
+
     return Scaffold(
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: AppImage(
-              AppImages.onboardingBackground,
-              fit: BoxFit.cover,
-            ),
-          ),
-          Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: <Color>[
-                    AppColors.libraryGreen.withAlpha(AppColors.overlayLightAlpha),
-                    AppColors.libraryGreen.withAlpha(AppColors.overlayMediumAlpha),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
+      body: SizedBox.expand(
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: AppImage(
+                AppImages.onboardingBackground,
+                fit: BoxFit.cover,
               ),
             ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              header,
-              Container(
-                padding: padding,
+            Positioned.fill(
+              child: DecoratedBox(
                 decoration: BoxDecoration(
-                  color: cardColor,
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(topRadius),
+                  gradient: LinearGradient(
+                    colors: <Color>[
+                      AppColors.libraryGreen.withAlpha(
+                        AppColors.overlayLightAlpha,
+                      ),
+                      AppColors.libraryGreen.withAlpha(
+                        AppColors.overlayMediumAlpha,
+                      ),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
                   ),
                 ),
-                child: SafeArea(
-                  child: child,
-                ),
               ),
-            ],
-          ),
-        ],
+            ),
+            Positioned.fill(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [header, contentCard],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

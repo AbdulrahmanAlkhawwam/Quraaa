@@ -60,9 +60,7 @@ class _LoginViewState extends State<_LoginView> {
   Future<void> _continueAsUser() async {
     final bool isValid = _formKey.currentState?.validate() ?? false;
     if (!isValid) {
-      unawaited(
-        sl<UserContextProvider>().recordAction('Auth submit blocked'),
-      );
+      unawaited(sl<UserContextProvider>().recordAction('Auth submit blocked'));
       return;
     }
 
@@ -70,9 +68,7 @@ class _LoginViewState extends State<_LoginView> {
     final String normalizedPhone =
         phoneNumber.phoneNumber?.trim() ?? _phoneController.text.trim();
 
-    unawaited(
-      sl<UserContextProvider>().recordAction('Auth submit with data'),
-    );
+    unawaited(sl<UserContextProvider>().recordAction('Auth submit with data'));
 
     context.read<AuthBloc>().add(
       AuthLoginRequested(
@@ -93,8 +89,8 @@ class _LoginViewState extends State<_LoginView> {
     final bool locationSeen = await _authJourney.isLocationPermissionSeen();
     if (!context.mounted) return;
     if (locationSeen) {
-      final bool notificationSeen =
-          await _authJourney.isNotificationPermissionSeen();
+      final bool notificationSeen = await _authJourney
+          .isNotificationPermissionSeen();
       if (!context.mounted) return;
       if (notificationSeen) {
         context.goTo(RouteNames.home);
@@ -124,6 +120,7 @@ class _LoginViewState extends State<_LoginView> {
         child: Form(
           key: _formKey,
           child: AppLayout(
+            expandContent: true,
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               child: Column(
@@ -158,8 +155,7 @@ class _LoginViewState extends State<_LoginView> {
                         if (value == null || value.trim().isEmpty) {
                           return LocalizationConstants.authPhoneHintKey.tr();
                         }
-                        if (!_isPhoneValid ||
-                            _phoneNumber?.isoCode == null) {
+                        if (!_isPhoneValid || _phoneNumber?.isoCode == null) {
                           return LocalizationConstants.authPhoneValidErrorKey
                               .tr();
                         }
