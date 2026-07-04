@@ -37,8 +37,10 @@ import '../../features/profile/data/datasources/profile_remote_data_source.dart'
 import '../../features/profile/data/repositories/profile_repository_impl.dart';
 import '../../features/profile/domain/repositories/profile_repository.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
-import '../../screens/profile/bloc/edit_profile_bloc.dart';
+import '../../features/profile/presentation/bloc/edit_profile_bloc.dart';
+import '../../config/env/env.dart';
 import '../network/auth_interceptor.dart';
+import '../network/connectivity_interceptor.dart';
 import '../network/http_helper.dart';
 import '../services/app_diagnostics_service.dart';
 import '../connectivity/connectivity_service.dart';
@@ -134,10 +136,17 @@ void registerCoreDependencies() {
     () => DioLoggingInterceptor(sl<AppLogger>()),
   );
   sl.registerLazySingleton<AuthInterceptor>(
-    () => AuthInterceptor(sl<AuthLocalDataSource>()),
+    () => AuthInterceptor(
+      sl<AuthLocalDataSource>(),
+      baseUrl: Env.apiBaseUrl,
+    ),
+  );
+  sl.registerLazySingleton<ConnectivityInterceptor>(
+    () => ConnectivityInterceptor(sl<ConnectivityService>()),
   );
   sl.registerLazySingleton<Dio>(
     () => HttpHelper.buildDio(<Interceptor>[
+      sl<ConnectivityInterceptor>(),
       sl<AuthInterceptor>(),
       sl<DioLoggingInterceptor>(),
     ]),

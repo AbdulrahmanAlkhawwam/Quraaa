@@ -8,6 +8,7 @@ class LocalizationConstants {
   static const String commonRetryKey = 'common.retry';
   static const String commonSaveKey = 'common.save';
   static const String commonCloseKey = 'common.close';
+  static const String commonOfflineRetryKey = 'common.offline_retry';
   static const String authStartKey = 'auth.screen.start';
   static const String authAlreadyHaveAccountKey = 'auth.screen.already_have_account';
   static const String authCreateNewAccountKey = 'auth.screen.create_new_account';
@@ -402,4 +403,8 @@ class LocalizationConstants {
   static const String subscriptionPlanPlusKey = 'subscription.plans.plus';
   static const String subscriptionPlanPremiumKey =
       'subscription.plans.premium';
+
+  // Errors
+  static const String errorsNoInternetTitleKey = 'errors.no_internet.title';
+  static const String errorsNoInternetMessageKey = 'errors.no_internet.message';
 }

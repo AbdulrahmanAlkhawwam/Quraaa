@@ -7,7 +7,8 @@
     "cancel": "Cancel",
     "retry": "Retry",
     "save": "Save",
-    "close": "Close"
+    "close": "Close",
+    "offline_retry": "You are offline, connect to internet then try again"
   },
   "auth": {
     "screen": {
@@ -117,7 +118,7 @@
       }
     },
     "gender": {
-      "title": "Choose Gander",
+      "title": "Choose Gender",
       "boy": "Boy",
       "girl": "Girl",
       "next": "Next",
