@@ -1,8 +1,9 @@
 import 'package:dio/dio.dart';
 
+import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/errors/error_mapper.dart';
+import '../../../../core/errors/error_response_model.dart';
 import '../../../../core/errors/exceptions.dart';
-import '../../../../core/network/endpoints.dart';
 import '../../../../core/network/http_helper.dart';
 import '../models/category_model.dart';
 
@@ -19,7 +20,7 @@ class OnboardingRemoteDataSourceImpl implements OnboardingRemoteDataSource {
   Future<List<CategoryModel>> getCategories() async {
     try {
       final Response<dynamic> response = await _httpHelper.get(
-        Endpoints.categories,
+        ApiEndpoints.categories,
       );
       final dynamic data = response.data;
       if (data is List<dynamic>) {
@@ -29,13 +30,23 @@ class OnboardingRemoteDataSourceImpl implements OnboardingRemoteDataSource {
       }
       throw const UnknownException(message: 'Invalid categories response.');
     } on DioException catch (error) {
-      final dynamic payload = error.response?.data;
-      if (payload is Map<String, dynamic>) {
-        throw ErrorMapper.map(payload);
-      }
-      throw UnknownException(
-        message: error.message ?? 'Unable to load categories.',
-      );
+      throw _mapDioException(error);
     }
+  }
+
+  AppException _mapDioException(DioException error) {
+    final Object? underlying = error.error;
+    if (underlying is AppException) {
+      return underlying;
+    }
+
+    final dynamic payload = error.response?.data;
+    if (payload is Map<String, dynamic>) {
+      return ErrorMapper.mapResponseToException(ErrorResponseModel.fromJson(payload));
+    }
+
+    return UnknownException(
+      message: error.message ?? 'Unable to load categories.',
+    );
   }
 }
