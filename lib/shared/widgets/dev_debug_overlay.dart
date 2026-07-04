@@ -30,37 +30,12 @@ class DevDebugOverlay extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return SafeArea(
-      child: Align(
-        alignment: AlignmentDirectional.topEnd,
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.spacing16),
-          child: Material(
-            color: Colors.transparent,
-            child: GestureDetector(
-              onTap: () => _showDebugSheet(context),
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: AppColors.error500.withValues(alpha: 0.9),
-                  shape: BoxShape.circle,
-                  boxShadow: <BoxShadow>[
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.25),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: const Center(
-                  child: Icon(Icons.bug_report, color: Colors.white, size: 20),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+    return FloatingActionButton(
+      heroTag: null,
+      onPressed: () => _showDebugSheet(context),
+      backgroundColor: AppColors.error500.withValues(alpha: 0.9),
+      mini: true,
+      child: const Icon(Icons.bug_report, color: Colors.white, size: 20),
     );
   }
 

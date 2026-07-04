@@ -73,12 +73,7 @@ class _QuraaaAppState extends State<QuraaaApp> {
             supportedLocales: context.supportedLocales,
             locale: context.locale,
             builder: (BuildContext context, Widget? child) {
-              return Stack(
-                children: <Widget>[
-                  child!,
-                  DevDebugOverlay(navigatorKey: _navigatorKey),
-                ],
-              );
+              return child!;
             },
           );
         },

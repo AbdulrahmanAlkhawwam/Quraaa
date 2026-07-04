@@ -103,6 +103,7 @@ class _NotificationPermissionScreenState
   @override
   Widget build(BuildContext context) {
     return AppLayout(
+      expandContent: true,
       cardColor: AppColors.card,
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.spacing24,
