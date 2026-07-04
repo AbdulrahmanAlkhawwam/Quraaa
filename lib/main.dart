@@ -4,7 +4,6 @@ import 'dart:ui';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'app/app.dart';
 import 'core/di/injection_container.dart';
@@ -27,7 +26,6 @@ Future<void> main() async {
   runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
-      await dotenv.load(fileName: '.env');
       await LocalizationService.ensureInitialized();
       await FirebaseService.initialize();
 
@@ -72,7 +70,7 @@ Future<void> main() async {
 Future<void> _initializeFirebase(AppLogger appLogger) async {
   try {
     final NotificationService notificationService = sl<NotificationService>();
-    await notificationService.initialize();
+    await notificationService.initialize(shouldRequestPermission: false);
   } catch (error, stackTrace) {
     appLogger.warning(
       'Firebase initialization skipped: $error',
