@@ -118,6 +118,11 @@ void registerCoreDependencies() {
     () => TelegramNotificationService(
       sl<ErrorReportCache>(),
       sl<ConnectivityService>(),
+      // Telegram credentials must not be bundled in the app. Provide them via
+      // --dart-define only if client-side Telegram reporting is required,
+      // otherwise leave them null to keep the service disabled.
+      botToken: const String.fromEnvironment('TELEGRAM_BOT_TOKEN'),
+      chatId: const String.fromEnvironment('TELEGRAM_CHAT_ID'),
     ),
   );
   sl.registerLazySingleton<AppLogger>(
@@ -397,8 +402,9 @@ Future<void> initializeNotificationDependencies() async {
   final notificationService = sl<NotificationService>();
   final messagingService = sl<FirebaseMessagingService>();
 
-  await notificationService.initialize(shouldRequestPermission: true);
-  await messagingService.requestPermissions();
+  // Notification permission is requested through the post-registration UI
+  // (NotificationPermissionScreen) instead of at startup.
+  await notificationService.initialize(shouldRequestPermission: false);
   await messagingService.subscribeToDefaultTopic();
   messagingService.listenToForegroundMessages();
   await messagingService.logDeviceToken();

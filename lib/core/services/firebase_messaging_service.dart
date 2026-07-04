@@ -14,9 +14,8 @@ class FirebaseMessagingService {
   /// Creates the Firebase messaging service.
   FirebaseMessagingService({
     FirebaseMessaging? messaging,
-    LocalNotificationService? notificationService,
-  }) : _messaging = messaging ?? FirebaseMessaging.instance,
-       _notificationService = notificationService ?? LocalNotificationService();
+    required this._notificationService,
+  }) : _messaging = messaging ?? FirebaseMessaging.instance;
 
   final FirebaseMessaging _messaging;
   final LocalNotificationService _notificationService;
@@ -61,12 +60,16 @@ class FirebaseMessagingService {
   /// Returns the current device FCM token for diagnostics.
   Future<String?> getDeviceToken() => _messaging.getToken();
 
-  /// Fetches and logs the current FCM token.
+  /// Fetches and logs only a truncated prefix of the current FCM token.
+  ///
+  /// The full token is sensitive because it can be used to push notifications
+  /// to this device, so it is never logged in full.
   Future<void> logDeviceToken() async {
     try {
       final token = await getDeviceToken();
-      if (token != null) {
-        AppLogger.info('Firebase Messaging Token: $token');
+      if (token != null && token.isNotEmpty) {
+        final visible = token.length > 8 ? token.substring(0, 8) : token;
+        AppLogger.info('Firebase Messaging Token prefix: $visible...');
       } else {
         AppLogger.error('Failed to retrieve Firebase Messaging Token.');
       }
@@ -113,7 +116,8 @@ Future<void> firebaseBackgroundMessageHandler(RemoteMessage message) async {
   }
 
   // The plugin is initialized manually here because the main isolate services
-  // are not available in the background isolate.
+  // (including the DI container) are not available in the background isolate.
+  // A fresh instance is required for this Firebase background callback.
   final notificationService = LocalNotificationService();
   await notificationService.initialize(shouldRequestPermission: false);
   await notificationService.showNotificationFromRemoteMessage(message);
