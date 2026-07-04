@@ -190,8 +190,19 @@ Generated file index for quick project navigation.
 - `lib/features/profile/presentation/bloc/profile_bloc.dart`
 - `lib/features/profile/presentation/bloc/profile_event.dart`
 - `lib/features/profile/presentation/bloc/profile_state.dart`
+- `lib/features/profile/presentation/bloc/edit_profile_bloc.dart`
+- `lib/features/profile/presentation/bloc/edit_profile_event.dart`
+- `lib/features/profile/presentation/bloc/edit_profile_state.dart`
 - `lib/features/profile/presentation/extensions/profile_model_ui_extensions.dart`
+- `lib/features/profile/presentation/pages/edit_profile_screen.dart`
+- `lib/features/profile/presentation/widgets/avatar_customization_tabs.dart`
+- `lib/features/profile/presentation/widgets/color_palette.dart`
+- `lib/features/profile/presentation/widgets/gender_dropdown.dart`
+- `lib/features/profile/presentation/widgets/phone_number_field.dart`
+- `lib/features/profile/presentation/widgets/profile_avatar_illustration.dart`
 - `lib/features/profile/presentation/widgets/profile_info_shimmer.dart`
+- `lib/features/profile/presentation/widgets/profile_preview_card.dart`
+- `lib/features/profile/presentation/widgets/profile_text_field.dart`
 
 #### Search
 
@@ -224,20 +235,6 @@ Generated file index for quick project navigation.
 
 - `lib/features/subscription/presentation/pages/account_type_screen.dart`
 - `lib/features/subscription/presentation/widgets/subscription_plan_card.dart`
-
-### Legacy Screens
-
-- `lib/screens/profile/bloc/edit_profile_bloc.dart`
-- `lib/screens/profile/bloc/edit_profile_event.dart`
-- `lib/screens/profile/bloc/edit_profile_state.dart`
-- `lib/screens/profile/edit_profile_screen.dart`
-- `lib/screens/profile/widgets/avatar_customization_tabs.dart`
-- `lib/screens/profile/widgets/color_palette.dart`
-- `lib/screens/profile/widgets/gender_dropdown.dart`
-- `lib/screens/profile/widgets/phone_number_field.dart`
-- `lib/screens/profile/widgets/profile_avatar_illustration.dart`
-- `lib/screens/profile/widgets/profile_preview_card.dart`
-- `lib/screens/profile/widgets/profile_text_field.dart`
 
 ### Shared
 

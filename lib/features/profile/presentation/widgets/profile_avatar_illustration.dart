@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../shared/theme/app_colors.dart';
-import '../../../shared/theme/app_dimensions.dart';
-import '../../../shared/theme/app_radius.dart';
+import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_dimensions.dart';
+import '../../../../shared/theme/app_radius.dart';
 
 /// Simple avatar illustration used inside the profile preview card.
 ///

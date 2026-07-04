@@ -4,18 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import '../../core/di/injection_container.dart';
-import '../../core/localization/localization_constants.dart';
-import '../../shared/shared.dart';
-import 'bloc/edit_profile_bloc.dart';
-import 'bloc/edit_profile_event.dart';
-import 'bloc/edit_profile_state.dart';
-import 'widgets/avatar_customization_tabs.dart';
-import 'widgets/color_palette.dart';
-import 'widgets/gender_dropdown.dart';
-import 'widgets/phone_number_field.dart';
-import 'widgets/profile_preview_card.dart';
-import 'widgets/profile_text_field.dart';
+import '../../../../../core/di/injection_container.dart';
+import '../../../../../core/localization/localization_constants.dart';
+import '../../../../../shared/shared.dart';
+import '../bloc/edit_profile_bloc.dart';
+import '../bloc/edit_profile_event.dart';
+import '../bloc/edit_profile_state.dart';
+import '../widgets/avatar_customization_tabs.dart';
+import '../widgets/color_palette.dart';
+import '../widgets/gender_dropdown.dart';
+import '../widgets/phone_number_field.dart';
+import '../widgets/profile_preview_card.dart';
+import '../widgets/profile_text_field.dart';
 
 /// Pixel-perfect Edit Profile screen.
 class EditProfileScreen extends StatelessWidget {

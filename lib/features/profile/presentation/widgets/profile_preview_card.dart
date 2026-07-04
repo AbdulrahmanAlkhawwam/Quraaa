@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../shared/theme/app_dimensions.dart';
-import '../../../shared/theme/app_radius.dart';
+import '../../../../shared/theme/app_dimensions.dart';
+import '../../../../shared/theme/app_radius.dart';
 import 'profile_avatar_illustration.dart';
 
 /// Large rounded preview card that shows the avatar over the selected

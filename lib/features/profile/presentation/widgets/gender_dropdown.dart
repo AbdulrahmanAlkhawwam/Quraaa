@@ -2,12 +2,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import '../../../core/localization/localization_constants.dart';
-import '../../../shared/theme/app_colors.dart';
-import '../../../shared/theme/app_dimensions.dart';
-import '../../../shared/theme/app_radius.dart';
-import '../../../shared/theme/app_spacing.dart';
-import '../../../shared/theme/styles/text_styles.dart';
+import '../../../../core/localization/localization_constants.dart';
+import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_dimensions.dart';
+import '../../../../shared/theme/app_radius.dart';
+import '../../../../shared/theme/app_spacing.dart';
+import '../../../../shared/theme/styles/text_styles.dart';
 
 /// Dropdown field for gender that matches the rounded outlined style of
 /// [ProfileTextField].

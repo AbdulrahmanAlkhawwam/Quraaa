@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../../shared/theme/app_colors.dart';
-import '../../../shared/theme/app_dimensions.dart';
-import '../../../shared/theme/app_radius.dart';
-import '../../../shared/theme/app_spacing.dart';
-import '../../../shared/theme/styles/text_styles.dart';
+import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_dimensions.dart';
+import '../../../../shared/theme/app_radius.dart';
+import '../../../../shared/theme/app_spacing.dart';
+import '../../../../shared/theme/styles/text_styles.dart';
 
 /// Rounded outlined text field used in the Edit Profile form.
 class ProfileTextField extends StatelessWidget {

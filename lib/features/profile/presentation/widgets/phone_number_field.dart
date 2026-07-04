@@ -1,12 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
-import '../../../core/localization/localization_constants.dart';
-import '../../../shared/theme/app_colors.dart';
-import '../../../shared/theme/app_dimensions.dart';
-import '../../../shared/theme/app_radius.dart';
-import '../../../shared/theme/app_spacing.dart';
-import '../../../shared/theme/styles/text_styles.dart';
+import '../../../../core/localization/localization_constants.dart';
+import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_dimensions.dart';
+import '../../../../shared/theme/app_radius.dart';
+import '../../../../shared/theme/app_spacing.dart';
+import '../../../../shared/theme/styles/text_styles.dart';
 
 /// Phone number field with a leading UAE flag, country code divider, and
 /// number input. Styled to match the rounded outlined [ProfileTextField].

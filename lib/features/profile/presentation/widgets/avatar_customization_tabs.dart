@@ -2,8 +2,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import '../../../core/localization/localization_constants.dart';
-import '../../../shared/shared.dart';
+import '../../../../core/localization/localization_constants.dart';
+import '../../../../shared/shared.dart';
 
 /// Customization panel that lets the user pick which avatar feature to edit.
 class AvatarCustomizationTabs extends StatelessWidget {

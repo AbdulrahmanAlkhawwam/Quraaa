@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../shared/shared.dart';
+import '../../../../shared/shared.dart';
 import 'edit_profile_event.dart';
 import 'edit_profile_state.dart';
 

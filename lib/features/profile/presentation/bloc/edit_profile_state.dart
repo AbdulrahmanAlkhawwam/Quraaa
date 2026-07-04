@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
-import '../../../shared/theme/app_colors.dart';
+import '../../../../shared/theme/app_colors.dart';
 
 /// Immutable state for the Edit Profile screen.
 class EditProfileState extends Equatable {
