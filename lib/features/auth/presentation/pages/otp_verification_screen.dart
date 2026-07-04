@@ -6,11 +6,15 @@ import 'package:flutter/services.dart';
 import 'package:pinput/pinput.dart';
 
 import '../../../../config/routes/route_names.dart';
+import '../../../../core/architecture/result.dart';
+import '../../../../core/connectivity/connectivity_ui_helper.dart';
 import '../../../../core/connectivity/offline_route_guard.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import '../../data/datasources/auth_local_datasource.dart';
+import '../../domain/entities/user.dart';
+import '../../domain/use_cases/verify_otp_use_case.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   const OtpVerificationScreen({super.key, this.phoneNumber});
@@ -23,6 +27,7 @@ class OtpVerificationScreen extends StatefulWidget {
 
 class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   final AuthLocalDataSource _authJourney = sl<AuthLocalDataSource>();
+  final VerifyOtpUseCase _verifyOtpUseCase = sl<VerifyOtpUseCase>();
   final TextEditingController _otpController = TextEditingController();
   final FocusNode _otpFocusNode = FocusNode();
   bool _isVerifying = false;
@@ -85,36 +90,43 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   Future<void> _verifyOtp() async {
     if (_isVerifying) return;
 
+    final bool isOnline = await ensureOnline(context);
+    if (!isOnline) return;
+
     setState(() => _isVerifying = true);
 
-    // Simulate verification delay
-    await Future.delayed(const Duration(milliseconds: 800));
+    final String phone = widget.phoneNumber ?? '';
+    final String code = _otpController.text.trim();
+
+    final Result<User> result = await _verifyOtpUseCase(
+      VerifyOtpParams(phoneNumber: phone, code: code),
+    );
 
     if (!mounted) return;
-
     setState(() => _isVerifying = false);
-    await _navigateToPermissions(context);
-  }
 
-  Future<void> _navigateToPermissions(BuildContext context) async {
-    final bool locationSeen = await _authJourney.isLocationPermissionSeen();
-    if (!context.mounted) return;
-    if (locationSeen) {
-      final bool notificationSeen = await _authJourney
-          .isNotificationPermissionSeen();
-      if (!context.mounted) return;
-      if (notificationSeen) {
+    await result.fold(
+      (failure) async {
+        if (!mounted) return;
+        context.showResolvedErrorSnackBar(failure);
+      },
+      (User user) async {
+        await _authJourney.markAuthenticatedSession(
+          accessToken: user.accessToken,
+          refreshToken: user.refreshToken,
+          accessTokenExpiration: user.accessTokenExpiration,
+        );
+        if (!mounted) return;
         context.goTo(RouteNames.home);
-      } else {
-        context.goTo(RouteNames.notificationPermission);
-      }
-    } else {
-      context.goTo(RouteNames.locationPermission);
-    }
+      },
+    );
   }
 
-  void _onResend() {
+  Future<void> _onResend() async {
     if (_resendCountdown > 0) return;
+
+    final bool isOnline = await ensureOnline(context);
+    if (!isOnline) return;
 
     HapticFeedback.mediumImpact();
     _otpController.clear();
@@ -239,7 +251,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   child: SizedBox(
                     height: AppDimensions.onboardingButtonHeight,
                     child: FilledButton(
-                      onPressed: _resendCountdown > 0 ? null : _onResend,
+                      onPressed: _resendCountdown > 0
+                          ? null
+                          : () => unawaited(_onResend()),
                       style: FilledButton.styleFrom(
                         backgroundColor: AppColors.leafGreen,
                         foregroundColor: AppColors.card,

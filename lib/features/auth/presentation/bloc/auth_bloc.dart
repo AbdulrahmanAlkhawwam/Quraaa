@@ -53,7 +53,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (failure) async => emit(
         state.copyWith(
           status: AuthStatus.error,
-          error: failure,
+          error: failure.cause ?? failure.message,
         ),
       ),
       (user) async {
@@ -89,7 +89,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (failure) async => emit(
         state.copyWith(
           status: AuthStatus.error,
-          error: failure,
+          error: failure.cause ?? failure.message,
         ),
       ),
       (user) async {
@@ -160,6 +160,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     await _authJourney.markAuthenticatedSession(
       accessToken: user.accessToken,
       refreshToken: user.refreshToken,
+      accessTokenExpiration: user.accessTokenExpiration,
     );
     await _userCache.saveUser(_toModel(user));
     await _userContext.setUser(

@@ -1,5 +1,7 @@
 import '../../../../core/architecture/base_repository.dart';
 import '../../../../core/architecture/result.dart';
+import '../../../../core/errors/error_mapper.dart';
+import '../../../../core/errors/failures.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_datasource.dart';
@@ -23,7 +25,7 @@ class AuthRepositoryImpl extends BaseRepository<User>
       );
       return Success(AuthMapper.fromJson(response));
     } catch (error) {
-      return ResultFailure(_mapError(error));
+      return _mapError(error);
     }
   }
 
@@ -49,7 +51,7 @@ class AuthRepositoryImpl extends BaseRepository<User>
       );
       return Success(AuthMapper.fromJson(response));
     } catch (error) {
-      return ResultFailure(_mapError(error));
+      return _mapError(error);
     }
   }
 
@@ -63,7 +65,23 @@ class AuthRepositoryImpl extends BaseRepository<User>
       );
       return Success(AuthMapper.fromJson(response));
     } catch (error) {
-      return ResultFailure(_mapError(error));
+      return _mapError(error);
+    }
+  }
+
+  @override
+  Future<Result<User>> verifyOtp({
+    required String phoneNumber,
+    required String code,
+  }) async {
+    try {
+      final response = await _remoteDataSource.verifyOtp(
+        phoneNumber: phoneNumber,
+        code: code,
+      );
+      return Success(AuthMapper.fromJson(response));
+    } catch (error) {
+      return _mapError(error);
     }
   }
 
@@ -77,7 +95,8 @@ class AuthRepositoryImpl extends BaseRepository<User>
     throw UnimplementedError();
   }
 
-  String _mapError(Object error) {
-    return error is Exception ? error.toString() : 'Unexpected error';
+  ResultFailure<User> _mapError(Object error) {
+    final Failure failure = ErrorMapper.map(error);
+    return ResultFailure(failure.message, cause: failure);
   }
 }

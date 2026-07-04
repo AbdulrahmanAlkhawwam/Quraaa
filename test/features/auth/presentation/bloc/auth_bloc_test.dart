@@ -121,7 +121,7 @@ void main() {
       });
 
       test('emits loading then error on failure', () async {
-        final failure = ResultFailure<User>('login failed');
+        const failure = ResultFailure<User>('login failed');
         when(
           () => loginUseCase(any()),
         ).thenAnswer((_) async => failure);
@@ -136,9 +136,9 @@ void main() {
 
         await expectLater(
           bloc.stream,
-          emitsInOrder(<AuthState>[
-            const AuthState(status: AuthStatus.loading),
-            AuthState(status: AuthStatus.error, error: failure),
+          emitsInOrder(const <AuthState>[
+            AuthState(status: AuthStatus.loading),
+            AuthState(status: AuthStatus.error, error: 'login failed'),
           ]),
         );
       });
@@ -221,7 +221,7 @@ void main() {
       });
 
       test('emits loading then error on failure', () async {
-        final failure = ResultFailure<User>('register failed');
+        const failure = ResultFailure<User>('register failed');
         when(
           () => registerUseCase(any()),
         ).thenAnswer((_) async => failure);
@@ -236,9 +236,9 @@ void main() {
 
         await expectLater(
           bloc.stream,
-          emitsInOrder(<AuthState>[
-            const AuthState(status: AuthStatus.loading),
-            AuthState(status: AuthStatus.error, error: failure),
+          emitsInOrder(const <AuthState>[
+            AuthState(status: AuthStatus.loading),
+            AuthState(status: AuthStatus.error, error: 'register failed'),
           ]),
         );
       });

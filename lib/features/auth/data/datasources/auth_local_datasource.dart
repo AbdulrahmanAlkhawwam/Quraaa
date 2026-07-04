@@ -81,6 +81,12 @@ abstract class AuthLocalDataSource {
 
   Future<void> markRegisterSeen();
 
+  Future<String?> getLastPhoneNumber();
+
+  Future<String?> getLastPhoneIsoCode();
+
+  Future<void> saveLastPhoneNumber(String phoneNumber, String isoCode);
+
   Future<bool> isNotificationPermissionSeen();
 
   Future<void> markNotificationPermissionSeen();
@@ -109,11 +115,14 @@ abstract class AuthLocalDataSource {
   Future<void> markAuthenticatedSession({
     String? accessToken,
     String? refreshToken,
+    DateTime? accessTokenExpiration,
   });
 
   Future<String?> getAccessToken();
 
   Future<String?> getRefreshToken();
+
+  Future<DateTime?> getAccessTokenExpiration();
 
   Future<void> clearSession();
 }
@@ -131,6 +140,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   static const String _sessionModeKey = 'auth_session_mode';
   static const String _accessTokenKey = 'auth_access_token';
   static const String _refreshTokenKey = 'auth_refresh_token';
+  static const String _accessTokenExpirationKey = 'auth_access_token_expiration';
 
   @override
   Future<Map<String, Object?>> getCachedUser() async {
@@ -174,8 +184,26 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     await _storageService.setBool(_registerSeenKey, true);
   }
 
+  @override
+  Future<String?> getLastPhoneNumber() async {
+    return _storageService.getString(_lastPhoneNumberKey);
+  }
+
+  @override
+  Future<String?> getLastPhoneIsoCode() async {
+    return _storageService.getString(_lastPhoneIsoCodeKey);
+  }
+
+  @override
+  Future<void> saveLastPhoneNumber(String phoneNumber, String isoCode) async {
+    await _storageService.setString(_lastPhoneNumberKey, phoneNumber);
+    await _storageService.setString(_lastPhoneIsoCodeKey, isoCode);
+  }
+
   static const String _notificationPermissionSeenKey = 'notification_permission_seen';
   static const String _locationPermissionSeenKey = 'location_permission_seen';
+  static const String _lastPhoneNumberKey = 'last_phone_number';
+  static const String _lastPhoneIsoCodeKey = 'last_phone_iso_code';
 
   @override
   Future<bool> isNotificationPermissionSeen() async {
@@ -257,6 +285,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   Future<void> markAuthenticatedSession({
     String? accessToken,
     String? refreshToken,
+    DateTime? accessTokenExpiration,
   }) async {
     await _storageService.setString(
       _sessionModeKey,
@@ -268,6 +297,12 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     }
     if (refreshToken != null) {
       await _storageService.setString(_refreshTokenKey, refreshToken);
+    }
+    if (accessTokenExpiration != null) {
+      await _storageService.setString(
+        _accessTokenExpirationKey,
+        accessTokenExpiration.toIso8601String(),
+      );
     }
 
     await saveJourneyStage(AuthJourneyStage.home);
@@ -284,10 +319,18 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   }
 
   @override
+  Future<DateTime?> getAccessTokenExpiration() async {
+    final String? value = _storageService.getString(_accessTokenExpirationKey);
+    if (value == null || value.isEmpty) return null;
+    return DateTime.tryParse(value);
+  }
+
+  @override
   Future<void> clearSession() async {
     await _storageService.remove(_sessionModeKey);
     await _storageService.remove(_accessTokenKey);
     await _storageService.remove(_refreshTokenKey);
+    await _storageService.remove(_accessTokenExpirationKey);
     await saveJourneyStage(AuthJourneyStage.auth);
   }
 }

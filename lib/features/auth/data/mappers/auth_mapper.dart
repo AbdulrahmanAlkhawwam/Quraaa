@@ -32,6 +32,16 @@ class AuthMapper {
     };
   }
 
+  static Map<String, Object?> verifyOtpToJson({
+    required String phoneNumber,
+    required String code,
+  }) {
+    return <String, Object?>{
+      'phoneNumber': phoneNumber,
+      'code': code,
+    };
+  }
+
   static UserModel fromJson(Map<String, Object?> json) {
     return UserModel.fromJson(json);
   }

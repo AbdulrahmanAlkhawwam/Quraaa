@@ -19,6 +19,7 @@ import '../../features/onboarding/domain/use_cases/save_category_id_use_case.dar
 import '../../features/onboarding/domain/use_cases/save_gender_use_case.dart';
 import '../../features/auth/domain/use_cases/register_use_case.dart';
 import '../../features/auth/domain/use_cases/login_use_case.dart';
+import '../../features/auth/domain/use_cases/verify_otp_use_case.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import '../error_monitoring/app_bloc_observer.dart';
@@ -249,6 +250,10 @@ void registerFeatureDependencies() {
 
   sl.registerFactory<LoginUseCase>(
     () => LoginUseCase(sl<AuthRepository>()),
+  );
+
+  sl.registerFactory<VerifyOtpUseCase>(
+    () => VerifyOtpUseCase(sl<AuthRepository>()),
   );
 
   sl.registerFactory<AuthBloc>(
