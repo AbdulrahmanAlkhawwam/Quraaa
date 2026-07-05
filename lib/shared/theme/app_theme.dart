@@ -13,10 +13,17 @@ abstract class AppTheme {
       useMaterial3: true,
       brightness: Brightness.light,
       fontFamily: 'Thmanyah Sans',
-      scaffoldBackgroundColor: AppColors.neutralBackground,
+      // scaffoldBackgroundColor: AppColors.neutralBackground,
       cardColor: AppColors.card,
       dividerColor: AppColors.primary100,
-      colorScheme: lightColors,
+      // colorScheme: lightColors,
+      colorScheme: const ColorScheme.light(
+        primary: AppColors.primary,
+        secondary: AppColors.secondary,
+        surface: AppColors.surfaceLight,
+        onSurface: AppColors.textPrimary,
+      ),
+      scaffoldBackgroundColor: AppColors.backgroundLight,
       textTheme: AppTextStyles.textTheme(),
       appBarTheme: appBarStyle(lightColors),
       filledButtonTheme: filledButtonTheme(lightColors),
@@ -77,6 +84,12 @@ abstract class AppTheme {
         color: AppColors.cardDark,
         elevation: 0,
         margin: EdgeInsets.zero,
+        // colorScheme: const ColorScheme.dark(
+        //   primary: AppColors.settingsActiveGreenDark,
+        //   secondary: AppColors.settingsHeader,
+        //   surface: AppColors.surfaceDark,
+        //   onSurface: AppColors.settingsTextDark,
+        // ),
       ),
     );
   }

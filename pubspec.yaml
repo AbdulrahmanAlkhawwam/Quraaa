@@ -62,6 +62,9 @@ dependencies:
   cached_network_image: ^3.4.1
   shimmer: ^3.0.0
   flutter_svg: ^2.2.1
+
+  # Firebase & notifications (migrated from quraa_otp)
+
   flutter_local_notifications: ^17.1.2
   permission_handler: ^11.3.0
   uuid: ^4.4.0

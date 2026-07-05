@@ -27,6 +27,8 @@ import '../../core/di/injection_container.dart';
 import '../../features/splash/presentation/pages/splash_screen.dart';
 import '../../features/pdf_reader/presentation/pages/pdf_reader_page.dart';
 import '../../shared/widgets/app_shell.dart';
+import '../../features/settings/presentation/pages/account_type_page.dart';
+import '../../features/settings/presentation/pages/settings_page.dart';
 import 'route_names.dart';
 import 'route_resolver.dart';
 
@@ -182,6 +184,10 @@ GoRouter buildAppRouter({
         name: RouteNames.locationPermission,
         path: RouteNames.locationPermission,
         builder: (context, state) => const LocationPermissionScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.settingsAccountType,
+        builder: (context, state) => const AccountTypePage(),
       ),
     ],
   );
