@@ -28,7 +28,6 @@ import '../../features/splash/presentation/pages/splash_screen.dart';
 import '../../features/pdf_reader/presentation/pages/pdf_reader_page.dart';
 import '../../shared/widgets/app_shell.dart';
 import '../../features/settings/presentation/pages/account_type_page.dart';
-import '../../features/settings/presentation/pages/settings_page.dart';
 import 'route_names.dart';
 import 'route_resolver.dart';
 
@@ -38,7 +37,7 @@ GoRouter buildAppRouter({
 }) {
   return GoRouter(
     navigatorKey: navigatorKey,
-    initialLocation: RouteNames.splash,
+    initialLocation: RouteNames.settings,
     observers: observers,
     redirect: (context, state) async {
       final String location = state.matchedLocation;
@@ -204,6 +203,7 @@ bool _isKnownRoute(String location) {
     RouteNames.cart,
     RouteNames.search,
     RouteNames.settings,
+    RouteNames.settingsAccountType,
     RouteNames.subscriptionAccountType,
     RouteNames.auth,
     RouteNames.login,
@@ -222,3 +222,4 @@ bool _isOnlineOnlyRoute(String location) {
   return location == RouteNames.register ||
       location == RouteNames.otpVerification;
 }
+
