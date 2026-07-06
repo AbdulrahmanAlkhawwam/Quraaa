@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+﻿import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -7,7 +7,7 @@ import '../../features/auth/presentation/pages/location_permission_screen.dart';
 import '../../features/auth/presentation/pages/notification_permission_screen.dart';
 import '../../features/home/presentation/pages/home_screen.dart';
 import '../../features/home/presentation/pages/audio_books_screen.dart';
-import '../../features/home/presentation/pages/cart_screen.dart';
+import '../../features/cart/presentation/pages/cart_screen.dart';
 import '../../features/auth/presentation/pages/landing_page.dart';
 import '../../features/auth/presentation/pages/login_screen.dart';
 import '../../features/auth/presentation/pages/register_screen.dart';
@@ -37,7 +37,7 @@ GoRouter buildAppRouter({
 }) {
   return GoRouter(
     navigatorKey: navigatorKey,
-    initialLocation: RouteNames.settings,
+    initialLocation: RouteNames.splash,
     observers: observers,
     redirect: (context, state) async {
       final String location = state.matchedLocation;

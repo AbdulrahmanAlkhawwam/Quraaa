@@ -65,6 +65,13 @@ import '../../features/pdf_reader/domain/use_cases/render_pdf_page_use_case.dart
 import '../../features/pdf_reader/domain/use_cases/save_pdf_text_note_use_case.dart';
 import '../../features/pdf_reader/domain/use_cases/share_pdf_text_use_case.dart';
 import '../../features/pdf_reader/presentation/bloc/pdf_reader_bloc.dart';
+import '../../features/cart/data/repositories/cart_repository_impl.dart';
+import '../../features/cart/domain/repositories/cart_repository.dart';
+import '../../features/cart/domain/use_cases/apply_cart_coupon_use_case.dart';
+import '../../features/cart/domain/use_cases/get_cart_use_case.dart';
+import '../../features/cart/domain/use_cases/remove_cart_item_use_case.dart';
+import '../../features/cart/domain/use_cases/update_cart_item_quantity_use_case.dart';
+import '../../features/cart/presentation/bloc/cart_bloc.dart';
 import '../../features/settings/data/repositories/settings_repository_impl.dart';
 import '../../features/settings/domain/repositories/settings_repository.dart';
 import '../../features/settings/domain/use_cases/get_activity_sections_use_case.dart';
@@ -384,6 +391,48 @@ void registerFeatureDependencies() {
         loadNotes: sl(),
         saveNote: sl(),
         deleteNote: sl(),
+      ),
+    );
+  }
+
+
+  if (!sl.isRegistered<CartRepository>()) {
+    sl.registerLazySingleton<CartRepository>(
+      CartRepositoryImpl.new,
+    );
+  }
+
+  if (!sl.isRegistered<GetCartUseCase>()) {
+    sl.registerLazySingleton<GetCartUseCase>(
+      () => GetCartUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<UpdateCartItemQuantityUseCase>()) {
+    sl.registerLazySingleton<UpdateCartItemQuantityUseCase>(
+      () => UpdateCartItemQuantityUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<RemoveCartItemUseCase>()) {
+    sl.registerLazySingleton<RemoveCartItemUseCase>(
+      () => RemoveCartItemUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<ApplyCartCouponUseCase>()) {
+    sl.registerLazySingleton<ApplyCartCouponUseCase>(
+      () => ApplyCartCouponUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<CartBloc>()) {
+    sl.registerFactory<CartBloc>(
+      () => CartBloc(
+        getCart: sl(),
+        updateQuantity: sl(),
+        removeItem: sl(),
+        applyCoupon: sl(),
       ),
     );
   }

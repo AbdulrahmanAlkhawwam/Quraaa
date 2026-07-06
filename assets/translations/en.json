@@ -569,5 +569,22 @@
       "continue_part1": "By continuing, you accept our ",
       "continue_part2": "Terms & Privacy"
     }
+  },
+  "cart": {
+    "applied": "Applied",
+    "apply": "Apply",
+    "empty": "Your cart is empty.",
+    "subtotal": "Sub Total",
+    "fat": "Fat",
+    "delivery": "Delivery",
+    "discount": "Discount",
+    "total": "Total",
+    "nav": {
+      "home": "Home",
+      "stores": "stores",
+      "libraries": "libraries",
+      "audio": "audio",
+      "cart": "cart"
+    }
   }
 }
