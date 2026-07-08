@@ -38,7 +38,7 @@ GoRouter buildAppRouter({
 }) {
   return GoRouter(
     navigatorKey: navigatorKey,
-    initialLocation: RouteNames.bookAssistant,
+    initialLocation: RouteNames.splash,
     observers: observers,
     redirect: (context, state) async {
       final String location = state.matchedLocation;
