@@ -62,13 +62,12 @@ final class BookAssistantLoaded extends BookAssistantState {
     List<AssistantBook>? books,
     List<AssistantBook>? selectedBooks,
     AssistantResponse? response,
-    bool? clearResponse,
     bool? isAnswering,
   }) {
     return BookAssistantLoaded(
       books: books ?? this.books,
       selectedBooks: selectedBooks ?? this.selectedBooks,
-      response: clearResponse == true ? null : response ?? this.response,
+      response: response ?? this.response,
       isAnswering: isAnswering ?? this.isAnswering,
     );
   }

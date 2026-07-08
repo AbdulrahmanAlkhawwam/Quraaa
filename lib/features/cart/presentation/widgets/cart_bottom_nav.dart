@@ -9,10 +9,42 @@ class CartBottomNav extends StatelessWidget {
 
   final int currentIndex;
 
+  static const List<_CartNavDestination> _destinations = <_CartNavDestination>[
+    _CartNavDestination(
+      icon: HugeIcons.strokeRoundedHome04,
+      activeIcon: HugeIcons.strokeRoundedHome01,
+      label: 'home',
+      route: RouteNames.home,
+    ),
+    _CartNavDestination(
+      icon: HugeIcons.strokeRoundedStore04,
+      activeIcon: HugeIcons.strokeRoundedStore01,
+      label: 'stores',
+      route: RouteNames.stores,
+    ),
+    _CartNavDestination(
+      icon: HugeIcons.strokeRoundedBooks01,
+      activeIcon: HugeIcons.strokeRoundedBooks02,
+      label: 'libraries',
+      route: RouteNames.userBooks,
+    ),
+    _CartNavDestination(
+      icon: HugeIcons.strokeRoundedAudioBook04,
+      activeIcon: HugeIcons.strokeRoundedAudioBook04,
+      label: 'audio',
+      route: RouteNames.audioBooks,
+    ),
+    _CartNavDestination(
+      icon: HugeIcons.strokeRoundedShoppingCart01,
+      activeIcon: HugeIcons.strokeRoundedShoppingCart01,
+      label: 'cart',
+      route: RouteNames.cart,
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
-    final double scale =
-        (MediaQuery.sizeOf(context).width / 520).clamp(0.78, 0.9).toDouble();
+    final double scale = context.compactFeatureScale;
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -33,51 +65,13 @@ class CartBottomNav extends StatelessWidget {
           bottom: false,
           child: Row(
             children: <Widget>[
-              _NavItem(
-                index: 0,
-                currentIndex: currentIndex,
-                icon: HugeIcons.strokeRoundedHome04,
-                activeIcon: HugeIcons.strokeRoundedHome01,
-                label: 'home',
-                route: RouteNames.home,
-                scale: scale,
-              ),
-              _NavItem(
-                index: 1,
-                currentIndex: currentIndex,
-                icon: HugeIcons.strokeRoundedStore04,
-                activeIcon: HugeIcons.strokeRoundedStore01,
-                label: 'stores',
-                route: RouteNames.stores,
-                scale: scale,
-              ),
-              _NavItem(
-                index: 2,
-                currentIndex: currentIndex,
-                icon: HugeIcons.strokeRoundedBooks01,
-                activeIcon: HugeIcons.strokeRoundedBooks02,
-                label: 'libraries',
-                route: RouteNames.userBooks,
-                scale: scale,
-              ),
-              _NavItem(
-                index: 3,
-                currentIndex: currentIndex,
-                icon: HugeIcons.strokeRoundedAudioBook04,
-                activeIcon: HugeIcons.strokeRoundedAudioBook04,
-                label: 'audio',
-                route: RouteNames.audioBooks,
-                scale: scale,
-              ),
-              _NavItem(
-                index: 4,
-                currentIndex: currentIndex,
-                icon: HugeIcons.strokeRoundedShoppingCart01,
-                activeIcon: HugeIcons.strokeRoundedShoppingCart01,
-                label: 'cart',
-                route: RouteNames.cart,
-                scale: scale,
-              ),
+              for (int index = 0; index < _destinations.length; index++)
+                _NavItem(
+                  index: index,
+                  currentIndex: currentIndex,
+                  destination: _destinations[index],
+                  scale: scale,
+                ),
             ],
           ),
         ),
@@ -86,23 +80,31 @@ class CartBottomNav extends StatelessWidget {
   }
 }
 
-class _NavItem extends StatelessWidget {
-  const _NavItem({
-    required this.index,
-    required this.currentIndex,
+class _CartNavDestination {
+  const _CartNavDestination({
     required this.icon,
     required this.activeIcon,
     required this.label,
     required this.route,
+  });
+
+  final List<List<dynamic>> icon;
+  final List<List<dynamic>> activeIcon;
+  final String label;
+  final String route;
+}
+
+class _NavItem extends StatelessWidget {
+  const _NavItem({
+    required this.index,
+    required this.currentIndex,
+    required this.destination,
     required this.scale,
   });
 
   final int index;
   final int currentIndex;
-  final List<List<dynamic>> icon;
-  final List<List<dynamic>> activeIcon;
-  final String label;
-  final String route;
+  final _CartNavDestination destination;
   final double scale;
 
   bool get _isActive => index == currentIndex;
@@ -115,7 +117,7 @@ class _NavItem extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         onTap: () {
           if (!_isActive) {
-            context.goTo(route);
+            context.goTo(destination.route);
           }
         },
         child: AnimatedContainer(
@@ -133,7 +135,7 @@ class _NavItem extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               HugeIcon(
-                icon: _isActive ? activeIcon : icon,
+                icon: _isActive ? destination.activeIcon : destination.icon,
                 color: _isActive ? AppColors.primary600 : Colors.white,
                 size: 25 * scale,
               ),
@@ -141,7 +143,7 @@ class _NavItem extends StatelessWidget {
                 SizedBox(width: 8 * scale),
                 Flexible(
                   child: Text(
-                    label,
+                    destination.label,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.bodyMedium.copyWith(
@@ -159,4 +161,3 @@ class _NavItem extends StatelessWidget {
     );
   }
 }
-

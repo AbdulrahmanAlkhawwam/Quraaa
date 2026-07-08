@@ -12,8 +12,7 @@ class CartHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double scale =
-        (MediaQuery.sizeOf(context).width / 520).clamp(0.78, 0.9).toDouble();
+    final double scale = context.compactFeatureScale;
 
     return SizedBox(
       height: 48 * scale,

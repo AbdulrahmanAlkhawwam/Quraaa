@@ -57,8 +57,7 @@ class CartView extends StatelessWidget {
 
               return LayoutBuilder(
                 builder: (BuildContext context, BoxConstraints constraints) {
-                  final double scale =
-                      (constraints.maxWidth / 520).clamp(0.78, 0.9).toDouble();
+                  final double scale = constraints.compactFeatureScale;
                   final double horizontal =
                       (constraints.maxWidth * 0.045).clamp(18.0, 22.0);
                   final double topPadding =

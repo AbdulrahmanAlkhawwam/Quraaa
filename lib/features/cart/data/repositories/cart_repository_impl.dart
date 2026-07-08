@@ -8,43 +8,30 @@ class CartRepositoryImpl extends CartRepository {
 
   CartSummary _summary;
 
+  static const String _avatarUrl = 'https://i.pravatar.cc/96?img=12';
   static const String _bookImageUrl =
       'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=240&q=80';
-  static const String _avatarUrl = 'https://i.pravatar.cc/96?img=12';
+  static const double _delivery = 7.5;
+  static const double _discountPercent = 15;
+  static const double _fatPercent = 3;
+  static const double _fixedCouponDiscount = 0.84;
+  static const double _unitPrice = 6.3333333333;
 
   static CartSummary _buildInitialSummary() {
-    const List<CartItem> items = <CartItem>[
-      CartItem(
-        id: 'emar-1',
-        title: 'Emar English book',
-        subtitle: 'syrian republic arabic gov',
-        fileSize: '3.5 KB',
-        imageUrl: _bookImageUrl,
-        unitPrice: 6.3333333333,
-        quantity: 2,
-      ),
-      CartItem(
-        id: 'emar-2',
-        title: 'Emar English book',
-        subtitle: 'syrian republic arabic gov',
-        fileSize: '3.5 KB',
-        imageUrl: _bookImageUrl,
-        unitPrice: 6.3333333333,
-        quantity: 2,
-      ),
-      CartItem(
-        id: 'emar-3',
-        title: 'Emar English book',
-        subtitle: 'syrian republic arabic gov',
-        fileSize: '3.5 KB',
-        imageUrl: _bookImageUrl,
-        unitPrice: 6.3333333333,
-        quantity: 2,
-      ),
-    ];
-
     return _summaryFromItems(
-      items: items,
+      items: List<CartItem>.generate(
+        3,
+        (int index) => CartItem(
+          id: 'emar-${index + 1}',
+          title: 'Emar English book',
+          subtitle: 'syrian republic arabic gov',
+          fileSize: '3.5 KB',
+          imageUrl: _bookImageUrl,
+          unitPrice: _unitPrice,
+          quantity: 2,
+        ),
+        growable: false,
+      ),
       couponCode: '58241',
       couponApplied: true,
     );
@@ -59,11 +46,10 @@ class CartRepositoryImpl extends CartRepository {
       0,
       (double value, CartItem item) => value + item.lineTotal,
     );
-    const double fatPercent = 3;
-    const double delivery = 7.5;
-    const double discountPercent = 15;
-    final double total = subtotal + delivery + (subtotal * fatPercent / 100) -
-        (couponApplied ? 0.84 : 0);
+    final double total = subtotal +
+        _delivery +
+        (subtotal * _fatPercent / 100) -
+        (couponApplied ? _fixedCouponDiscount : 0);
 
     return CartSummary(
       userName: 'Abdulrahman',
@@ -72,9 +58,9 @@ class CartRepositoryImpl extends CartRepository {
       couponCode: couponCode,
       couponApplied: couponApplied,
       subtotal: subtotal,
-      fatPercent: fatPercent,
-      delivery: delivery,
-      discountPercent: discountPercent,
+      fatPercent: _fatPercent,
+      delivery: _delivery,
+      discountPercent: _discountPercent,
       total: total,
     );
   }
@@ -125,4 +111,3 @@ class CartRepositoryImpl extends CartRepository {
     return Success<CartSummary>(_summary);
   }
 }
-

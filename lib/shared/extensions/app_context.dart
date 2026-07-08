@@ -60,6 +60,13 @@ extension AppResponsive on BuildContext {
   double get bottomPadding => MediaQuery.paddingOf(this).bottom;
 
   double get bottomInsets => MediaQuery.viewInsetsOf(this).bottom;
+
+  double get compactFeatureScale => (width / 520).clamp(0.78, 0.9).toDouble();
+}
+
+extension AppConstraintResponsive on BoxConstraints {
+  double get compactFeatureScale =>
+      (maxWidth / 520).clamp(0.78, 0.9).toDouble();
 }
 
 extension AppDirectionality on BuildContext {

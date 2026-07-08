@@ -97,26 +97,26 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     CartQuantityIncreased event,
     Emitter<CartState> emit,
   ) async {
-    _emitResult(
-      await _updateQuantity(
-        UpdateCartItemQuantityParams(
-          itemId: event.item.id,
-          quantity: event.item.quantity + 1,
-        ),
-      ),
-      emit,
-    );
+    await _changeQuantity(event.item, 1, emit);
   }
 
   Future<void> _onQuantityDecreased(
     CartQuantityDecreased event,
     Emitter<CartState> emit,
   ) async {
+    await _changeQuantity(event.item, -1, emit);
+  }
+
+  Future<void> _changeQuantity(
+    CartItem item,
+    int delta,
+    Emitter<CartState> emit,
+  ) async {
     _emitResult(
       await _updateQuantity(
         UpdateCartItemQuantityParams(
-          itemId: event.item.id,
-          quantity: event.item.quantity - 1,
+          itemId: item.id,
+          quantity: item.quantity + delta,
         ),
       ),
       emit,
@@ -152,4 +152,3 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     }
   }
 }
-

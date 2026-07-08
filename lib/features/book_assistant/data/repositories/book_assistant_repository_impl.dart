@@ -6,6 +6,17 @@ import '../../domain/repositories/book_assistant_repository.dart';
 class BookAssistantRepositoryImpl extends BookAssistantRepository {
   const BookAssistantRepositoryImpl();
 
+  static const String _defaultQuestion =
+      '\u062F\u0644\u0646\u064A \u0639\u0644\u0649 \u0645\u0627 \u0623\u0631\u064A\u062F';
+  static const String _generalLibraryHint =
+      '\u0627\u0639\u062A\u0645\u0627\u062F\u0627 \u0639\u0644\u0649 \u0645\u0643\u062A\u0628\u062A\u0643 \u0627\u0644\u0639\u0627\u0645\u0629';
+  static const String _selectedBooksPrefix =
+      '\u0627\u0639\u062A\u0645\u0627\u062F\u0627 \u0639\u0644\u0649';
+  static const String _selectedBooksSuffix =
+      '\u0643\u062A\u0628 \u0627\u062E\u062A\u0631\u062A\u0647\u0627';
+  static const String _answerBody =
+      '\u060C \u0647\u0630\u0647 \u0625\u062C\u0627\u0628\u0629 \u062A\u062C\u0631\u064A\u0628\u064A\u0629 \u062A\u0633\u0627\u0639\u062F\u0643 \u0639\u0644\u0649 \u0627\u0644\u0642\u0631\u0627\u0621\u0629 \u0628\u0630\u0643\u0627\u0621: \u0627\u0628\u062F\u0623 \u0628\u0627\u0644\u0641\u0643\u0631\u0629 \u0627\u0644\u0631\u0626\u064A\u0633\u064A\u0629\u060C \u062B\u0645 \u0627\u0642\u0631\u0623 \u0627\u0644\u0639\u0646\u0627\u0648\u064A\u0646 \u0627\u0644\u0641\u0631\u0639\u064A\u0629\u060C \u0648\u0628\u0639\u062F\u0647\u0627 \u0627\u0633\u0623\u0644\u0646\u064A \u0639\u0646 \u0623\u064A \u0641\u0642\u0631\u0629 \u062A\u0631\u064A\u062F \u062A\u0644\u062E\u064A\u0635\u0647\u0627 \u0623\u0648 \u0634\u0631\u062D\u0647\u0627 \u0628\u0644\u063A\u0629 \u0623\u0628\u0633\u0637.';
+
   static const List<AssistantBook> _books = <AssistantBook>[
     AssistantBook(
       id: 'book-1',
@@ -40,18 +51,17 @@ class BookAssistantRepositoryImpl extends BookAssistantRepository {
     required String question,
     required List<AssistantBook> books,
   }) async {
-    final String normalizedQuestion = question.trim().isEmpty
-        ? '\u062F\u0644\u0646\u064A \u0639\u0644\u0649 \u0645\u0627 \u0623\u0631\u064A\u062F'
-        : question.trim();
+    final String normalizedQuestion =
+        question.trim().isEmpty ? _defaultQuestion : question.trim();
     final String bookHint = books.isEmpty
-        ? '\u0627\u0639\u062A\u0645\u0627\u062F\u0627 \u0639\u0644\u0649 \u0645\u0643\u062A\u0628\u062A\u0643 \u0627\u0644\u0639\u0627\u0645\u0629'
-        : '\u0627\u0639\u062A\u0645\u0627\u062F\u0627 \u0639\u0644\u0649 ${books.length} \u0643\u062A\u0628 \u0627\u062E\u062A\u0631\u062A\u0647\u0627';
+        ? _generalLibraryHint
+        : '$_selectedBooksPrefix ${books.length} $_selectedBooksSuffix';
 
     return Success<AssistantResponse>(
       AssistantResponse(
         question: normalizedQuestion,
         books: books,
-        answer: '$bookHint\u060C \u0647\u0630\u0647 \u0625\u062C\u0627\u0628\u0629 \u062A\u062C\u0631\u064A\u0628\u064A\u0629 \u062A\u0633\u0627\u0639\u062F\u0643 \u0639\u0644\u0649 \u0627\u0644\u0642\u0631\u0627\u0621\u0629 \u0628\u0630\u0643\u0627\u0621: \u0627\u0628\u062F\u0623 \u0628\u0627\u0644\u0641\u0643\u0631\u0629 \u0627\u0644\u0631\u0626\u064A\u0633\u064A\u0629\u060C \u062B\u0645 \u0627\u0642\u0631\u0623 \u0627\u0644\u0639\u0646\u0627\u0648\u064A\u0646 \u0627\u0644\u0641\u0631\u0639\u064A\u0629\u060C \u0648\u0628\u0639\u062F\u0647\u0627 \u0627\u0633\u0623\u0644\u0646\u064A \u0639\u0646 \u0623\u064A \u0641\u0642\u0631\u0629 \u062A\u0631\u064A\u062F \u062A\u0644\u062E\u064A\u0635\u0647\u0627 \u0623\u0648 \u0634\u0631\u062D\u0647\u0627 \u0628\u0644\u063A\u0629 \u0623\u0628\u0633\u0637.',
+        answer: '$bookHint$_answerBody',
       ),
     );
   }

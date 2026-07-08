@@ -19,8 +19,7 @@ class AssistantBookPickerSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double scale =
-        (MediaQuery.sizeOf(context).width / 520).clamp(0.78, 0.9).toDouble();
+    final double scale = context.compactFeatureScale;
 
     return SafeArea(
       top: false,
@@ -38,7 +37,7 @@ class AssistantBookPickerSheet extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                'أضف كتابا للسؤال',
+                '\u0623\u0636\u0641 \u0643\u062A\u0627\u0628\u0627 \u0644\u0644\u0633\u0624\u0627\u0644',
                 style: AppTextStyles.h4.copyWith(
                   color: AppColors.libraryGreen,
                   fontSize: 22 * scale,
