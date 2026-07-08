@@ -72,6 +72,11 @@ import '../../features/cart/domain/use_cases/get_cart_use_case.dart';
 import '../../features/cart/domain/use_cases/remove_cart_item_use_case.dart';
 import '../../features/cart/domain/use_cases/update_cart_item_quantity_use_case.dart';
 import '../../features/cart/presentation/bloc/cart_bloc.dart';
+import '../../features/book_assistant/data/repositories/book_assistant_repository_impl.dart';
+import '../../features/book_assistant/domain/repositories/book_assistant_repository.dart';
+import '../../features/book_assistant/domain/use_cases/ask_book_assistant_use_case.dart';
+import '../../features/book_assistant/domain/use_cases/get_assistant_books_use_case.dart';
+import '../../features/book_assistant/presentation/bloc/book_assistant_bloc.dart';
 import '../../features/settings/data/repositories/settings_repository_impl.dart';
 import '../../features/settings/domain/repositories/settings_repository.dart';
 import '../../features/settings/domain/use_cases/get_activity_sections_use_case.dart';
@@ -433,6 +438,32 @@ void registerFeatureDependencies() {
         updateQuantity: sl(),
         removeItem: sl(),
         applyCoupon: sl(),
+      ),
+    );
+  }
+  if (!sl.isRegistered<BookAssistantRepository>()) {
+    sl.registerLazySingleton<BookAssistantRepository>(
+      BookAssistantRepositoryImpl.new,
+    );
+  }
+
+  if (!sl.isRegistered<GetAssistantBooksUseCase>()) {
+    sl.registerLazySingleton<GetAssistantBooksUseCase>(
+      () => GetAssistantBooksUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<AskBookAssistantUseCase>()) {
+    sl.registerLazySingleton<AskBookAssistantUseCase>(
+      () => AskBookAssistantUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<BookAssistantBloc>()) {
+    sl.registerFactory<BookAssistantBloc>(
+      () => BookAssistantBloc(
+        getBooks: sl(),
+        askAssistant: sl(),
       ),
     );
   }
