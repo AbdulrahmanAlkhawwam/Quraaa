@@ -186,7 +186,29 @@
   "user_data": {
     "title": "Settings",
     "subtitle": "Manage your profile and saved content",
-    "edit": "Edit",
+    "edit": {
+      "profile": {
+        "title": "Edit Profile"
+      },
+      "appearance": {
+        "title": "Edit Appearance"
+      },
+      "bookmarks": {
+        "title": "Edit Bookmarks"
+      },
+      "budgets": {
+        "title": "Edit Budgets"
+      },
+      "library": {
+        "title": "Edit Library"
+      },
+      "history": {
+        "title": "Edit History"
+      },
+      "save_changes": "Save Changes",
+      "cancel": "Cancel",
+      "multiline_hint": "Enter one item per line."
+    },
     "logout": "Log out",
     "tabs": {
       "profile": "Profile",
@@ -235,29 +257,6 @@
     },
     "history": {
       "operations": "Operations"
-    },
-    "edit": {
-      "profile": {
-        "title": "Edit Profile"
-      },
-      "appearance": {
-        "title": "Edit Appearance"
-      },
-      "bookmarks": {
-        "title": "Edit Bookmarks"
-      },
-      "budgets": {
-        "title": "Edit Budgets"
-      },
-      "library": {
-        "title": "Edit Library"
-      },
-      "history": {
-        "title": "Edit History"
-      },
-      "save_changes": "Save Changes",
-      "cancel": "Cancel",
-      "multiline_hint": "Enter one item per line."
     }
   },
   "explorer": {
@@ -313,7 +312,12 @@
       "general": "General",
       "notification": "Notifications",
       "security": "Security",
-      "languages": "Languages"
+      "languages": "Languages",
+      "profile": "Profile",
+      "library": "Library",
+      "badges": "Badges",
+      "activity": "Activity",
+      "settings": "Settings"
     },
     "account_type": {
       "title": "Account Type",
@@ -349,14 +353,61 @@
       "english": "English",
       "arabic": "Arabic",
       "english_desc": "Use the app in English.",
-      "arabic_desc": "Use the app in Arabic."
+      "arabic_desc": "Use the app in Arabic.",
+      "spanish": "Spanish",
+      "france": "France",
+      "germany": "Germany"
     },
     "notification": {
-      "title": "Notifications",
+      "title": "Notification",
       "subtitle": "Stay updated with alerts and reminders",
       "body": "Allow notifications so you can receive book updates, reminders, and important account alerts.",
-      "action": "Enable notifications"
-    }
+      "action": "Enable notifications",
+      "newUpdate": "New Update",
+      "ads": "Ads",
+      "payment": "Payment",
+      "newBookVersion": "New Book Version",
+      "finishBook": "Finish Book",
+      "getNewBadge": "Get New Badge",
+      "upgradeLevel": "Upgrade Level"
+    },
+    "searchHint": "Search in setting !",
+    "profile": {
+      "myPersonalInformation": "My Personal Information",
+      "myLocations": "My Locations",
+      "paymentInformation": "Payment Information",
+      "myPersonalFiles": "My Personal Files",
+      "myBadges": "My Badges",
+      "accountType": "Account Type",
+      "changePassword": "Change Password"
+    },
+    "library": {
+      "myBooks": "My Books",
+      "downloads": "Downloads",
+      "wishlist": "Wishlist",
+      "collections": "Collections"
+    },
+    "badges": {
+      "recentBadges": "Recent Badges",
+      "achievementLevels": "Achievement Levels"
+    },
+    "activity": {
+      "readingTime": "Reading Time",
+      "lastOpenedBooks": "Last Opened Books"
+    },
+    "settingsSections": {
+      "appearance": "Appearance",
+      "notificationManagement": "Notification Management",
+      "securityManage": "Security Manage",
+      "languages": "Languages"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "lightMode": "Light Mode",
+      "darkMode": "Dark Mode",
+      "deviceSystem": "Device System (Recommended)"
+    },
+    "logout": "Log out"
   },
   "subscription": {
     "account_type": {
@@ -557,6 +608,23 @@
     "footer": {
       "continue_part1": "By continuing, you accept our ",
       "continue_part2": "Terms & Privacy"
+    }
+  },
+  "cart": {
+    "applied": "Applied",
+    "apply": "Apply",
+    "empty": "Your cart is empty.",
+    "subtotal": "Sub Total",
+    "fat": "Fat",
+    "delivery": "Delivery",
+    "discount": "Discount",
+    "total": "Total",
+    "nav": {
+      "home": "Home",
+      "stores": "stores",
+      "libraries": "libraries",
+      "audio": "audio",
+      "cart": "cart"
     }
   }
 }

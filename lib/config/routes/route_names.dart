@@ -8,6 +8,7 @@ abstract class RouteNames {
   static const String userBooks = '/user-books';
   static const String audioBooks = '/audio-books';
   static const String cart = '/cart';
+  static const String bookAssistant = '/book-assistant';
   static const String auth = '/auth';
   static const String login = '/login';
   static const String register = '/register';
@@ -27,4 +28,5 @@ abstract class RouteNames {
   static const String pdfReader = '/explorer/pdf';
 
   static const String pdfReaderName = 'pdf-reader';
+  static const String settingsAccountType = '/settings/account-type';
 }

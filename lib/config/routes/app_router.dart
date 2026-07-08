@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+﻿import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -9,7 +9,8 @@ import '../../features/auth/presentation/pages/location_permission_screen.dart';
 import '../../features/auth/presentation/pages/notification_permission_screen.dart';
 import '../../features/home/presentation/pages/home_screen.dart';
 import '../../features/home/presentation/pages/audio_books_screen.dart';
-import '../../features/home/presentation/pages/cart_screen.dart';
+import '../../features/cart/presentation/pages/cart_screen.dart';
+import '../../features/book_assistant/book_assistant.dart';
 import '../../features/auth/presentation/pages/landing_page.dart';
 import '../../features/auth/presentation/pages/login_screen.dart';
 import '../../features/auth/presentation/pages/register_screen.dart';
@@ -33,6 +34,7 @@ import '../../core/di/injection_container.dart';
 import '../../features/splash/presentation/pages/splash_screen.dart';
 import '../../features/pdf_reader/presentation/pages/pdf_reader_page.dart';
 import '../../shared/widgets/app_shell.dart';
+import '../../features/settings/presentation/pages/account_type_page.dart';
 import 'route_names.dart';
 import 'route_resolver.dart';
 
@@ -153,6 +155,11 @@ GoRouter buildAppRouter({
         builder: (context, state) => const CartScreen(),
       ),
       GoRoute(
+        name: RouteNames.bookAssistant,
+        path: RouteNames.bookAssistant,
+        builder: (context, state) => const BookAssistantScreen(),
+      ),
+      GoRoute(
         name: RouteNames.profile,
         path: RouteNames.profile,
         builder: (context, state) => BlocProvider<ProfileBloc>(
@@ -217,6 +224,10 @@ GoRouter buildAppRouter({
         path: RouteNames.locationPermission,
         builder: (context, state) => const LocationPermissionScreen(),
       ),
+      GoRoute(
+        path: RouteNames.settingsAccountType,
+        builder: (context, state) => const AccountTypePage(),
+      ),
     ],
   );
 }
@@ -231,8 +242,10 @@ bool _isKnownRoute(String location) {
     RouteNames.userBooks,
     RouteNames.audioBooks,
     RouteNames.cart,
+    RouteNames.bookAssistant,
     RouteNames.search,
     RouteNames.settings,
+    RouteNames.settingsAccountType,
     RouteNames.subscriptionAccountType,
     RouteNames.auth,
     RouteNames.login,
@@ -265,3 +278,4 @@ bool _isOnlineOnlyRoute(String location) {
       location == RouteNames.forgotPassword ||
       location == RouteNames.resetPassword;
 }
+

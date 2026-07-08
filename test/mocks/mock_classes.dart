@@ -15,6 +15,7 @@ import 'package:quraaa/features/libraries/domain/use_cases/get_libraries_use_cas
 import 'package:quraaa/features/libraries/data/datasources/library_details_remote_data_source.dart';
 import 'package:quraaa/features/libraries/domain/repositories/library_details_repository.dart';
 import 'package:quraaa/features/libraries/domain/use_cases/get_library_books_use_case.dart';
+import 'package:quraaa/features/settings/domain/repositories/settings_repository.dart';
 
 class MockAuthRepository extends Mock implements AuthRepository {}
 
@@ -49,3 +50,4 @@ class MockLoginUseCase extends Mock implements LoginUseCase {}
 class MockRegisterUseCase extends Mock implements RegisterUseCase {}
 
 class MockUserContextProvider extends Mock implements UserContextProvider {}
+class MockSettingsRepository extends Mock implements SettingsRepository {}

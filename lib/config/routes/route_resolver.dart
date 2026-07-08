@@ -99,6 +99,7 @@ const Set<String> _knownRoutes = <String>{
   RouteNames.userBooks,
   RouteNames.audioBooks,
   RouteNames.cart,
+  RouteNames.bookAssistant,
   RouteNames.onboarding,
   RouteNames.onboardingAge,
   RouteNames.onboardingInterests,

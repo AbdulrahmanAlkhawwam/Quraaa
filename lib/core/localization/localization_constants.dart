@@ -443,4 +443,87 @@ class LocalizationConstants {
   static const String errorsNoInternetTitleKey = 'errors.no_internet.title';
   static const String errorsNoInternetMessageKey = 'errors.no_internet.message';
   static const String errorsUnknownMessageKey = 'errors.unknown.message';
+  static const String subscriptionPlanPremiumKey =
+      'subscription.plans.premium';
+
+  // Settings feature keys.
+  static const String settingsTitleKey = 'settings.title';
+  static const String settingsSearchHintKey = 'settings.searchHint';
+  static const String settingsLogoutKey = 'settings.logout';
+
+  static const String settingsTabProfileKey = 'settings.tabs.profile';
+  static const String settingsTabLibraryKey = 'settings.tabs.library';
+  static const String settingsTabBadgesKey = 'settings.tabs.badges';
+  static const String settingsTabActivityKey = 'settings.tabs.activity';
+  static const String settingsTabSettingsKey = 'settings.tabs.settings';
+
+  static const String settingsProfileMyPersonalInformationKey =
+      'settings.profile.myPersonalInformation';
+  static const String settingsProfileMyLocationsKey =
+      'settings.profile.myLocations';
+  static const String settingsProfilePaymentInformationKey =
+      'settings.profile.paymentInformation';
+  static const String settingsProfileMyPersonalFilesKey =
+      'settings.profile.myPersonalFiles';
+  static const String settingsProfileMyBadgesKey = 'settings.profile.myBadges';
+  static const String settingsProfileAccountTypeKey =
+      'settings.profile.accountType';
+  static const String settingsProfileChangePasswordKey =
+      'settings.profile.changePassword';
+
+  static const String settingsLibraryMyBooksKey = 'settings.library.myBooks';
+  static const String settingsLibraryDownloadsKey =
+      'settings.library.downloads';
+  static const String settingsLibraryWishlistKey =
+      'settings.library.wishlist';
+  static const String settingsLibraryCollectionsKey =
+      'settings.library.collections';
+
+  static const String settingsBadgesRecentBadgesKey =
+      'settings.badges.recentBadges';
+  static const String settingsBadgesAchievementLevelsKey =
+      'settings.badges.achievementLevels';
+
+  static const String settingsActivityReadingTimeKey =
+      'settings.activity.readingTime';
+  static const String settingsActivityLastOpenedBooksKey =
+      'settings.activity.lastOpenedBooks';
+
+  static const String settingsSectionsAppearanceKey =
+      'settings.settingsSections.appearance';
+  static const String settingsSectionsNotificationManagementKey =
+      'settings.settingsSections.notificationManagement';
+  static const String settingsSectionsSecurityManageKey =
+      'settings.settingsSections.securityManage';
+  static const String settingsSectionsLanguagesKey =
+      'settings.settingsSections.languages';
+
+  static const String settingsAppearanceTitleKey = 'settings.appearance.title';
+  static const String settingsAppearanceLightModeKey =
+      'settings.appearance.lightMode';
+  static const String settingsAppearanceDarkModeKey =
+      'settings.appearance.darkMode';
+  static const String settingsAppearanceDeviceSystemKey =
+      'settings.appearance.deviceSystem';
+
+
+  static const String settingsNotificationNewUpdateKey =
+      'settings.notification.newUpdate';
+  static const String settingsNotificationAdsKey = 'settings.notification.ads';
+  static const String settingsNotificationPaymentKey =
+      'settings.notification.payment';
+  static const String settingsNotificationNewBookVersionKey =
+      'settings.notification.newBookVersion';
+  static const String settingsNotificationFinishBookKey =
+      'settings.notification.finishBook';
+  static const String settingsNotificationGetNewBadgeKey =
+      'settings.notification.getNewBadge';
+  static const String settingsNotificationUpgradeLevelKey =
+      'settings.notification.upgradeLevel';
+
+  static const String settingsLanguageSpanishKey =
+      'settings.language.spanish';
+  static const String settingsLanguageFranceKey = 'settings.language.france';
+  static const String settingsLanguageGermanyKey =
+      'settings.language.germany';
 }
