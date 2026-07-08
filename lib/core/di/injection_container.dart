@@ -20,6 +20,8 @@ import '../../features/onboarding/domain/use_cases/save_gender_use_case.dart';
 import '../../features/auth/domain/use_cases/register_use_case.dart';
 import '../../features/auth/domain/use_cases/login_use_case.dart';
 import '../../features/auth/domain/use_cases/verify_otp_use_case.dart';
+import '../../features/auth/domain/use_cases/forgot_password_use_case.dart';
+import '../../features/auth/domain/use_cases/reset_password_use_case.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import '../error_monitoring/app_bloc_observer.dart';
@@ -38,6 +40,16 @@ import '../../features/profile/data/repositories/profile_repository_impl.dart';
 import '../../features/profile/domain/repositories/profile_repository.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../../features/profile/presentation/bloc/edit_profile_bloc.dart';
+import '../../features/libraries/data/datasources/libraries_remote_data_source.dart';
+import '../../features/libraries/data/repositories/libraries_repository_impl.dart';
+import '../../features/libraries/domain/repositories/libraries_repository.dart';
+import '../../features/libraries/domain/use_cases/get_libraries_use_case.dart';
+import '../../features/libraries/presentation/cubit/libraries_cubit.dart';
+import '../../features/libraries/data/datasources/library_details_remote_data_source.dart';
+import '../../features/libraries/data/repositories/library_details_repository_impl.dart';
+import '../../features/libraries/domain/repositories/library_details_repository.dart';
+import '../../features/libraries/domain/use_cases/get_library_books_use_case.dart';
+import '../../features/libraries/presentation/cubit/library_details_cubit.dart';
 import '../../config/env/env.dart';
 import '../network/auth_interceptor.dart';
 import '../network/connectivity_interceptor.dart';
@@ -141,10 +153,7 @@ void registerCoreDependencies() {
     () => DioLoggingInterceptor(sl<AppLogger>()),
   );
   sl.registerLazySingleton<AuthInterceptor>(
-    () => AuthInterceptor(
-      sl<AuthLocalDataSource>(),
-      baseUrl: Env.apiBaseUrl,
-    ),
+    () => AuthInterceptor(sl<AuthLocalDataSource>(), baseUrl: Env.apiBaseUrl),
   );
   sl.registerLazySingleton<ConnectivityInterceptor>(
     () => ConnectivityInterceptor(sl<ConnectivityService>()),
@@ -201,9 +210,7 @@ void registerFeatureDependencies() {
   }
 
   if (!sl.isRegistered<PdfNoteDataSource>()) {
-    sl.registerLazySingleton<PdfNoteDataSource>(
-      InMemoryPdfNoteDataSource.new,
-    );
+    sl.registerLazySingleton<PdfNoteDataSource>(InMemoryPdfNoteDataSource.new);
   }
 
   sl.registerLazySingleton<OnboardingLocalDataSource>(
@@ -262,12 +269,18 @@ void registerFeatureDependencies() {
     () => RegisterUseCase(sl<AuthRepository>()),
   );
 
-  sl.registerFactory<LoginUseCase>(
-    () => LoginUseCase(sl<AuthRepository>()),
-  );
+  sl.registerFactory<LoginUseCase>(() => LoginUseCase(sl<AuthRepository>()));
 
   sl.registerFactory<VerifyOtpUseCase>(
     () => VerifyOtpUseCase(sl<AuthRepository>()),
+  );
+
+  sl.registerFactory<ForgotPasswordUseCase>(
+    () => ForgotPasswordUseCase(sl<AuthRepository>()),
+  );
+
+  sl.registerFactory<ResetPasswordUseCase>(
+    () => ResetPasswordUseCase(sl<AuthRepository>()),
   );
 
   sl.registerFactory<AuthBloc>(
@@ -306,12 +319,47 @@ void registerFeatureDependencies() {
 
   sl.registerFactory<EditProfileBloc>(EditProfileBloc.new);
 
+  // Libraries feature
+  sl.registerLazySingleton<LibrariesRemoteDataSource>(
+    () => LibrariesRemoteDataSourceImpl(sl<HttpHelper>()),
+  );
+
+  sl.registerLazySingleton<LibrariesRepository>(
+    () => LibrariesRepositoryImpl(sl<LibrariesRemoteDataSource>()),
+  );
+
+  sl.registerFactory<GetLibrariesUseCase>(
+    () => GetLibrariesUseCase(sl<LibrariesRepository>()),
+  );
+
+  sl.registerFactory<LibrariesCubit>(
+    () => LibrariesCubit(getLibrariesUseCase: sl<GetLibrariesUseCase>()),
+  );
+
+  // Library details feature
+  sl.registerLazySingleton<LibraryDetailsRemoteDataSource>(
+    () => LibraryDetailsRemoteDataSourceImpl(sl<HttpHelper>()),
+  );
+
+  sl.registerLazySingleton<LibraryDetailsRepository>(
+    () => LibraryDetailsRepositoryImpl(sl<LibraryDetailsRemoteDataSource>()),
+  );
+
+  sl.registerFactory<GetLibraryBooksUseCase>(
+    () => GetLibraryBooksUseCase(sl<LibraryDetailsRepository>()),
+  );
+
+  sl.registerFactoryParam<LibraryDetailsCubit, String, void>(
+    (String libraryId, _) => LibraryDetailsCubit(
+      libraryId: libraryId,
+      getLibraryBooksUseCase: sl<GetLibraryBooksUseCase>(),
+    ),
+  );
+
   if (!sl.isRegistered<PdfReaderRepository>()) {
     sl.registerLazySingleton<PdfReaderRepository>(
-      () => PdfReaderRepositoryImpl(
-        renderDataSource: sl(),
-        noteDataSource: sl(),
-      ),
+      () =>
+          PdfReaderRepositoryImpl(renderDataSource: sl(), noteDataSource: sl()),
     );
   }
 
@@ -374,10 +422,7 @@ void registerFeatureDependencies() {
 
   if (!sl.isRegistered<LocalExplorerBloc>()) {
     sl.registerFactory<LocalExplorerBloc>(
-      () => LocalExplorerBloc(
-        loadDirectory: sl(),
-        repository: sl(),
-      ),
+      () => LocalExplorerBloc(loadDirectory: sl(), repository: sl()),
     );
   }
 

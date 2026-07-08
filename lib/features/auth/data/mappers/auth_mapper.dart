@@ -26,19 +26,31 @@ class AuthMapper {
     required String phoneNumber,
     required String password,
   }) {
-    return <String, Object?>{
-      'phoneNumber': phoneNumber,
-      'password': password,
-    };
+    return <String, Object?>{'phoneNumber': phoneNumber, 'password': password};
   }
 
   static Map<String, Object?> verifyOtpToJson({
     required String phoneNumber,
     required String code,
   }) {
+    return <String, Object?>{'phoneNumber': phoneNumber, 'code': code};
+  }
+
+  static Map<String, Object?> forgotPasswordToJson({
+    required String phoneNumber,
+  }) {
+    return <String, Object?>{'phoneNumber': phoneNumber};
+  }
+
+  static Map<String, Object?> resetPasswordToJson({
+    required String phoneNumber,
+    required String code,
+    required String newPassword,
+  }) {
     return <String, Object?>{
       'phoneNumber': phoneNumber,
       'code': code,
+      'newPassword': newPassword,
     };
   }
 

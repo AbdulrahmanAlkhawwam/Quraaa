@@ -56,9 +56,7 @@ class AuthRepositoryImpl extends BaseRepository<User>
   }
 
   @override
-  Future<Result<User>> refreshToken({
-    required String refreshToken,
-  }) async {
+  Future<Result<User>> refreshToken({required String refreshToken}) async {
     try {
       final response = await _remoteDataSource.refreshToken(
         refreshToken: refreshToken,
@@ -86,6 +84,34 @@ class AuthRepositoryImpl extends BaseRepository<User>
   }
 
   @override
+  Future<Result<bool>> forgotPassword({required String phoneNumber}) async {
+    try {
+      await _remoteDataSource.forgotPassword(phoneNumber: phoneNumber);
+      return const Success(true);
+    } catch (error) {
+      return _mapError(error);
+    }
+  }
+
+  @override
+  Future<Result<bool>> resetPassword({
+    required String phoneNumber,
+    required String code,
+    required String newPassword,
+  }) async {
+    try {
+      await _remoteDataSource.resetPassword(
+        phoneNumber: phoneNumber,
+        code: code,
+        newPassword: newPassword,
+      );
+      return const Success(true);
+    } catch (error) {
+      return _mapError(error);
+    }
+  }
+
+  @override
   Future<User> getCached() {
     throw UnimplementedError();
   }
@@ -95,7 +121,7 @@ class AuthRepositoryImpl extends BaseRepository<User>
     throw UnimplementedError();
   }
 
-  ResultFailure<User> _mapError(Object error) {
+  ResultFailure<T> _mapError<T>(Object error) {
     final Failure failure = ErrorMapper.map(error);
     return ResultFailure(failure.message, cause: failure);
   }

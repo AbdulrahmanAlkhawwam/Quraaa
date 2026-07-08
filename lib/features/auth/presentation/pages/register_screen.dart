@@ -355,7 +355,8 @@ class _RegisterViewState extends State<_RegisterView> {
                       type: MaterialType.transparency,
                       child: PhoneNumberInput(
                         controller: _phoneController,
-                        initialValue: _initialPhoneNumber ?? PhoneNumber(isoCode: 'SY'),
+                        initialValue:
+                            _initialPhoneNumber ?? PhoneNumber(isoCode: 'SY'),
                         countries: const <String>[
                           'AE',
                           'BH',

@@ -34,18 +34,15 @@ class UserModel extends User {
       birthday: json['birthday'] as String? ?? json['dateOfBirth'] as String?,
       gender: json['gender'] as String?,
       location: json['location'] != null
-          ? Location.fromJson(
-              json['location'] as Map<String, dynamic>,
-            )
+          ? Location.fromJson(json['location'] as Map<String, dynamic>)
           : null,
       language: json['language'] as String?,
       deviceAndroidVersion: json['deviceAndroidVersion'] as String?,
       accessToken: json['accessToken'] as String?,
       refreshToken: json['refreshToken'] as String?,
-      accessTokenExpiration:
-          json['accessTokenExpiration'] != null
-              ? DateTime.tryParse(json['accessTokenExpiration'] as String)
-              : null,
+      accessTokenExpiration: json['accessTokenExpiration'] != null
+          ? DateTime.tryParse(json['accessTokenExpiration'] as String)
+          : null,
     );
   }
 
@@ -110,7 +107,8 @@ class UserModel extends User {
       deviceAndroidVersion: deviceAndroidVersion ?? this.deviceAndroidVersion,
       accessToken: accessToken ?? this.accessToken,
       refreshToken: refreshToken ?? this.refreshToken,
-      accessTokenExpiration: accessTokenExpiration ?? this.accessTokenExpiration,
+      accessTokenExpiration:
+          accessTokenExpiration ?? this.accessTokenExpiration,
     );
   }
 }

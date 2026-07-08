@@ -38,18 +38,24 @@ class _NotificationPermissionScreenState
 
     _bellAnimation = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween<double>(begin: 0, end: -0.35)
-            .chain(CurveTween(curve: Curves.easeOut)),
+        tween: Tween<double>(
+          begin: 0,
+          end: -0.35,
+        ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 25,
       ),
       TweenSequenceItem(
-        tween: Tween<double>(begin: -0.35, end: 0.35)
-            .chain(CurveTween(curve: Curves.easeInOut)),
+        tween: Tween<double>(
+          begin: -0.35,
+          end: 0.35,
+        ).chain(CurveTween(curve: Curves.easeInOut)),
         weight: 50,
       ),
       TweenSequenceItem(
-        tween: Tween<double>(begin: 0.35, end: 0)
-            .chain(CurveTween(curve: Curves.easeIn)),
+        tween: Tween<double>(
+          begin: 0.35,
+          end: 0,
+        ).chain(CurveTween(curve: Curves.easeIn)),
         weight: 25,
       ),
     ]).animate(_bellController);
@@ -131,10 +137,7 @@ class _NotificationPermissionScreenState
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: AppColors.primary50,
-                  border: Border.all(
-                    color: AppColors.primary200,
-                    width: 2,
-                  ),
+                  border: Border.all(color: AppColors.primary200, width: 2),
                 ),
                 child: Center(
                   child: HugeIcon(
@@ -150,9 +153,7 @@ class _NotificationPermissionScreenState
           Text(
             LocalizationConstants.authNotificationTitleKey.tr(),
             textAlign: TextAlign.center,
-            style: AppTextStyles.h3.copyWith(
-              color: AppColors.libraryGreen,
-            ),
+            style: AppTextStyles.h3.copyWith(color: AppColors.libraryGreen),
           ),
           const SizedBox(height: AppSpacing.spacing16),
           Text(

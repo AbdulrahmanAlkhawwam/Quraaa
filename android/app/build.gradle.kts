@@ -28,6 +28,12 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // The Flutter Gradle Plugin sets a default ABI filter. We clear it so
+        // `splits.abi` controls per-ABI packaging without conflict.
+        ndk {
+            abiFilters.clear()
+        }
     }
 
     signingConfigs {
@@ -55,6 +61,24 @@ android {
             } ?: signingConfigs.getByName("debug")
             isMinifyEnabled = true
             isShrinkResources = true
+        }
+    }
+
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("armeabi-v7a", "arm64-v8a", "x86_64")
+            // Build one APK per ABI. Distribute the AAB or the matching APK.
+            isUniversalApk = false
+        }
+    }
+
+    packagingOptions {
+        jniLibs {
+            // Compress native libraries in the APK so the download size shrinks.
+            // They are extracted at install time on API 23+.
+            useLegacyPackaging = true
         }
     }
 }

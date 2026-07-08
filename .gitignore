@@ -27,6 +27,10 @@ key.properties
 *.jks
 *.keystore
 
+# Firebase service account keys and local CLI credentials
+*-service-account.json
+.firebase/
+
 # Flutter/Dart/Pub related
 **/doc/api/
 **/ios/Flutter/.last_build_id

@@ -12,26 +12,23 @@ enum AuthJourneyStage {
 
 extension AuthJourneyStageX on AuthJourneyStage {
   String get key => switch (this) {
-        AuthJourneyStage.auth => 'auth',
-        AuthJourneyStage.login => 'login',
-        AuthJourneyStage.register => 'register',
-        AuthJourneyStage.onboarding => 'onboarding',
-        AuthJourneyStage.onboardingAge => 'onboarding_age',
-        AuthJourneyStage.onboardingInterests => 'onboarding_interests',
-        AuthJourneyStage.home => 'home',
-      };
+    AuthJourneyStage.auth => 'auth',
+    AuthJourneyStage.login => 'login',
+    AuthJourneyStage.register => 'register',
+    AuthJourneyStage.onboarding => 'onboarding',
+    AuthJourneyStage.onboardingAge => 'onboarding_age',
+    AuthJourneyStage.onboardingInterests => 'onboarding_interests',
+    AuthJourneyStage.home => 'home',
+  };
 }
 
-enum AuthSessionMode {
-  guest,
-  authenticated,
-}
+enum AuthSessionMode { guest, authenticated }
 
 extension AuthSessionModeX on AuthSessionMode {
   String get key => switch (this) {
-        AuthSessionMode.guest => 'guest',
-        AuthSessionMode.authenticated => 'authenticated',
-      };
+    AuthSessionMode.guest => 'guest',
+    AuthSessionMode.authenticated => 'authenticated',
+  };
 }
 
 AuthJourneyStage? authJourneyStageFromKey(String? key) {
@@ -140,7 +137,8 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   static const String _sessionModeKey = 'auth_session_mode';
   static const String _accessTokenKey = 'auth_access_token';
   static const String _refreshTokenKey = 'auth_refresh_token';
-  static const String _accessTokenExpirationKey = 'auth_access_token_expiration';
+  static const String _accessTokenExpirationKey =
+      'auth_access_token_expiration';
 
   @override
   Future<Map<String, Object?>> getCachedUser() async {
@@ -200,7 +198,8 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     await _storageService.setString(_lastPhoneIsoCodeKey, isoCode);
   }
 
-  static const String _notificationPermissionSeenKey = 'notification_permission_seen';
+  static const String _notificationPermissionSeenKey =
+      'notification_permission_seen';
   static const String _locationPermissionSeenKey = 'location_permission_seen';
   static const String _lastPhoneNumberKey = 'last_phone_number';
   static const String _lastPhoneIsoCodeKey = 'last_phone_iso_code';

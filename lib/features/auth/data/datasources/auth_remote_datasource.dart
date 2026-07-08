@@ -23,13 +23,19 @@ abstract class AuthRemoteDataSource {
     List<String>? categoryIds,
   });
 
-  Future<Map<String, Object?>> refreshToken({
-    required String refreshToken,
-  });
+  Future<Map<String, Object?>> refreshToken({required String refreshToken});
 
   Future<Map<String, Object?>> verifyOtp({
     required String phoneNumber,
     required String code,
+  });
+
+  Future<void> forgotPassword({required String phoneNumber});
+
+  Future<void> resetPassword({
+    required String phoneNumber,
+    required String code,
+    required String newPassword,
   });
 }
 
@@ -105,9 +111,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       final Response<dynamic> response = await _httpHelper.post(
         ApiEndpoints.refreshToken,
-        data: <String, Object?>{
-          'refreshToken': refreshToken,
-        },
+        data: <String, Object?>{'refreshToken': refreshToken},
       );
 
       final dynamic data = response.data;
@@ -129,10 +133,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       final Response<dynamic> response = await _httpHelper.post(
         ApiEndpoints.verifyOtp,
-        data: AuthMapper.verifyOtpToJson(
-          phoneNumber: phoneNumber,
-          code: code,
-        ),
+        data: AuthMapper.verifyOtpToJson(phoneNumber: phoneNumber, code: code),
       );
 
       final dynamic data = response.data;
@@ -140,9 +141,43 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         return data.cast<String, Object?>();
       }
 
-      throw const UnknownException(message: 'Invalid OTP verification response.');
+      throw const UnknownException(
+        message: 'Invalid OTP verification response.',
+      );
     } on DioException catch (error) {
       throw _mapDioException(error, 'Unable to verify OTP.');
+    }
+  }
+
+  @override
+  Future<void> forgotPassword({required String phoneNumber}) async {
+    try {
+      await _httpHelper.post(
+        ApiEndpoints.forgotPassword,
+        data: AuthMapper.forgotPasswordToJson(phoneNumber: phoneNumber),
+      );
+    } on DioException catch (error) {
+      throw _mapDioException(error, 'Unable to request password reset.');
+    }
+  }
+
+  @override
+  Future<void> resetPassword({
+    required String phoneNumber,
+    required String code,
+    required String newPassword,
+  }) async {
+    try {
+      await _httpHelper.post(
+        ApiEndpoints.resetPassword,
+        data: AuthMapper.resetPasswordToJson(
+          phoneNumber: phoneNumber,
+          code: code,
+          newPassword: newPassword,
+        ),
+      );
+    } on DioException catch (error) {
+      throw _mapDioException(error, 'Unable to reset password.');
     }
   }
 
@@ -154,7 +189,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
     final dynamic payload = error.response?.data;
     if (payload is Map<String, dynamic>) {
-      return ErrorMapper.mapResponseToException(ErrorResponseModel.fromJson(payload));
+      return ErrorMapper.mapResponseToException(
+        ErrorResponseModel.fromJson(payload),
+      );
     }
 
     return UnknownException(message: error.message ?? fallbackMessage);

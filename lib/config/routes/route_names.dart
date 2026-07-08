@@ -3,6 +3,8 @@ abstract class RouteNames {
   static const String home = '/';
   static const String profile = '/profile';
   static const String stores = '/stores';
+  static const String libraries = '/libraries';
+  static const String libraryDetails = '/libraries/:libraryId';
   static const String userBooks = '/user-books';
   static const String audioBooks = '/audio-books';
   static const String cart = '/cart';
@@ -19,6 +21,8 @@ abstract class RouteNames {
   static const String notificationPermission = '/notification-permission';
   static const String locationPermission = '/location-permission';
   static const String otpVerification = '/otp-verification';
+  static const String forgotPassword = '/forgot-password';
+  static const String resetPassword = '/reset-password';
   static const String explorer = '/explorer';
   static const String pdfReader = '/explorer/pdf';
 

@@ -3,6 +3,19 @@ class LocalizationConstants {
 
   static const String translationsPath = 'assets/translations';
   static const String appNameKey = 'app.name';
+  static const String homeBestSellersKey = 'home.best_sellers';
+  static const String homeRecommendedForYouKey = 'home.recommended_for_you';
+  static const String homeNoteKey = 'home.note';
+  static const String homeSearchHintKey = 'home.search_hint';
+  static const String homeBannerTitleKey = 'home.banner.title';
+  static const String homeBannerSubtitleKey = 'home.banner.subtitle';
+  static const String libraryDetailsTitleKey = 'library_details.title';
+  static const String libraryDetailsDefaultDescriptionKey =
+      'library_details.default_description';
+  static const String libraryDetailsReviewersKey = 'library_details.reviewers';
+  static const String libraryDetailsAuthorsKey = 'library_details.authors';
+  static const String libraryDetailsRecentlyAddedKey =
+      'library_details.recently_added';
   static const String commonOkKey = 'common.ok';
   static const String commonCancelKey = 'common.cancel';
   static const String commonRetryKey = 'common.retry';
@@ -10,8 +23,10 @@ class LocalizationConstants {
   static const String commonCloseKey = 'common.close';
   static const String commonOfflineRetryKey = 'common.offline_retry';
   static const String authStartKey = 'auth.screen.start';
-  static const String authAlreadyHaveAccountKey = 'auth.screen.already_have_account';
-  static const String authCreateNewAccountKey = 'auth.screen.create_new_account';
+  static const String authAlreadyHaveAccountKey =
+      'auth.screen.already_have_account';
+  static const String authCreateNewAccountKey =
+      'auth.screen.create_new_account';
   static const String authLoginTitleKey = 'auth.login.title';
   static const String authRegisterTitleKey = 'auth.register.title';
   static const String authFirstNameLabelKey = 'auth.first_name.label';
@@ -22,6 +37,7 @@ class LocalizationConstants {
   static const String authPhoneHintKey = 'auth.phone.hint';
   static const String authPasswordLabelKey = 'auth.password.label';
   static const String authPasswordHintKey = 'auth.password.hint';
+  static const String authPasswordForgotKey = 'auth.password.forgot';
   static const String authPasswordRequiredErrorKey =
       'auth.password.validation.required';
   static const String authPasswordMinLengthErrorKey =
@@ -115,8 +131,7 @@ class LocalizationConstants {
   static const String onboardingInterestArtKey = 'onboarding.interests.art';
   static const String onboardingInterestLiteratureKey =
       'onboarding.interests.literature';
-  static const String onboardingInterestOtherKey =
-      'onboarding.interests.other';
+  static const String onboardingInterestOtherKey = 'onboarding.interests.other';
   static const String userDataTitleKey = 'user_data.title';
   static const String userDataSubtitleKey = 'user_data.subtitle';
   static const String userDataEditKey = 'user_data.edit';
@@ -167,7 +182,8 @@ class LocalizationConstants {
   static const String settingsThemeLightDescKey = 'settings.theme.light_desc';
   static const String settingsThemeDarkDescKey = 'settings.theme.dark_desc';
   static const String settingsLanguageTitleKey = 'settings.language.title';
-  static const String settingsLanguageSubtitleKey = 'settings.language.subtitle';
+  static const String settingsLanguageSubtitleKey =
+      'settings.language.subtitle';
   static const String settingsLanguageEnglishKey = 'settings.language.english';
   static const String settingsLanguageArabicKey = 'settings.language.arabic';
   static const String settingsLanguageEnglishDescKey =
@@ -195,8 +211,7 @@ class LocalizationConstants {
   static const String userDataLanguageKey = 'user_data.appearance.language';
   static const String userDataEnglishLanguageKey =
       'user_data.appearance.english';
-  static const String userDataArabicLanguageKey =
-      'user_data.appearance.arabic';
+  static const String userDataArabicLanguageKey = 'user_data.appearance.arabic';
   static const String userDataChangeLanguageKey =
       'user_data.appearance.change_language';
   static const String userDataSavedItemsKey = 'user_data.bookmarks.saved_items';
@@ -227,25 +242,21 @@ class LocalizationConstants {
   static const String profileMenuPersonalFilesKey =
       'profile.menu.my_personal_files';
   static const String profileMenuBadgesKey = 'profile.menu.my_badges';
-  static const String profileComingSoonTitleKey =
-      'profile.coming_soon.title';
+  static const String profileComingSoonTitleKey = 'profile.coming_soon.title';
   static const String profileComingSoonMessageKey =
       'profile.coming_soon.message';
   static const String profileDialogNotDesignedContentKey =
       'profile.dialog.not_designed.content';
   static const String profileEditTitleKey = 'edit_profile.title';
-  static const String profileEditPersonalDataKey =
-      'edit_profile.personal_data';
+  static const String profileEditPersonalDataKey = 'edit_profile.personal_data';
   static const String profileEditFullNameKey = 'edit_profile.full_name';
   static const String profileEditGenderKey = 'edit_profile.gender';
   static const String profileEditGenderMaleKey = 'edit_profile.gender_male';
-  static const String profileEditGenderFemaleKey =
-      'edit_profile.gender_female';
+  static const String profileEditGenderFemaleKey = 'edit_profile.gender_female';
   static const String profileEditBirthDateKey = 'edit_profile.birth_date';
   static const String profileEditBirthDateHintKey =
       'edit_profile.birth_date_hint';
-  static const String profileEditPhoneNumberKey =
-      'edit_profile.phone_number';
+  static const String profileEditPhoneNumberKey = 'edit_profile.phone_number';
   static const String profileEditCountryCodeKey = 'edit_profile.country_code';
   static const String profileEditSaveComingSoonKey =
       'edit_profile.save_coming_soon';
@@ -256,8 +267,7 @@ class LocalizationConstants {
   static const String avatarTabClothingKey = 'edit_profile.tabs.clothing';
   static const String notificationContinueKey = 'notification.continue';
   static const String termsPrivacyTitleKey = 'terms_privacy.title';
-  static const String termsPrivacyLastUpdatedKey =
-      'terms_privacy.last_updated';
+  static const String termsPrivacyLastUpdatedKey = 'terms_privacy.last_updated';
   static const String termsPrivacyWelcomeKey = 'terms_privacy.welcome';
   static const String termsPrivacyAcceptanceKey =
       'terms_privacy.sections.acceptance.title';
@@ -363,8 +373,7 @@ class LocalizationConstants {
   static const String pdfReaderHighlightKey = 'pdf_reader.highlight';
   static const String pdfReaderAddNoteKey = 'pdf_reader.add_note';
   static const String pdfReaderNoteTitleKey = 'pdf_reader.note_title';
-  static const String pdfReaderPageNoteTitleKey =
-      'pdf_reader.page_note_title';
+  static const String pdfReaderPageNoteTitleKey = 'pdf_reader.page_note_title';
   static const String pdfReaderPageNoteMessageKey =
       'pdf_reader.page_note_message';
   static const String pdfReaderNoteHintKey = 'pdf_reader.note_hint';
@@ -381,6 +390,33 @@ class LocalizationConstants {
   static const String authOtpTitleKey = 'auth.otp.title';
   static const String authOtpDescriptionKey = 'auth.otp.description';
   static const String authOtpResendKey = 'auth.otp.resend';
+  static const String authForgotPasswordTitleKey = 'auth.forgot_password.title';
+  static const String authForgotPasswordDescriptionKey =
+      'auth.forgot_password.description';
+  static const String authForgotPasswordButtonKey =
+      'auth.forgot_password.button';
+  static const String authForgotPasswordSuccessKey =
+      'auth.forgot_password.success';
+  static const String authResetPasswordTitleKey = 'auth.reset_password.title';
+  static const String authResetPasswordDescriptionKey =
+      'auth.reset_password.description';
+  static const String authResetPasswordCodeLabelKey =
+      'auth.reset_password.code_label';
+  static const String authResetPasswordCodeHintKey =
+      'auth.reset_password.code_hint';
+  static const String authResetPasswordNewPasswordLabelKey =
+      'auth.reset_password.new_password_label';
+  static const String authResetPasswordNewPasswordHintKey =
+      'auth.reset_password.new_password_hint';
+  static const String authResetPasswordConfirmPasswordLabelKey =
+      'auth.reset_password.confirm_password_label';
+  static const String authResetPasswordConfirmPasswordHintKey =
+      'auth.reset_password.confirm_password_hint';
+  static const String authResetPasswordButtonKey = 'auth.reset_password.button';
+  static const String authResetPasswordSuccessKey =
+      'auth.reset_password.success';
+  static const String authResetPasswordPasswordMismatchKey =
+      'auth.reset_password.validation.password_mismatch';
   static const String authLocationTitleKey = 'auth.location.title';
   static const String authLocationAlwaysKey = 'auth.location.always';
   static const String authLocationMaybeLaterKey = 'auth.location.maybe_later';
@@ -401,10 +437,10 @@ class LocalizationConstants {
       'subscription.account_type.subtitle';
   static const String subscriptionPlanFreeKey = 'subscription.plans.free';
   static const String subscriptionPlanPlusKey = 'subscription.plans.plus';
-  static const String subscriptionPlanPremiumKey =
-      'subscription.plans.premium';
+  static const String subscriptionPlanPremiumKey = 'subscription.plans.premium';
 
   // Errors
   static const String errorsNoInternetTitleKey = 'errors.no_internet.title';
   static const String errorsNoInternetMessageKey = 'errors.no_internet.message';
+  static const String errorsUnknownMessageKey = 'errors.unknown.message';
 }

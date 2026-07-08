@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/pages/otp_verification_screen.dart';
+import '../../features/auth/presentation/pages/forgot_password_screen.dart';
+import '../../features/auth/presentation/pages/reset_password_screen.dart';
 import '../../features/auth/presentation/pages/location_permission_screen.dart';
 import '../../features/auth/presentation/pages/notification_permission_screen.dart';
 import '../../features/home/presentation/pages/home_screen.dart';
@@ -12,6 +14,10 @@ import '../../features/auth/presentation/pages/landing_page.dart';
 import '../../features/auth/presentation/pages/login_screen.dart';
 import '../../features/auth/presentation/pages/register_screen.dart';
 import '../../features/home/presentation/pages/stores_screen.dart';
+import '../../features/libraries/domain/entities/library_entity.dart';
+import '../../features/libraries/presentation/pages/libraries_screen.dart';
+import '../../features/libraries/presentation/pages/library_details_screen.dart';
+import '../../features/libraries/presentation/cubit/library_details_cubit.dart';
 import '../../features/home/presentation/pages/user_books_screen.dart';
 import '../../features/onboarding/presentation/pages/age_onboarding_page.dart';
 import '../../features/onboarding/presentation/pages/gender_onboarding_page.dart';
@@ -47,8 +53,8 @@ GoRouter buildAppRouter({
       }
 
       if (_isOnlineOnlyRoute(location)) {
-        final ConnectionStatus status =
-            await sl<ConnectivityService>().currentStatus();
+        final ConnectionStatus status = await sl<ConnectivityService>()
+            .currentStatus();
         if (status == ConnectionStatus.disconnected) {
           return RouteNames.auth;
         }
@@ -114,6 +120,24 @@ GoRouter buildAppRouter({
         builder: (context, state) => const StoresScreen(),
       ),
       GoRoute(
+        name: RouteNames.libraries,
+        path: RouteNames.libraries,
+        builder: (context, state) => const LibrariesScreen(),
+      ),
+      GoRoute(
+        name: RouteNames.libraryDetails,
+        path: RouteNames.libraryDetails,
+        builder: (context, state) {
+          final String libraryId = state.pathParameters['libraryId']!;
+          final LibraryEntity? library = state.extra as LibraryEntity?;
+
+          return BlocProvider<LibraryDetailsCubit>(
+            create: (_) => sl<LibraryDetailsCubit>(param1: libraryId),
+            child: LibraryDetailsScreen(library: library),
+          );
+        },
+      ),
+      GoRoute(
         name: RouteNames.userBooks,
         path: RouteNames.userBooks,
         builder: (context, state) => const UserBooksScreen(),
@@ -133,7 +157,7 @@ GoRouter buildAppRouter({
         path: RouteNames.profile,
         builder: (context, state) => BlocProvider<ProfileBloc>(
           create: (BuildContext context) =>
-          sl<ProfileBloc>()..add(const ProfileLoadRequested()),
+              sl<ProfileBloc>()..add(const ProfileLoadRequested()),
           child: const AppShell(),
         ),
       ),
@@ -144,10 +168,7 @@ GoRouter buildAppRouter({
           final String? path = state.uri.queryParameters['path'];
           final String? name = state.uri.queryParameters['name'];
 
-          return PdfReaderPage(
-            path: path ?? '',
-            name: name ?? 'PDF',
-          );
+          return PdfReaderPage(path: path ?? '', name: name ?? 'PDF');
         },
       ),
       GoRoute(
@@ -174,6 +195,19 @@ GoRouter buildAppRouter({
         },
       ),
       GoRoute(
+        name: RouteNames.forgotPassword,
+        path: RouteNames.forgotPassword,
+        builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
+        name: RouteNames.resetPassword,
+        path: RouteNames.resetPassword,
+        builder: (context, state) {
+          final String? phoneNumber = state.extra as String?;
+          return ResetPasswordScreen(phoneNumber: phoneNumber);
+        },
+      ),
+      GoRoute(
         name: RouteNames.notificationPermission,
         path: RouteNames.notificationPermission,
         builder: (context, state) => const NotificationPermissionScreen(),
@@ -188,11 +222,12 @@ GoRouter buildAppRouter({
 }
 
 bool _isKnownRoute(String location) {
-  return <String>{
+  if (<String>{
     RouteNames.splash,
     RouteNames.home,
     RouteNames.profile,
     RouteNames.stores,
+    RouteNames.libraries,
     RouteNames.userBooks,
     RouteNames.audioBooks,
     RouteNames.cart,
@@ -209,10 +244,24 @@ bool _isKnownRoute(String location) {
     RouteNames.notificationPermission,
     RouteNames.locationPermission,
     RouteNames.otpVerification,
-  }.contains(location);
+    RouteNames.forgotPassword,
+    RouteNames.resetPassword,
+  }.contains(location)) {
+    return true;
+  }
+
+  // Library details uses a path parameter, so the actual location looks like
+  // /libraries/{id} rather than the declared /libraries/:libraryId route.
+  if (location.startsWith('${RouteNames.libraries}/')) {
+    return true;
+  }
+
+  return false;
 }
 
 bool _isOnlineOnlyRoute(String location) {
   return location == RouteNames.register ||
-      location == RouteNames.otpVerification;
+      location == RouteNames.otpVerification ||
+      location == RouteNames.forgotPassword ||
+      location == RouteNames.resetPassword;
 }

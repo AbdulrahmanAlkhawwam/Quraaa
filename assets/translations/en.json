@@ -2,6 +2,23 @@
   "app": {
     "name": "Quraaa"
   },
+  "home": {
+    "best_sellers": "Best Sellers",
+    "recommended_for_you": "Recommended For you",
+    "note": "Note",
+    "search_hint": "History",
+    "banner": {
+      "title": "Discover new books",
+      "subtitle": "Explore our curated collection every day."
+    }
+  },
+  "library_details": {
+    "title": "Library Details",
+    "default_description": "A trusted destination offering a wide selection of books and reading essentials.",
+    "reviewers": "reviewers",
+    "authors": "Authors",
+    "recently_added": "Recently added"
+  },
   "common": {
     "ok": "OK",
     "cancel": "Cancel",
@@ -67,6 +84,7 @@
     "password": {
       "label": "Password",
       "hint": "Enter Your Password",
+      "forgot": "Forgot Password?",
       "validation": {
         "required": "Password is required.",
         "min_length": "Password must be at least 6 characters long.",
@@ -88,6 +106,27 @@
       "number_is_wrong": "number is wrong",
       "resend": "Resend it",
       "resend_countdown": "Resend ({count})"
+    },
+    "forgot_password": {
+      "title": "Forget Password",
+      "description": "Enter your phone number and we will send you a code to reset your password.",
+      "button": "Next",
+      "success": "Reset code sent to your phone number."
+    },
+    "reset_password": {
+      "title": "Reset Password",
+      "description": "Enter the code sent to your phone and your new password.",
+      "code_label": "Verification Code",
+      "code_hint": "Enter the code",
+      "new_password_label": "New Password",
+      "new_password_hint": "Enter Your New Password",
+      "confirm_password_label": "Confirm Password",
+      "confirm_password_hint": "Confirm Your New Password",
+      "button": "Reset Password",
+      "success": "Password reset successfully. Please sign in.",
+      "validation": {
+        "password_mismatch": "Passwords do not match."
+      }
     },
     "location": {
       "title": "Get Your Place",

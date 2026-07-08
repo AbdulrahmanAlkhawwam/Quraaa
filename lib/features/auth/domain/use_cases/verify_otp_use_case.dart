@@ -4,10 +4,7 @@ import '../entities/user.dart';
 import '../repositories/auth_repository.dart';
 
 class VerifyOtpParams {
-  const VerifyOtpParams({
-    required this.phoneNumber,
-    required this.code,
-  });
+  const VerifyOtpParams({required this.phoneNumber, required this.code});
 
   final String phoneNumber;
   final String code;

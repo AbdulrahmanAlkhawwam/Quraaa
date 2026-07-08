@@ -44,10 +44,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(state.copyWith(status: AuthStatus.loading));
     final response = await _loginUseCase(
-      LoginParams(
-        phoneNumber: event.phoneNumber,
-        password: event.password,
-      ),
+      LoginParams(phoneNumber: event.phoneNumber, password: event.password),
     );
     await response.fold(
       (failure) async => emit(
@@ -96,10 +93,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         await _onAuthenticated(
           user,
           id: event.phoneNumber ?? '',
-          name: [event.firstName, event.lastName]
-              .whereType<String>()
-              .where((s) => s.isNotEmpty)
-              .join(' '),
+          name: [
+            event.firstName,
+            event.lastName,
+          ].whereType<String>().where((s) => s.isNotEmpty).join(' '),
           phone: event.phoneNumber,
         );
         emit(state.copyWith(status: AuthStatus.success));
@@ -107,10 +104,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  Future<void> _onStarted(
-    AuthStarted event,
-    Emitter<AuthState> emit,
-  ) async {
+  Future<void> _onStarted(AuthStarted event, Emitter<AuthState> emit) async {
     await _authJourney.markAuthSeen();
     emit(const AuthState());
   }

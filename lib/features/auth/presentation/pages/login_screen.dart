@@ -168,7 +168,8 @@ class _LoginViewState extends State<_LoginView> {
                     label: LocalizationConstants.authPhoneLabelKey.tr(),
                     child: PhoneNumberInput(
                       controller: _phoneController,
-                      initialValue: _initialPhoneNumber ?? PhoneNumber(isoCode: 'SY'),
+                      initialValue:
+                          _initialPhoneNumber ?? PhoneNumber(isoCode: 'SY'),
                       countries: const <String>['SY'],
                       onInputChanged: (PhoneNumber value) {
                         _phoneNumber = value;
@@ -220,7 +221,27 @@ class _LoginViewState extends State<_LoginView> {
                       onSubmitted: (_) => _continueAsUser(),
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.spacing32),
+                  Align(
+                    alignment: AlignmentDirectional.centerEnd,
+                    child: TextButton(
+                      onPressed: () {
+                        unawaited(
+                          sl<UserContextProvider>().recordAction(
+                            'Auth forgot password button',
+                          ),
+                        );
+                        context.goTo(RouteNames.forgotPassword);
+                      },
+                      child: Text(
+                        LocalizationConstants.authPasswordForgotKey.tr(),
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: AppColors.libraryGreen,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.spacing16),
                   BlocBuilder<AuthBloc, AuthState>(
                     builder: (BuildContext context, AuthState state) {
                       return SizedBox(

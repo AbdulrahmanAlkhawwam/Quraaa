@@ -15,7 +15,9 @@
     <application
         android:label="quraaa"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:requestLegacyExternalStorage="true"
+        android:extractNativeLibs="true">
 
         <!-- Default FCM notification channel used when a notification message
              is received while the app is in the background. -->
@@ -23,8 +25,6 @@
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="quraaa_default_channel" />
 
-        android:icon="@mipmap/ic_launcher"
-        android:requestLegacyExternalStorage="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"

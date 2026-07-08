@@ -11,7 +11,6 @@ import '../core/localization/localization_constants.dart';
 import '../shared/theme/app_theme_cubit.dart';
 import '../features/profile/presentation/bloc/profile_bloc.dart';
 import '../shared/theme/app_theme.dart';
-import '../shared/widgets/dev_debug_overlay.dart';
 
 class QuraaaApp extends StatefulWidget {
   const QuraaaApp({super.key});
