@@ -443,8 +443,7 @@ class LocalizationConstants {
   static const String errorsNoInternetTitleKey = 'errors.no_internet.title';
   static const String errorsNoInternetMessageKey = 'errors.no_internet.message';
   static const String errorsUnknownMessageKey = 'errors.unknown.message';
-  static const String subscriptionPlanPremiumKey =
-      'subscription.plans.premium';
+
 
   // Settings feature keys.
   static const String settingsTitleKey = 'settings.title';
