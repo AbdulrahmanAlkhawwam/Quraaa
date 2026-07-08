@@ -22,10 +22,12 @@ class HttpHelper {
 
   Future<Response<dynamic>> get(
     String path, {
+    Map<String, dynamic>? queryParameters,
     Options? options,
   }) {
     return _dio.get<dynamic>(
       path,
+      queryParameters: queryParameters,
       options: options,
     );
   }

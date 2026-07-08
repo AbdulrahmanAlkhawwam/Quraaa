@@ -4,7 +4,7 @@ import 'package:hugeicons/hugeicons.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/styles/text_styles.dart';
-import '../../../../../screens/profile/edit_profile_screen.dart';
+import '../../../profile/presentation/pages/edit_profile_screen.dart';
 import 'profile_image_card.dart';
 
 /// Sliver header for the Personal Information screen.

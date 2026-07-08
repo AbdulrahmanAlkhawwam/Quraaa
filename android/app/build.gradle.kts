@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // FlutterFire / Firebase configuration (migrated from quraa_otp)
@@ -26,13 +28,57 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // The Flutter Gradle Plugin sets a default ABI filter. We clear it so
+        // `splits.abi` controls per-ABI packaging without conflict.
+        ndk {
+            abiFilters.clear()
+        }
+    }
+
+    signingConfigs {
+        create("release") {
+            val keyPropertiesFile = rootProject.file("key.properties")
+            if (keyPropertiesFile.exists()) {
+                val keyProperties = Properties()
+                keyPropertiesFile.inputStream().use { keyProperties.load(it) }
+                storeFile = file(keyProperties.getProperty("storeFile"))
+                storePassword = keyProperties.getProperty("storePassword")
+                keyAlias = keyProperties.getProperty("keyAlias")
+                keyPassword = keyProperties.getProperty("keyPassword")
+            }
+        }
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // TODO: Replace with a production signing config before any store release.
+            // The debug keystore is intentionally kept as a fallback for local
+            // `flutter run --release` builds only; it must not be used for
+            // distribution.
+            signingConfig = signingConfigs.findByName("release")?.takeIf {
+                it.storeFile?.exists() == true
+            } ?: signingConfigs.getByName("debug")
+            isMinifyEnabled = true
+            isShrinkResources = true
+        }
+    }
+
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("armeabi-v7a", "arm64-v8a", "x86_64")
+            // Build one APK per ABI. Distribute the AAB or the matching APK.
+            isUniversalApk = false
+        }
+    }
+
+    packagingOptions {
+        jniLibs {
+            // Compress native libraries in the APK so the download size shrinks.
+            // They are extracted at install time on API 23+.
+            useLegacyPackaging = true
         }
     }
 }

@@ -1,2 +1,2 @@
 Analyzing Quraaa...                                             
-No issues found! (ran in 11.5s)
+No issues found! (ran in 41.6s)

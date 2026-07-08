@@ -3,19 +3,29 @@ import 'dart:developer' as developer;
 
 import 'package:dio/dio.dart';
 
-import '../../config/env/env.dart';
 import '../connectivity/connection_status.dart';
 import '../connectivity/connectivity_service.dart';
 import 'error_report.dart';
 import 'error_report_cache.dart';
 
+/// {@template telegram_notification_service}
+/// Sends error reports to a Telegram chat.
+///
+/// The bot token and chat ID must be supplied via constructor. The app no
+/// longer reads these values from the bundled `.env` file because that would
+/// ship secrets inside the app package. If either value is missing, reporting
+/// is silently disabled.
+///
+/// In the long term this should be replaced by a backend endpoint that holds
+/// the token server-side.
+/// {@endtemplate}
 class TelegramNotificationService {
   TelegramNotificationService(
-    ErrorReportCache cache,
-    ConnectivityService connectivityService,
-  )   : _cache = cache,
-        _connectivityService = connectivityService,
-        _dio = Dio(
+    this._cache,
+    this._connectivityService, {
+    this._botToken,
+    this._chatId,
+  }) : _dio = Dio(
           BaseOptions(
             connectTimeout: const Duration(seconds: 10),
             receiveTimeout: const Duration(seconds: 10),
@@ -27,11 +37,13 @@ class TelegramNotificationService {
   final Dio _dio;
   final ErrorReportCache _cache;
   final ConnectivityService _connectivityService;
+  final String? _botToken;
+  final String? _chatId;
   final Map<String, DateTime> _recentFingerprintHits = <String, DateTime>{};
 
   Future<bool> sendErrorReport(ErrorReport report) async {
-    final String? token = Env.telegramBotToken?.trim();
-    final String? chatId = Env.telegramChatId?.trim();
+    final String? token = _botToken?.trim();
+    final String? chatId = _chatId?.trim();
 
     if (token == null ||
         token.isEmpty ||
@@ -66,8 +78,8 @@ class TelegramNotificationService {
   }
 
   Future<bool> _postReport(ErrorReport report) async {
-    final String? token = Env.telegramBotToken?.trim();
-    final String? chatId = Env.telegramChatId?.trim();
+    final String? token = _botToken?.trim();
+    final String? chatId = _chatId?.trim();
 
     if (token == null ||
         token.isEmpty ||

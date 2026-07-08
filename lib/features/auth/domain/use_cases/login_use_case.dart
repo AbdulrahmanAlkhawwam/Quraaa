@@ -4,10 +4,7 @@ import '../entities/user.dart';
 import '../repositories/auth_repository.dart';
 
 class LoginParams {
-  const LoginParams({
-    required this.phoneNumber,
-    required this.password,
-  });
+  const LoginParams({required this.phoneNumber, required this.password});
 
   final String phoneNumber;
   final String password;

@@ -18,8 +18,13 @@ class ErrorMessageResolver {
   ErrorMessageResolver._();
 
   /// Resolves an error into a display [Message].
-  static Message resolve(Object? error) {
-    if (kDebugMode) {
+  ///
+  /// When [debug] is `true` (the default in debug builds) the raw technical
+  /// details are returned. When [debug] is `false` (the default in release
+  /// builds) a localized, user-friendly message is returned.
+  static Message resolve(Object? error, {bool? debug}) {
+    final bool showDebug = debug ?? kDebugMode;
+    if (showDebug) {
       return _resolveDebug(error);
     }
     return _resolveRelease(error);

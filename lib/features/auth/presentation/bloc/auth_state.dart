@@ -28,12 +28,11 @@ class AuthState with EquatableMixin {
     AuthStatus? status,
     Object? error,
     AuthNavigationDestination? destination,
-  }) =>
-      AuthState(
-        status: status ?? this.status,
-        error: error ?? this.error,
-        destination: destination ?? this.destination,
-      );
+  }) => AuthState(
+    status: status ?? this.status,
+    error: error ?? this.error,
+    destination: destination ?? this.destination,
+  );
 
   @override
   List<Object?> get props => <Object?>[status, error, destination];

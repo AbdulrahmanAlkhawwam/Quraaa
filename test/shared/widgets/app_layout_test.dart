@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../lib/shared/widgets/app_layout.dart';
+import 'package:quraaa/shared/widgets/app_layout.dart';
 
 void main() {
   group('AppLayout', () {

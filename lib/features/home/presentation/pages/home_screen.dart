@@ -1,20 +1,24 @@
 import 'dart:async';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../config/routes/route_names.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../../../features/account/data/user_data_local_data_source.dart';
 import '../../../../shared/shared.dart';
-import '../../../../shared/widgets/animated_search_bar.dart';
+import '../mock/home_mock_data.dart';
+import '../widgets/home_banner.dart';
 import '../widgets/home_bottom_nav.dart';
 import '../widgets/home_drawer.dart';
+import '../widgets/home_section.dart';
 
 /// The main home screen that serves as the central hub for the app.
-/// Uses a 5-tab bottom navigation with IndexedStack.
+/// Uses a 5-tab bottom navigation with an IndexedStack.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -90,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final String route = switch (index) {
       0 => RouteNames.home,
-      1 => RouteNames.stores,
+      1 => RouteNames.libraries,
       2 => RouteNames.userBooks,
       3 => RouteNames.audioBooks,
       4 => RouteNames.cart,
@@ -158,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
             decoration: BoxDecoration(
               color: AppColors.primary100,
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.card, width: 2),
+              border: Border.all(color: AppColors.primary600, width: 2),
             ),
             clipBehavior: Clip.antiAlias,
             child: hasImage
@@ -189,11 +193,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildBody() {
     final List<Widget> pages = <Widget>[
-      _TestNotificationPage(),
-      _PlaceholderPage(title: 'Stores'),
-      _PlaceholderPage(title: 'User Books'),
-      _PlaceholderPage(title: 'Audio Book'),
-      _PlaceholderPage(title: 'Cart'),
+      const _HomeFeed(),
+      const _PlaceholderPage(title: 'Libraries'),
+      const _PlaceholderPage(title: 'User Books'),
+      const _PlaceholderPage(title: 'Audio Book'),
+      const _PlaceholderPage(title: 'Cart'),
     ];
 
     return AnimatedSwitcher(
@@ -226,8 +230,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-/// Test page for the notification bottom sheet widget.
-class _TestNotificationPage extends StatelessWidget {
+/// The main home feed matching the design in img_1.png.
+/// Uses local mock data only – no server side binding.
+class _HomeFeed extends StatelessWidget {
+  const _HomeFeed();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -242,105 +249,105 @@ class _TestNotificationPage extends StatelessWidget {
         ),
       ),
       child: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.spacing16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              // Animated search bar with rotating suggestions
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.spacing16),
-                child: AnimatedSearchBar(
-                  suggestions: const [
-                    'History',
-                    'Mathematics',
-                    'Humanity',
-                    'Science',
-                    'Artificial Intelligence',
-                    'Novels',
-                    'Programming',
-                  ],
+        child: CustomScrollView(
+          slivers: <Widget>[
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.spacing16,
+                ),
+                child: _HomeSearchBar(
                   onTap: () => context.goTo(RouteNames.search),
-                  backgroundColor: AppColors.card,
-                  textColor: AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: AppSpacing.spacing32),
-              // Rest of the test content
-              Padding(
-                padding: const EdgeInsets.all(AppSpacing.spacing24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    const FlutterLogo(size: 120),
-                    const SizedBox(height: AppSpacing.spacing24),
-                    Text(
-                      'Test Notification Widget',
-                      style: AppTextStyles.h4.copyWith(
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.spacing32),
-                    SizedBox(
-                      width: double.infinity,
-                      height: AppDimensions.onboardingButtonHeight,
-                      child: FilledButton.icon(
-                        onPressed: () => _showTestNotification(context),
-                        icon: const Icon(Icons.notification_add),
-                        label: const Text('Show Notification'),
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.spacing16),
-                    SizedBox(
-                      width: double.infinity,
-                      height: AppDimensions.onboardingButtonHeight,
-                      child: OutlinedButton.icon(
-                        onPressed: () => _showTestNotificationNoRoute(context),
-                        icon: const Icon(Icons.notifications_none),
-                        label: const Text('Show Without Button'),
-                      ),
-                    ),
-                  ],
-                ),
+            ),
+            const SliverToBoxAdapter(
+              child: SizedBox(height: AppSpacing.spacing24),
+            ),
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: AppSpacing.spacing16),
+                child: HomeBanner(),
               ),
-            ],
-          ),
+            ),
+            const SliverToBoxAdapter(
+              child: SizedBox(height: AppSpacing.spacing32),
+            ),
+            SliverToBoxAdapter(
+              child: HomeSection(
+                title: LocalizationConstants.homeRecommendedForYouKey.tr(),
+                totalSize: '3.5 KB',
+                books: recommendedBooks,
+              ),
+            ),
+            const SliverToBoxAdapter(
+              child: SizedBox(height: AppSpacing.spacing24),
+            ),
+            SliverToBoxAdapter(
+              child: HomeSection(
+                title: LocalizationConstants.homeNoteKey.tr(),
+                totalSize: '3.5 KB',
+                books: noteBooks,
+              ),
+            ),
+            const SliverToBoxAdapter(
+              child: SizedBox(height: AppSpacing.spacing24),
+            ),
+            SliverToBoxAdapter(
+              child: HomeSection(
+                title: LocalizationConstants.homeNoteKey.tr(),
+                totalSize: '3.5 KB',
+                books: noteBooks,
+              ),
+            ),
+            const SliverToBoxAdapter(
+              child: SizedBox(height: AppSpacing.spacing24),
+            ),
+          ],
         ),
       ),
     );
   }
+}
 
-  void _showTestNotification(BuildContext context) {
-    NotificationBottomSheet.show(
-      context,
-      image: Container(
-        width: 140,
-        height: 140,
+/// Simple pill-shaped search bar used on the home feed.
+class _HomeSearchBar extends StatelessWidget {
+  const _HomeSearchBar({this.onTap});
+
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 56,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.spacing18),
         decoration: BoxDecoration(
           color: AppColors.primary100,
-          borderRadius: BorderRadius.circular(AppRadius.radius20),
+          borderRadius: BorderRadius.circular(999),
         ),
-        child: const Center(
-          child: Icon(
-            Icons.emoji_events,
-            size: 72,
-            color: AppColors.primary600,
-          ),
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              child: Text(
+                LocalizationConstants.homeSearchHintKey.tr(),
+                style: AppTextStyles.bodyLarge.copyWith(
+                  color: AppColors.primary600,
+                  fontWeight: FontWeight.w600,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const Icon(
+              Icons.search,
+              color: AppColors.primary600,
+              size: 24,
+            ),
+          ],
         ),
       ),
-      title: '🎉 Congratulations!',
-      body:
-          'Amazing progress! You\'ve completed the first level of the Best Reader badge and unlocked the next challenge. Keep reading regularly to earn more achievements and climb to even higher levels.',
-      route: RouteNames.profile,
-      buttonLabel: 'See my Badges',
-    );
-  }
-
-  void _showTestNotificationNoRoute(BuildContext context) {
-    NotificationBottomSheet.show(
-      context,
-      title: 'New Update Available',
-      body: 'We have added some exciting new features. Check them out in the latest version!',
     );
   }
 }
@@ -395,5 +402,3 @@ class _PlaceholderPage extends StatelessWidget {
     );
   }
 }
-
-

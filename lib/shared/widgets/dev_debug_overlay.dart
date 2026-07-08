@@ -32,7 +32,7 @@ class DevDebugOverlay extends StatelessWidget {
 
     return SafeArea(
       child: Align(
-        alignment: AlignmentDirectional.topEnd,
+        alignment: AlignmentDirectional.bottomEnd,
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.spacing16),
           child: Material(

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/errors/error_mapper.dart';
+import '../../../../core/errors/error_response_model.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/network/http_helper.dart';
 import '../models/profile_model.dart';
@@ -29,14 +30,23 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
 
       throw const UnknownException(message: 'Invalid profile response.');
     } on DioException catch (error) {
-      final dynamic payload = error.response?.data;
-      if (payload is Map<String, dynamic>) {
-        throw ErrorMapper.map(payload);
-      }
-
-      throw UnknownException(
-        message: error.message ?? 'Unable to load profile.',
-      );
+      throw _mapDioException(error);
     }
+  }
+
+  AppException _mapDioException(DioException error) {
+    final Object? underlying = error.error;
+    if (underlying is AppException) {
+      return underlying;
+    }
+
+    final dynamic payload = error.response?.data;
+    if (payload is Map<String, dynamic>) {
+      return ErrorMapper.mapResponseToException(ErrorResponseModel.fromJson(payload));
+    }
+
+    return UnknownException(
+      message: error.message ?? 'Unable to load profile.',
+    );
   }
 }

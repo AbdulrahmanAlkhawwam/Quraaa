@@ -7,6 +7,7 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 import '../../../../config/routes/route_names.dart';
+import '../../../../core/connectivity/connectivity_ui_helper.dart';
 import '../../../../core/connectivity/offline_route_guard.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/error_monitoring/user_context_provider.dart';
@@ -50,6 +51,7 @@ class _RegisterViewState extends State<_RegisterView> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   PhoneNumber? _phoneNumber;
+  PhoneNumber? _initialPhoneNumber;
   bool _isPhoneValid = false;
   bool _obscurePassword = true;
 
@@ -72,6 +74,20 @@ class _RegisterViewState extends State<_RegisterView> {
     _passwordController.addListener(_onFieldChanged);
     unawaited(_authJourney.markRegisterSeen());
     unawaited(_loadOnboardingData());
+    unawaited(_loadLastPhoneNumber());
+  }
+
+  Future<void> _loadLastPhoneNumber() async {
+    final String? phone = await _authJourney.getLastPhoneNumber();
+    final String? isoCode = await _authJourney.getLastPhoneIsoCode();
+    if (!mounted) return;
+    if (phone != null && phone.isNotEmpty) {
+      _initialPhoneNumber = PhoneNumber(
+        phoneNumber: phone,
+        isoCode: isoCode ?? 'SY',
+      );
+      _phoneNumber = _initialPhoneNumber;
+    }
   }
 
   void _onFieldChanged() {
@@ -180,7 +196,7 @@ class _RegisterViewState extends State<_RegisterView> {
     await _authJourney.markGuestSession();
     await sl<UserContextProvider>().clearUser();
     if (!mounted) return;
-    await _navigatePostRegister(context, phoneNumber: null);
+    await _navigatePostAuth(context);
   }
 
   Future<void> _navigatePostRegister(
@@ -190,10 +206,33 @@ class _RegisterViewState extends State<_RegisterView> {
     context.goTo(RouteNames.otpVerification, extra: phoneNumber);
   }
 
+  Future<void> _navigatePostAuth(BuildContext context) async {
+    final bool locationSeen = await _authJourney.isLocationPermissionSeen();
+    if (!context.mounted) return;
+    if (locationSeen) {
+      final bool notificationSeen = await _authJourney
+          .isNotificationPermissionSeen();
+      if (!context.mounted) return;
+      if (notificationSeen) {
+        context.goTo(RouteNames.home);
+      } else {
+        context.goTo(RouteNames.notificationPermission);
+      }
+    } else {
+      context.goTo(RouteNames.locationPermission);
+    }
+  }
+
   Future<void> _submitRegistration() async {
     final bool isFormValid = _formKey.currentState?.validate() ?? false;
     if (!isFormValid || !_canSubmit) {
       unawaited(sl<UserContextProvider>().recordAction('Auth submit blocked'));
+      return;
+    }
+
+    final bool isOnline = await ensureOnline(context);
+    if (!isOnline) {
+      unawaited(sl<UserContextProvider>().recordAction('Auth submit offline'));
       return;
     }
 
@@ -207,6 +246,13 @@ class _RegisterViewState extends State<_RegisterView> {
         phoneNumber.phoneNumber?.trim() ?? _phoneController.text.trim();
 
     _lastSubmittedPhone = normalizedPhone;
+
+    await _authJourney.saveLastPhoneNumber(
+      normalizedPhone,
+      _phoneNumber?.isoCode ?? 'SY',
+    );
+
+    if (!mounted) return;
 
     context.read<AuthBloc>().add(
       AuthRegisterRequested(
@@ -309,7 +355,8 @@ class _RegisterViewState extends State<_RegisterView> {
                       type: MaterialType.transparency,
                       child: PhoneNumberInput(
                         controller: _phoneController,
-                        initialValue: PhoneNumber(isoCode: 'SY'),
+                        initialValue:
+                            _initialPhoneNumber ?? PhoneNumber(isoCode: 'SY'),
                         countries: const <String>[
                           'AE',
                           'BH',

@@ -56,8 +56,8 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
   }
 
   Future<void> _navigateNext(BuildContext context) async {
-    final bool notificationSeen =
-        await _authJourney.isNotificationPermissionSeen();
+    final bool notificationSeen = await _authJourney
+        .isNotificationPermissionSeen();
     if (!context.mounted) return;
     if (notificationSeen) {
       context.goTo(RouteNames.home);
@@ -69,6 +69,7 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
   @override
   Widget build(BuildContext context) {
     return AppLayout(
+      expandContent: true,
       cardColor: AppColors.card,
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.spacing24,
@@ -90,9 +91,7 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
                 height: AppDimensions.otpProgressHeight,
                 decoration: BoxDecoration(
                   color: AppColors.primary100,
-                  borderRadius: BorderRadius.circular(
-                    AppRadius.radius40,
-                  ),
+                  borderRadius: BorderRadius.circular(AppRadius.radius40),
                 ),
                 child: Row(
                   children: [
@@ -107,9 +106,7 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
                         ),
                       ),
                     ),
-                    const Expanded(
-                      child: SizedBox.shrink(),
-                    ),
+                    const Expanded(child: SizedBox.shrink()),
                   ],
                 ),
               ),
@@ -124,10 +121,7 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: AppColors.primary50,
-                border: Border.all(
-                  color: AppColors.primary200,
-                  width: 2,
-                ),
+                border: Border.all(color: AppColors.primary200, width: 2),
               ),
               child: Center(
                 child: HugeIcon(
@@ -142,9 +136,7 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
           Text(
             LocalizationConstants.authLocationTitleKey.tr(),
             textAlign: TextAlign.center,
-            style: AppTextStyles.h3.copyWith(
-              color: AppColors.libraryGreen,
-            ),
+            style: AppTextStyles.h3.copyWith(color: AppColors.libraryGreen),
           ),
           const SizedBox(height: AppSpacing.spacing16),
           Text(
@@ -173,17 +165,13 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
                 backgroundColor: AppColors.primary400,
                 foregroundColor: AppColors.card,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(
-                    AppRadius.radius32,
-                  ),
+                  borderRadius: BorderRadius.circular(AppRadius.radius32),
                 ),
                 textStyle: AppTextStyles.buttonMedium.copyWith(
                   color: AppColors.card,
                 ),
               ),
-              child: Text(
-                LocalizationConstants.authLocationAlwaysKey.tr(),
-              ),
+              child: Text(LocalizationConstants.authLocationAlwaysKey.tr()),
             ),
           ),
           const SizedBox(height: AppSpacing.spacing16),
@@ -191,9 +179,7 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
             height: AppDimensions.onboardingButtonHeight,
             child: OutlinedButton(
               onPressed: () => unawaited(_onMaybeLater()),
-              child: Text(
-                LocalizationConstants.authLocationMaybeLaterKey.tr(),
-              ),
+              child: Text(LocalizationConstants.authLocationMaybeLaterKey.tr()),
             ),
           ),
         ],

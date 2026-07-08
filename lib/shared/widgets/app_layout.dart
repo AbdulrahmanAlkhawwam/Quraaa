@@ -5,6 +5,7 @@ import '../theme/app_colors.dart';
 import 'app_image.dart';
 import '../theme/app_radius.dart';
 import '../theme/app_spacing.dart';
+import 'dev_debug_overlay.dart';
 
 class AppLayout extends StatelessWidget {
   const AppLayout({
@@ -20,6 +21,7 @@ class AppLayout extends StatelessWidget {
     ),
     this.resizeToAvoidBottomInset = true,
     this.expandContent = false,
+    this.floatingActionButton = const DevDebugOverlay(),
     super.key,
   });
 
@@ -30,6 +32,7 @@ class AppLayout extends StatelessWidget {
   final EdgeInsetsGeometry padding;
   final bool resizeToAvoidBottomInset;
   final bool expandContent;
+  final Widget? floatingActionButton;
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +51,7 @@ class AppLayout extends StatelessWidget {
 
     return Scaffold(
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+      floatingActionButton: floatingActionButton,
       body: SizedBox.expand(
         child: Stack(
           children: [

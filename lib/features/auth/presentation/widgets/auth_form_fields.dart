@@ -4,11 +4,7 @@ import '../../../../shared/shared.dart';
 
 /// A labeled field used on auth screens.
 class AuthLabeledField extends StatelessWidget {
-  const AuthLabeledField({
-    required this.label,
-    required this.child,
-    super.key,
-  });
+  const AuthLabeledField({required this.label, required this.child, super.key});
 
   final String label;
   final Widget child;
@@ -65,16 +61,11 @@ class AuthTextField extends StatelessWidget {
         textInputAction: textInputAction,
         obscureText: obscureText,
         textCapitalization: textCapitalization,
-        style: AppTextStyles.bodyLarge.copyWith(
-          color: AppColors.textPrimary,
-        ),
+        style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textPrimary),
         validator: validator,
         onFieldSubmitted: onSubmitted,
         autovalidateMode: autovalidateMode,
-        decoration: InputDecoration(
-          hintText: hintText,
-          suffixIcon: suffixIcon,
-        ),
+        decoration: InputDecoration(hintText: hintText, suffixIcon: suffixIcon),
       ),
     );
   }

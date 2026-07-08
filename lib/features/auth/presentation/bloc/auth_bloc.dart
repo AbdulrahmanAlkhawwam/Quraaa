@@ -44,16 +44,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(state.copyWith(status: AuthStatus.loading));
     final response = await _loginUseCase(
-      LoginParams(
-        phoneNumber: event.phoneNumber,
-        password: event.password,
-      ),
+      LoginParams(phoneNumber: event.phoneNumber, password: event.password),
     );
     await response.fold(
       (failure) async => emit(
         state.copyWith(
           status: AuthStatus.error,
-          error: failure,
+          error: failure.cause ?? failure.message,
         ),
       ),
       (user) async {
@@ -89,17 +86,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (failure) async => emit(
         state.copyWith(
           status: AuthStatus.error,
-          error: failure,
+          error: failure.cause ?? failure.message,
         ),
       ),
       (user) async {
         await _onAuthenticated(
           user,
           id: event.phoneNumber ?? '',
-          name: [event.firstName, event.lastName]
-              .whereType<String>()
-              .where((s) => s.isNotEmpty)
-              .join(' '),
+          name: [
+            event.firstName,
+            event.lastName,
+          ].whereType<String>().where((s) => s.isNotEmpty).join(' '),
           phone: event.phoneNumber,
         );
         emit(state.copyWith(status: AuthStatus.success));
@@ -107,10 +104,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  Future<void> _onStarted(
-    AuthStarted event,
-    Emitter<AuthState> emit,
-  ) async {
+  Future<void> _onStarted(AuthStarted event, Emitter<AuthState> emit) async {
     await _authJourney.markAuthSeen();
     emit(const AuthState());
   }
@@ -160,6 +154,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     await _authJourney.markAuthenticatedSession(
       accessToken: user.accessToken,
       refreshToken: user.refreshToken,
+      accessTokenExpiration: user.accessTokenExpiration,
     );
     await _userCache.saveUser(_toModel(user));
     await _userContext.setUser(

@@ -385,8 +385,6 @@ class _WheelColumn extends StatelessWidget {
                 item.toString(),
                 style: AppTextStyles.bodyLarge.copyWith(
                   color: AppColors.libraryGreen,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 22,
                 ),
               ),
             );

@@ -20,12 +20,15 @@ class HomeBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(AppSpacing.spacing24),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.spacing16,
+        vertical: AppSpacing.spacing12,
+      ),
       child: Container(
         height: 64,
         padding: const EdgeInsets.all(AppSpacing.spacing8),
         decoration: BoxDecoration(
-          color: AppColors.primary100,
+          color: AppColors.primary600,
           borderRadius: BorderRadius.circular(AppRadius.radius40),
         ),
         child: SafeArea(
@@ -50,7 +53,7 @@ class HomeBottomNav extends StatelessWidget {
                 child: _NavItem(
                   icon: HugeIcons.strokeRoundedStore04,
                   activeIcon: HugeIcons.strokeRoundedStore01,
-                  label: 'Stores',
+                  label: 'Libraries',
                   isActive: currentIndex == 1,
                   onTap: () => onTap(1),
                 ),
@@ -162,6 +165,7 @@ class _NavItem extends StatelessWidget {
                         label,
                         style: context.textTheme.bodyMedium?.copyWith(
                           color: AppColors.primary600,
+                          fontWeight: FontWeight.w700,
                         ),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
