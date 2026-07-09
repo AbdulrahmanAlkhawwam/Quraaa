@@ -12,7 +12,7 @@ import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import '../../../../shared/widgets/onboarding_progress_indicator.dart';
-import '../../../auth/data/datasources/auth_local_datasource.dart';
+import '../../../auth/auth.dart';
 import '../../domain/entities/gender_selection.dart';
 import '../bloc/onboarding_bloc.dart';
 
@@ -24,18 +24,29 @@ class GenderOnboardingPage extends StatefulWidget {
 }
 
 class _GenderOnboardingPageState extends State<GenderOnboardingPage> {
-  final AuthLocalDataSource _authJourney = sl<AuthLocalDataSource>();
+  late final AuthJourneyCubit _journeyCubit = sl<AuthJourneyCubit>();
 
   @override
   void initState() {
     super.initState();
-    unawaited(_authJourney.saveJourneyStage(AuthJourneyStage.onboarding));
+    unawaited(_journeyCubit.enterOnboarding());
+  }
+
+  @override
+  void dispose() {
+    _journeyCubit.close();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<OnboardingBloc>(
-      create: (_) => sl<OnboardingBloc>()..add(const OnboardingStarted()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<OnboardingBloc>(
+          create: (_) => sl<OnboardingBloc>()..add(const OnboardingStarted()),
+        ),
+        BlocProvider<AuthJourneyCubit>.value(value: _journeyCubit),
+      ],
       child: BlocListener<OnboardingBloc, OnboardingState>(
         listenWhen: (previous, current) => current.navigationTarget != null,
         listener: (context, state) {
@@ -61,7 +72,9 @@ class _GenderOnboardingPageState extends State<GenderOnboardingPage> {
             listener: (context, state) {
               final msg = state.errorMessage;
               if (msg != null) {
-                context.showResolvedErrorSnackBar(msg);
+                context.showErrorSnackBar(
+                  message: Message(title: '', value: msg.tr()),
+                );
               }
             },
             child: const _GenderOnboardingView(),
@@ -109,10 +122,9 @@ class _GenderOnboardingView extends StatelessWidget {
                     leading: IconButton(
                       onPressed: () {
                         unawaited(
-                          sl<AuthLocalDataSource>().saveJourneyStage(
-                            AuthJourneyStage.auth,
-                            previousStage: AuthJourneyStage.onboarding,
-                          ),
+                          context
+                              .read<AuthJourneyCubit>()
+                              .moveFromOnboardingToAuth(),
                         );
                         context.goTo(RouteNames.auth);
                       },
@@ -131,10 +143,9 @@ class _GenderOnboardingView extends StatelessWidget {
                         child: TextButton(
                           onPressed: () {
                             unawaited(
-                              sl<AuthLocalDataSource>().saveJourneyStage(
-                                AuthJourneyStage.register,
-                                previousStage: AuthJourneyStage.onboarding,
-                              ),
+                              context
+                                  .read<AuthJourneyCubit>()
+                                  .moveFromOnboardingToRegister(),
                             );
                             context.read<OnboardingBloc>().add(
                               const OnboardingSkipRequested(),
@@ -275,6 +286,7 @@ class _GenderCard extends StatelessWidget {
   final String label;
   final bool selected;
   final VoidCallback? onTap;
+
 
   @override
   Widget build(BuildContext context) {

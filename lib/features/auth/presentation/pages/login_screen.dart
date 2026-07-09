@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,11 +7,9 @@ import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import '../../../../config/routes/route_names.dart';
 import '../../../../core/connectivity/connectivity_ui_helper.dart';
 import '../../../../core/di/injection_container.dart';
-import '../../../../core/error_monitoring/user_context_provider.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import '../../../../shared/widgets/phone_number_input.dart';
-import '../../data/datasources/auth_local_datasource.dart';
 import '../bloc/auth_bloc.dart';
 import '../widgets/auth_form_fields.dart';
 
@@ -37,7 +33,6 @@ class _LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<_LoginView> {
-  final AuthLocalDataSource _authJourney = sl<AuthLocalDataSource>();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -49,21 +44,7 @@ class _LoginViewState extends State<_LoginView> {
   @override
   void initState() {
     super.initState();
-    unawaited(_authJourney.markLoginSeen());
-    unawaited(_loadLastPhoneNumber());
-  }
-
-  Future<void> _loadLastPhoneNumber() async {
-    final String? phone = await _authJourney.getLastPhoneNumber();
-    final String? isoCode = await _authJourney.getLastPhoneIsoCode();
-    if (!mounted) return;
-    if (phone != null && phone.isNotEmpty) {
-      _initialPhoneNumber = PhoneNumber(
-        phoneNumber: phone,
-        isoCode: isoCode ?? 'SY',
-      );
-      _phoneNumber = _initialPhoneNumber;
-    }
+    context.read<AuthBloc>().add(const AuthLoginScreenStarted());
   }
 
   @override
@@ -76,13 +57,17 @@ class _LoginViewState extends State<_LoginView> {
   Future<void> _continueAsUser() async {
     final bool isValid = _formKey.currentState?.validate() ?? false;
     if (!isValid) {
-      unawaited(sl<UserContextProvider>().recordAction('Auth submit blocked'));
+      context.read<AuthBloc>().add(
+        const AuthActionTracked('Auth submit blocked'),
+      );
       return;
     }
 
     final bool isOnline = await ensureOnline(context);
     if (!isOnline) {
-      unawaited(sl<UserContextProvider>().recordAction('Auth submit offline'));
+      context.read<AuthBloc>().add(
+        const AuthActionTracked('Auth submit offline'),
+      );
       return;
     }
 
@@ -90,11 +75,8 @@ class _LoginViewState extends State<_LoginView> {
     final String normalizedPhone =
         phoneNumber.phoneNumber?.trim() ?? _phoneController.text.trim();
 
-    unawaited(sl<UserContextProvider>().recordAction('Auth submit with data'));
-
-    await _authJourney.saveLastPhoneNumber(
-      normalizedPhone,
-      _phoneNumber?.isoCode ?? 'SY',
+    context.read<AuthBloc>().add(
+      const AuthActionTracked('Auth submit with data'),
     );
 
     if (!mounted) return;
@@ -103,47 +85,45 @@ class _LoginViewState extends State<_LoginView> {
       AuthLoginRequested(
         phoneNumber: normalizedPhone,
         password: _passwordController.text,
+        phoneIsoCode: _phoneNumber?.isoCode ?? 'SY',
       ),
     );
   }
 
-  Future<void> _continueAsGuest() async {
-    await _authJourney.markGuestSession();
-    await sl<UserContextProvider>().clearUser();
-    if (!mounted) return;
-    await _navigatePostAuth(context);
+  void _continueAsGuest() {
+    context.read<AuthBloc>().add(const AuthGuestRequested());
   }
 
-  Future<void> _navigatePostAuth(BuildContext context) async {
-    final bool locationSeen = await _authJourney.isLocationPermissionSeen();
-    if (!context.mounted) return;
-    if (locationSeen) {
-      final bool notificationSeen = await _authJourney
-          .isNotificationPermissionSeen();
-      if (!context.mounted) return;
-      if (notificationSeen) {
-        context.goTo(RouteNames.home);
-      } else {
-        context.goTo(RouteNames.notificationPermission);
+  void _onAuthStateChanged(BuildContext context, AuthState state) {
+    final String? savedPhone = state.savedPhoneNumber;
+    if (savedPhone != null && savedPhone.isNotEmpty) {
+      final PhoneNumber phoneNumber = PhoneNumber(
+        phoneNumber: savedPhone,
+        isoCode: state.savedPhoneIsoCode ?? 'SY',
+      );
+      if (_initialPhoneNumber?.phoneNumber != phoneNumber.phoneNumber) {
+        setState(() {
+          _initialPhoneNumber = phoneNumber;
+          _phoneNumber = phoneNumber;
+        });
       }
-    } else {
-      context.goTo(RouteNames.locationPermission);
+    }
+
+    final String? nextRoute = state.nextRoute;
+    if (state.navigationSerial > 0 && nextRoute != null) {
+      context.goTo(nextRoute, extra: state.routeExtra);
+      return;
+    }
+
+    if (state.status == AuthStatus.error) {
+      context.showResolvedErrorSnackBar(state.error);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
-      listener: (BuildContext context, AuthState state) {
-        switch (state.status) {
-          case AuthStatus.success:
-            unawaited(_navigatePostAuth(context));
-          case AuthStatus.error:
-            context.showResolvedErrorSnackBar(state.error);
-          case _:
-            break;
-        }
-      },
+      listener: _onAuthStateChanged,
       child: PopScope(
         canPop: false,
         child: Form(
@@ -225,10 +205,8 @@ class _LoginViewState extends State<_LoginView> {
                     alignment: AlignmentDirectional.centerEnd,
                     child: TextButton(
                       onPressed: () {
-                        unawaited(
-                          sl<UserContextProvider>().recordAction(
-                            'Auth forgot password button',
-                          ),
+                        context.read<AuthBloc>().add(
+                          const AuthActionTracked('Auth forgot password button'),
                         );
                         context.goTo(RouteNames.forgotPassword);
                       },
@@ -250,10 +228,8 @@ class _LoginViewState extends State<_LoginView> {
                           onPressed: state.status == AuthStatus.loading
                               ? null
                               : () {
-                                  unawaited(
-                                    sl<UserContextProvider>().recordAction(
-                                      'Auth primary button',
-                                    ),
+                                  context.read<AuthBloc>().add(
+                                    const AuthActionTracked('Auth primary button'),
                                   );
                                   _continueAsUser();
                                 },
@@ -280,10 +256,8 @@ class _LoginViewState extends State<_LoginView> {
                           onPressed: state.status == AuthStatus.loading
                               ? null
                               : () {
-                                  unawaited(
-                                    sl<UserContextProvider>().recordAction(
-                                      'Auth secondary button',
-                                    ),
+                                  context.read<AuthBloc>().add(
+                                    const AuthActionTracked('Auth secondary button'),
                                   );
                                   _continueAsGuest();
                                 },
@@ -297,10 +271,8 @@ class _LoginViewState extends State<_LoginView> {
                   const SizedBox(height: AppSpacing.spacing16),
                   TextButton(
                     onPressed: () {
-                      unawaited(
-                        sl<UserContextProvider>().recordAction(
-                          'Auth create new account button',
-                        ),
+                      context.read<AuthBloc>().add(
+                        const AuthActionTracked('Auth create new account button'),
                       );
                       context.goTo(RouteNames.register);
                     },

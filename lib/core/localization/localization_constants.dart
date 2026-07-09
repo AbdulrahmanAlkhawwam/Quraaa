@@ -3,6 +3,7 @@ class LocalizationConstants {
 
   static const String translationsPath = 'assets/translations';
   static const String appNameKey = 'app.name';
+  static const String homeGreetingKey = 'home.greeting';
   static const String homeBestSellersKey = 'home.best_sellers';
   static const String homeRecommendedForYouKey = 'home.recommended_for_you';
   static const String homeNoteKey = 'home.note';
@@ -104,6 +105,15 @@ class LocalizationConstants {
       'onboarding.interests.title';
   static const String onboardingInterestsEmptyKey =
       'onboarding.interests.empty';
+  static const String onboardingLoadErrorKey = 'onboarding.errors.load';
+  static const String onboardingSaveBirthDateErrorKey =
+      'onboarding.errors.save_birth_date';
+  static const String onboardingSaveGenderErrorKey =
+      'onboarding.errors.save_gender';
+  static const String onboardingSaveCategoriesErrorKey =
+      'onboarding.errors.save_categories';
+  static const String onboardingCompleteErrorKey =
+      'onboarding.errors.complete';
   static const String onboardingInterestSpaceScienceKey =
       'onboarding.interests.space_science';
   static const String onboardingInterestGeographyKey =
@@ -443,8 +453,6 @@ class LocalizationConstants {
   static const String errorsNoInternetTitleKey = 'errors.no_internet.title';
   static const String errorsNoInternetMessageKey = 'errors.no_internet.message';
   static const String errorsUnknownMessageKey = 'errors.unknown.message';
-  static const String subscriptionPlanPremiumKey =
-      'subscription.plans.premium';
 
   // Settings feature keys.
   static const String settingsTitleKey = 'settings.title';

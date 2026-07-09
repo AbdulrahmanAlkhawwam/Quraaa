@@ -1,20 +1,16 @@
-import 'dart:async';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pinput/pinput.dart';
 
 import '../../../../config/routes/route_names.dart';
-import '../../../../core/architecture/result.dart';
 import '../../../../core/connectivity/connectivity_ui_helper.dart';
 import '../../../../core/connectivity/offline_route_guard.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
-import '../../data/datasources/auth_local_datasource.dart';
-import '../../domain/entities/user.dart';
-import '../../domain/use_cases/verify_otp_use_case.dart';
+import '../bloc/auth_recovery_cubit.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   const OtpVerificationScreen({super.key, this.phoneNumber});
@@ -26,13 +22,9 @@ class OtpVerificationScreen extends StatefulWidget {
 }
 
 class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
-  final AuthLocalDataSource _authJourney = sl<AuthLocalDataSource>();
-  final VerifyOtpUseCase _verifyOtpUseCase = sl<VerifyOtpUseCase>();
+  late final AuthRecoveryCubit _recoveryCubit = sl<AuthRecoveryCubit>();
   final TextEditingController _otpController = TextEditingController();
   final FocusNode _otpFocusNode = FocusNode();
-  bool _isVerifying = false;
-  int _resendCountdown = 0;
-  Timer? _resendTimer;
 
   late final PinTheme _defaultPinTheme;
   late final PinTheme _focusedPinTheme;
@@ -76,200 +68,217 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     _otpController.removeListener(_onOtpChanged);
     _otpController.dispose();
     _otpFocusNode.dispose();
-    _resendTimer?.cancel();
+    _recoveryCubit.close();
     super.dispose();
   }
 
   void _onOtpChanged() {
-    if (_otpController.text.length == 6 && !_isVerifying) {
+    if (_otpController.text.length == 6 && !_recoveryCubit.state.isLoading) {
       _verifyOtp();
     }
-    setState(() {});
   }
 
   Future<void> _verifyOtp() async {
-    if (_isVerifying) return;
+    if (_recoveryCubit.state.isLoading) return;
 
     final bool isOnline = await ensureOnline(context);
     if (!isOnline) return;
 
-    setState(() => _isVerifying = true);
-
-    final String phone = widget.phoneNumber ?? '';
-    final String code = _otpController.text.trim();
-
-    final Result<User> result = await _verifyOtpUseCase(
-      VerifyOtpParams(phoneNumber: phone, code: code),
-    );
-
-    if (!mounted) return;
-    setState(() => _isVerifying = false);
-
-    await result.fold(
-      (failure) async {
-        if (!mounted) return;
-        context.showResolvedErrorSnackBar(failure);
-      },
-      (User user) async {
-        await _authJourney.markAuthenticatedSession(
-          accessToken: user.accessToken,
-          refreshToken: user.refreshToken,
-          accessTokenExpiration: user.accessTokenExpiration,
-        );
-        if (!mounted) return;
-        context.goTo(RouteNames.home);
-      },
+    await _recoveryCubit.verifyOtp(
+      phoneNumber: widget.phoneNumber ?? '',
+      code: _otpController.text.trim(),
     );
   }
 
   Future<void> _onResend() async {
-    if (_resendCountdown > 0) return;
+    if (!_recoveryCubit.state.canResendOtp) return;
 
     final bool isOnline = await ensureOnline(context);
     if (!isOnline) return;
 
     HapticFeedback.mediumImpact();
     _otpController.clear();
-    setState(() => _resendCountdown = 60);
     _otpFocusNode.requestFocus();
-
-    _resendTimer?.cancel();
-    _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-      setState(() => _resendCountdown--);
-      if (_resendCountdown <= 0) {
-        timer.cancel();
-      }
-    });
+    _recoveryCubit.startOtpResendCountdown();
   }
 
   void _onNumberIsWrong() {
     context.goTo(RouteNames.register);
   }
 
+  void _onRecoveryStateChanged(BuildContext context, AuthRecoveryState state) {
+    if (state.status == AuthRecoveryStatus.failure) {
+      context.showResolvedErrorSnackBar(state.error);
+      return;
+    }
+
+    if (state.status == AuthRecoveryStatus.navigate && state.nextRoute != null) {
+      context.goTo(state.nextRoute!, extra: state.routeExtra);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return OfflineRouteGuard(
-      child: AppLayout(
-        resizeToAvoidBottomInset: true,
-        expandContent: true,
-        header: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.spacing16,
-            vertical: AppSpacing.spacing8,
-          ),
-          child: Row(
-            children: [
-              IconButton(
-                onPressed: () => context.back(),
-                icon: const Icon(Icons.arrow_back_ios, color: AppColors.card),
+    return BlocProvider<AuthRecoveryCubit>.value(
+      value: _recoveryCubit,
+      child: BlocListener<AuthRecoveryCubit, AuthRecoveryState>(
+        listenWhen: (AuthRecoveryState previous, AuthRecoveryState current) =>
+            previous.status != current.status ||
+            previous.navigationSerial != current.navigationSerial,
+        listener: _onRecoveryStateChanged,
+        child: OfflineRouteGuard(
+          child: AppLayout(
+            resizeToAvoidBottomInset: true,
+            expandContent: true,
+            header: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.spacing16,
+                vertical: AppSpacing.spacing8,
               ),
-              Expanded(
-                child: Text(
-                  LocalizationConstants.authOtpTitleKey.tr(),
-                  textAlign: TextAlign.center,
-                  style: AppTextStyles.h3.copyWith(color: AppColors.card),
-                ),
-              ),
-              const SizedBox(width: AppSpacing.spacing48),
-            ],
-          ),
-        ),
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.spacing24,
-          AppSpacing.spacing32,
-          AppSpacing.spacing24,
-          AppSpacing.spacing24,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              LocalizationConstants.authOtpDescriptionKey.tr(
-                namedArgs: {'phone': '+$_displayPhoneNumber'},
-              ),
-              textAlign: TextAlign.center,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textTertiary,
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: () => context.back(),
+                    icon: const Icon(
+                      Icons.arrow_back_ios,
+                      color: AppColors.card,
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      LocalizationConstants.authOtpTitleKey.tr(),
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.h3.copyWith(
+                        color: AppColors.card,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.spacing48),
+                ],
               ),
             ),
-            const SizedBox(height: AppSpacing.spacing32),
-            AutofillGroup(
-              child: Center(
-                child: Pinput(
-                  controller: _otpController,
-                  focusNode: _otpFocusNode,
-                  length: 6,
-                  keyboardType: TextInputType.number,
-                  defaultPinTheme: _defaultPinTheme,
-                  focusedPinTheme: _focusedPinTheme,
-                  submittedPinTheme: _submittedPinTheme,
-                  autofocus: true,
-                  showCursor: true,
-                  onCompleted: (_) => _verifyOtp(),
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
-                ),
-              ),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.spacing24,
+              AppSpacing.spacing32,
+              AppSpacing.spacing24,
+              AppSpacing.spacing24,
             ),
-            Expanded(
-              child: Center(
-                child: _isVerifying
-                    ? const SizedBox(
-                        width: 32,
-                        height: 32,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 3,
-                          color: AppColors.leafGreen,
-                        ),
-                      )
-                    : const SizedBox.shrink(),
-              ),
-            ),
-            Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(
-                  child: SizedBox(
-                    height: AppDimensions.onboardingButtonHeight,
-                    child: OutlinedButton(
-                      onPressed: _onNumberIsWrong,
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppColors.primary200),
-                        foregroundColor: AppColors.libraryGreen,
-                      ),
-                      child: Text(
-                        LocalizationConstants.authOtpNumberIsWrongKey.tr(),
-                      ),
+                Text(
+                  LocalizationConstants.authOtpDescriptionKey.tr(
+                    namedArgs: {'phone': '+$_displayPhoneNumber'},
+                  ),
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textTertiary,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.spacing32),
+                AutofillGroup(
+                  child: Center(
+                    child: Pinput(
+                      controller: _otpController,
+                      focusNode: _otpFocusNode,
+                      length: 6,
+                      keyboardType: TextInputType.number,
+                      defaultPinTheme: _defaultPinTheme,
+                      focusedPinTheme: _focusedPinTheme,
+                      submittedPinTheme: _submittedPinTheme,
+                      autofocus: true,
+                      showCursor: true,
+                      onCompleted: (_) => _verifyOtp(),
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
                     ),
                   ),
                 ),
-                const SizedBox(width: AppSpacing.spacing16),
                 Expanded(
-                  child: SizedBox(
-                    height: AppDimensions.onboardingButtonHeight,
-                    child: FilledButton(
-                      onPressed: _resendCountdown > 0
-                          ? null
-                          : () => unawaited(_onResend()),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: AppColors.leafGreen,
-                        foregroundColor: AppColors.card,
-                      ),
-                      child: Text(
-                        _resendCountdown > 0
-                            ? LocalizationConstants.authOtpResendCountdownKey
-                                  .tr(namedArgs: {'count': '$_resendCountdown'})
-                            : LocalizationConstants.authOtpResendKey.tr(),
-                      ),
+                  child: Center(
+                    child: BlocBuilder<AuthRecoveryCubit, AuthRecoveryState>(
+                      buildWhen: (
+                        AuthRecoveryState previous,
+                        AuthRecoveryState current,
+                      ) => previous.status != current.status,
+                      builder: (
+                        BuildContext context,
+                        AuthRecoveryState state,
+                      ) {
+                        return state.isLoading
+                            ? const SizedBox(
+                                width: 32,
+                                height: 32,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 3,
+                                  color: AppColors.leafGreen,
+                                ),
+                              )
+                            : const SizedBox.shrink();
+                      },
                     ),
                   ),
+                ),
+                BlocBuilder<AuthRecoveryCubit, AuthRecoveryState>(
+                  buildWhen: (
+                    AuthRecoveryState previous,
+                    AuthRecoveryState current,
+                  ) => previous.resendCountdown != current.resendCountdown,
+                  builder: (BuildContext context, AuthRecoveryState state) {
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: SizedBox(
+                            height: AppDimensions.onboardingButtonHeight,
+                            child: OutlinedButton(
+                              onPressed: _onNumberIsWrong,
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(
+                                  color: AppColors.primary200,
+                                ),
+                                foregroundColor: AppColors.libraryGreen,
+                              ),
+                              child: Text(
+                                LocalizationConstants
+                                    .authOtpNumberIsWrongKey
+                                    .tr(),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.spacing16),
+                        Expanded(
+                          child: SizedBox(
+                            height: AppDimensions.onboardingButtonHeight,
+                            child: FilledButton(
+                              onPressed: state.canResendOtp ? _onResend : null,
+                              style: FilledButton.styleFrom(
+                                backgroundColor: AppColors.leafGreen,
+                                foregroundColor: AppColors.card,
+                              ),
+                              child: Text(
+                                state.resendCountdown > 0
+                                    ? LocalizationConstants
+                                          .authOtpResendCountdownKey
+                                          .tr(
+                                            namedArgs: {
+                                              'count':
+                                                  '${state.resendCountdown}',
+                                            },
+                                          )
+                                    : LocalizationConstants.authOtpResendKey
+                                          .tr(),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ],
             ),
-          ],
+          ),
         ),
       ),
     );

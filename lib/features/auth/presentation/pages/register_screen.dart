@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,17 +8,13 @@ import '../../../../config/routes/route_names.dart';
 import '../../../../core/connectivity/connectivity_ui_helper.dart';
 import '../../../../core/connectivity/offline_route_guard.dart';
 import '../../../../core/di/injection_container.dart';
-import '../../../../core/error_monitoring/user_context_provider.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../shared/shared.dart';
 import '../../../../shared/widgets/phone_number_input.dart';
-import '../../../onboarding/domain/entities/category.dart';
-import '../../../onboarding/domain/entities/gender_selection.dart';
-import '../../../onboarding/domain/entities/onboarding_draft.dart';
-import '../../../onboarding/domain/repositories/onboarding_repository.dart';
-import '../../data/datasources/auth_local_datasource.dart';
+import '../../../onboarding/onboarding.dart';
 import '../bloc/auth_bloc.dart';
+import '../bloc/auth_registration_cubit.dart';
 import '../widgets/auth_form_fields.dart';
 
 class RegisterScreen extends StatelessWidget {
@@ -28,8 +22,13 @@ class RegisterScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<AuthBloc>(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<AuthBloc>(create: (_) => sl<AuthBloc>()),
+        BlocProvider<AuthRegistrationCubit>(
+          create: (_) => sl<AuthRegistrationCubit>()..load(),
+        ),
+      ],
       child: const OfflineRouteGuard(child: _RegisterView()),
     );
   }
@@ -43,8 +42,6 @@ class _RegisterView extends StatefulWidget {
 }
 
 class _RegisterViewState extends State<_RegisterView> {
-  final AuthLocalDataSource _authJourney = sl<AuthLocalDataSource>();
-  final OnboardingRepository _onboardingRepository = sl<OnboardingRepository>();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
@@ -63,8 +60,6 @@ class _RegisterViewState extends State<_RegisterView> {
   List<String> _selectedCategoryIds = const <String>[];
   List<String> _validCategoryIds = const <String>[];
 
-  String? _lastSubmittedPhone;
-
   @override
   void initState() {
     super.initState();
@@ -72,49 +67,11 @@ class _RegisterViewState extends State<_RegisterView> {
     _lastNameController.addListener(_onFieldChanged);
     _phoneController.addListener(_onFieldChanged);
     _passwordController.addListener(_onFieldChanged);
-    unawaited(_authJourney.markRegisterSeen());
-    unawaited(_loadOnboardingData());
-    unawaited(_loadLastPhoneNumber());
-  }
-
-  Future<void> _loadLastPhoneNumber() async {
-    final String? phone = await _authJourney.getLastPhoneNumber();
-    final String? isoCode = await _authJourney.getLastPhoneIsoCode();
-    if (!mounted) return;
-    if (phone != null && phone.isNotEmpty) {
-      _initialPhoneNumber = PhoneNumber(
-        phoneNumber: phone,
-        isoCode: isoCode ?? 'SY',
-      );
-      _phoneNumber = _initialPhoneNumber;
-    }
+    context.read<AuthBloc>().add(const AuthRegisterScreenStarted());
   }
 
   void _onFieldChanged() {
     if (mounted) setState(() {});
-  }
-
-  Future<void> _loadOnboardingData() async {
-    try {
-      final OnboardingDraft draft = await _onboardingRepository.loadState();
-      final List<Category> categories = await _onboardingRepository
-          .getCategories();
-      if (!mounted) return;
-      setState(() {
-        _selectedGender = draft.selectedGender;
-        _birthYear = draft.birthYear;
-        _birthMonth = draft.birthMonth;
-        _birthDay = draft.birthDay;
-        _selectedCategoryIds = draft.selectedCategoryIds ?? const <String>[];
-        _validCategoryIds = categories.map((Category c) => c.id).toList();
-        _isLoadingOnboarding = false;
-      });
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _isLoadingOnboarding = false;
-      });
-    }
   }
 
   @override
@@ -192,51 +149,47 @@ class _RegisterViewState extends State<_RegisterView> {
         _interestsError == null;
   }
 
-  Future<void> _continueAsGuest() async {
-    await _authJourney.markGuestSession();
-    await sl<UserContextProvider>().clearUser();
+  void _continueAsGuest() {
+    context.read<AuthBloc>().add(const AuthGuestRequested());
+  }
+
+  void _onRegistrationStateChanged(
+    BuildContext context,
+    AuthRegistrationState state,
+  ) {
     if (!mounted) return;
-    await _navigatePostAuth(context);
-  }
-
-  Future<void> _navigatePostRegister(
-    BuildContext context, {
-    String? phoneNumber,
-  }) async {
-    context.goTo(RouteNames.otpVerification, extra: phoneNumber);
-  }
-
-  Future<void> _navigatePostAuth(BuildContext context) async {
-    final bool locationSeen = await _authJourney.isLocationPermissionSeen();
-    if (!context.mounted) return;
-    if (locationSeen) {
-      final bool notificationSeen = await _authJourney
-          .isNotificationPermissionSeen();
-      if (!context.mounted) return;
-      if (notificationSeen) {
-        context.goTo(RouteNames.home);
-      } else {
-        context.goTo(RouteNames.notificationPermission);
-      }
-    } else {
-      context.goTo(RouteNames.locationPermission);
-    }
+    setState(() {
+      _isLoadingOnboarding =
+          state.isLoading || state.status == AuthRegistrationStatus.initial;
+      _selectedGender = state.selectedGender;
+      _birthYear = state.birthYear;
+      _birthMonth = state.birthMonth;
+      _birthDay = state.birthDay;
+      _selectedCategoryIds = state.selectedCategoryIds;
+      _validCategoryIds = state.validCategoryIds;
+    });
   }
 
   Future<void> _submitRegistration() async {
     final bool isFormValid = _formKey.currentState?.validate() ?? false;
     if (!isFormValid || !_canSubmit) {
-      unawaited(sl<UserContextProvider>().recordAction('Auth submit blocked'));
+      context.read<AuthBloc>().add(
+        const AuthActionTracked('Auth submit blocked'),
+      );
       return;
     }
 
     final bool isOnline = await ensureOnline(context);
     if (!isOnline) {
-      unawaited(sl<UserContextProvider>().recordAction('Auth submit offline'));
+      context.read<AuthBloc>().add(
+        const AuthActionTracked('Auth submit offline'),
+      );
       return;
     }
 
-    unawaited(sl<UserContextProvider>().recordAction('Auth submit with data'));
+    context.read<AuthBloc>().add(
+      const AuthActionTracked('Auth submit with data'),
+    );
 
     final String formattedDateOfBirth =
         '${_birthYear.toString().padLeft(4, '0')}-${_birthMonth.toString().padLeft(2, '0')}-${_birthDay.toString().padLeft(2, '0')}';
@@ -245,13 +198,6 @@ class _RegisterViewState extends State<_RegisterView> {
     final String normalizedPhone =
         phoneNumber.phoneNumber?.trim() ?? _phoneController.text.trim();
 
-    _lastSubmittedPhone = normalizedPhone;
-
-    await _authJourney.saveLastPhoneNumber(
-      normalizedPhone,
-      _phoneNumber?.isoCode ?? 'SY',
-    );
-
     if (!mounted) return;
 
     context.read<AuthBloc>().add(
@@ -259,6 +205,7 @@ class _RegisterViewState extends State<_RegisterView> {
         firstName: _firstNameController.text.trim(),
         lastName: _lastNameController.text.trim(),
         phoneNumber: normalizedPhone,
+        phoneIsoCode: _phoneNumber?.isoCode ?? 'SY',
         password: _passwordController.text,
         gender: _genderToApiValue(_selectedGender!),
         dateOfBirth: formattedDateOfBirth,
@@ -274,22 +221,39 @@ class _RegisterViewState extends State<_RegisterView> {
     };
   }
 
+  void _onAuthStateChanged(BuildContext context, AuthState state) {
+    final String? savedPhone = state.savedPhoneNumber;
+    if (savedPhone != null && savedPhone.isNotEmpty) {
+      final PhoneNumber phoneNumber = PhoneNumber(
+        phoneNumber: savedPhone,
+        isoCode: state.savedPhoneIsoCode ?? 'SY',
+      );
+      if (_initialPhoneNumber?.phoneNumber != phoneNumber.phoneNumber) {
+        setState(() {
+          _initialPhoneNumber = phoneNumber;
+          _phoneNumber = phoneNumber;
+        });
+      }
+    }
+
+    final String? nextRoute = state.nextRoute;
+    if (state.navigationSerial > 0 && nextRoute != null) {
+      context.goTo(nextRoute, extra: state.routeExtra);
+      return;
+    }
+
+    if (state.status == AuthStatus.error) {
+      context.showResolvedErrorSnackBar(state.error);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthState>(
-      listener: (BuildContext context, AuthState state) {
-        switch (state.status) {
-          case AuthStatus.success:
-            unawaited(
-              _navigatePostRegister(context, phoneNumber: _lastSubmittedPhone),
-            );
-          case AuthStatus.error:
-            context.showResolvedErrorSnackBar(state.error);
-          case _:
-            break;
-        }
-      },
-      child: PopScope(
+    return BlocListener<AuthRegistrationCubit, AuthRegistrationState>(
+      listener: _onRegistrationStateChanged,
+      child: BlocListener<AuthBloc, AuthState>(
+        listener: _onAuthStateChanged,
+        child: PopScope(
         canPop: false,
         child: Form(
           key: _formKey,
@@ -453,10 +417,8 @@ class _RegisterViewState extends State<_RegisterView> {
                               state.status == AuthStatus.loading || !_canSubmit
                               ? null
                               : () {
-                                  unawaited(
-                                    sl<UserContextProvider>().recordAction(
-                                      'Auth primary button',
-                                    ),
+                                  context.read<AuthBloc>().add(
+                                    const AuthActionTracked('Auth primary button'),
                                   );
                                   _submitRegistration();
                                 },
@@ -483,10 +445,8 @@ class _RegisterViewState extends State<_RegisterView> {
                           onPressed: state.status == AuthStatus.loading
                               ? null
                               : () {
-                                  unawaited(
-                                    sl<UserContextProvider>().recordAction(
-                                      'Auth secondary button',
-                                    ),
+                                  context.read<AuthBloc>().add(
+                                    const AuthActionTracked('Auth secondary button'),
                                   );
                                   _continueAsGuest();
                                 },
@@ -500,10 +460,8 @@ class _RegisterViewState extends State<_RegisterView> {
                   const SizedBox(height: AppSpacing.spacing16),
                   TextButton(
                     onPressed: () {
-                      unawaited(
-                        sl<UserContextProvider>().recordAction(
-                          'Auth already have account button',
-                        ),
+                      context.read<AuthBloc>().add(
+                        const AuthActionTracked('Auth already have account button'),
                       );
                       context.goTo(RouteNames.login);
                     },
@@ -519,7 +477,8 @@ class _RegisterViewState extends State<_RegisterView> {
           ),
         ),
       ),
-    );
+    ),
+  );
   }
 }
 

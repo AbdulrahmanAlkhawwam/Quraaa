@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:quraaa/core/architecture/result.dart';
+import 'package:quraaa/core/architecture/use_case.dart';
+import 'package:quraaa/features/account/account.dart';
 import 'package:quraaa/features/libraries/domain/entities/library_entity.dart';
 import 'package:quraaa/features/libraries/domain/repositories/libraries_repository.dart';
 import 'package:quraaa/features/libraries/domain/use_cases/get_libraries_use_case.dart';
@@ -8,11 +10,15 @@ import 'package:quraaa/features/libraries/presentation/cubit/libraries_cubit.dar
 
 class MockGetLibrariesUseCase extends Mock implements GetLibrariesUseCase {}
 
+class MockLoadAccountUserSnapshotUseCase extends Mock
+    implements LoadAccountUserSnapshotUseCase {}
+
 class _FakeGetLibrariesParams extends Fake implements GetLibrariesParams {}
 
 void main() {
   group('LibrariesCubit', () {
     late MockGetLibrariesUseCase useCase;
+    late MockLoadAccountUserSnapshotUseCase loadUserSnapshotUseCase;
     late LibrariesCubit cubit;
 
     setUpAll(() {
@@ -22,11 +28,16 @@ void main() {
         pageSize: 10,
       ));
       registerFallbackValue(_FakeGetLibrariesParams());
+      registerFallbackValue(const NoParams());
     });
 
     setUp(() {
       useCase = MockGetLibrariesUseCase();
-      cubit = LibrariesCubit(getLibrariesUseCase: useCase);
+      loadUserSnapshotUseCase = MockLoadAccountUserSnapshotUseCase();
+      cubit = LibrariesCubit(
+        getLibrariesUseCase: useCase,
+        loadUserSnapshotUseCase: loadUserSnapshotUseCase,
+      );
     });
 
     tearDown(() async {
@@ -47,6 +58,21 @@ void main() {
       expect(cubit.state.pageSize, 10);
       expect(cubit.state.status, LibrariesStatus.initial);
       expect(cubit.state.pagingController.firstPageKey, 1);
+    });
+
+    test('loadUserSnapshot stores the account header snapshot', () async {
+      when(() => loadUserSnapshotUseCase(any())).thenAnswer(
+        (_) async => const AccountUserSnapshot(
+          fullName: 'Abdulrahman Alkhawwam',
+          profileImage: '/tmp/avatar.png',
+        ),
+      );
+
+      await cubit.loadUserSnapshot();
+
+      expect(cubit.state.firstName, 'Abdulrahman');
+      expect(cubit.state.profileImage, '/tmp/avatar.png');
+      verify(() => loadUserSnapshotUseCase(any())).called(1);
     });
 
     test('fetching first page appends items and emits success', () async {

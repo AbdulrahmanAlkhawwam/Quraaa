@@ -1,16 +1,12 @@
-import 'dart:async';
-
 import 'package:easy_localization/easy_localization.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../config/routes/route_names.dart';
-import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
-import '../../../../core/services/notification_service.dart';
-import '../../../../features/account/data/user_data_local_data_source.dart';
 import '../../../../shared/shared.dart';
+import '../bloc/home_bloc.dart';
 import '../mock/home_mock_data.dart';
 import '../widgets/home_banner.dart';
 import '../widgets/home_bottom_nav.dart';
@@ -27,64 +23,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  NotificationService? _notificationService;
   int _selectedIndex = 0;
   int _previousIndex = 0;
-  final List<RemoteMessage> _notifications = <RemoteMessage>[];
-  StreamSubscription<RemoteMessage>? _notificationSub;
-  UserDataSnapshot? _userSnapshot;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeNotifications();
-    _loadUserData();
-  }
-
-  Future<void> _loadUserData() async {
-    final UserDataLocalDataSource dataSource = sl<UserDataLocalDataSource>();
-    final UserDataSnapshot snapshot = await dataSource.load();
-    if (!mounted) return;
-    setState(() => _userSnapshot = snapshot);
-  }
-
-  String get _firstName {
-    final String fullName = _userSnapshot?.fullName ?? '';
-    if (fullName.trim().isEmpty) return '';
-    return fullName.trim().split(' ').first;
-  }
-
-  @override
-  void dispose() {
-    _notificationSub?.cancel();
-    super.dispose();
-  }
-
-  Future<void> _initializeNotifications() async {
-    try {
-      _notificationService = sl<NotificationService>();
-      await _notificationService!.initialize();
-      _notificationSub = _notificationService!.foregroundMessages.listen(
-        _onNotificationReceived,
-      );
-    } catch (e) {
-      // Firebase not configured or unavailable – skip silently.
-      debugPrint('HomeScreen: notifications unavailable ($e)');
-    }
-  }
-
-  void _onNotificationReceived(RemoteMessage message) {
-    if (!mounted) return;
-    setState(() {
-      _notifications.add(message);
-    });
-    context.showSuccessSnackBar(
-      message: Message(
-        title: message.notification?.title ?? 'New Notification',
-        value: message.notification?.body ?? '',
-      ),
-    );
-  }
 
   void _onNavItemTapped(int index) {
     setState(() {
@@ -106,23 +46,38 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _showNotificationSnackBar(BuildContext context, HomeState state) {
+    context.showSuccessSnackBar(
+      message: Message(
+        title: state.notificationTitle ?? 'New Notification',
+        value: state.notificationBody,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      drawer: const HomeDrawer(),
-      appBar: _buildAppBar(),
-      body: _buildBody(),
-      bottomNavigationBar: HomeBottomNav(
-        currentIndex: _selectedIndex,
-        onTap: _onNavItemTapped,
+    return BlocListener<HomeBloc, HomeState>(
+      listenWhen: (HomeState previous, HomeState current) =>
+          previous.notificationSerial != current.notificationSerial,
+      listener: _showNotificationSnackBar,
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        drawer: const HomeDrawer(),
+        appBar: _buildAppBar(),
+        body: _buildBody(),
+        bottomNavigationBar: HomeBottomNav(
+          currentIndex: _selectedIndex,
+          onTap: _onNavItemTapped,
+        ),
       ),
     );
   }
 
   PreferredSizeWidget _buildAppBar() {
-    final String firstName = _firstName;
-    final String? profileImage = _userSnapshot?.profileImage;
+    final HomeState homeState = context.watch<HomeBloc>().state;
+    final String firstName = homeState.firstName;
+    final String? profileImage = homeState.profileImage;
     final bool hasImage = profileImage != null && profileImage.isNotEmpty;
 
     return AppBar(
@@ -133,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
       title: Row(
         children: <Widget>[
           Text(
-            'Hi, ',
+            LocalizationConstants.homeGreetingKey.tr(),
             style: AppTextStyles.h3.copyWith(
               fontSize: 22,
               color: AppColors.libraryGreen,
@@ -231,7 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 /// The main home feed matching the design in img_1.png.
-/// Uses local mock data only – no server side binding.
+/// Uses local mock data only - no server side binding.
 class _HomeFeed extends StatelessWidget {
   const _HomeFeed();
 

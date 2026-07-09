@@ -1,4 +1,4 @@
-﻿import 'package:flutter/widgets.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -8,6 +8,7 @@ import '../../features/auth/presentation/pages/reset_password_screen.dart';
 import '../../features/auth/presentation/pages/location_permission_screen.dart';
 import '../../features/auth/presentation/pages/notification_permission_screen.dart';
 import '../../features/home/presentation/pages/home_screen.dart';
+import '../../features/home/presentation/bloc/home_bloc.dart';
 import '../../features/home/presentation/pages/audio_books_screen.dart';
 import '../../features/cart/presentation/pages/cart_screen.dart';
 import '../../features/book_assistant/book_assistant.dart';
@@ -32,6 +33,7 @@ import '../../core/connectivity/connection_status.dart';
 import '../../core/connectivity/connectivity_service.dart';
 import '../../core/di/injection_container.dart';
 import '../../features/splash/presentation/pages/splash_screen.dart';
+import '../../features/local_explorer/presentation/pages/local_explorer_page.dart';
 import '../../features/pdf_reader/presentation/pages/pdf_reader_page.dart';
 import '../../shared/widgets/app_shell.dart';
 import '../../features/settings/presentation/pages/account_type_page.dart';
@@ -114,7 +116,11 @@ GoRouter buildAppRouter({
       GoRoute(
         name: RouteNames.home,
         path: RouteNames.home,
-        builder: (context, state) => const HomeScreen(),
+        builder: (context, state) => BlocProvider<HomeBloc>(
+          create: (BuildContext context) =>
+              sl<HomeBloc>()..add(const HomeStarted()),
+          child: const HomeScreen(),
+        ),
       ),
       GoRoute(
         name: RouteNames.stores,
@@ -167,6 +173,11 @@ GoRouter buildAppRouter({
               sl<ProfileBloc>()..add(const ProfileLoadRequested()),
           child: const AppShell(),
         ),
+      ),
+      GoRoute(
+        name: RouteNames.explorer,
+        path: RouteNames.explorer,
+        builder: (context, state) => const LocalExplorerPage(),
       ),
       GoRoute(
         name: RouteNames.pdfReaderName,
@@ -247,6 +258,8 @@ bool _isKnownRoute(String location) {
     RouteNames.settings,
     RouteNames.settingsAccountType,
     RouteNames.subscriptionAccountType,
+    RouteNames.explorer,
+    RouteNames.pdfReader,
     RouteNames.auth,
     RouteNames.login,
     RouteNames.register,
@@ -278,4 +291,3 @@ bool _isOnlineOnlyRoute(String location) {
       location == RouteNames.forgotPassword ||
       location == RouteNames.resetPassword;
 }
-

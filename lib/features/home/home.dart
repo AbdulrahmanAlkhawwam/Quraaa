@@ -1,3 +1,4 @@
+export 'presentation/bloc/home_bloc.dart';
 export 'presentation/pages/home_screen.dart';
 export 'presentation/pages/audio_books_screen.dart';
 export 'presentation/pages/stores_screen.dart';

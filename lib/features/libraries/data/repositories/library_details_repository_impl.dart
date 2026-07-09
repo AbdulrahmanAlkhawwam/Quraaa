@@ -50,12 +50,20 @@ class LibraryDetailsRepositoryImpl extends BaseRepository<LibraryBooksPage>
   }
 
   @override
-  Future<LibraryBooksPage> getCached() {
-    throw UnimplementedError();
+  Future<LibraryBooksPage> getCached() async {
+    return const LibraryBooksPage(
+      items: [],
+      pageNumber: 1,
+      pageSize: 0,
+      totalCount: 0,
+      totalPages: 0,
+      hasNextPage: false,
+      hasPreviousPage: false,
+    );
   }
 
   @override
-  Future<LibraryBooksPage> sync() {
-    throw UnimplementedError();
+  Future<LibraryBooksPage> sync() async {
+    return getCached();
   }
 }

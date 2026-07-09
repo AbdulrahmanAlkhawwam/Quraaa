@@ -145,10 +145,27 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       final result = await authRepository.refreshToken(
         refreshToken: refreshToken,
       );
-      final user = result.fold<User>(
-        (failure) => throw Exception(failure.message),
-        (user) => user,
+      User? refreshedUser;
+      final String? refreshFailureMessage = result.fold<String?>(
+        (failure) => failure.message,
+        (user) {
+          refreshedUser = user;
+          return null;
+        },
       );
+
+      final User? user = refreshedUser;
+      if (user == null) {
+        await _logout();
+        emit(state.copyWith(
+          loading: false,
+          error: UnauthorizedFailure(
+            message: refreshFailureMessage ?? error.message,
+          ),
+          requiresLogin: true,
+        ));
+        return;
+      }
 
       // Persist the new tokens so subsequent requests use them.
       await authLocalDataSource.markAuthenticatedSession(

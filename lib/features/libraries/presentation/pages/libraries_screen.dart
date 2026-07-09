@@ -7,7 +7,6 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import '../../../../config/routes/route_names.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
-import '../../../../features/account/data/user_data_local_data_source.dart';
 import '../../../../features/home/presentation/widgets/home_bottom_nav.dart';
 import '../../../../shared/shared.dart';
 import '../../../../shared/widgets/animated_search_bar.dart';
@@ -21,42 +20,16 @@ class LibrariesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<LibrariesCubit>(
-      create: (_) => sl<LibrariesCubit>(),
+      create: (_) => sl<LibrariesCubit>()..loadUserSnapshot(),
       child: const _LibrariesView(),
     );
   }
 }
 
-class _LibrariesView extends StatefulWidget {
+class _LibrariesView extends StatelessWidget {
   const _LibrariesView();
 
-  @override
-  State<_LibrariesView> createState() => _LibrariesViewState();
-}
-
-class _LibrariesViewState extends State<_LibrariesView> {
-  UserDataSnapshot? _userSnapshot;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadUserData();
-  }
-
-  Future<void> _loadUserData() async {
-    final UserDataLocalDataSource dataSource = sl<UserDataLocalDataSource>();
-    final UserDataSnapshot snapshot = await dataSource.load();
-    if (!mounted) return;
-    setState(() => _userSnapshot = snapshot);
-  }
-
-  String get _firstName {
-    final String fullName = _userSnapshot?.fullName ?? '';
-    if (fullName.trim().isEmpty) return '';
-    return fullName.trim().split(' ').first;
-  }
-
-  void _onNavItemTapped(int index) {
+  void _onNavItemTapped(BuildContext context, int index) {
     final String route = switch (index) {
       0 => RouteNames.home,
       1 => RouteNames.libraries,
@@ -75,18 +48,19 @@ class _LibrariesViewState extends State<_LibrariesView> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: _buildAppBar(),
+      appBar: _buildAppBar(context),
       body: const _LibrariesBody(),
       bottomNavigationBar: HomeBottomNav(
         currentIndex: 1,
-        onTap: _onNavItemTapped,
+        onTap: (int index) => _onNavItemTapped(context, index),
       ),
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
-    final String firstName = _firstName;
-    final String? profileImage = _userSnapshot?.profileImage;
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    final LibrariesState librariesState = context.watch<LibrariesCubit>().state;
+    final String firstName = librariesState.firstName;
+    final String? profileImage = librariesState.profileImage;
     final bool hasImage = profileImage != null && profileImage.isNotEmpty;
 
     return AppBar(
@@ -97,7 +71,7 @@ class _LibrariesViewState extends State<_LibrariesView> {
       title: Row(
         children: <Widget>[
           Text(
-            'Hi, ',
+            LocalizationConstants.homeGreetingKey.tr(),
             style: AppTextStyles.h3.copyWith(
               fontSize: 22,
               color: AppColors.libraryGreen,

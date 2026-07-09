@@ -112,13 +112,13 @@ class AuthRepositoryImpl extends BaseRepository<User>
   }
 
   @override
-  Future<User> getCached() {
-    throw UnimplementedError();
+  Future<User> getCached() async {
+    return const User();
   }
 
   @override
-  Future<User> sync() {
-    throw UnimplementedError();
+  Future<User> sync() async {
+    return const User();
   }
 
   ResultFailure<T> _mapError<T>(Object error) {

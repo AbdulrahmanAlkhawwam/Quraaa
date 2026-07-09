@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/routes/route_names.dart';
 import '../../../../core/architecture/use_case.dart';
+import '../../../../core/localization/localization_constants.dart';
 import '../../domain/entities/category.dart';
 import '../../domain/entities/gender_selection.dart';
 import '../../domain/entities/onboarding_draft.dart';
@@ -272,7 +273,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
       emit(
         state.copyWith(
           isLoading: false,
-          errorMessage: 'Failed to load onboarding state',
+          errorMessage: LocalizationConstants.onboardingLoadErrorKey,
         ),
       );
     }
@@ -344,7 +345,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
       emit(
         state.copyWith(
           isLoading: false,
-          errorMessage: 'Failed to save birth date',
+          errorMessage: LocalizationConstants.onboardingSaveBirthDateErrorKey,
         ),
       );
     }
@@ -358,7 +359,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     try {
       await _saveGenderUseCase(event.gender);
     } catch (_) {
-      emit(state.copyWith(errorMessage: 'Failed to save gender'));
+      emit(state.copyWith(errorMessage: LocalizationConstants.onboardingSaveGenderErrorKey));
     }
   }
 
@@ -388,7 +389,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
         ),
       );
     } catch (_) {
-      emit(state.copyWith(errorMessage: 'Failed to save categories'));
+      emit(state.copyWith(errorMessage: LocalizationConstants.onboardingSaveCategoriesErrorKey));
     }
   }
 
@@ -414,7 +415,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
       emit(
         state.copyWith(
           isLoading: false,
-          errorMessage: 'Failed to complete onboarding',
+          errorMessage: LocalizationConstants.onboardingCompleteErrorKey,
         ),
       );
     }
@@ -438,7 +439,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
       emit(
         state.copyWith(
           isLoading: false,
-          errorMessage: 'Failed to complete onboarding',
+          errorMessage: LocalizationConstants.onboardingCompleteErrorKey,
         ),
       );
     }
@@ -466,7 +467,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
       emit(
         state.copyWith(
           isLoading: false,
-          errorMessage: 'Failed to save gender',
+          errorMessage: LocalizationConstants.onboardingSaveGenderErrorKey,
         ),
       );
     }

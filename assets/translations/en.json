@@ -3,6 +3,7 @@
     "name": "Quraaa"
   },
   "home": {
+    "greeting": "Hi, ",
     "best_sellers": "Best Sellers",
     "recommended_for_you": "Recommended For you",
     "note": "Note",
@@ -181,6 +182,13 @@
       "art": "Art",
       "literature": "Literature",
       "other": "Other"
+    },
+    "errors": {
+      "load": "Failed to load onboarding state.",
+      "save_birth_date": "Failed to save birth date.",
+      "save_gender": "Failed to save gender.",
+      "save_categories": "Failed to save categories.",
+      "complete": "Failed to complete onboarding."
     }
   },
   "user_data": {
