@@ -285,7 +285,7 @@ class _DateWheelPickerState extends State<_DateWheelPicker> {
                   LocalizationConstants.onboardingAgeYearKey.tr(),
                   textAlign: TextAlign.center,
                   style: AppTextStyles.caption.copyWith(
-                    color: AppColors.textPrimary,
+                    color: context.appTextPrimary,
                   ),
                 ),
               ),
@@ -294,7 +294,7 @@ class _DateWheelPickerState extends State<_DateWheelPicker> {
                   LocalizationConstants.onboardingAgeMonthKey.tr(),
                   textAlign: TextAlign.center,
                   style: AppTextStyles.caption.copyWith(
-                    color: AppColors.textPrimary,
+                    color: context.appTextPrimary,
                   ),
                 ),
               ),
@@ -303,7 +303,7 @@ class _DateWheelPickerState extends State<_DateWheelPicker> {
                   LocalizationConstants.onboardingAgeDayKey.tr(),
                   textAlign: TextAlign.center,
                   style: AppTextStyles.caption.copyWith(
-                    color: AppColors.textPrimary,
+                    color: context.appTextPrimary,
                   ),
                 ),
               ),
@@ -376,7 +376,7 @@ class _WheelColumn extends StatelessWidget {
           height: itemHeight + 12,
           margin: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
-            color: AppColors.primary100,
+            color: context.appSubtleSurface,
             borderRadius: BorderRadius.circular(AppRadius.radius12),
           ),
         ),
@@ -394,7 +394,7 @@ class _WheelColumn extends StatelessWidget {
               child: Text(
                 item.toString(),
                 style: AppTextStyles.bodyLarge.copyWith(
-                  color: AppColors.libraryGreen,
+                  color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
                 ),
               ),
             );

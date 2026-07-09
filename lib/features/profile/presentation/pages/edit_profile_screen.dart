@@ -26,10 +26,10 @@ class EditProfileScreen extends StatelessWidget {
     return BlocProvider(
       create: (_) => sl<EditProfileBloc>(),
       child: Scaffold(
-        backgroundColor: AppColors.editProfileBackground,
+        backgroundColor: context.appBackground,
         body: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: AppSpacing.spacing40),
+            padding: const EdgeInsetsDirectional.only(bottom: AppSpacing.spacing40),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -70,7 +70,7 @@ class EditProfileScreen extends StatelessWidget {
                                 .profileEditPersonalDataKey
                                 .tr(),
                             style: AppTextStyles.titleMedium.copyWith(
-                              color: AppColors.editProfileSectionTitle,
+                              color: context.isDark ? AppColors.primary300 : AppColors.editProfileSectionTitle,
                             ),
                           ),
                           const SizedBox(height: AppSpacing.spacing18),
@@ -132,6 +132,9 @@ class _EditProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color headerColor =
+        context.isDark ? AppColors.primary300 : AppColors.editProfileTitle;
+
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.spacing24,
@@ -143,8 +146,8 @@ class _EditProfileHeader extends StatelessWidget {
             onTap: () => Navigator.of(context).pop(),
             borderRadius: BorderRadius.circular(AppRadius.radius12),
             child: Icon(
-              CupertinoIcons.back,
-              color: AppColors.editProfileTitle,
+              context.isRTL ? CupertinoIcons.chevron_forward : CupertinoIcons.chevron_back,
+              color: headerColor,
               size: 24,
             ),
           ),
@@ -153,7 +156,7 @@ class _EditProfileHeader extends StatelessWidget {
             child: Text(
               LocalizationConstants.profileEditTitleKey.tr(),
               style: AppTextStyles.h3.copyWith(
-                color: AppColors.editProfileTitle,
+                color: headerColor,
               ),
             ),
           ),
@@ -162,7 +165,7 @@ class _EditProfileHeader extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppRadius.radius12),
             child: HugeIcon(
               icon: HugeIcons.strokeRoundedSave,
-              color: AppColors.editProfileTitle,
+              color: headerColor,
               size: 26,
             ),
           ),

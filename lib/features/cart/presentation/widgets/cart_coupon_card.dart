@@ -1,5 +1,7 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 
 class CartCouponCard extends StatelessWidget {
@@ -23,7 +25,7 @@ class CartCouponCard extends StatelessWidget {
       height: 72 * scale,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: AppColors.primary50,
+          color: context.appSubtleSurface,
           borderRadius: BorderRadius.circular(36 * scale),
         ),
         child: Padding(
@@ -62,7 +64,9 @@ class CartCouponCard extends StatelessWidget {
                     elevation: 0,
                   ),
                   child: Text(
-                    applied ? 'Applied' : 'Apply',
+                    applied
+                        ? LocalizationConstants.cartAppliedKey.tr()
+                        : LocalizationConstants.cartApplyKey.tr(),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.bodyMedium.copyWith(

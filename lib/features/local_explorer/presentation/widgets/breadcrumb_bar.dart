@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../../shared/extensions/app_context.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../shared/theme/app_colors.dart';
@@ -42,7 +44,11 @@ class BreadcrumbBar extends StatelessWidget {
               child: Text(
                 segment.label,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: isLast ? AppColors.secondary : AppColors.textMuted,
+                      color: isLast
+                          ? context.isDark
+                              ? AppColors.primary300
+                              : AppColors.secondary
+                          : context.appTextTertiary,
                       fontWeight: isLast ? FontWeight.w600 : FontWeight.w400,
                     ),
               ),
@@ -50,11 +56,11 @@ class BreadcrumbBar extends StatelessWidget {
           );
         },
         separatorBuilder: (BuildContext context, int index) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(horizontal: AppSpacing.spacing4),
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.spacing4),
             child: HugeIcon(
-              icon: HugeIcons.strokeRoundedArrowRight01,
-              color: AppColors.textMuted,
+              icon: context.isRTL ? HugeIcons.strokeRoundedArrowLeft01 : HugeIcons.strokeRoundedArrowRight01,
+              color: context.appTextTertiary,
               size: 16,
             ),
           );

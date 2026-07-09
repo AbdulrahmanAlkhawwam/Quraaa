@@ -22,7 +22,7 @@ class SettingsSearchBar extends StatelessWidget {
     final SettingsPalette palette = SettingsPalette.of(context);
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(40, 30, 40, 22),
+      padding: const EdgeInsetsDirectional.fromSTEB(40, 30, 40, 22),
       child: TextField(
         controller: controller,
         focusNode: focusNode,

@@ -93,7 +93,7 @@ class _NotificationPermissionScreenState
           return AppLayout(
             expandContent: true,
             cardColor: AppColors.card,
-            padding: const EdgeInsets.fromLTRB(
+            padding: const EdgeInsetsDirectional.fromSTEB(
               AppSpacing.spacing24,
               AppSpacing.spacing40,
               AppSpacing.spacing24,
@@ -147,7 +147,7 @@ class _NotificationPermissionScreenState
                   LocalizationConstants.authNotificationDescriptionKey.tr(),
                   textAlign: TextAlign.center,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textTertiary,
+                    color: context.appTextTertiary,
                   ),
                 ),
                 const Spacer(),

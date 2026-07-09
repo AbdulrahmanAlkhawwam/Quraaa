@@ -83,7 +83,7 @@ class SettingsHeader extends SliverPersistentHeaderDelegate {
                       ),
                       if (activeTab.id == 'settings')
                         IconButton(
-                          tooltip: 'Edit',
+                          tooltip: LocalizationConstants.settingsEditKey.tr(),
                           onPressed: () {
                             // Placeholder: edit settings is not supported yet.
                           },

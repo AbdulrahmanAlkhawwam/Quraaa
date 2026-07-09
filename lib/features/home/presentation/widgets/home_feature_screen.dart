@@ -1,7 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../config/routes/route_names.dart';
+import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 
 class HomeFeatureScreen extends StatelessWidget {
@@ -23,11 +25,11 @@ class HomeFeatureScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.neutralBackground,
+      backgroundColor: context.appBackground,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        foregroundColor: AppColors.libraryGreen,
+        foregroundColor: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
         leading: IconButton(
           onPressed: () => context.back(),
           icon: const Icon(Icons.arrow_back_rounded),
@@ -35,18 +37,17 @@ class HomeFeatureScreen extends StatelessWidget {
         title: Text(
           title,
           style: AppTextStyles.appBarTitle.copyWith(
-            color: AppColors.libraryGreen,
+            color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
           ),
         ),
         centerTitle: true,
       ),
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: <Color>[
-              AppColors.neutralBackground,
-              AppColors.primary50,
-            ],
+            colors: context.isDark
+                ? <Color>[AppColors.neutralBackgroundDark, AppColors.surfaceDark]
+                : <Color>[AppColors.neutralBackground, AppColors.primary50],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -87,14 +88,14 @@ class HomeFeatureScreen extends StatelessWidget {
                             Text(
                               subtitle,
                               style: AppTextStyles.bodySmall.copyWith(
-                                color: AppColors.textSecondary,
+                                color: context.appTextSecondary,
                               ),
                             ),
                             const SizedBox(height: AppSpacing.spacing4),
                             Text(
                               title,
                               style: AppTextStyles.h3.copyWith(
-                                color: AppColors.textPrimary,
+                                color: context.appTextPrimary,
                               ),
                             ),
                           ],
@@ -107,7 +108,7 @@ class HomeFeatureScreen extends StatelessWidget {
                 Text(
                   description,
                   style: AppTextStyles.bodyLarge.copyWith(
-                    color: AppColors.textSecondary,
+                    color: context.appTextSecondary,
                     height: 1.45,
                   ),
                 ),
@@ -121,7 +122,7 @@ class HomeFeatureScreen extends StatelessWidget {
                       backgroundColor: accentColor,
                       foregroundColor: AppColors.card,
                     ),
-                    child: const Text('Back to Home'),
+                    child: Text(LocalizationConstants.homeFeatureBackToHomeKey.tr()),
                   ),
                 ),
               ],

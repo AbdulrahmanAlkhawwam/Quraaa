@@ -39,7 +39,7 @@ class ExplorerContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
+      padding: const EdgeInsetsDirectional.fromSTEB(
         AppSpacing.spacing24,
         AppSpacing.spacing24,
         AppSpacing.spacing24,

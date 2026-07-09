@@ -1,7 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import '../../domain/entities/cart_item.dart';
 
@@ -24,6 +26,10 @@ class CartItemTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double scale = context.compactFeatureScale;
+    final Color titleColor =
+        context.isDark ? AppColors.primary300 : AppColors.libraryGreen;
+    final Color subtitleColor =
+        context.isDark ? AppColors.primary400 : AppColors.forestGreen;
 
     return Column(
       children: <Widget>[
@@ -45,7 +51,7 @@ class CartItemTile extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppTextStyles.bodyLarge.copyWith(
-                          color: AppColors.libraryGreen,
+                          color: titleColor,
                           fontSize: 21 * scale,
                           fontWeight: FontWeight.w500,
                           height: 1.12,
@@ -57,7 +63,7 @@ class CartItemTile extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.forestGreen,
+                          color: subtitleColor,
                           fontSize: 15 * scale,
                           fontWeight: FontWeight.w700,
                           height: 1.12,
@@ -69,7 +75,7 @@ class CartItemTile extends StatelessWidget {
                         child: Text(
                           item.fileSize,
                           style: AppTextStyles.caption.copyWith(
-                            color: const Color(0xFFAEBBA8),
+                            color: context.appTextTertiary,
                             fontSize: 13 * scale,
                             fontWeight: FontWeight.w700,
                             height: 1,
@@ -87,9 +93,9 @@ class CartItemTile extends StatelessWidget {
                 child: Stack(
                   children: <Widget>[
                     Align(
-                      alignment: Alignment.topRight,
+                      alignment: AlignmentDirectional.topEnd,
                       child: IconButton(
-                        tooltip: 'Remove',
+                        tooltip: LocalizationConstants.cartRemoveKey.tr(),
                         onPressed: onRemove,
                         padding: EdgeInsets.zero,
                         constraints: BoxConstraints.tightFor(
@@ -104,7 +110,7 @@ class CartItemTile extends StatelessWidget {
                       ),
                     ),
                     Align(
-                      alignment: Alignment.bottomRight,
+                      alignment: AlignmentDirectional.bottomEnd,
                       child: _QuantityControl(
                         quantity: item.quantity,
                         onIncrease: onIncrease,
@@ -119,10 +125,10 @@ class CartItemTile extends StatelessWidget {
           ),
         ),
         if (showDivider)
-          const Divider(
+          Divider(
             height: 1,
             thickness: 1,
-            color: Color(0xFFEAF0E6),
+            color: context.appBorder,
           ),
       ],
     );
@@ -195,7 +201,7 @@ class _QuantityControl extends StatelessWidget {
             '$quantity',
             textAlign: TextAlign.center,
             style: AppTextStyles.bodyLarge.copyWith(
-              color: AppColors.libraryGreen,
+              color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
               fontSize: 18 * scale,
               fontWeight: FontWeight.w500,
             ),
@@ -228,8 +234,8 @@ class _QuantityButton extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: DecoratedBox(
-        decoration: const BoxDecoration(
-          color: Color(0xFFB7E3A6),
+        decoration: BoxDecoration(
+          color: context.isDark ? AppColors.primary800 : const Color(0xFFB7E3A6),
           shape: BoxShape.circle,
         ),
         child: SizedBox(

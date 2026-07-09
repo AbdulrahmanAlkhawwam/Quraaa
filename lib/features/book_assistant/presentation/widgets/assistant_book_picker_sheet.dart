@@ -1,7 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
+﻿import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import '../../domain/entities/assistant_book.dart';
 
@@ -20,42 +22,41 @@ class AssistantBookPickerSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double scale = context.compactFeatureScale;
+    final Color titleColor =
+        context.isDark ? AppColors.primary300 : AppColors.libraryGreen;
 
     return SafeArea(
       top: false,
       child: Padding(
-        padding: EdgeInsets.fromLTRB(
+        padding: EdgeInsetsDirectional.fromSTEB(
           22 * scale,
           18 * scale,
           22 * scale,
           18 * scale,
         ),
-        child: Directionality(
-          textDirection: TextDirection.rtl,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                '\u0623\u0636\u0641 \u0643\u062A\u0627\u0628\u0627 \u0644\u0644\u0633\u0624\u0627\u0644',
-                style: AppTextStyles.h4.copyWith(
-                  color: AppColors.libraryGreen,
-                  fontSize: 22 * scale,
-                  height: 1.1,
-                ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              LocalizationConstants.assistantPickerTitleKey.tr(),
+              style: AppTextStyles.h4.copyWith(
+                color: titleColor,
+                fontSize: 22 * scale,
+                height: 1.1,
               ),
-              SizedBox(height: 14 * scale),
-              ...books.map((AssistantBook book) {
-                final bool selected = selectedBooks.contains(book);
-                return _BookPickerTile(
-                  book: book,
-                  selected: selected,
-                  scale: scale,
-                  onTap: () => onBookToggled(book),
-                );
-              }),
-            ],
-          ),
+            ),
+            SizedBox(height: 14 * scale),
+            ...books.map((AssistantBook book) {
+              final bool selected = selectedBooks.contains(book);
+              return _BookPickerTile(
+                book: book,
+                selected: selected,
+                scale: scale,
+                onTap: () => onBookToggled(book),
+              );
+            }),
+          ],
         ),
       ),
     );
@@ -77,6 +78,9 @@ class _BookPickerTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color titleColor =
+        context.isDark ? AppColors.primary300 : AppColors.libraryGreen;
+
     return Padding(
       padding: EdgeInsets.only(bottom: 10 * scale),
       child: InkWell(
@@ -85,10 +89,10 @@ class _BookPickerTile extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.all(10 * scale),
           decoration: BoxDecoration(
-            color: selected ? AppColors.primary50 : Colors.white,
+            color: selected ? context.appSubtleSurface : context.appCard,
             borderRadius: BorderRadius.circular(18 * scale),
             border: Border.all(
-              color: selected ? AppColors.primary300 : AppColors.primary100,
+              color: selected ? AppColors.primary300 : context.appBorder,
             ),
           ),
           child: Row(
@@ -125,7 +129,7 @@ class _BookPickerTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.libraryGreen,
+                        color: titleColor,
                         fontSize: 15 * scale,
                         fontWeight: FontWeight.w700,
                         height: 1.1,
@@ -137,7 +141,7 @@ class _BookPickerTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.caption.copyWith(
-                        color: AppColors.textSecondary,
+                        color: context.appTextSecondary,
                         fontSize: 12 * scale,
                         height: 1.1,
                       ),
@@ -150,8 +154,7 @@ class _BookPickerTile extends StatelessWidget {
                 icon: selected
                     ? HugeIcons.strokeRoundedCheckmarkCircle02
                     : HugeIcons.strokeRoundedAddCircle,
-                color:
-                    selected ? AppColors.primary600 : AppColors.primary300,
+                color: selected ? AppColors.primary600 : AppColors.primary300,
                 size: 24 * scale,
               ),
             ],

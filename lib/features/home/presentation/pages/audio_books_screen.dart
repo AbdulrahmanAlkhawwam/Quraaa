@@ -1,6 +1,8 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import '../widgets/home_feature_screen.dart';
 
@@ -9,11 +11,10 @@ class AudioBooksScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const HomeFeatureScreen(
-      title: 'Audio Book',
-      subtitle: 'Listen on the go',
-      description:
-          'Open your audio library, continue playback, and switch between narrations without losing your place.',
+    return HomeFeatureScreen(
+      title: LocalizationConstants.homeFeatureAudioBooksTitleKey.tr(),
+      subtitle: LocalizationConstants.homeFeatureAudioBooksSubtitleKey.tr(),
+      description: LocalizationConstants.homeFeatureAudioBooksDescriptionKey.tr(),
       icon: HugeIcons.strokeRoundedAudioBook04,
       accentColor: AppColors.woodBrown,
     );

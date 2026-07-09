@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../shared/extensions/app_context.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/localization/localization_constants.dart';
@@ -43,22 +45,22 @@ class ExplorerList extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppColors.textPrimary,
+                    color: context.appTextPrimary,
                   ),
             ),
             subtitle: Text(
               entry.isPdf
                   ? LocalizationConstants.explorerOpenPdfOnlyKey.tr()
                   : entry.isDirectory
-                      ? 'Folder'
-                      : 'Unsupported',
+                      ? LocalizationConstants.userDataFoldersTabKey.tr()
+                      : LocalizationConstants.explorerOpenPdfOnlyKey.tr(),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textMuted,
+                    color: context.appTextTertiary,
                   ),
             ),
-            trailing: const HugeIcon(
-              icon: HugeIcons.strokeRoundedArrowRight01,
-              color: AppColors.textMuted,
+            trailing: HugeIcon(
+              icon: context.isRTL ? HugeIcons.strokeRoundedArrowLeft01 : HugeIcons.strokeRoundedArrowRight01,
+              color: context.appTextTertiary,
               size: 22,
             ),
             onTap: !enabled
@@ -75,7 +77,7 @@ class ExplorerList extends StatelessWidget {
         );
       },
       separatorBuilder: (BuildContext context, int index) {
-        return const Divider(height: 1, color: AppColors.borderLight);
+        return Divider(height: 1, color: context.appBorder);
       },
       itemCount: entries.length,
     );

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../../shared/extensions/app_context.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../shared/theme/app_colors.dart';
@@ -33,7 +35,7 @@ class PersonalInformationScreen extends StatelessWidget {
         );
 
         return Scaffold(
-          backgroundColor: AppColors.card,
+          backgroundColor: context.appBackground,
           body: CustomScrollView(
             slivers: [
               PersonalInformationHeader(avatarUrl: information.avatarUrl),

@@ -1,8 +1,15 @@
+import 'dart:async';
+
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../config/routes/route_names.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/localization/localization_constants.dart';
+import '../../../../core/services/storage_service.dart';
 import '../../../../shared/extensions/app_context.dart';
+import '../../../../shared/models/message.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/app_spacing.dart';
@@ -15,11 +22,11 @@ class HomeDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: AppColors.card,
+      backgroundColor: context.appCard,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topRight: Radius.circular(AppRadius.radius32),
-          bottomRight: Radius.circular(AppRadius.radius32),
+        borderRadius: BorderRadiusDirectional.only(
+          topEnd: Radius.circular(AppRadius.radius32),
+          bottomEnd: Radius.circular(AppRadius.radius32),
         ),
       ),
       child: SafeArea(
@@ -34,7 +41,7 @@ class HomeDrawer extends StatelessWidget {
                     width: 56,
                     height: 56,
                     decoration: BoxDecoration(
-                      color: AppColors.primary100,
+                      color: context.appSubtleSurface,
                       borderRadius: BorderRadius.circular(AppRadius.radius16),
                     ),
                     child: HugeIcon(
@@ -49,16 +56,16 @@ class HomeDrawer extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(
-                          'Welcome',
+                          LocalizationConstants.homeDrawerWelcomeKey.tr(),
                           style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.textSecondary,
+                            color: context.appTextSecondary,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Quraaa User',
+                          LocalizationConstants.homeDrawerUserKey.tr(),
                           style: AppTextStyles.h3.copyWith(
-                            color: AppColors.textPrimary,
+                            color: context.appTextPrimary,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -72,14 +79,14 @@ class HomeDrawer extends StatelessWidget {
               const SizedBox(height: AppSpacing.spacing16),
               _DrawerItem(
                 icon: HugeIcons.strokeRoundedHome01,
-                label: 'Home',
+                label: LocalizationConstants.homeNavHomeKey.tr(),
                 onTap: () {
                   Navigator.of(context).pop();
                 },
               ),
               _DrawerItem(
                 icon: HugeIcons.strokeRoundedUser,
-                label: 'Profile',
+                label: LocalizationConstants.homeDrawerProfileKey.tr(),
                 onTap: () {
                   Navigator.of(context).pop();
                   context.goTo(RouteNames.profile);
@@ -87,21 +94,26 @@ class HomeDrawer extends StatelessWidget {
               ),
               _DrawerItem(
                 icon: HugeIcons.strokeRoundedBookmark01,
-                label: 'Bookmarks',
+                label: LocalizationConstants.homeDrawerBookmarksKey.tr(),
                 onTap: () {
                   Navigator.of(context).pop();
+                  _showComingSoon(
+                    context,
+                    LocalizationConstants.homeDrawerBookmarksKey.tr(),
+                  );
                 },
               ),
               _DrawerItem(
                 icon: HugeIcons.strokeRoundedLibrary,
-                label: 'Library',
+                label: LocalizationConstants.homeDrawerLibraryKey.tr(),
                 onTap: () {
                   Navigator.of(context).pop();
+                  context.goTo(RouteNames.libraries);
                 },
               ),
               _DrawerItem(
                 icon: HugeIcons.strokeRoundedStore01,
-                label: 'Stores',
+                label: LocalizationConstants.homeDrawerStoresKey.tr(),
                 onTap: () {
                   Navigator.of(context).pop();
                   context.goTo(RouteNames.stores);
@@ -109,7 +121,7 @@ class HomeDrawer extends StatelessWidget {
               ),
               _DrawerItem(
                 icon: HugeIcons.strokeRoundedBooks02,
-                label: 'User Books',
+                label: LocalizationConstants.homeNavUserBooksKey.tr(),
                 onTap: () {
                   Navigator.of(context).pop();
                   context.goTo(RouteNames.userBooks);
@@ -117,7 +129,7 @@ class HomeDrawer extends StatelessWidget {
               ),
               _DrawerItem(
                 icon: HugeIcons.strokeRoundedAudioBook04,
-                label: 'Audio Book',
+                label: LocalizationConstants.homeNavAudioBookKey.tr(),
                 onTap: () {
                   Navigator.of(context).pop();
                   context.goTo(RouteNames.audioBooks);
@@ -125,7 +137,7 @@ class HomeDrawer extends StatelessWidget {
               ),
               _DrawerItem(
                 icon: HugeIcons.strokeRoundedShoppingCart01,
-                label: 'Cart',
+                label: LocalizationConstants.homeNavCartKey.tr(),
                 onTap: () {
                   Navigator.of(context).pop();
                   context.goTo(RouteNames.cart);
@@ -136,7 +148,7 @@ class HomeDrawer extends StatelessWidget {
               const SizedBox(height: AppSpacing.spacing16),
               _DrawerItem(
                 icon: HugeIcons.strokeRoundedSettings01,
-                label: 'Settings',
+                label: LocalizationConstants.homeDrawerSettingsKey.tr(),
                 onTap: () {
                   Navigator.of(context).pop();
                   context.goTo(RouteNames.settings);
@@ -144,23 +156,46 @@ class HomeDrawer extends StatelessWidget {
               ),
               _DrawerItem(
                 icon: HugeIcons.strokeRoundedHelpCircle,
-                label: 'Help & Support',
+                label: LocalizationConstants.homeDrawerHelpSupportKey.tr(),
                 onTap: () {
                   Navigator.of(context).pop();
+                  _showComingSoon(
+                    context,
+                    LocalizationConstants.homeDrawerHelpSupportKey.tr(),
+                  );
                 },
               ),
               const Spacer(),
               _DrawerItem(
                 icon: HugeIcons.strokeRoundedLogout02,
-                label: 'Logout',
+                label: LocalizationConstants.homeDrawerLogoutKey.tr(),
                 iconColor: AppColors.error500,
                 textColor: AppColors.error500,
                 onTap: () {
                   Navigator.of(context).pop();
+                  unawaited(_logout(context));
                 },
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _logout(BuildContext context) async {
+    await sl<StorageService>().clearAll();
+    if (context.mounted) {
+      context.goTo(RouteNames.auth);
+    }
+  }
+
+  void _showComingSoon(BuildContext context, String feature) {
+    context.showSuccessSnackBar(
+      message: Message(
+        title: LocalizationConstants.profileComingSoonTitleKey.tr(),
+        value: LocalizationConstants.profileComingSoonMessageKey.tr(
+          namedArgs: <String, String>{'feature': feature},
         ),
       ),
     );
@@ -190,13 +225,13 @@ class _DrawerItem extends StatelessWidget {
         contentPadding: EdgeInsets.zero,
         leading: HugeIcon(
           icon: icon,
-          color: iconColor ?? AppColors.primary600,
+          color: iconColor ?? (context.isDark ? AppColors.primary300 : AppColors.primary600),
           size: 22,
         ),
         title: Text(
           label,
           style: AppTextStyles.bodyLarge.copyWith(
-            color: textColor ?? AppColors.textPrimary,
+            color: textColor ?? context.appTextPrimary,
           ),
         ),
         onTap: onTap,

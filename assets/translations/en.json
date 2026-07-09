@@ -3,7 +3,7 @@
     "name": "Quraaa"
   },
   "home": {
-    "greeting": "Hi, ",
+    "greeting": "Hi, {name}",
     "best_sellers": "Best Sellers",
     "recommended_for_you": "Recommended For you",
     "note": "Note",
@@ -11,6 +11,47 @@
     "banner": {
       "title": "Discover new books",
       "subtitle": "Explore our curated collection every day."
+    },
+    "notification": {
+      "title": "New Notification"
+    },
+    "nav": {
+      "home": "Home",
+      "libraries": "Libraries",
+      "user_books": "User Books",
+      "audio_book": "Audio Book",
+      "cart": "Cart"
+    },
+    "drawer": {
+      "welcome": "Welcome",
+      "user": "Quraaa User",
+      "profile": "Profile",
+      "bookmarks": "Bookmarks",
+      "library": "Library",
+      "stores": "Stores",
+      "settings": "Settings",
+      "help_support": "Help & Support",
+      "logout": "Logout"
+    },
+    "feature": {
+      "back_to_home": "Back to Home",
+      "under_development": "This page is under development.",
+      "welcome_to": "Welcome to {title}",
+      "stores": {
+        "title": "Stores",
+        "subtitle": "Browse the catalog",
+        "description": "Explore the reading store, discover new releases, and find the next book to add to your collection."
+      },
+      "user_books": {
+        "title": "User Books",
+        "subtitle": "Your saved library",
+        "description": "Keep track of the books you are reading, the ones you saved, and everything that belongs in your personal shelf."
+      },
+      "audio_books": {
+        "title": "Audio Book",
+        "subtitle": "Listen on the go",
+        "description": "Open your audio library, continue playback, and switch between narrations without losing your place."
+      }
     }
   },
   "library_details": {
@@ -18,7 +59,14 @@
     "default_description": "A trusted destination offering a wide selection of books and reading essentials.",
     "reviewers": "reviewers",
     "authors": "Authors",
-    "recently_added": "Recently added"
+    "recently_added": "Recently added",
+    "tabs": {
+      "general": "General",
+      "profile": "Profile",
+      "branches": "Branches",
+      "books": "Books",
+      "audio": "Audio"
+    }
   },
   "common": {
     "ok": "OK",
@@ -283,7 +331,11 @@
       "action": "Take Permission",
       "dismiss": "Maybe Later"
     },
-    "open_pdf_only": "Only PDF files can be opened"
+    "open_pdf_only": "Only PDF files can be opened",
+    "view": {
+      "list": "List view",
+      "grid": "Grid view"
+    }
   },
   "pdf_reader": {
     "title": "PDF Reader",
@@ -329,7 +381,22 @@
     },
     "account_type": {
       "title": "Account Type",
-      "subtitle": "Choose the membership that fits you"
+      "subtitle": "Choose the membership that fits you",
+      "current_plan": "Current Plan",
+      "plans": {
+        "personal": {
+          "title": "Personal Account",
+          "description": "This account is for one user without any subscription."
+        },
+        "family": {
+          "title": "Family Account",
+          "description": "This account is for up to 5 people and can share your data without any subscription."
+        },
+        "pro": {
+          "title": "Pro Account",
+          "description": "This account is for one user with unlimited AI access."
+        }
+      }
     },
     "shortcuts": {
       "appearance": {
@@ -415,7 +482,11 @@
       "darkMode": "Dark Mode",
       "deviceSystem": "Device System (Recommended)"
     },
-    "logout": "Log out"
+    "logout": "Log out",
+    "errors": {
+      "load": "Could not load settings tabs"
+    },
+    "edit": "Edit"
   },
   "subscription": {
     "account_type": {
@@ -426,6 +497,32 @@
       "free": "Free",
       "plus": "Plus",
       "premium": "Premium"
+    },
+    "plan_details": {
+      "free": {
+        "subtitle": "Good for casual reading",
+        "features": {
+          "browse": "Browse books and categories",
+          "save": "Save a small reading list",
+          "search": "Basic search experience"
+        }
+      },
+      "plus": {
+        "subtitle": "Balanced for active readers",
+        "features": {
+          "bookmarks": "Unlimited bookmarks",
+          "recommendations": "Advanced recommendations",
+          "support": "Priority support"
+        }
+      },
+      "premium": {
+        "subtitle": "Best for power readers",
+        "features": {
+          "plus": "All Plus features",
+          "collections": "Exclusive premium collections",
+          "early_access": "Early access to new features"
+        }
+      }
     }
   },
   "profile": {
@@ -633,6 +730,41 @@
       "libraries": "libraries",
       "audio": "audio",
       "cart": "cart"
+    },
+    "remove": "Remove"
+  },
+  "search": {
+    "hint": "Search books, authors...",
+    "trending": "Trending",
+    "recent": "Recent",
+    "clear": "Clear",
+    "browse_categories": {
+      "title": "Browse Categories",
+      "description": "Discover books by exploring different categories and genres."
+    },
+    "results": {
+      "searching_for": "Searching for \"{query}\"...",
+      "soon": "Results will appear here soon."
+    },
+    "trending_items": {
+      "mathematical": "Mathematical",
+      "philosophy": "Philosophy"
+    }
+  },
+  "assistant": {
+    "greeting": "Hi, {name}",
+    "composer": {
+      "hint": "Type \"/\" to attach a book or library...",
+      "add_book": "Add book or library"
+    },
+    "picker": {
+      "title": "Add a book to the question"
+    },
+    "prompts": {
+      "author_overview": "About the author",
+      "find_book": "Guide me to a book",
+      "summarize": "Summarize this book",
+      "main_titles": "Main headings"
     }
   }
 }

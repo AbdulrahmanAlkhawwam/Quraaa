@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/extensions/app_context.dart';
+
 import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/app_spacing.dart';
 import '../../domain/entities/personal_information.dart';
@@ -20,20 +21,20 @@ class PersonalDataCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: context.appCard,
         borderRadius: BorderRadius.circular(AppRadius.radius32),
         border: Border.all(
-          color: AppColors.primary100,
+          color: context.appBorder,
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: _buildRows(),
+        children: _buildRows(context),
       ),
     );
   }
 
-  List<Widget> _buildRows() {
+  List<Widget> _buildRows(BuildContext context) {
     final List<String> values = <String>[
       information.name,
       information.gender,
@@ -52,11 +53,11 @@ class PersonalDataCard extends StatelessWidget {
 
       if (!isLast) {
         rows.add(
-          const Divider(
+          Divider(
             height: 1,
             indent: AppSpacing.spacing20,
             endIndent: AppSpacing.spacing20,
-            color: AppColors.primary100,
+            color: context.appBorder,
           ),
         );
       }

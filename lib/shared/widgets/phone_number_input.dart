@@ -10,7 +10,7 @@ import '../theme/styles/text_styles.dart';
 /// A styled international phone number input that matches the app's design.
 ///
 /// Wraps [IntlPhoneNumberInput] from the `intl_phone_number_input` package
-/// with a white rounded container, a vertical divider between the country
+/// with a theme-aware rounded container, a vertical divider between the country
 /// selector and the phone text field.
 class PhoneNumberInput extends StatelessWidget {
   const PhoneNumberInput({
@@ -42,12 +42,14 @@ class PhoneNumberInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme colors = Theme.of(context).colorScheme;
+
     return Container(
       height: AppDimensions.onboardingInputHeight,
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(AppRadius.radius8),
-        border: Border.all(color: AppColors.primary200, width: 1),
+        border: Border.all(color: colors.outline, width: 1),
       ),
       child: InternationalPhoneNumberInput(
         onInputChanged: onInputChanged,
@@ -64,21 +66,21 @@ class PhoneNumberInput extends StatelessWidget {
         keyboardType: TextInputType.phone,
         textStyle:
             textStyle ??
-            AppTextStyles.bodyLarge.copyWith(color: AppColors.textPrimary),
+            AppTextStyles.bodyLarge.copyWith(color: colors.onSurface),
         selectorTextStyle:
             selectorTextStyle ??
             AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textPrimary,
+              color: colors.onSurface,
               fontWeight: FontWeight.w500,
             ),
         inputDecoration: InputDecoration(
           hintText: hintText,
           hintStyle: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textTertiary,
+            color: colors.onSurfaceVariant,
           ),
           filled: true,
-          fillColor: AppColors.card,
-          contentPadding: const EdgeInsets.fromLTRB(
+          fillColor: Theme.of(context).cardColor,
+          contentPadding: const EdgeInsetsDirectional.fromSTEB(
             AppSpacing.spacing12,
             AppSpacing.spacing20,
             AppSpacing.spacing20,

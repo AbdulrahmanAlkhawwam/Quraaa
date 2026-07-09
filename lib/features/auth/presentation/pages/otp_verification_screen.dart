@@ -26,9 +26,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   final TextEditingController _otpController = TextEditingController();
   final FocusNode _otpFocusNode = FocusNode();
 
-  late final PinTheme _defaultPinTheme;
-  late final PinTheme _focusedPinTheme;
-  late final PinTheme _submittedPinTheme;
 
   String get _displayPhoneNumber {
     final String phone = widget.phoneNumber ?? '';
@@ -42,23 +39,36 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   void initState() {
     super.initState();
     _otpController.addListener(_onOtpChanged);
-    _defaultPinTheme = PinTheme(
+  }
+  PinTheme _defaultPinThemeFor(BuildContext context) {
+    return PinTheme(
       width: AppDimensions.pinWidth,
       height: AppDimensions.pinHeight,
-      textStyle: AppTextStyles.h4.copyWith(color: AppColors.leafGreen),
+      textStyle: AppTextStyles.h4.copyWith(
+        color: context.isDark ? AppColors.primary300 : AppColors.leafGreen,
+      ),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: context.appCard,
         borderRadius: BorderRadius.circular(AppRadius.radius12),
-        border: Border.all(color: AppColors.primary200),
+        border: Border.all(color: context.appBorder),
       ),
     );
-    _focusedPinTheme = _defaultPinTheme.copyDecorationWith(
-      border: Border.all(color: AppColors.leafGreen, width: 2),
+  }
+
+  PinTheme _focusedPinThemeFor(BuildContext context) {
+    return _defaultPinThemeFor(context).copyDecorationWith(
+      border: Border.all(
+        color: context.isDark ? AppColors.primary300 : AppColors.leafGreen,
+        width: 2,
+      ),
       boxShadow: AppShadows.pinFocused(AppColors.leafGreen),
     );
-    _submittedPinTheme = _defaultPinTheme.copyWith(
-      decoration: _defaultPinTheme.decoration!.copyWith(
-        color: AppColors.primary50,
+  }
+
+  PinTheme _submittedPinThemeFor(BuildContext context) {
+    return _defaultPinThemeFor(context).copyWith(
+      decoration: _defaultPinThemeFor(context).decoration!.copyWith(
+        color: context.appSubtleSurface,
       ),
     );
   }
@@ -139,8 +149,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 children: [
                   IconButton(
                     onPressed: () => context.back(),
-                    icon: const Icon(
-                      Icons.arrow_back_ios,
+                    icon: Icon(
+                      context.isRTL ? Icons.arrow_forward_ios : Icons.arrow_back_ios,
                       color: AppColors.card,
                     ),
                   ),
@@ -157,7 +167,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 ],
               ),
             ),
-            padding: const EdgeInsets.fromLTRB(
+            padding: const EdgeInsetsDirectional.fromSTEB(
               AppSpacing.spacing24,
               AppSpacing.spacing32,
               AppSpacing.spacing24,
@@ -172,7 +182,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   ),
                   textAlign: TextAlign.center,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textTertiary,
+                    color: context.appTextTertiary,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.spacing32),
@@ -183,9 +193,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                       focusNode: _otpFocusNode,
                       length: 6,
                       keyboardType: TextInputType.number,
-                      defaultPinTheme: _defaultPinTheme,
-                      focusedPinTheme: _focusedPinTheme,
-                      submittedPinTheme: _submittedPinTheme,
+                      defaultPinTheme: _defaultPinThemeFor(context),
+                      focusedPinTheme: _focusedPinThemeFor(context),
+                      submittedPinTheme: _submittedPinThemeFor(context),
                       autofocus: true,
                       showCursor: true,
                       onCompleted: (_) => _verifyOtp(),

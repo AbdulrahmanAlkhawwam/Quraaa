@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../../shared/extensions/app_context.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../shared/theme/app_colors.dart';
@@ -50,16 +52,16 @@ class PdfPageNoteMarker extends StatelessWidget {
               opacity: 0.38,
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  color: AppColors.noteSurface,
+                  color: context.appSubtleSurface,
                   borderRadius: BorderRadius.circular(AppRadius.radius8),
                   border: Border.all(color: AppColors.secondary),
                   boxShadow: AppShadows.elevation1,
                 ),
-                child: const Padding(
+                child: Padding(
                   padding: EdgeInsets.all(4),
                   child: HugeIcon(
                     icon: HugeIcons.strokeRoundedStickyNote02,
-                    color: AppColors.secondary,
+                    color: context.isDark ? AppColors.primary300 : AppColors.secondary,
                     size: 16,
                   ),
                 ),

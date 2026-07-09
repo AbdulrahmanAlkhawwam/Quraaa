@@ -1,5 +1,7 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import '../../domain/entities/cart_summary.dart';
 
@@ -14,50 +16,50 @@ class CartTotalsCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.fromLTRB(
+      padding: EdgeInsetsDirectional.fromSTEB(
         20 * scale,
         20 * scale,
         20 * scale,
         18 * scale,
       ),
       decoration: BoxDecoration(
-        color: AppColors.primary50,
+        color: context.appSubtleSurface,
         borderRadius: BorderRadius.circular(17 * scale),
       ),
       child: Column(
         children: <Widget>[
           _TotalRow(
-            label: 'Sub Total',
+            label: LocalizationConstants.cartSubtotalKey.tr(),
             value: _money(summary.subtotal),
             scale: scale,
           ),
           SizedBox(height: 13 * scale),
           _TotalRow(
-            label: 'Fat',
+            label: LocalizationConstants.cartFatKey.tr(),
             value: '${summary.fatPercent.toStringAsFixed(0)}%',
             scale: scale,
           ),
           SizedBox(height: 13 * scale),
           _TotalRow(
-            label: 'Delivery',
+            label: LocalizationConstants.cartDeliveryKey.tr(),
             value: _money(summary.delivery),
             scale: scale,
           ),
           SizedBox(height: 13 * scale),
           _TotalRow(
-            label: 'Discount',
+            label: LocalizationConstants.cartDiscountKey.tr(),
             value: '${summary.discountPercent.toStringAsFixed(0)}%',
             scale: scale,
           ),
           SizedBox(height: 14 * scale),
-          const Divider(
+          Divider(
             height: 1,
             thickness: 1,
-            color: Color(0xFFDDE8D7),
+            color: context.appBorder,
           ),
           SizedBox(height: 14 * scale),
           _TotalRow(
-            label: 'Total',
+            label: LocalizationConstants.cartTotalKey.tr(),
             value: _money(summary.total),
             isTotal: true,
             scale: scale,
@@ -97,7 +99,7 @@ class _TotalRow extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: baseStyle.copyWith(
-              color: isTotal ? const Color(0xFF25303D) : const Color(0xFF8294A9),
+              color: isTotal ? context.appTextPrimary : context.appTextSecondary,
               fontWeight: isTotal ? FontWeight.w800 : FontWeight.w500,
             ),
           ),
@@ -107,7 +109,7 @@ class _TotalRow extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: baseStyle.copyWith(
-            color: isTotal ? const Color(0xFF25303D) : const Color(0xFF8294A9),
+            color: isTotal ? context.appTextPrimary : context.appTextSecondary,
             fontWeight: isTotal ? FontWeight.w800 : FontWeight.w500,
           ),
         ),

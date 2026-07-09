@@ -529,7 +529,7 @@ class _PasswordRequirementItem extends StatelessWidget {
             shape: BoxShape.circle,
             color: isMet ? AppColors.success500 : Colors.transparent,
             border: Border.all(
-              color: isMet ? AppColors.success500 : AppColors.textSecondary,
+              color: isMet ? AppColors.success500 : context.appTextSecondary,
               width: 1.5,
             ),
           ),
@@ -552,7 +552,7 @@ class _PasswordRequirementItem extends StatelessWidget {
         AnimatedDefaultTextStyle(
           duration: AppDurations.medium,
           style: AppTextStyles.bodySmall.copyWith(
-            color: isMet ? AppColors.success500 : AppColors.textSecondary,
+            color: isMet ? AppColors.success500 : context.appTextSecondary,
           ),
           child: Text(text),
         ),

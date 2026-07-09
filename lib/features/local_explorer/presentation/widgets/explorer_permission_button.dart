@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/extensions/app_context.dart';
+
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_text_styles.dart';
 
@@ -29,10 +31,10 @@ class ExplorerPermissionButton extends StatelessWidget {
         style: TextButton.styleFrom(
           backgroundColor: isPrimary ? _primaryColor : Colors.transparent,
           foregroundColor:
-              isPrimary ? AppColors.surfaceLight : AppColors.textPrimary,
+              isPrimary ? AppColors.surfaceLight : context.appTextPrimary,
           side: isPrimary
               ? BorderSide.none
-              : const BorderSide(color: _outlineColor),
+              : BorderSide(color: context.isDark ? context.appBorder : _outlineColor),
           shape: const StadiumBorder(),
           textStyle: AppTextStyles.explorerTitle().copyWith(
             fontSize: isPrimary ? 17 : 16,

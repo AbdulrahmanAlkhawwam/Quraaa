@@ -1,6 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../../../../core/localization/localization_constants.dart';
+import '../../../../shared/extensions/app_context.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/styles/text_styles.dart';
@@ -27,7 +30,7 @@ class PersonalInformationHeader extends StatelessWidget {
       expandedHeight: _expandedHeight,
       toolbarHeight: _toolbarHeight,
       pinned: true,
-      backgroundColor: AppColors.primary50,
+      backgroundColor: context.appSubtleSurface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(AppRadius.radius40),
@@ -37,16 +40,16 @@ class PersonalInformationHeader extends StatelessWidget {
       leading: IconButton(
         onPressed: () => Navigator.of(context).pop(),
         icon: HugeIcon(
-          icon: HugeIcons.strokeRoundedArrowLeft01,
-          color: AppColors.libraryGreen,
+          icon: context.isRTL ? HugeIcons.strokeRoundedArrowRight01 : HugeIcons.strokeRoundedArrowLeft01,
+          color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
           size: _iconSize,
         ),
       ),
       centerTitle: true,
       title: Text(
-        'Me',
+        LocalizationConstants.profileMenuPersonalInfoKey.tr(),
         style: AppTextStyles.h3.copyWith(
-          color: AppColors.libraryGreen,
+          color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
         ),
       ),
       actions: [
@@ -54,7 +57,7 @@ class PersonalInformationHeader extends StatelessWidget {
           onPressed: () => _openEditProfile(context),
           icon: HugeIcon(
             icon: HugeIcons.strokeRoundedEdit03,
-            color: AppColors.libraryGreen,
+            color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
             size: _iconSize,
           ),
         ),

@@ -22,7 +22,7 @@ class LanguageBottomSheet extends StatelessWidget {
     return SafeArea(
       top: false,
       child: Padding(
-        padding: EdgeInsets.fromLTRB(28, 40, 28, bottomInset + 28),
+        padding: EdgeInsetsDirectional.fromSTEB(28, 40, 28, bottomInset + 28),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,

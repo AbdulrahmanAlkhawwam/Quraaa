@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../shared/extensions/app_context.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/localization/localization_constants.dart';
@@ -22,7 +24,7 @@ class PdfSavedNoteSheet extends StatelessWidget {
 
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(
+        padding: const EdgeInsetsDirectional.fromSTEB(
           AppSpacing.spacing24,
           AppSpacing.spacing16,
           AppSpacing.spacing24,
@@ -34,9 +36,9 @@ class PdfSavedNoteSheet extends StatelessWidget {
           children: <Widget>[
             Row(
               children: <Widget>[
-                const HugeIcon(
+                HugeIcon(
                   icon: HugeIcons.strokeRoundedStickyNote02,
-                  color: AppColors.secondary,
+                  color: context.isDark ? AppColors.primary300 : AppColors.secondary,
                   size: 24,
                 ),
                 const SizedBox(width: AppSpacing.spacing8),
@@ -46,7 +48,7 @@ class PdfSavedNoteSheet extends StatelessWidget {
                         ? LocalizationConstants.pdfReaderNoteTitleKey.tr()
                         : LocalizationConstants.pdfReaderPageNoteTitleKey.tr(),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: AppColors.textPrimary,
+                          color: context.appTextPrimary,
                           fontWeight: FontWeight.w700,
                         ),
                   ),
@@ -57,9 +59,9 @@ class PdfSavedNoteSheet extends StatelessWidget {
               const SizedBox(height: AppSpacing.spacing16),
               DecoratedBox(
                 decoration: BoxDecoration(
-                  color: AppColors.noteSurface,
+                  color: context.appSubtleSurface,
                   borderRadius: BorderRadius.circular(AppRadius.radius8),
-                  border: Border.all(color: AppColors.noteBorder),
+                  border: Border.all(color: context.appBorder),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(AppSpacing.spacing8),
@@ -68,7 +70,7 @@ class PdfSavedNoteSheet extends StatelessWidget {
                     maxLines: 4,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: context.appTextSecondary,
                         ),
                   ),
                 ),
@@ -78,7 +80,7 @@ class PdfSavedNoteSheet extends StatelessWidget {
             Text(
               note.note,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppColors.textPrimary,
+                    color: context.appTextPrimary,
                   ),
             ),
             const SizedBox(height: AppSpacing.spacing24),
@@ -86,7 +88,7 @@ class PdfSavedNoteSheet extends StatelessWidget {
               children: <Widget>[
                 TextButton.icon(
                   onPressed: () => Navigator.of(context).pop(note),
-                  icon: const HugeIcon(
+                  icon: HugeIcon(
                     icon: HugeIcons.strokeRoundedDelete02,
                     color: Color(0xFFC24135),
                     size: 18,

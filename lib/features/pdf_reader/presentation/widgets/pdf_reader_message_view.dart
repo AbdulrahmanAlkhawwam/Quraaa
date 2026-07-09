@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../../shared/extensions/app_context.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../shared/theme/app_colors.dart';
@@ -22,13 +24,13 @@ class PdfReaderMessageView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            HugeIcon(icon: icon, color: AppColors.secondary, size: 56),
+            HugeIcon(icon: icon, color: context.isDark ? AppColors.primary300 : AppColors.secondary, size: 56),
             const SizedBox(height: AppSpacing.spacing16),
             Text(
               message,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppColors.textPrimary,
+                    color: context.appTextPrimary,
                   ),
             ),
           ],

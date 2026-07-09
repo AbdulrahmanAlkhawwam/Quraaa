@@ -54,7 +54,7 @@ class _NotificationBottomSheetState extends State<NotificationBottomSheet> {
     return SafeArea(
       top: false,
       child: Padding(
-        padding: EdgeInsets.fromLTRB(28, 40, 28, bottomInset + 28),
+        padding: EdgeInsetsDirectional.fromSTEB(28, 40, 28, bottomInset + 28),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -213,7 +213,7 @@ class _SettingsSwitch extends StatelessWidget {
         child: AnimatedAlign(
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOut,
-          alignment: value ? Alignment.centerRight : Alignment.centerLeft,
+          alignment: value ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
           child: Container(
             width: 22,
             height: 22,

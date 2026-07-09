@@ -1,7 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import '../../domain/entities/cart_item.dart';
 import '../bloc/cart_bloc.dart';
@@ -14,23 +16,25 @@ import 'cart_totals_card.dart';
 class CartView extends StatelessWidget {
   const CartView({super.key});
 
-  static const Color _background = Colors.white;
-
   @override
   Widget build(BuildContext context) {
+    final Color background = context.appBackground;
+    final Brightness overlayBrightness =
+        context.isDark ? Brightness.light : Brightness.dark;
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: _background,
-        statusBarIconBrightness: Brightness.dark,
-        systemNavigationBarColor: _background,
-        systemNavigationBarIconBrightness: Brightness.dark,
+      value: SystemUiOverlayStyle(
+        statusBarColor: background,
+        statusBarIconBrightness: overlayBrightness,
+        systemNavigationBarColor: background,
+        systemNavigationBarIconBrightness: overlayBrightness,
       ),
       child: MediaQuery(
         data: MediaQuery.of(context).copyWith(
           textScaler: const TextScaler.linear(1),
         ),
         child: Scaffold(
-          backgroundColor: _background,
+          backgroundColor: background,
           bottomNavigationBar: const CartBottomNav(currentIndex: 4),
           body: BlocBuilder<CartBloc, CartState>(
             builder: (BuildContext context, CartState state) {
@@ -65,7 +69,7 @@ class CartView extends StatelessWidget {
 
                   return SafeArea(
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(
+                      padding: EdgeInsetsDirectional.fromSTEB(
                         horizontal,
                         topPadding,
                         horizontal,
@@ -106,9 +110,9 @@ class CartView extends StatelessWidget {
                               child: Padding(
                                 padding: EdgeInsets.symmetric(vertical: 20 * scale),
                                 child: Text(
-                                  'Your cart is empty.',
+                                  LocalizationConstants.cartEmptyKey.tr(),
                                   style: AppTextStyles.bodyLarge.copyWith(
-                                    color: AppColors.textSecondary,
+                                    color: context.appTextSecondary,
                                     fontSize: 17 * scale,
                                   ),
                                 ),

@@ -1,7 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../config/routes/route_names.dart';
+import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 
 class CartBottomNav extends StatelessWidget {
@@ -13,31 +15,31 @@ class CartBottomNav extends StatelessWidget {
     _CartNavDestination(
       icon: HugeIcons.strokeRoundedHome04,
       activeIcon: HugeIcons.strokeRoundedHome01,
-      label: 'home',
+      labelKey: LocalizationConstants.cartNavHomeKey,
       route: RouteNames.home,
     ),
     _CartNavDestination(
       icon: HugeIcons.strokeRoundedStore04,
       activeIcon: HugeIcons.strokeRoundedStore01,
-      label: 'stores',
+      labelKey: LocalizationConstants.cartNavStoresKey,
       route: RouteNames.stores,
     ),
     _CartNavDestination(
       icon: HugeIcons.strokeRoundedBooks01,
       activeIcon: HugeIcons.strokeRoundedBooks02,
-      label: 'libraries',
-      route: RouteNames.userBooks,
+      labelKey: LocalizationConstants.cartNavLibrariesKey,
+      route: RouteNames.libraries,
     ),
     _CartNavDestination(
       icon: HugeIcons.strokeRoundedAudioBook04,
       activeIcon: HugeIcons.strokeRoundedAudioBook04,
-      label: 'audio',
+      labelKey: LocalizationConstants.cartNavAudioKey,
       route: RouteNames.audioBooks,
     ),
     _CartNavDestination(
       icon: HugeIcons.strokeRoundedShoppingCart01,
       activeIcon: HugeIcons.strokeRoundedShoppingCart01,
-      label: 'cart',
+      labelKey: LocalizationConstants.cartNavCartKey,
       route: RouteNames.cart,
     ),
   ];
@@ -47,7 +49,7 @@ class CartBottomNav extends StatelessWidget {
     final double scale = context.compactFeatureScale;
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(
+      padding: EdgeInsetsDirectional.fromSTEB(
         24 * scale,
         8 * scale,
         24 * scale,
@@ -84,13 +86,13 @@ class _CartNavDestination {
   const _CartNavDestination({
     required this.icon,
     required this.activeIcon,
-    required this.label,
+    required this.labelKey,
     required this.route,
   });
 
   final List<List<dynamic>> icon;
   final List<List<dynamic>> activeIcon;
-  final String label;
+  final String labelKey;
   final String route;
 }
 
@@ -127,7 +129,7 @@ class _NavItem extends StatelessWidget {
           alignment: Alignment.center,
           padding: EdgeInsets.symmetric(horizontal: 8 * scale),
           decoration: BoxDecoration(
-            color: _isActive ? Colors.white : Colors.transparent,
+            color: _isActive ? context.appCard : Colors.transparent,
             borderRadius: BorderRadius.circular(30 * scale),
           ),
           child: Row(
@@ -143,7 +145,7 @@ class _NavItem extends StatelessWidget {
                 SizedBox(width: 8 * scale),
                 Flexible(
                   child: Text(
-                    destination.label,
+                    destination.labelKey.tr(),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.bodyMedium.copyWith(

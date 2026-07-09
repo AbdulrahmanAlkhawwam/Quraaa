@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../shared/extensions/app_context.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/localization/localization_constants.dart';
@@ -30,12 +32,12 @@ class ExplorerHeader extends StatelessWidget {
         IconButton(
           tooltip: MaterialLocalizations.of(context).backButtonTooltip,
           onPressed: canNavigateBack ? onNavigateBack : null,
-          icon: const HugeIcon(
+          icon: HugeIcon(
             icon: HugeIcons.strokeRoundedArrowLeft01,
-            color: AppColors.secondary,
+            color: context.isDark ? AppColors.primary300 : AppColors.secondary,
             size: 24,
           ),
-          color: AppColors.secondary,
+          color: context.isDark ? AppColors.primary300 : AppColors.secondary,
           iconSize: 24,
         ),
         Expanded(
@@ -44,33 +46,35 @@ class ExplorerHeader extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: AppTextStyles.explorerTitle().copyWith(
-              color: AppColors.secondary,
+              color: context.isDark ? AppColors.primary300 : AppColors.secondary,
             ),
           ),
         ),
         IconButton(
-          tooltip: isGridMode ? 'List view' : 'Grid view',
+          tooltip: isGridMode
+              ? LocalizationConstants.explorerListViewKey.tr()
+              : LocalizationConstants.explorerGridViewKey.tr(),
           onPressed: onToggleView,
           icon: HugeIcon(
             icon: isGridMode
                 ? HugeIcons.strokeRoundedGridTable
                 : HugeIcons.strokeRoundedViewAgenda,
-            color: AppColors.secondary,
+            color: context.isDark ? AppColors.primary300 : AppColors.secondary,
             size: 25,
           ),
-          color: AppColors.secondary,
+          color: context.isDark ? AppColors.primary300 : AppColors.secondary,
           iconSize: 25,
         ),
         const SizedBox(width: AppSpacing.spacing8),
         IconButton(
           tooltip: MaterialLocalizations.of(context).refreshIndicatorSemanticLabel,
           onPressed: onRefresh,
-          icon: const HugeIcon(
+          icon: HugeIcon(
             icon: HugeIcons.strokeRoundedReload,
-            color: AppColors.secondary,
+            color: context.isDark ? AppColors.primary300 : AppColors.secondary,
             size: 27,
           ),
-          color: AppColors.secondary,
+          color: context.isDark ? AppColors.primary300 : AppColors.secondary,
           iconSize: 27,
         ),
       ],

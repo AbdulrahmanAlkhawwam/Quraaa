@@ -9,6 +9,7 @@ import '../../core/di/injection_container.dart';
 import '../../core/error_monitoring/user_context_provider.dart';
 import '../../core/errors/error_message_resolver.dart';
 import '../models/message.dart';
+import '../theme/app_colors.dart';
 
 extension AppNavigation on BuildContext {
   Future<T?> pushTo<T extends Object?>(
@@ -50,6 +51,22 @@ extension AppThemeX on BuildContext {
   bool get isDark => Theme.of(this).brightness == Brightness.dark;
 
   TextTheme get textTheme => Theme.of(this).textTheme;
+
+  Color get appBackground => Theme.of(this).scaffoldBackgroundColor;
+
+  Color get appSurface => colors.surface;
+
+  Color get appCard => Theme.of(this).cardColor;
+
+  Color get appSubtleSurface => isDark ? AppColors.surfaceDark : AppColors.primary50;
+
+  Color get appBorder => isDark ? AppColors.outlineDark : AppColors.primary100;
+
+  Color get appTextPrimary => colors.onSurface;
+
+  Color get appTextSecondary => colors.onSurfaceVariant;
+
+  Color get appTextTertiary => isDark ? AppColors.textTertiaryDark : AppColors.textTertiary;
 }
 
 extension AppResponsive on BuildContext {

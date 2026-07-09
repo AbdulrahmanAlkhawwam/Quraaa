@@ -49,7 +49,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void _showNotificationSnackBar(BuildContext context, HomeState state) {
     context.showSuccessSnackBar(
       message: Message(
-        title: state.notificationTitle ?? 'New Notification',
+        title: state.notificationTitle ??
+            LocalizationConstants.homeNotificationTitleKey.tr(),
         value: state.notificationBody,
       ),
     );
@@ -80,6 +81,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final String? profileImage = homeState.profileImage;
     final bool hasImage = profileImage != null && profileImage.isNotEmpty;
 
+    final Color headerTextColor =
+        context.isDark ? AppColors.primary300 : AppColors.libraryGreen;
+
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -87,19 +91,14 @@ class _HomeScreenState extends State<HomeScreen> {
       titleSpacing: AppSpacing.spacing16,
       title: Row(
         children: <Widget>[
-          Text(
-            LocalizationConstants.homeGreetingKey.tr(),
-            style: AppTextStyles.h3.copyWith(
-              fontSize: 22,
-              color: AppColors.libraryGreen,
-            ),
-          ),
           Expanded(
             child: Text(
-              firstName,
+              LocalizationConstants.homeGreetingKey.tr(
+                namedArgs: <String, String>{'name': firstName},
+              ),
               style: AppTextStyles.h3.copyWith(
                 fontSize: 22,
-                color: AppColors.libraryGreen,
+                color: headerTextColor,
               ),
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
@@ -115,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
             height: 44,
             margin: const EdgeInsetsDirectional.only(end: AppSpacing.spacing16),
             decoration: BoxDecoration(
-              color: AppColors.primary100,
+              color: context.appSubtleSurface,
               shape: BoxShape.circle,
               border: Border.all(color: AppColors.primary600, width: 2),
             ),
@@ -125,18 +124,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     profileImage,
                     isFile: true,
                     fit: BoxFit.cover,
-                    errorWidget: const Center(
+                    errorWidget: Center(
                       child: HugeIcon(
                         icon: HugeIcons.strokeRoundedUser,
-                        color: AppColors.primary600,
+                        color: context.isDark ? AppColors.primary300 : AppColors.primary600,
                         size: 24,
                       ),
                     ),
                   )
-                : const Center(
+                : Center(
                     child: HugeIcon(
                       icon: HugeIcons.strokeRoundedUser,
-                      color: AppColors.primary600,
+                      color: context.isDark ? AppColors.primary300 : AppColors.primary600,
                       size: 24,
                     ),
                   ),
@@ -149,10 +148,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildBody() {
     final List<Widget> pages = <Widget>[
       const _HomeFeed(),
-      const _PlaceholderPage(title: 'Libraries'),
-      const _PlaceholderPage(title: 'User Books'),
-      const _PlaceholderPage(title: 'Audio Book'),
-      const _PlaceholderPage(title: 'Cart'),
+      const _PlaceholderPage(titleKey: LocalizationConstants.homeNavLibrariesKey),
+      const _PlaceholderPage(titleKey: LocalizationConstants.homeNavUserBooksKey),
+      const _PlaceholderPage(titleKey: LocalizationConstants.homeNavAudioBookKey),
+      const _PlaceholderPage(titleKey: LocalizationConstants.homeNavCartKey),
     ];
 
     return AnimatedSwitcher(
@@ -192,13 +191,14 @@ class _HomeFeed extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final List<Color> backgroundColors = context.isDark
+        ? <Color>[AppColors.neutralBackgroundDark, AppColors.surfaceDark]
+        : <Color>[AppColors.neutralBackground, AppColors.primary50];
+
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: <Color>[
-            AppColors.neutralBackground,
-            AppColors.primary50,
-          ],
+          colors: backgroundColors,
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -279,7 +279,7 @@ class _HomeSearchBar extends StatelessWidget {
         height: 56,
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.spacing18),
         decoration: BoxDecoration(
-          color: AppColors.primary100,
+          color: context.appSubtleSurface,
           borderRadius: BorderRadius.circular(999),
         ),
         child: Row(
@@ -288,7 +288,7 @@ class _HomeSearchBar extends StatelessWidget {
               child: Text(
                 LocalizationConstants.homeSearchHintKey.tr(),
                 style: AppTextStyles.bodyLarge.copyWith(
-                  color: AppColors.primary600,
+                  color: context.isDark ? AppColors.primary300 : AppColors.primary600,
                   fontWeight: FontWeight.w600,
                 ),
                 maxLines: 1,
@@ -309,19 +309,21 @@ class _HomeSearchBar extends StatelessWidget {
 
 /// Simple placeholder page for tabs that are not yet implemented.
 class _PlaceholderPage extends StatelessWidget {
-  const _PlaceholderPage({required this.title});
+  const _PlaceholderPage({required this.titleKey});
 
-  final String title;
+  final String titleKey;
 
   @override
   Widget build(BuildContext context) {
+    final String title = titleKey.tr();
+    final List<Color> backgroundColors = context.isDark
+        ? <Color>[AppColors.neutralBackgroundDark, AppColors.surfaceDark]
+        : <Color>[AppColors.neutralBackground, AppColors.primary50];
+
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: <Color>[
-            AppColors.neutralBackground,
-            AppColors.primary50,
-          ],
+          colors: backgroundColors,
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -334,20 +336,21 @@ class _PlaceholderPage extends StatelessWidget {
               const FlutterLogo(size: 120),
               const SizedBox(height: AppSpacing.spacing24),
               Text(
-                'Welcome to $title',
-                style: const TextStyle(
+                LocalizationConstants.homeFeatureWelcomeToKey.tr(
+                  namedArgs: <String, String>{'title': title},
+                ),
+                style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: context.appTextPrimary,
                 ),
               ),
               const SizedBox(height: AppSpacing.spacing12),
-              const Text(
-                'This page is under development.',
+              Text(
+                LocalizationConstants.homeFeatureUnderDevelopmentKey.tr(),
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppColors.textSecondary,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: context.appTextSecondary,
                 ),
               ),
             ],

@@ -1,9 +1,11 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:quraaa/shared/extensions/app_context.dart';
 
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_radius.dart';
+import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/theme/app_spacing.dart';
 
 /// Floating pill-style bottom navigation bar for the home screen.
@@ -43,7 +45,7 @@ class HomeBottomNav extends StatelessWidget {
                 child: _NavItem(
                   icon: HugeIcons.strokeRoundedHome04,
                   activeIcon: HugeIcons.strokeRoundedHome01,
-                  label: 'Home',
+                  label: LocalizationConstants.homeNavHomeKey.tr(),
                   isActive: currentIndex == 0,
                   onTap: () => onTap(0),
                 ),
@@ -53,7 +55,7 @@ class HomeBottomNav extends StatelessWidget {
                 child: _NavItem(
                   icon: HugeIcons.strokeRoundedStore04,
                   activeIcon: HugeIcons.strokeRoundedStore01,
-                  label: 'Libraries',
+                  label: LocalizationConstants.homeNavLibrariesKey.tr(),
                   isActive: currentIndex == 1,
                   onTap: () => onTap(1),
                 ),
@@ -63,7 +65,7 @@ class HomeBottomNav extends StatelessWidget {
                 child: _NavItem(
                   icon: HugeIcons.strokeRoundedBooks01,
                   activeIcon: HugeIcons.strokeRoundedBooks02,
-                  label: 'User Books',
+                  label: LocalizationConstants.homeNavUserBooksKey.tr(),
                   isActive: currentIndex == 2,
                   onTap: () => onTap(2),
                 ),
@@ -73,7 +75,7 @@ class HomeBottomNav extends StatelessWidget {
                 child: _NavItem(
                   icon: HugeIcons.strokeRoundedAudioBook04,
                   activeIcon: HugeIcons.strokeRoundedAudioBook04,
-                  label: 'Audio Book',
+                  label: LocalizationConstants.homeNavAudioBookKey.tr(),
                   isActive: currentIndex == 3,
                   onTap: () => onTap(3),
                 ),
@@ -83,7 +85,7 @@ class HomeBottomNav extends StatelessWidget {
                 child: _NavItem(
                   icon: HugeIcons.strokeRoundedShoppingCart01,
                   activeIcon: HugeIcons.strokeRoundedShoppingCart01,
-                  label: 'Cart',
+                  label: LocalizationConstants.homeNavCartKey.tr(),
                   isActive: currentIndex == 4,
                   onTap: () => onTap(4),
                 ),
@@ -125,7 +127,7 @@ class _NavItem extends StatelessWidget {
           vertical: AppSpacing.spacing8,
         ),
         decoration: BoxDecoration(
-          color: isActive ? AppColors.card : Colors.transparent,
+          color: isActive ? context.appCard : Colors.transparent,
           borderRadius: BorderRadius.circular(AppRadius.radius24),
         ),
         child: Row(
@@ -146,7 +148,7 @@ class _NavItem extends StatelessWidget {
                 size: 24,
               ),
             ),
-            isActive ? SizedBox(width: AppSpacing.spacing8) : SizedBox.shrink(),
+            if (isActive) const SizedBox(width: AppSpacing.spacing8),
             Flexible(
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),

@@ -75,7 +75,7 @@ class PreferenceSelectionBottomSheet<T> extends StatelessWidget {
             children: <Widget>[
               const BottomSheetDragHandle(),
               Padding(
-                padding: const EdgeInsets.fromLTRB(
+                padding: const EdgeInsetsDirectional.fromSTEB(
                   AppSpacing.spacing24,
                   AppSpacing.spacing8,
                   AppSpacing.spacing24,

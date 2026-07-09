@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../config/env/env.dart';
 import '../../core/di/injection_container.dart';
 import '../../core/error_monitoring/device_info_provider.dart';
+import '../extensions/app_context.dart';
 import '../../shared/theme/app_colors.dart';
 import '../../shared/theme/app_radius.dart';
 import '../../shared/theme/app_spacing.dart';
@@ -156,7 +157,7 @@ class _DebugInfoSheetState extends State<_DebugInfoSheet> {
       margin: const EdgeInsets.all(AppSpacing.spacing16),
       padding: const EdgeInsets.all(AppSpacing.spacing20),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: context.appCard,
         borderRadius: BorderRadius.circular(AppRadius.radius32),
       ),
       constraints: BoxConstraints(
@@ -173,14 +174,14 @@ class _DebugInfoSheetState extends State<_DebugInfoSheet> {
                 child: Text(
                   'Dev Debug Info',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: AppColors.textPrimary,
+                    color: context.appTextPrimary,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
               IconButton(
                 onPressed: () => Navigator.of(context).pop(),
-                icon: const Icon(Icons.close, color: AppColors.textSecondary),
+                icon: Icon(Icons.close, color: context.appTextSecondary),
               ),
             ],
           ),
@@ -192,32 +193,34 @@ class _DebugInfoSheetState extends State<_DebugInfoSheet> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        _buildSectionTitle('Connectivity'),
+                        _buildSectionTitle(context, 'Connectivity'),
                         _buildInfoRow(
+                          context,
                           'Status',
                           _connectivityStatus ?? 'Unknown',
                         ),
                         _buildInfoRow(
+                          context,
                           'Internet Access',
                           _hasInternet == true ? 'Yes' : 'No',
                         ),
                         const SizedBox(height: 16),
-                        _buildSectionTitle('Device'),
+                        _buildSectionTitle(context, 'Device'),
                         ..._deviceData!.entries.map(
                           (MapEntry<String, String> e) =>
-                              _buildInfoRow(e.key, e.value),
+                              _buildInfoRow(context, e.key, e.value),
                         ),
                         const SizedBox(height: 16),
-                        _buildSectionTitle('Cache (SharedPreferences)'),
+                        _buildSectionTitle(context, 'Cache (SharedPreferences)'),
                         if (_cacheData == null || _cacheData!.isEmpty)
-                          const Text(
+                          Text(
                             'No cached data',
-                            style: TextStyle(color: AppColors.textSecondary),
+                            style: TextStyle(color: context.appTextSecondary),
                           )
                         else
                           ..._cacheData!.entries.map(
                             (MapEntry<String, dynamic> e) =>
-                                _buildInfoRow(e.key, _formatValue(e.value)),
+                                _buildInfoRow(context, e.key, _formatValue(e.value)),
                           ),
                       ],
                     ),
@@ -228,21 +231,21 @@ class _DebugInfoSheetState extends State<_DebugInfoSheet> {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionTitle(BuildContext context, String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontWeight: FontWeight.w700,
           fontSize: 16,
-          color: AppColors.libraryGreen,
+          color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
         ),
       ),
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
+  Widget _buildInfoRow(BuildContext context, String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -252,19 +255,19 @@ class _DebugInfoSheetState extends State<_DebugInfoSheet> {
             width: 120,
             child: Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
-                color: AppColors.textSecondary,
+                color: context.appTextSecondary,
               ),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
-                color: AppColors.textPrimary,
+                color: context.appTextPrimary,
               ),
             ),
           ),

@@ -149,9 +149,9 @@ class _AppShellState extends State<AppShell> {
     final UserDataSnapshot? snapshot = _snapshot;
 
     if (_loading || snapshot == null) {
-      return const Scaffold(
-        backgroundColor: AppColors.neutralBackground,
-        body: Center(child: CircularProgressIndicator()),
+      return Scaffold(
+        backgroundColor: context.appBackground,
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 
@@ -175,14 +175,14 @@ class _AppShellState extends State<AppShell> {
         final String? profileImageUrl = mergedSnapshot.profileImage;
 
         return Scaffold(
-          backgroundColor: AppColors.neutralBackground,
+          backgroundColor: context.appBackground,
           body: CustomScrollView(
             slivers: [
               SliverAppBar(
                 expandedHeight: _headerExpandedHeight,
                 toolbarHeight: _headerToolbarHeight,
                 pinned: true,
-                backgroundColor: AppColors.primary50,
+                backgroundColor: context.appSubtleSurface,
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(AppRadius.radius40),
@@ -192,8 +192,8 @@ class _AppShellState extends State<AppShell> {
                 leading: IconButton(
                   onPressed: () => context.back(),
                   icon: HugeIcon(
-                    icon: HugeIcons.strokeRoundedArrowLeft01,
-                    color: AppColors.libraryGreen,
+                    icon: context.isRTL ? HugeIcons.strokeRoundedArrowRight01 : HugeIcons.strokeRoundedArrowLeft01,
+                    color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
                     size: _backIconSize,
                   ),
                 ),
@@ -201,11 +201,11 @@ class _AppShellState extends State<AppShell> {
                 title: Text(
                   _tabTitle(context),
                   style: AppTextStyles.h3.copyWith(
-                    color: AppColors.libraryGreen,
+                    color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
                   ),
                 ),
-                flexibleSpace: const FlexibleSpaceBar(
-                  background: ColoredBox(color: AppColors.primary50),
+                flexibleSpace: FlexibleSpaceBar(
+                  background: ColoredBox(color: context.appSubtleSurface),
                 ),
                 bottom: PreferredSize(
                   preferredSize: const Size.fromHeight(_headerBottomHeight),
@@ -305,24 +305,25 @@ class _AppShellState extends State<AppShell> {
   ) {
     final List<_ProfileMenuEntry> entries = <_ProfileMenuEntry>[
       _ProfileMenuEntry(
-        title: 'My Personal Information',
+        title: LocalizationConstants.profileMenuPersonalInfoKey.tr(),
         onTap: () => _openEditor(UserDataTab.idCard),
       ),
       _ProfileMenuEntry(
-        title: 'My Locations',
-        onTap: () =>
-            _showComingSoonSnack('Locations feature is under development.'),
+        title: LocalizationConstants.profileMenuLocationsKey.tr(),
+        onTap: () => _showComingSoonSnack(
+          LocalizationConstants.profileMenuLocationsKey.tr(),
+        ),
       ),
       _ProfileMenuEntry(
-        title: 'Payment Information',
+        title: LocalizationConstants.profileMenuPaymentInfoKey.tr(),
         onTap: () => _openEditor(UserDataTab.badges),
       ),
       _ProfileMenuEntry(
-        title: 'My Personal Files',
+        title: LocalizationConstants.profileMenuPersonalFilesKey.tr(),
         onTap: () => _openEditor(UserDataTab.badges),
       ),
       _ProfileMenuEntry(
-        title: 'My Badges',
+        title: LocalizationConstants.profileMenuBadgesKey.tr(),
         onTap: () => setState(() => _selectedTab = UserDataTab.badges),
       ),
     ];
@@ -364,9 +365,14 @@ class _AppShellState extends State<AppShell> {
     );
   }
 
-  void _showComingSoonSnack(String message) {
+  void _showComingSoonSnack(String feature) {
     context.showSuccessSnackBar(
-      message: Message(title: 'Coming Soon', value: message),
+      message: Message(
+        title: LocalizationConstants.profileComingSoonTitleKey.tr(),
+        value: LocalizationConstants.profileComingSoonMessageKey.tr(
+          namedArgs: <String, String>{'feature': feature},
+        ),
+      ),
     );
   }
 
@@ -419,7 +425,7 @@ class _AppShellState extends State<AppShell> {
             .map(
               (title) => _MenuItem(
                 title: title,
-                backgroundColor: AppColors.card,
+                backgroundColor: context.appCard,
                 borderRadius: AppRadius.radius24,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.spacing20,
@@ -441,11 +447,11 @@ class _AppShellState extends State<AppShell> {
       builder: (BuildContext ctx) {
         return AlertDialog(
           title: Text(title),
-          content: const Text('This screen has not been designed yet.'),
+          content: Text(LocalizationConstants.profileDialogNotDesignedContentKey.tr()),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Close'),
+              child: Text(LocalizationConstants.commonCloseKey.tr()),
             ),
           ],
         );
@@ -506,9 +512,9 @@ class _DataCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: context.appCard,
         borderRadius: BorderRadius.circular(AppRadius.radius32),
-        border: Border.all(color: AppColors.primary100),
+        border: Border.all(color: context.appBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -529,17 +535,17 @@ class _DataCard extends StatelessWidget {
                   child: Text(
                     value,
                     style: AppTextStyles.bodyLarge.copyWith(
-                      color: AppColors.textPrimary,
+                      color: context.appTextPrimary,
                     ),
                   ),
                 ),
               ),
               if (!isLast)
-                const Divider(
+                Divider(
                   height: 1,
                   indent: AppSpacing.spacing20,
                   endIndent: AppSpacing.spacing20,
-                  color: AppColors.primary100,
+                  color: context.appBorder,
                 ),
             ],
           );
@@ -584,7 +590,7 @@ class _SegmentTab extends StatelessWidget {
           child: Text(
             label,
             style: AppTextStyles.bodyLarge.copyWith(
-              color: selected ? AppColors.card : AppColors.textSecondary,
+              color: selected ? AppColors.card : context.appTextSecondary,
               fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
             ),
           ),
@@ -619,13 +625,18 @@ class _MenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color effectiveBackgroundColor =
+        backgroundColor == AppColors.primary50 || backgroundColor == AppColors.card
+            ? context.appCard
+            : backgroundColor;
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(borderRadius),
       child: Container(
         padding: contentPadding,
         decoration: BoxDecoration(
-          color: backgroundColor,
+          color: effectiveBackgroundColor,
           borderRadius: BorderRadius.circular(borderRadius),
           boxShadow: boxShadow,
         ),
@@ -635,13 +646,13 @@ class _MenuItem extends StatelessWidget {
               child: Text(
                 title,
                 style: AppTextStyles.bodyLarge.copyWith(
-                  color: AppColors.textPrimary,
+                  color: context.appTextPrimary,
                 ),
               ),
             ),
             HugeIcon(
-              icon: HugeIcons.strokeRoundedArrowRight01,
-              color: AppColors.primary600,
+              icon: context.isRTL ? HugeIcons.strokeRoundedArrowLeft01 : HugeIcons.strokeRoundedArrowRight01,
+              color: context.isDark ? AppColors.primary300 : AppColors.primary600,
               size: _chevronIconSize,
             ),
           ],
@@ -706,8 +717,8 @@ class _UserDataEditScreenState extends State<UserDataEditScreen> {
       case UserDataTab.settings:
         _oneController.text = widget.snapshot.theme;
         _twoController.text = widget.snapshot.language == 'ar'
-            ? 'Arabic'
-            : 'English';
+            ? LocalizationConstants.userDataArabicLanguageKey.tr()
+            : LocalizationConstants.userDataEnglishLanguageKey.tr();
         break;
       case UserDataTab.history:
         _oneController.text = widget.snapshot.operations.join('\n');
@@ -764,8 +775,12 @@ class _UserDataEditScreenState extends State<UserDataEditScreen> {
         break;
       case UserDataTab.settings:
         final String languageInput = _twoController.text.trim().toLowerCase();
-        final String languageCode =
-            (languageInput == 'arabic' || languageInput == 'ar') ? 'ar' : 'en';
+        final String arabicLabel =
+            LocalizationConstants.userDataArabicLanguageKey.tr().toLowerCase();
+        final bool isArabic = languageInput == 'arabic' ||
+            languageInput == 'ar' ||
+            languageInput == arabicLabel;
+        final String languageCode = isArabic ? 'ar' : 'en';
         await widget.dataSource.saveAppearance(
           theme: _oneController.text.trim(),
           language: languageCode,
@@ -832,14 +847,14 @@ class _UserDataEditScreenState extends State<UserDataEditScreen> {
                     onBackPressed: () => Navigator.of(context).pop(),
                     onActionPressed: () => Navigator.of(context).pop(),
                     actionIcon: HugeIcons.strokeRoundedPencil,
-                    rtl: true /*context.isRTL*/,
+                    rtl: context.isRTL,
                   ),
                   const SizedBox(height: AppSpacing.spacing20),
                   Expanded(
                     child: Container(
                       padding: const EdgeInsets.all(AppSpacing.spacing20),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.appCard,
                         borderRadius: BorderRadius.circular(AppRadius.radius32),
                       ),
                       child: ListView(
@@ -875,7 +890,7 @@ class _UserDataEditScreenState extends State<UserDataEditScreen> {
                               LocalizationConstants.userDataEditMultilineHintKey
                                   .tr(),
                               style: AppTextStyles.bodySmall.copyWith(
-                                color: AppColors.textSecondary,
+                                color: context.appTextSecondary,
                               ),
                             ),
                           ],

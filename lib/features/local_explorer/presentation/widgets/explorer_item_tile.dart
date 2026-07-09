@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/extensions/app_context.dart';
+
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/app_spacing.dart';
@@ -73,7 +75,7 @@ class ExplorerItemTile extends StatelessWidget {
                               .textTheme
                               .bodyMedium
                               ?.copyWith(
-                                color: AppColors.textPrimary,
+                                color: context.appTextPrimary,
                                 height: 1.1,
                               ),
                         ),
@@ -82,7 +84,7 @@ class ExplorerItemTile extends StatelessWidget {
                       Text(
                         _trailingLabel(entry),
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: AppColors.textMuted,
+                              color: context.appTextTertiary,
                               fontWeight: FontWeight.w700,
                             ),
                       ),

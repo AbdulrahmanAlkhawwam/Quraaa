@@ -1,5 +1,7 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+
+import '../extensions/app_context.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../theme/app_colors.dart';
@@ -31,6 +33,15 @@ class ExpandableSearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color effectiveBackgroundColor =
+        backgroundColor == AppColors.primary50 && context.isDark
+            ? context.appSubtleSurface
+            : backgroundColor;
+    final Color effectiveBorderColor =
+        borderColor == AppColors.primary100 && context.isDark
+            ? context.appBorder
+            : borderColor;
+
     return OpenContainer<void>(
       transitionType: ContainerTransitionType.fadeThrough,
       transitionDuration: const Duration(milliseconds: 500),
@@ -41,9 +52,9 @@ class ExpandableSearchBar extends StatelessWidget {
             height: height,
             margin: margin,
             decoration: BoxDecoration(
-              color: backgroundColor,
+              color: effectiveBackgroundColor,
               borderRadius: BorderRadius.circular(AppRadius.radius40),
-              border: Border.all(color: borderColor),
+              border: Border.all(color: effectiveBorderColor),
               boxShadow: <BoxShadow>[
                 BoxShadow(
                   color: AppColors.primary900.withValues(alpha: 0.05),
@@ -63,7 +74,7 @@ class ExpandableSearchBar extends StatelessWidget {
                       Text(
                         title,
                         style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.primary700,
+                          color: context.isDark ? AppColors.primary300 : AppColors.primary700,
                           fontWeight: FontWeight.w600,
                         ),
                         maxLines: 1,
@@ -72,7 +83,7 @@ class ExpandableSearchBar extends StatelessWidget {
                       Text(
                         subtitle,
                         style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.textTertiary,
+                          color: context.appTextTertiary,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -94,7 +105,7 @@ class ExpandableSearchBar extends StatelessWidget {
                   child: Center(
                     child: HugeIcon(
                       icon: leadingIcon,
-                      color: AppColors.primary500,
+                      color: context.isDark ? AppColors.primary300 : AppColors.primary500,
                       size: 20,
                     ),
                   ),
@@ -114,9 +125,9 @@ class ExpandableSearchBar extends StatelessWidget {
       openShape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.zero,
       ),
-      closedColor: backgroundColor,
-      openColor: AppColors.neutralBackground,
-      middleColor: AppColors.neutralBackground,
+      closedColor: effectiveBackgroundColor,
+      openColor: context.appBackground,
+      middleColor: context.appBackground,
       closedElevation: 0,
       openElevation: 0,
     );

@@ -29,32 +29,32 @@ class AccountTypePage extends StatelessWidget {
         backgroundColor: palette.background,
         body: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(38, 28, 38, 24),
+            padding: const EdgeInsetsDirectional.fromSTEB(38, 28, 38, 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 _AccountTypeHeader(palette: palette),
                 const SizedBox(height: 16),
                 AccountTypeCard(
-                  title: 'Personal Account',
+                  title: LocalizationConstants.settingsAccountTypePersonalTitleKey.tr(),
                   description:
-                      'this account is for one user without any subscription',
-                  badgeText: 'Current Plan',
+                      LocalizationConstants.settingsAccountTypePersonalDescriptionKey.tr(),
+                  badgeText: LocalizationConstants.settingsAccountTypeCurrentPlanKey.tr(),
                   selected: true,
                   badgeColor: palette.accent,
                   badgeTextColor: palette.onAccent,
                 ),
                 const SizedBox(height: 22),
-                const AccountTypeCard(
-                  title: 'Family Account',
+                AccountTypeCard(
+                  title: LocalizationConstants.settingsAccountTypeFamilyTitleKey.tr(),
                   description:
-                      'this account is for 5 person . can share your date but without any subscription',
+                      LocalizationConstants.settingsAccountTypeFamilyDescriptionKey.tr(),
                 ),
                 const SizedBox(height: 22),
                 AccountTypeCard(
-                  title: 'Pro Account',
+                  title: LocalizationConstants.settingsAccountTypeProTitleKey.tr(),
                   description:
-                      'this account is for one user with unlimited AI',
+                      LocalizationConstants.settingsAccountTypeProDescriptionKey.tr(),
                   badgeText: '\$20/mo',
                   badgeColor: const Color(0xFF4D194D),
                   badgeTextColor: Colors.white,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/assets/app_images.dart';
+import '../extensions/app_context.dart';
 import '../theme/app_colors.dart';
 import 'app_image.dart';
 import '../theme/app_radius.dart';
@@ -13,7 +14,7 @@ class AppLayout extends StatelessWidget {
     this.header = const SizedBox.shrink(),
     this.cardColor = AppColors.primary50,
     this.topRadius = AppRadius.radius40,
-    this.padding = const EdgeInsets.fromLTRB(
+    this.padding = const EdgeInsetsDirectional.fromSTEB(
       AppSpacing.spacing24,
       AppSpacing.spacing32,
       AppSpacing.spacing24,
@@ -36,10 +37,15 @@ class AppLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color effectiveCardColor =
+        cardColor == AppColors.primary50 && context.isDark
+        ? AppColors.surfaceDark
+        : cardColor;
+
     Widget contentCard = Container(
       padding: padding,
       decoration: BoxDecoration(
-        color: cardColor,
+        color: effectiveCardColor,
         borderRadius: BorderRadius.vertical(top: Radius.circular(topRadius)),
       ),
       child: SafeArea(child: child),

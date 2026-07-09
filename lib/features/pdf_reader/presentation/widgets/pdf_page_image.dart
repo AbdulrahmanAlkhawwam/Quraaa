@@ -2,6 +2,8 @@ import 'dart:math' as math;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../shared/extensions/app_context.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../core/localization/localization_constants.dart';
@@ -146,9 +148,9 @@ class _PdfPageImageState extends State<PdfPageImage> {
                     height: pageHeight,
                     child: DecoratedBox(
                       decoration: BoxDecoration(
-                        color: AppColors.surfaceLight,
+                        color: context.appCard,
                         borderRadius: BorderRadius.circular(AppRadius.radius8),
-                        border: Border.all(color: AppColors.borderLight),
+                        border: Border.all(color: context.appBorder),
                         boxShadow: AppShadows.elevation1,
                       ),
                       child: ClipRRect(

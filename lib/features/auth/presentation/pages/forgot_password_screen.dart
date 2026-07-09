@@ -93,9 +93,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     children: [
                       IconButton(
                         onPressed: () => context.back(),
-                        icon: const Icon(
-                          Icons.arrow_back_ios,
-                          color: AppColors.libraryGreen,
+                        icon: Icon(
+                          context.isRTL ? Icons.arrow_forward_ios : Icons.arrow_back_ios,
+                          color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
                         ),
                       ),
                       Expanded(
@@ -118,7 +118,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         .authForgotPasswordDescriptionKey
                         .tr(),
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textTertiary,
+                      color: context.appTextTertiary,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.spacing24),

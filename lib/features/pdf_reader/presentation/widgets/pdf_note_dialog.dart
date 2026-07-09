@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../shared/extensions/app_context.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/localization/localization_constants.dart';
@@ -40,9 +42,9 @@ class _PdfNoteDialogState extends State<PdfNoteDialog> {
         constraints: const BoxConstraints(maxWidth: 360),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: AppColors.surfaceLight,
+            color: context.appCard,
             borderRadius: BorderRadius.circular(AppRadius.radius16),
-            border: Border.all(color: AppColors.borderLight),
+            border: Border.all(color: context.appBorder),
             boxShadow: AppShadows.elevation1,
           ),
           child: Padding(
@@ -66,26 +68,26 @@ class _PdfNoteDialogState extends State<PdfNoteDialog> {
                   decoration: InputDecoration(
                     hintText: LocalizationConstants.pdfReaderNoteHintKey.tr(),
                     hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textMuted,
+                          color: context.appTextTertiary,
                         ),
                     filled: true,
-                    fillColor: AppColors.backgroundLight,
+                    fillColor: context.appBackground,
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(AppRadius.radius8),
-                      borderSide: const BorderSide(
-                        color: AppColors.borderLight,
+                      borderSide: BorderSide(
+                        color: context.appBorder,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(AppRadius.radius8),
-                      borderSide: const BorderSide(
-                        color: AppColors.secondary,
+                      borderSide: BorderSide(
+                        color: context.isDark ? AppColors.primary300 : AppColors.secondary,
                         width: 1.4,
                       ),
                     ),
                   ),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textPrimary,
+                        color: context.appTextPrimary,
                       ),
                 ),
                 const SizedBox(height: AppSpacing.spacing24),
@@ -95,8 +97,8 @@ class _PdfNoteDialogState extends State<PdfNoteDialog> {
                       child: OutlinedButton(
                         onPressed: () => Navigator.of(context).pop<String>(),
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.textPrimary,
-                          side: const BorderSide(color: AppColors.noteBorder),
+                          foregroundColor: context.appTextPrimary,
+                          side: BorderSide(color: context.appBorder),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(AppRadius.radius8),
                           ),
@@ -113,8 +115,8 @@ class _PdfNoteDialogState extends State<PdfNoteDialog> {
                           Navigator.of(context).pop(_controller.text.trim());
                         },
                         style: FilledButton.styleFrom(
-                          backgroundColor: AppColors.secondary,
-                          foregroundColor: AppColors.surfaceLight,
+                          backgroundColor: context.isDark ? AppColors.primary300 : AppColors.secondary,
+                          foregroundColor: AppColors.card,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(AppRadius.radius8),
                           ),
@@ -144,16 +146,16 @@ class _DialogHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: <Widget>[
-        const DecoratedBox(
+        DecoratedBox(
           decoration: BoxDecoration(
-            color: AppColors.noteSurface,
+            color: context.appSubtleSurface,
             shape: BoxShape.circle,
           ),
           child: Padding(
             padding: EdgeInsets.all(AppSpacing.spacing8),
             child: HugeIcon(
               icon: HugeIcons.strokeRoundedStickyNote02,
-              color: AppColors.secondary,
+              color: context.isDark ? AppColors.primary300 : AppColors.secondary,
               size: 22,
             ),
           ),
@@ -165,7 +167,7 @@ class _DialogHeader extends StatelessWidget {
                 ? LocalizationConstants.pdfReaderNoteTitleKey.tr()
                 : LocalizationConstants.pdfReaderPageNoteTitleKey.tr(),
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: AppColors.textPrimary,
+                  color: context.appTextPrimary,
                   fontWeight: FontWeight.w700,
                 ),
           ),
@@ -188,9 +190,9 @@ class _NoteContext extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: AppColors.noteSurface,
+        color: context.appSubtleSurface,
         borderRadius: BorderRadius.circular(AppRadius.radius8),
-        border: Border.all(color: AppColors.noteBorder),
+        border: Border.all(color: context.appBorder),
       ),
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.spacing8),
@@ -201,7 +203,7 @@ class _NoteContext extends StatelessWidget {
           maxLines: hasSelectedText ? 3 : 2,
           overflow: TextOverflow.ellipsis,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.textSecondary,
+                color: context.appTextSecondary,
               ),
         ),
       ),

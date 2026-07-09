@@ -43,7 +43,7 @@ class LibraryAuthorCard extends StatelessWidget {
             Text(
               author.name,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textPrimary,
+                color: context.appTextPrimary,
                 fontWeight: FontWeight.w600,
               ),
               maxLines: 1,

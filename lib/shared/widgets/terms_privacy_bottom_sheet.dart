@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/localization/localization_constants.dart';
+import '../extensions/app_context.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_radius.dart';
 import '../theme/app_spacing.dart';
@@ -110,8 +111,8 @@ class TermsPrivacyBottomSheet extends StatelessWidget {
       snapSizes: const <double>[0.85, 1.0],
       builder: (BuildContext context, ScrollController scrollController) {
         return Container(
-          decoration: const BoxDecoration(
-            color: AppColors.card,
+          decoration: BoxDecoration(
+            color: context.appCard,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(AppRadius.radius40),
               topRight: Radius.circular(AppRadius.radius40),
@@ -145,8 +146,8 @@ class TermsPrivacyBottomSheet extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.spacing8),
-                    const Divider(
-                      color: AppColors.primary100,
+                    Divider(
+                      color: context.appSubtleSurface,
                       indent: AppSpacing.spacing24,
                       endIndent: AppSpacing.spacing24,
                     ),
@@ -164,14 +165,14 @@ class TermsPrivacyBottomSheet extends StatelessWidget {
                       Text(
                         LocalizationConstants.termsPrivacyLastUpdatedKey.tr(),
                         style: AppTextStyles.caption.copyWith(
-                          color: AppColors.textTertiary,
+                          color: context.appTextTertiary,
                         ),
                       ),
                       const SizedBox(height: AppSpacing.spacing16),
                       Text(
                         LocalizationConstants.termsPrivacyWelcomeKey.tr(),
                         style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.textPrimary,
+                          color: context.appTextPrimary,
                         ),
                       ),
                       const SizedBox(height: AppSpacing.spacing24),
@@ -204,7 +205,7 @@ class TermsPrivacyBottomSheet extends StatelessWidget {
     required String content,
   }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.spacing16),
+      padding: const EdgeInsetsDirectional.only(bottom: AppSpacing.spacing16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -214,8 +215,8 @@ class TermsPrivacyBottomSheet extends StatelessWidget {
               Container(
                 width: 24,
                 height: 24,
-                decoration: const BoxDecoration(
-                  color: AppColors.primary100,
+                decoration: BoxDecoration(
+                  color: context.appSubtleSurface,
                   shape: BoxShape.circle,
                 ),
                 child: Center(
@@ -241,11 +242,11 @@ class TermsPrivacyBottomSheet extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.spacing8),
           Padding(
-            padding: const EdgeInsets.only(left: 36),
+            padding: const EdgeInsetsDirectional.only(start: 36),
             child: Text(
               content,
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondary,
+                color: context.appTextSecondary,
                 height: 1.5,
               ),
             ),
@@ -281,7 +282,7 @@ class TermsPrivacyTextButton extends StatelessWidget {
             TextSpan(
               text: LocalizationConstants.termsPrivacyContinueTextPart1Key.tr(),
               style: AppTextStyles.caption.copyWith(
-                color: AppColors.textTertiary,
+                color: context.appTextTertiary,
               ),
             ),
             TextSpan(

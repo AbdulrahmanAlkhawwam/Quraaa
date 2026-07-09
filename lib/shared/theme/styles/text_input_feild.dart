@@ -6,26 +6,26 @@ import 'text_styles.dart';
 InputDecorationTheme textInputFeildTheme(ColorScheme colors) {
   return InputDecorationTheme(
     filled: true,
-    fillColor: AppColors.card,
+    fillColor: colors.surface,
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-    hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiary),
-    labelStyle: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
-    floatingLabelStyle: AppTextStyles.bodySmall.copyWith(color: AppColors.primary600),
-    helperStyle: AppTextStyles.caption.copyWith(color: AppColors.textTertiary),
+    hintStyle: AppTextStyles.bodyMedium.copyWith(color: colors.onSurfaceVariant),
+    labelStyle: AppTextStyles.bodySmall.copyWith(color: colors.onSurfaceVariant),
+    floatingLabelStyle: AppTextStyles.bodySmall.copyWith(color: colors.primary),
+    helperStyle: AppTextStyles.caption.copyWith(color: colors.onSurfaceVariant),
     errorStyle: AppTextStyles.caption.copyWith(color: AppColors.error500),
-    prefixIconColor: AppColors.textTertiary,
-    suffixIconColor: AppColors.primary600,
+    prefixIconColor: colors.onSurfaceVariant,
+    suffixIconColor: colors.primary,
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppRadius.radius12),
-      borderSide: const BorderSide(color: AppColors.primary200, width: 1),
+      borderSide: BorderSide(color: colors.outline, width: 1),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppRadius.radius12),
-      borderSide: const BorderSide(color: AppColors.primary200, width: 1),
+      borderSide: BorderSide(color: colors.outline, width: 1),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppRadius.radius12),
-      borderSide: const BorderSide(color: AppColors.primary600, width: 1.5),
+      borderSide: BorderSide(color: colors.primary, width: 1.5),
     ),
     errorBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppRadius.radius12),
@@ -37,7 +37,7 @@ InputDecorationTheme textInputFeildTheme(ColorScheme colors) {
     ),
     disabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppRadius.radius12),
-      borderSide: const BorderSide(color: AppColors.surface, width: 1),
+      borderSide: BorderSide(color: colors.outline.withAlpha(80), width: 1),
     ),
   );
 }

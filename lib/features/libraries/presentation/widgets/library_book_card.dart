@@ -44,7 +44,7 @@ class LibraryDetailsBookCard extends StatelessWidget {
             Text(
               book.title,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textPrimary,
+                color: context.appTextPrimary,
                 fontWeight: FontWeight.w600,
               ),
               maxLines: 1,
@@ -54,7 +54,7 @@ class LibraryDetailsBookCard extends StatelessWidget {
             Text(
               book.author,
               style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondary,
+                color: context.appTextSecondary,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

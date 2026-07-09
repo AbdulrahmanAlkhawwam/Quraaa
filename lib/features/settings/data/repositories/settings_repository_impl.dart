@@ -1,4 +1,6 @@
 import '../../../../core/architecture/result.dart';
+import '../../../../core/constants/app_storage_keys.dart';
+import '../../../../core/services/storage_service.dart';
 import '../../domain/entities/appearance_option.dart';
 import '../../domain/entities/language_option.dart';
 import '../../domain/entities/notification_setting.dart';
@@ -6,13 +8,22 @@ import '../../domain/entities/settings_section.dart';
 import '../../domain/entities/settings_tab.dart';
 import '../../domain/repositories/settings_repository.dart';
 
-/// Dummy implementation of [SettingsRepository].
-///
-/// All settings are placeholders and do not affect the application state.
-/// This implementation can later be replaced by one that reads from and
-/// writes to persistent storage.
+/// Local settings repository backed by [StorageService].
 class SettingsRepositoryImpl extends SettingsRepository {
-  const SettingsRepositoryImpl();
+  SettingsRepositoryImpl(this._storageService);
+
+  final StorageService _storageService;
+
+  static const Set<String> _supportedAppearanceIds = <String>{
+    'light',
+    'dark',
+    'system',
+  };
+
+  static const Set<String> _supportedLanguageIds = <String>{
+    'en',
+    'ar',
+  };
 
   static const List<SettingsTab> _tabs = <SettingsTab>[
     SettingsTab(id: 'profile', labelKey: 'settings.tabs.profile', iconKey: 'user'),
@@ -136,95 +147,77 @@ class SettingsRepositoryImpl extends SettingsRepository {
     ),
   ];
 
-  static final List<AppearanceOption> _appearanceOptions = <AppearanceOption>[
-    const AppearanceOption(
+  static const List<AppearanceOption> _appearanceOptions = <AppearanceOption>[
+    AppearanceOption(
       id: 'light',
       labelKey: 'settings.appearance.lightMode',
       mode: AppearanceMode.light,
       selected: false,
     ),
-    const AppearanceOption(
+    AppearanceOption(
       id: 'dark',
       labelKey: 'settings.appearance.darkMode',
       mode: AppearanceMode.dark,
       selected: false,
     ),
-    const AppearanceOption(
+    AppearanceOption(
       id: 'system',
       labelKey: 'settings.appearance.deviceSystem',
       mode: AppearanceMode.system,
-      selected: true,
+      selected: false,
     ),
   ];
 
-  static final List<NotificationSetting> _notificationSettings =
+  static const List<NotificationSetting> _notificationSettings =
       <NotificationSetting>[
-    const NotificationSetting(
+    NotificationSetting(
       id: 'new_update',
       labelKey: 'settings.notification.newUpdate',
       value: true,
     ),
-    const NotificationSetting(
+    NotificationSetting(
       id: 'ads',
       labelKey: 'settings.notification.ads',
       value: false,
     ),
-    const NotificationSetting(
+    NotificationSetting(
       id: 'payment',
       labelKey: 'settings.notification.payment',
       value: true,
     ),
-    const NotificationSetting(
+    NotificationSetting(
       id: 'new_book_version',
       labelKey: 'settings.notification.newBookVersion',
       value: true,
     ),
-    const NotificationSetting(
+    NotificationSetting(
       id: 'finish_book',
       labelKey: 'settings.notification.finishBook',
       value: true,
     ),
-    const NotificationSetting(
+    NotificationSetting(
       id: 'get_new_badge',
       labelKey: 'settings.notification.getNewBadge',
       value: false,
     ),
-    const NotificationSetting(
+    NotificationSetting(
       id: 'upgrade_level',
       labelKey: 'settings.notification.upgradeLevel',
       value: true,
     ),
   ];
 
-  static final List<LanguageOption> _languageOptions = <LanguageOption>[
-    const LanguageOption(
+  static const List<LanguageOption> _languageOptions = <LanguageOption>[
+    LanguageOption(
       id: 'en',
       labelKey: 'settings.language.english',
       languageCode: 'en',
-      selected: true,
+      selected: false,
     ),
-    const LanguageOption(
+    LanguageOption(
       id: 'ar',
       labelKey: 'settings.language.arabic',
       languageCode: 'ar',
-      selected: false,
-    ),
-    const LanguageOption(
-      id: 'es',
-      labelKey: 'settings.language.spanish',
-      languageCode: 'es',
-      selected: false,
-    ),
-    const LanguageOption(
-      id: 'fr',
-      labelKey: 'settings.language.france',
-      languageCode: 'fr',
-      selected: false,
-    ),
-    const LanguageOption(
-      id: 'de',
-      labelKey: 'settings.language.germany',
-      languageCode: 'de',
       selected: false,
     ),
   ];
@@ -272,34 +265,39 @@ class SettingsRepositoryImpl extends SettingsRepository {
   @override
   Future<Result<List<AppearanceOption>>> getAppearanceOptions() async {
     return Success<List<AppearanceOption>>(
-      List<AppearanceOption>.unmodifiable(_appearanceOptions),
+      List<AppearanceOption>.unmodifiable(
+        _selectedAppearanceOptions(
+          _storageService.getString(AppStorageKeys.appThemeMode),
+        ),
+      ),
     );
   }
 
   @override
   Future<Result<List<NotificationSetting>>> getNotificationSettings() async {
     return Success<List<NotificationSetting>>(
-      List<NotificationSetting>.unmodifiable(_notificationSettings),
+      List<NotificationSetting>.unmodifiable(_selectedNotificationSettings()),
     );
   }
 
   @override
   Future<Result<List<LanguageOption>>> getLanguageOptions() async {
     return Success<List<LanguageOption>>(
-      List<LanguageOption>.unmodifiable(_languageOptions),
+      List<LanguageOption>.unmodifiable(
+        _selectedLanguageOptions(
+          _storageService.getString(AppStorageKeys.userLanguage),
+        ),
+      ),
     );
   }
 
   @override
   Future<Result<List<AppearanceOption>>> updateAppearanceOption(String id) async {
-    final List<AppearanceOption> updated = _appearanceOptions
-        .map(
-          (AppearanceOption option) => option.copyWith(
-            selected: option.id == id,
-          ),
-        )
-        .toList();
-    return Success<List<AppearanceOption>>(updated);
+    final String selectedId = _normalizeAppearanceId(id);
+    await _storageService.setString(AppStorageKeys.appThemeMode, selectedId);
+    return Success<List<AppearanceOption>>(
+      List<AppearanceOption>.unmodifiable(_selectedAppearanceOptions(selectedId)),
+    );
   }
 
   @override
@@ -307,25 +305,61 @@ class SettingsRepositoryImpl extends SettingsRepository {
     String id,
     bool value,
   ) async {
-    final List<NotificationSetting> updated = _notificationSettings
-        .map(
-          (NotificationSetting setting) => setting.id == id
-              ? setting.copyWith(value: value)
-              : setting,
-        )
-        .toList();
-    return Success<List<NotificationSetting>>(updated);
+    await _storageService.setBool(_notificationStorageKey(id), value);
+    return getNotificationSettings();
   }
 
   @override
   Future<Result<List<LanguageOption>>> updateLanguageOption(String id) async {
-    final List<LanguageOption> updated = _languageOptions
+    final String selectedId = _normalizeLanguageId(id);
+    await _storageService.setString(AppStorageKeys.userLanguage, selectedId);
+    return Success<List<LanguageOption>>(
+      List<LanguageOption>.unmodifiable(_selectedLanguageOptions(selectedId)),
+    );
+  }
+
+  List<AppearanceOption> _selectedAppearanceOptions(String? selectedId) {
+    final String normalizedId = _normalizeAppearanceId(selectedId);
+    return _appearanceOptions
         .map(
-          (LanguageOption option) => option.copyWith(
-            selected: option.id == id,
+          (AppearanceOption option) => option.copyWith(
+            selected: option.id == normalizedId,
           ),
         )
-        .toList();
-    return Success<List<LanguageOption>>(updated);
+        .toList(growable: false);
+  }
+
+  List<NotificationSetting> _selectedNotificationSettings() {
+    return _notificationSettings
+        .map(
+          (NotificationSetting setting) => setting.copyWith(
+            value: _storageService.getBool(_notificationStorageKey(setting.id)) ??
+                setting.value,
+          ),
+        )
+        .toList(growable: false);
+  }
+
+  List<LanguageOption> _selectedLanguageOptions(String? selectedId) {
+    final String normalizedId = _normalizeLanguageId(selectedId);
+    return _languageOptions
+        .map(
+          (LanguageOption option) => option.copyWith(
+            selected: option.id == normalizedId,
+          ),
+        )
+        .toList(growable: false);
+  }
+
+  static String _normalizeAppearanceId(String? id) {
+    return _supportedAppearanceIds.contains(id) ? id! : 'system';
+  }
+
+  static String _normalizeLanguageId(String? id) {
+    return _supportedLanguageIds.contains(id) ? id! : 'en';
+  }
+
+  static String _notificationStorageKey(String id) {
+    return 'settings.notification.$id';
   }
 }

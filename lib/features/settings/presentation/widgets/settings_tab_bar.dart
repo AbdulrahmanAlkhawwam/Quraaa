@@ -40,7 +40,7 @@ class SettingsTabBar extends StatelessWidget {
           bottom: BorderSide(color: palette.border.withOpacity(0.45)),
         ),
       ),
-      padding: const EdgeInsets.fromLTRB(22, 8, 22, 0),
+      padding: const EdgeInsetsDirectional.fromSTEB(22, 8, 22, 0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: tabs.map((SettingsTab tab) {

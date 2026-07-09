@@ -65,14 +65,14 @@ class OnboardingScaffold extends StatelessWidget {
                   Expanded(
                     child: Container(
                       width: double.infinity,
-                      padding: EdgeInsets.fromLTRB(
+                      padding: EdgeInsetsDirectional.fromSTEB(
                         AppSpacing.spacing24,
                         AppSpacing.spacing24,
                         AppSpacing.spacing24,
                         AppSpacing.spacing24 + context.bottomPadding,
                       ),
-                      decoration: const BoxDecoration(
-                        color: AppColors.card,
+                      decoration: BoxDecoration(
+                        color: context.appCard,
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(AppRadius.radius40),
                           topRight: Radius.circular(AppRadius.radius40),
@@ -131,8 +131,9 @@ class OnboardingBackButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
       onPressed: onPressed,
-      icon: const HugeIcon(
-        icon: HugeIcons.strokeRoundedArrowLeft01,
+      icon: HugeIcon(
+        icon: context.isRTL ? HugeIcons.strokeRoundedArrowRight01 : HugeIcons.strokeRoundedArrowLeft01,
+        color: context.appTextPrimary,
         size: 22,
       ),
     );

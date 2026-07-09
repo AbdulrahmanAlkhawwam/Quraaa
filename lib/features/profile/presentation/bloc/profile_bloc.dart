@@ -116,7 +116,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         loading: false,
         error: NotFoundFailure(
           code: error.code,
-          message: 'Profile not found.',
+          message: error.message,
         ),
       ));
     } on ServerException catch (error) {

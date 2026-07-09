@@ -2,6 +2,7 @@ import 'package:mocktail/mocktail.dart';
 
 import 'package:quraaa/core/connectivity/connectivity_service.dart';
 import 'package:quraaa/core/error_monitoring/user_context_provider.dart';
+import 'package:quraaa/core/services/storage_service.dart';
 import 'package:quraaa/core/sync/sync_manager.dart';
 import 'package:quraaa/features/auth/data/datasources/auth_local_datasource.dart';
 import 'package:quraaa/features/auth/data/datasources/auth_remote_datasource.dart';
@@ -51,3 +52,5 @@ class MockRegisterUseCase extends Mock implements RegisterUseCase {}
 
 class MockUserContextProvider extends Mock implements UserContextProvider {}
 class MockSettingsRepository extends Mock implements SettingsRepository {}
+
+class MockStorageService extends Mock implements StorageService {}

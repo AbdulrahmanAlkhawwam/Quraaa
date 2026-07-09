@@ -128,8 +128,11 @@ class _GenderOnboardingView extends StatelessWidget {
                         );
                         context.goTo(RouteNames.auth);
                       },
-                      icon: const HugeIcon(
-                        icon: HugeIcons.strokeRoundedArrowLeft01,
+                      icon: HugeIcon(
+                        icon: context.isRTL
+                            ? HugeIcons.strokeRoundedArrowRight01
+                            : HugeIcons.strokeRoundedArrowLeft01,
+                        color: AppColors.card,
                       ),
                     ),
                     title: Text(
@@ -165,14 +168,14 @@ class _GenderOnboardingView extends StatelessWidget {
                   Expanded(
                     child: Container(
                       width: double.infinity,
-                      padding: EdgeInsets.fromLTRB(
+                      padding: EdgeInsetsDirectional.fromSTEB(
                         AppSpacing.spacing24,
                         AppSpacing.spacing24,
                         AppSpacing.spacing24,
                         AppSpacing.spacing24 + context.bottomPadding,
                       ),
-                      decoration: const BoxDecoration(
-                        color: AppColors.card,
+                      decoration: BoxDecoration(
+                        color: context.appCard,
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(AppRadius.radius40),
                           topRight: Radius.circular(AppRadius.radius40),
@@ -291,9 +294,9 @@ class _GenderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color backgroundColor =
-        selected ? AppColors.primary50 : AppColors.card;
+        selected ? context.appSubtleSurface : context.appCard;
     final Color borderColor =
-        selected ? AppColors.primary300 : AppColors.surface;
+        selected ? AppColors.primary300 : context.appBorder;
 
     return Semantics(
       button: true,
@@ -322,7 +325,7 @@ class _GenderCard extends StatelessWidget {
               Text(
                 label,
                 style: AppTextStyles.titleLarge.copyWith(
-                  color: AppColors.textPrimary,
+                  color: context.appTextPrimary,
                 ),
               ),
             ],

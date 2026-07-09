@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../shared/extensions/app_context.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/localization/localization_constants.dart';
@@ -17,16 +19,16 @@ class ExplorerEmptyView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            const HugeIcon(
+            HugeIcon(
               icon: HugeIcons.strokeRoundedFolderOpen,
-              color: AppColors.textMuted,
+              color: context.appTextTertiary,
               size: 56,
             ),
             const SizedBox(height: AppSpacing.spacing16),
             Text(
               LocalizationConstants.explorerEmptyTitleKey.tr(),
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: AppColors.textPrimary,
+                    color: context.appTextPrimary,
                   ),
             ),
             const SizedBox(height: AppSpacing.spacing8),
@@ -34,7 +36,7 @@ class ExplorerEmptyView extends StatelessWidget {
               LocalizationConstants.explorerEmptyMessageKey.tr(),
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: context.appTextSecondary,
                   ),
             ),
           ],

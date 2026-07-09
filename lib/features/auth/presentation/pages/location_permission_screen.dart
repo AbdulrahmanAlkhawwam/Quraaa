@@ -30,7 +30,7 @@ class LocationPermissionScreen extends StatelessWidget {
           return AppLayout(
             expandContent: true,
             cardColor: AppColors.card,
-            padding: const EdgeInsets.fromLTRB(
+            padding: const EdgeInsetsDirectional.fromSTEB(
               AppSpacing.spacing24,
               AppSpacing.spacing24,
               AppSpacing.spacing24,
@@ -104,7 +104,7 @@ class LocationPermissionScreen extends StatelessWidget {
                   LocalizationConstants.authLocationDescriptionKey.tr(),
                   textAlign: TextAlign.center,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textTertiary,
+                    color: context.appTextTertiary,
                   ),
                 ),
                 const Spacer(),

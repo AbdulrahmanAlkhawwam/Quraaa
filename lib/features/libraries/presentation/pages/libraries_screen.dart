@@ -70,19 +70,14 @@ class _LibrariesView extends StatelessWidget {
       titleSpacing: AppSpacing.spacing16,
       title: Row(
         children: <Widget>[
-          Text(
-            LocalizationConstants.homeGreetingKey.tr(),
-            style: AppTextStyles.h3.copyWith(
-              fontSize: 22,
-              color: AppColors.libraryGreen,
-            ),
-          ),
           Expanded(
             child: Text(
-              firstName,
+              LocalizationConstants.homeGreetingKey.tr(
+                namedArgs: <String, String>{'name': firstName},
+              ),
               style: AppTextStyles.h3.copyWith(
                 fontSize: 22,
-                color: AppColors.libraryGreen,
+                color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
               ),
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
@@ -98,9 +93,9 @@ class _LibrariesView extends StatelessWidget {
             height: 44,
             margin: const EdgeInsetsDirectional.only(end: AppSpacing.spacing16),
             decoration: BoxDecoration(
-              color: AppColors.primary100,
+              color: context.appSubtleSurface,
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.card, width: 2),
+              border: Border.all(color: context.appCard, width: 2),
             ),
             clipBehavior: Clip.antiAlias,
             child: hasImage
@@ -135,13 +130,14 @@ class _LibrariesBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final List<Color> backgroundColors = context.isDark
+        ? <Color>[AppColors.neutralBackgroundDark, AppColors.surfaceDark]
+        : <Color>[AppColors.neutralBackground, AppColors.primary50];
+
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: <Color>[
-            AppColors.neutralBackground,
-            AppColors.primary50,
-          ],
+          colors: backgroundColors,
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -165,8 +161,8 @@ class _LibrariesBody extends StatelessWidget {
                   'Programming',
                 ],
                 onTap: () => context.goTo(RouteNames.search),
-                backgroundColor: AppColors.card,
-                textColor: AppColors.textPrimary,
+                backgroundColor: context.appCard,
+                textColor: context.appTextPrimary,
               ),
             ),
             const SizedBox(height: AppSpacing.spacing24),
@@ -177,7 +173,7 @@ class _LibrariesBody extends StatelessWidget {
               child: Text(
                 LocalizationConstants.homeBestSellersKey.tr(),
                 style: AppTextStyles.h4.copyWith(
-                  color: AppColors.textPrimary,
+                  color: context.appTextPrimary,
                 ),
               ),
             ),
@@ -248,7 +244,7 @@ class _LibraryCard extends StatelessWidget {
       ),
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: context.appCard,
           borderRadius: BorderRadius.circular(AppRadius.radius16),
           boxShadow: AppShadows.elevation1,
         ),
@@ -264,7 +260,7 @@ class _LibraryCard extends StatelessWidget {
                 width: double.infinity,
                 fit: BoxFit.cover,
                 errorWidget: Container(
-                  color: AppColors.primary100,
+                  color: context.appSubtleSurface,
                   child: const Center(
                     child: Icon(
                       Icons.store_outlined,
@@ -283,7 +279,7 @@ class _LibraryCard extends StatelessWidget {
                   Text(
                     library.libraryName,
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textPrimary,
+                      color: context.appTextPrimary,
                       fontWeight: FontWeight.w600,
                     ),
                     maxLines: 1,
@@ -293,7 +289,7 @@ class _LibraryCard extends StatelessWidget {
                   Text(
                     library.location,
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textSecondary,
+                      color: context.appTextSecondary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -302,7 +298,7 @@ class _LibraryCard extends StatelessWidget {
                   Text(
                     library.email,
                     style: AppTextStyles.caption.copyWith(
-                      color: AppColors.textTertiary,
+                      color: context.appTextTertiary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -335,7 +331,7 @@ class _ErrorIndicator extends StatelessWidget {
               message,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+                color: context.appTextSecondary,
               ),
             ),
             const SizedBox(height: AppSpacing.spacing16),
@@ -363,7 +359,7 @@ class _EmptyIndicator extends StatelessWidget {
           LocalizationConstants.explorerEmptyMessageKey.tr(),
           textAlign: TextAlign.center,
           style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textSecondary,
+            color: context.appTextSecondary,
           ),
         ),
       ),

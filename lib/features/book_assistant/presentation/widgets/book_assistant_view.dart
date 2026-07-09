@@ -31,19 +31,23 @@ class _BookAssistantViewState extends State<BookAssistantView> {
 
   @override
   Widget build(BuildContext context) {
+    final Color background = context.appBackground;
+    final Brightness overlayBrightness =
+        context.isDark ? Brightness.light : Brightness.dark;
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.white,
-        statusBarIconBrightness: Brightness.dark,
-        systemNavigationBarColor: Colors.white,
-        systemNavigationBarIconBrightness: Brightness.dark,
+      value: SystemUiOverlayStyle(
+        statusBarColor: background,
+        statusBarIconBrightness: overlayBrightness,
+        systemNavigationBarColor: background,
+        systemNavigationBarIconBrightness: overlayBrightness,
       ),
       child: MediaQuery(
         data: MediaQuery.of(context).copyWith(
           textScaler: const TextScaler.linear(1),
         ),
         child: Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: background,
           body: BlocBuilder<BookAssistantBloc, BookAssistantState>(
             builder: (BuildContext context, BookAssistantState state) {
               if (state is BookAssistantLoading ||
@@ -82,7 +86,7 @@ class _BookAssistantViewState extends State<BookAssistantView> {
 
                   return SafeArea(
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(
+                      padding: EdgeInsetsDirectional.fromSTEB(
                         horizontal,
                         topPadding,
                         horizontal,
@@ -137,7 +141,7 @@ class _BookAssistantViewState extends State<BookAssistantView> {
   void _showBookPicker(BookAssistantLoaded state) {
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: context.appCard,
       showDragHandle: false,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),

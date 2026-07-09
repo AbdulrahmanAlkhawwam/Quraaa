@@ -1,9 +1,11 @@
 import 'dart:async';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../config/routes/route_names.dart';
 import '../../../../config/routes/route_resolver.dart';
+import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -49,15 +51,15 @@ class _SplashScreenState extends State<SplashScreen> {
             end: Alignment.bottomCenter,
           ),
         ),
-        child: const Center(
+        child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              FlutterLogo(size: 84),
-              SizedBox(height: 20),
+              const FlutterLogo(size: 84),
+              const SizedBox(height: 20),
               Text(
-                'Quraaa',
-                style: TextStyle(
+                LocalizationConstants.appNameKey.tr(),
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 28,
                   fontWeight: FontWeight.w700,

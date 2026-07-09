@@ -8,8 +8,8 @@ class ExplorerPermissionHeader extends StatelessWidget {
     return const DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: AlignmentDirectional.topStart,
+          end: AlignmentDirectional.bottomEnd,
           colors: <Color>[
             Color(0xFF133D1E),
             Color(0xFF102B17),

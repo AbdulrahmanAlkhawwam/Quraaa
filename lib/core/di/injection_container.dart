@@ -591,7 +591,7 @@ void registerFeatureDependencies() {
 
   if (!sl.isRegistered<SettingsRepository>()) {
     sl.registerLazySingleton<SettingsRepository>(
-      SettingsRepositoryImpl.new,
+      () => SettingsRepositoryImpl(sl<StorageService>()),
     );
   }
 
@@ -682,6 +682,7 @@ void registerFeatureDependencies() {
         updateAppearance: sl(),
         updateNotification: sl(),
         updateLanguage: sl(),
+        storageService: sl(),
       ),
     );
   }

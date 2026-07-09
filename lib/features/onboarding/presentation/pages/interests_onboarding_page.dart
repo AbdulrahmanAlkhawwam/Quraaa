@@ -186,16 +186,20 @@ class _InterestChip extends StatelessWidget {
             vertical: AppSpacing.spacing12,
           ),
           decoration: BoxDecoration(
-            color: selected ? AppColors.primary50 : AppColors.card,
+            color: selected ? context.appSubtleSurface : context.appCard,
             borderRadius: BorderRadius.circular(AppRadius.radius32),
             border: Border.all(
-              color: selected ? AppColors.primary300 : AppColors.surface,
+              color: selected ? AppColors.primary300 : context.appBorder,
             ),
           ),
           child: Text(
             label,
             style: AppTextStyles.bodyMedium.copyWith(
-              color: selected ? AppColors.primary700 : AppColors.textPrimary,
+              color: selected
+                  ? context.isDark
+                      ? AppColors.primary300
+                      : AppColors.primary700
+                  : context.appTextPrimary,
               fontWeight: FontWeight.w500,
             ),
           ),

@@ -17,7 +17,7 @@ class AuthLabeledField extends StatelessWidget {
         Text(
           label,
           style: AppTextStyles.bodySmall.copyWith(
-            color: AppColors.libraryGreen,
+            color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
           ),
         ),
         const SizedBox(height: AppSpacing.spacing12),
@@ -61,7 +61,7 @@ class AuthTextField extends StatelessWidget {
         textInputAction: textInputAction,
         obscureText: obscureText,
         textCapitalization: textCapitalization,
-        style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textPrimary),
+        style: AppTextStyles.bodyLarge.copyWith(color: context.appTextPrimary),
         validator: validator,
         onFieldSubmitted: onSubmitted,
         autovalidateMode: autovalidateMode,

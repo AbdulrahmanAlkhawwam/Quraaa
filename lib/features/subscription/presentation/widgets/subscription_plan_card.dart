@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../shared/extensions/app_context.dart';
+
 import '../../../../../shared/theme/app_colors.dart';
 import '../../../../../shared/theme/app_radius.dart';
 import '../../../../../shared/theme/app_spacing.dart';
@@ -26,7 +28,7 @@ class SubscriptionPlanCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: selected ? AppColors.primary50 : AppColors.card,
+      color: selected ? context.appSubtleSurface : context.appCard,
       borderRadius: BorderRadius.circular(AppRadius.radius32),
       child: InkWell(
         onTap: onTap,
@@ -37,7 +39,7 @@ class SubscriptionPlanCard extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppRadius.radius32),
             border: Border.all(
-              color: selected ? AppColors.primary500 : AppColors.primary100,
+              color: selected ? AppColors.primary500 : context.appBorder,
               width: selected ? 1.6 : 1,
             ),
           ),
@@ -53,14 +55,14 @@ class SubscriptionPlanCard extends StatelessWidget {
                         Text(
                           title,
                           style: AppTextStyles.h4.copyWith(
-                            color: AppColors.textPrimary,
+                            color: context.appTextPrimary,
                           ),
                         ),
                         const SizedBox(height: AppSpacing.spacing4),
                         Text(
                           subtitle,
                           style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.textSecondary,
+                            color: context.appTextSecondary,
                           ),
                         ),
                       ],
@@ -90,7 +92,7 @@ class SubscriptionPlanCard extends StatelessWidget {
               Text(
                 price,
                 style: AppTextStyles.h3.copyWith(
-                  color: AppColors.libraryGreen,
+                  color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
                 ),
               ),
               const SizedBox(height: AppSpacing.spacing16),
@@ -114,7 +116,7 @@ class SubscriptionPlanCard extends StatelessWidget {
                         child: Text(
                           feature,
                           style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppColors.textPrimary,
+                            color: context.appTextPrimary,
                           ),
                         ),
                       ),

@@ -102,30 +102,30 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     return null;
   }
 
-  PinTheme get _defaultPinTheme {
+  PinTheme _defaultPinTheme(BuildContext context) {
     return PinTheme(
       width: 48,
       height: 56,
       textStyle: AppTextStyles.titleMedium.copyWith(
-        color: AppColors.libraryGreen,
+        color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
       ),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: context.appCard,
         borderRadius: BorderRadius.circular(AppRadius.radius12),
-        border: Border.all(color: AppColors.primary200),
+        border: Border.all(color: context.appBorder),
       ),
     );
   }
 
-  PinTheme get _focusedPinTheme {
-    return _defaultPinTheme.copyDecorationWith(
+  PinTheme _focusedPinTheme(BuildContext context) {
+    return _defaultPinTheme(context).copyDecorationWith(
       border: Border.all(color: AppColors.leafGreen, width: 2),
     );
   }
 
-  PinTheme get _submittedPinTheme {
-    return _defaultPinTheme.copyDecorationWith(
-      color: AppColors.primary100,
+  PinTheme _submittedPinTheme(BuildContext context) {
+    return _defaultPinTheme(context).copyDecorationWith(
+      color: context.appSubtleSurface,
       border: Border.all(color: AppColors.leafGreen),
     );
   }
@@ -153,9 +153,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     children: [
                       IconButton(
                         onPressed: () => context.back(),
-                        icon: const Icon(
-                          Icons.arrow_back_ios,
-                          color: AppColors.libraryGreen,
+                        icon: Icon(
+                          context.isRTL ? Icons.arrow_forward_ios : Icons.arrow_back_ios,
+                          color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
                         ),
                       ),
                       Expanded(
@@ -163,7 +163,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           LocalizationConstants.authResetPasswordTitleKey.tr(),
                           textAlign: TextAlign.center,
                           style: AppTextStyles.h3.copyWith(
-                            color: AppColors.libraryGreen,
+                            color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
                           ),
                         ),
                       ),
@@ -176,7 +176,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         .authResetPasswordDescriptionKey
                         .tr(),
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textTertiary,
+                      color: context.appTextTertiary,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.spacing24),
@@ -190,9 +190,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         focusNode: _codeFocusNode,
                         length: 6,
                         keyboardType: TextInputType.number,
-                        defaultPinTheme: _defaultPinTheme,
-                        focusedPinTheme: _focusedPinTheme,
-                        submittedPinTheme: _submittedPinTheme,
+                        defaultPinTheme: _defaultPinTheme(context),
+                        focusedPinTheme: _focusedPinTheme(context),
+                        submittedPinTheme: _submittedPinTheme(context),
                         autofocus: true,
                         showCursor: true,
                         onCompleted: (_) => _passwordFocusNode.requestFocus(),

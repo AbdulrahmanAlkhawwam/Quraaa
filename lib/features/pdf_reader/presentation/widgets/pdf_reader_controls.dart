@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../shared/extensions/app_context.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/localization/localization_constants.dart';
@@ -29,7 +31,7 @@ class PdfReaderControls extends StatelessWidget {
     final bool canUseTwoPages = isLandscape && state.pageCount > 1;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
+      padding: const EdgeInsetsDirectional.fromSTEB(
         AppSpacing.spacing24,
         AppSpacing.spacing8,
         AppSpacing.spacing24,
@@ -37,9 +39,9 @@ class PdfReaderControls extends StatelessWidget {
       ),
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: AppColors.surfaceLight,
+          color: context.appCard,
           borderRadius: BorderRadius.circular(AppRadius.radius16),
-          border: Border.all(color: AppColors.borderLight),
+          border: Border.all(color: context.appBorder),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(
@@ -62,7 +64,7 @@ class PdfReaderControls extends StatelessWidget {
                   _pageLabel(),
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: AppColors.textPrimary,
+                        color: context.appTextPrimary,
                         fontWeight: FontWeight.w600,
                       ),
                 ),
@@ -116,7 +118,11 @@ class _ReaderArrowButton extends StatelessWidget {
       visualDensity: VisualDensity.compact,
       icon: HugeIcon(
         icon: icon,
-        color: onPressed == null ? AppColors.textMuted : AppColors.secondary,
+        color: onPressed == null
+            ? context.appTextTertiary
+            : context.isDark
+                ? AppColors.primary300
+                : AppColors.secondary,
         size: 24,
       ),
     );
@@ -137,22 +143,22 @@ class _TwoPageModeToggle extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        const HugeIcon(
+        HugeIcon(
           icon: HugeIcons.strokeRoundedBookOpen01,
-          color: AppColors.secondary,
+          color: context.isDark ? AppColors.primary300 : AppColors.secondary,
           size: 20,
         ),
         const SizedBox(width: AppSpacing.spacing4),
         Text(
           LocalizationConstants.pdfReaderTwoPageModeKey.tr(),
           style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: AppColors.textSecondary,
+                color: context.appTextSecondary,
               ),
         ),
         Switch.adaptive(
           value: enabled,
           onChanged: onChanged,
-          activeThumbColor: AppColors.secondary,
+          activeThumbColor: context.isDark ? AppColors.primary300 : AppColors.secondary,
         ),
       ],
     );
