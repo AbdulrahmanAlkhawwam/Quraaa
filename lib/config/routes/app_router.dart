@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -116,21 +116,33 @@ GoRouter buildAppRouter({
       GoRoute(
         name: RouteNames.home,
         path: RouteNames.home,
-        builder: (context, state) => BlocProvider<HomeBloc>(
-          create: (BuildContext context) =>
-              sl<HomeBloc>()..add(const HomeStarted()),
-          child: const HomeScreen(),
+        pageBuilder: (context, state) => _buildTabTransitionPage(
+          state: state,
+          tabIndex: 0,
+          child: BlocProvider<HomeBloc>(
+            create: (BuildContext context) =>
+                sl<HomeBloc>()..add(const HomeStarted()),
+            child: const HomeScreen(),
+          ),
         ),
       ),
       GoRoute(
         name: RouteNames.stores,
         path: RouteNames.stores,
-        builder: (context, state) => const StoresScreen(),
+        pageBuilder: (context, state) => _buildTabTransitionPage(
+          state: state,
+          tabIndex: 1,
+          child: const StoresScreen(),
+        ),
       ),
       GoRoute(
         name: RouteNames.libraries,
         path: RouteNames.libraries,
-        builder: (context, state) => const LibrariesScreen(),
+        pageBuilder: (context, state) => _buildTabTransitionPage(
+          state: state,
+          tabIndex: 1,
+          child: const LibrariesScreen(),
+        ),
       ),
       GoRoute(
         name: RouteNames.libraryDetails,
@@ -148,17 +160,29 @@ GoRouter buildAppRouter({
       GoRoute(
         name: RouteNames.userBooks,
         path: RouteNames.userBooks,
-        builder: (context, state) => const UserBooksScreen(),
+        pageBuilder: (context, state) => _buildTabTransitionPage(
+          state: state,
+          tabIndex: 2,
+          child: const UserBooksScreen(),
+        ),
       ),
       GoRoute(
         name: RouteNames.audioBooks,
         path: RouteNames.audioBooks,
-        builder: (context, state) => const AudioBooksScreen(),
+        pageBuilder: (context, state) => _buildTabTransitionPage(
+          state: state,
+          tabIndex: 3,
+          child: const AudioBooksScreen(),
+        ),
       ),
       GoRoute(
         name: RouteNames.cart,
         path: RouteNames.cart,
-        builder: (context, state) => const CartScreen(),
+        pageBuilder: (context, state) => _buildTabTransitionPage(
+          state: state,
+          tabIndex: 4,
+          child: const CartScreen(),
+        ),
       ),
       GoRoute(
         name: RouteNames.bookAssistant,
@@ -240,6 +264,63 @@ GoRouter buildAppRouter({
         builder: (context, state) => const AccountTypePage(),
       ),
     ],
+  );
+}
+
+int _lastNavRouteIndex = 0;
+
+Page<void> _buildTabTransitionPage({
+  required GoRouterState state,
+  required Widget child,
+  required int tabIndex,
+}) {
+  final int previousIndex = _lastNavRouteIndex;
+  final int direction = tabIndex >= previousIndex ? 1 : -1;
+  _lastNavRouteIndex = tabIndex;
+
+  return _buildSoftTransitionPage(
+    state: state,
+    child: child,
+    beginOffset: Offset(direction * 0.08, 0),
+  );
+}
+
+Page<void> _buildSoftTransitionPage({
+  required GoRouterState state,
+  required Widget child,
+  required Offset beginOffset,
+}) {
+  return CustomTransitionPage<void>(
+    key: state.pageKey,
+    transitionDuration: const Duration(milliseconds: 360),
+    reverseTransitionDuration: const Duration(milliseconds: 280),
+    child: child,
+    transitionsBuilder: (
+      BuildContext context,
+      Animation<double> animation,
+      Animation<double> secondaryAnimation,
+      Widget child,
+    ) {
+      final Animation<double> curvedAnimation = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+        reverseCurve: Curves.easeInCubic,
+      );
+
+      return FadeTransition(
+        opacity: curvedAnimation,
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: beginOffset,
+            end: Offset.zero,
+          ).animate(curvedAnimation),
+          child: ScaleTransition(
+            scale: Tween<double>(begin: 0.985, end: 1).animate(curvedAnimation),
+            child: child,
+          ),
+        ),
+      );
+    },
   );
 }
 

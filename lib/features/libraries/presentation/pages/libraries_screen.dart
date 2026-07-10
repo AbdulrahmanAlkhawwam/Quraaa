@@ -1,12 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hugeicons/hugeicons.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 import '../../../../config/routes/route_names.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
+import '../../../../features/home/presentation/widgets/home_app_bar.dart';
 import '../../../../features/home/presentation/widgets/home_bottom_nav.dart';
 import '../../../../shared/shared.dart';
 import '../../../../shared/widgets/animated_search_bar.dart';
@@ -47,80 +47,32 @@ class _LibrariesView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       extendBodyBehindAppBar: true,
       appBar: _buildAppBar(context),
-      body: const _LibrariesBody(),
-      bottomNavigationBar: HomeBottomNav(
-        currentIndex: 1,
-        onTap: (int index) => _onNavItemTapped(context, index),
+      body: Stack(
+        children: <Widget>[
+          const _LibrariesBody(),
+          PositionedDirectional(
+            start: 0,
+            end: 0,
+            bottom: 0,
+            child: HomeBottomNav(
+              currentIndex: 1,
+              onTap: (int index) => _onNavItemTapped(context, index),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     final LibrariesState librariesState = context.watch<LibrariesCubit>().state;
-    final String firstName = librariesState.firstName;
-    final String? profileImage = librariesState.profileImage;
-    final bool hasImage = profileImage != null && profileImage.isNotEmpty;
-
-    return AppBar(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      automaticallyImplyLeading: false,
-      titleSpacing: AppSpacing.spacing16,
-      title: Row(
-        children: <Widget>[
-          Expanded(
-            child: Text(
-              LocalizationConstants.homeGreetingKey.tr(
-                namedArgs: <String, String>{'name': firstName},
-              ),
-              style: AppTextStyles.h3.copyWith(
-                fontSize: 22,
-                color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
-              ),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-            ),
-          ),
-        ],
-      ),
-      actions: <Widget>[
-        GestureDetector(
-          onTap: () => context.goTo(RouteNames.settings),
-          child: Container(
-            width: 44,
-            height: 44,
-            margin: const EdgeInsetsDirectional.only(end: AppSpacing.spacing16),
-            decoration: BoxDecoration(
-              color: context.appSubtleSurface,
-              shape: BoxShape.circle,
-              border: Border.all(color: context.appCard, width: 2),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: hasImage
-                ? AppImage(
-                    profileImage,
-                    isFile: true,
-                    fit: BoxFit.cover,
-                    errorWidget: const Center(
-                      child: HugeIcon(
-                        icon: HugeIcons.strokeRoundedUser,
-                        color: AppColors.primary600,
-                        size: 24,
-                      ),
-                    ),
-                  )
-                : const Center(
-                    child: HugeIcon(
-                      icon: HugeIcons.strokeRoundedUser,
-                      color: AppColors.primary600,
-                      size: 24,
-                    ),
-                  ),
-          ),
-        ),
-      ],
+    return HomeAppBar(
+      firstName: librariesState.firstName,
+      profileImage: librariesState.profileImage,
+      profileImageIsFile: true,
     );
   }
 }
@@ -160,7 +112,7 @@ class _LibrariesBody extends StatelessWidget {
                   'Novels',
                   'Programming',
                 ],
-                onTap: () => context.goTo(RouteNames.search),
+                onTap: () => context.pushTo(RouteNames.search),
                 backgroundColor: context.appCard,
                 textColor: context.appTextPrimary,
               ),
@@ -197,7 +149,12 @@ class _LibrariesPagedGrid extends StatelessWidget {
 
     return PagedGridView<int, LibraryEntity>(
       pagingController: cubit.state.pagingController,
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.spacing16),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.spacing16,
+        0,
+        AppSpacing.spacing16,
+        128,
+      ),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         mainAxisSpacing: AppSpacing.spacing16,

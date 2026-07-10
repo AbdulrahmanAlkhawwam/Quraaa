@@ -51,7 +51,7 @@ class HomeSection extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.spacing12),
         SizedBox(
-          height: 250,
+          height: 276,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(

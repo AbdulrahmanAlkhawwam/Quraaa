@@ -1,13 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../config/routes/route_names.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import '../bloc/home_bloc.dart';
 import '../mock/home_mock_data.dart';
+import '../widgets/home_app_bar.dart';
 import '../widgets/home_banner.dart';
 import '../widgets/home_bottom_nav.dart';
 import '../widgets/home_drawer.dart';
@@ -63,13 +63,23 @@ class _HomeScreenState extends State<HomeScreen> {
           previous.notificationSerial != current.notificationSerial,
       listener: _showNotificationSnackBar,
       child: Scaffold(
+        extendBody: true,
         extendBodyBehindAppBar: true,
         drawer: const HomeDrawer(),
         appBar: _buildAppBar(),
-        body: _buildBody(),
-        bottomNavigationBar: HomeBottomNav(
-          currentIndex: _selectedIndex,
-          onTap: _onNavItemTapped,
+        body: Stack(
+          children: <Widget>[
+            _buildBody(),
+            PositionedDirectional(
+              start: 0,
+              end: 0,
+              bottom: 0,
+              child: HomeBottomNav(
+                currentIndex: _selectedIndex,
+                onTap: _onNavItemTapped,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -77,71 +87,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   PreferredSizeWidget _buildAppBar() {
     final HomeState homeState = context.watch<HomeBloc>().state;
-    final String firstName = homeState.firstName;
-    final String? profileImage = homeState.profileImage;
-    final bool hasImage = profileImage != null && profileImage.isNotEmpty;
-
-    final Color headerTextColor =
-        context.isDark ? AppColors.primary300 : AppColors.libraryGreen;
-
-    return AppBar(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      automaticallyImplyLeading: false,
-      titleSpacing: AppSpacing.spacing16,
-      title: Row(
-        children: <Widget>[
-          Expanded(
-            child: Text(
-              LocalizationConstants.homeGreetingKey.tr(
-                namedArgs: <String, String>{'name': firstName},
-              ),
-              style: AppTextStyles.h3.copyWith(
-                fontSize: 22,
-                color: headerTextColor,
-              ),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-            ),
-          ),
-        ],
-      ),
-      actions: <Widget>[
-        GestureDetector(
-          onTap: () => context.goTo(RouteNames.settings),
-          child: Container(
-            width: 44,
-            height: 44,
-            margin: const EdgeInsetsDirectional.only(end: AppSpacing.spacing16),
-            decoration: BoxDecoration(
-              color: context.appSubtleSurface,
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.primary600, width: 2),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: hasImage
-                ? AppImage(
-                    profileImage,
-                    isFile: true,
-                    fit: BoxFit.cover,
-                    errorWidget: Center(
-                      child: HugeIcon(
-                        icon: HugeIcons.strokeRoundedUser,
-                        color: context.isDark ? AppColors.primary300 : AppColors.primary600,
-                        size: 24,
-                      ),
-                    ),
-                  )
-                : Center(
-                    child: HugeIcon(
-                      icon: HugeIcons.strokeRoundedUser,
-                      color: context.isDark ? AppColors.primary300 : AppColors.primary600,
-                      size: 24,
-                    ),
-                  ),
-          ),
-        ),
-      ],
+    return HomeAppBar(
+      firstName: homeState.firstName,
+      profileImage: homeState.profileImage,
+      profileImageIsFile: true,
     );
   }
 
@@ -155,13 +104,14 @@ class _HomeScreenState extends State<HomeScreen> {
     ];
 
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 360),
+      reverseDuration: const Duration(milliseconds: 260),
       transitionBuilder: (Widget child, Animation<double> animation) {
         final int currentIndex = (child.key as ValueKey<int>).value;
         final int direction = currentIndex > _previousIndex ? 1 : -1;
         return SlideTransition(
           position: Tween<Offset>(
-            begin: Offset(direction * 0.08, 0),
+            begin: Offset(direction * 0.10, 0),
             end: Offset.zero,
           ).animate(
             CurvedAnimation(
@@ -172,7 +122,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           child: FadeTransition(
             opacity: animation,
-            child: child,
+            child: ScaleTransition(
+              scale: Tween<double>(begin: 0.985, end: 1).animate(animation),
+              child: child,
+            ),
           ),
         );
       },
@@ -212,7 +165,7 @@ class _HomeFeed extends StatelessWidget {
                   horizontal: AppSpacing.spacing16,
                 ),
                 child: _HomeSearchBar(
-                  onTap: () => context.goTo(RouteNames.search),
+                  onTap: () => context.pushTo(RouteNames.search),
                 ),
               ),
             ),
@@ -256,7 +209,7 @@ class _HomeFeed extends StatelessWidget {
               ),
             ),
             const SliverToBoxAdapter(
-              child: SizedBox(height: AppSpacing.spacing24),
+              child: SizedBox(height: 128),
             ),
           ],
         ),

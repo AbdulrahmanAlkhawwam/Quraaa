@@ -17,6 +17,7 @@ class UserBooksScreen extends StatelessWidget {
       description: LocalizationConstants.homeFeatureUserBooksDescriptionKey.tr(),
       icon: HugeIcons.strokeRoundedBooks02,
       accentColor: AppColors.forestGreen,
+      currentIndex: 2,
     );
   }
 }

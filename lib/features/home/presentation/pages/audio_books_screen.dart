@@ -17,6 +17,7 @@ class AudioBooksScreen extends StatelessWidget {
       description: LocalizationConstants.homeFeatureAudioBooksDescriptionKey.tr(),
       icon: HugeIcons.strokeRoundedAudioBook04,
       accentColor: AppColors.woodBrown,
+      currentIndex: 3,
     );
   }
 }

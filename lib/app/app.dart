@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -32,6 +34,7 @@ class _QuraaaAppState extends State<QuraaaApp> {
   @override
   void initState() {
     super.initState();
+    unawaited(SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _lockOrientationIfPhone();
     });
@@ -72,7 +75,23 @@ class _QuraaaAppState extends State<QuraaaApp> {
             supportedLocales: context.supportedLocales,
             locale: context.locale,
             builder: (BuildContext context, Widget? child) {
-              return child!;
+              final Brightness iconBrightness =
+                  Theme.of(context).brightness == Brightness.dark
+                      ? Brightness.light
+                      : Brightness.dark;
+
+              return AnnotatedRegion<SystemUiOverlayStyle>(
+                value: SystemUiOverlayStyle(
+                  statusBarColor: Colors.transparent,
+                  statusBarIconBrightness: iconBrightness,
+                  systemNavigationBarColor: Colors.transparent,
+                  systemNavigationBarDividerColor: Colors.transparent,
+                  systemNavigationBarIconBrightness: iconBrightness,
+                  systemStatusBarContrastEnforced: false,
+                  systemNavigationBarContrastEnforced: false,
+                ),
+                child: child!,
+              );
             },
           );
         },

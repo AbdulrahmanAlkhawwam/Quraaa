@@ -39,7 +39,9 @@ class _BookAssistantViewState extends State<BookAssistantView> {
       value: SystemUiOverlayStyle(
         statusBarColor: background,
         statusBarIconBrightness: overlayBrightness,
-        systemNavigationBarColor: background,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarDividerColor: Colors.transparent,
+        systemNavigationBarContrastEnforced: false,
         systemNavigationBarIconBrightness: overlayBrightness,
       ),
       child: MediaQuery(

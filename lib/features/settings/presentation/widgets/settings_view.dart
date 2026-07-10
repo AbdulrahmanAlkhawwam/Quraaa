@@ -296,8 +296,10 @@ class _SettingsViewState extends State<SettingsView> {
             statusBarColor: palette.header,
             statusBarIconBrightness:
                 palette.isDark ? Brightness.light : Brightness.dark,
-            systemNavigationBarColor: palette.background,
-            systemNavigationBarIconBrightness:
+            systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarDividerColor: Colors.transparent,
+            systemNavigationBarContrastEnforced: false,
+        systemNavigationBarIconBrightness:
                 palette.isDark ? Brightness.light : Brightness.dark,
           ),
           child: Scaffold(

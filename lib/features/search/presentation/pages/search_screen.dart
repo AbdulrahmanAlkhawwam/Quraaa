@@ -99,7 +99,7 @@ class _SearchScreenState extends State<SearchScreen> {
         children: <Widget>[
           // Back button
           GestureDetector(
-            onTap: () => Navigator.of(context).maybePop(),
+            onTap: () => context.back(),
             child: Container(
               width: 44,
               height: 44,
@@ -109,7 +109,7 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
               child:  Center(
                 child: HugeIcon(
-                  icon: HugeIcons.strokeRoundedArrowLeft01,
+                  icon: context.isRTL ? HugeIcons.strokeRoundedArrowRight01 : HugeIcons.strokeRoundedArrowLeft01,
                   color: context.appTextPrimary,
                   size: 22,
                 ),

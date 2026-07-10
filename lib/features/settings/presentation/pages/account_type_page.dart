@@ -1,10 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/localization/localization_constants.dart';
+import '../../../../shared/extensions/app_context.dart';
 import '../../../../shared/theme/app_text_styles.dart';
 import '../widgets/account_type_card.dart';
 import '../widgets/settings_palette.dart';
@@ -21,7 +21,9 @@ class AccountTypePage extends StatelessWidget {
         statusBarColor: palette.background,
         statusBarIconBrightness:
             palette.isDark ? Brightness.light : Brightness.dark,
-        systemNavigationBarColor: palette.background,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarDividerColor: Colors.transparent,
+        systemNavigationBarContrastEnforced: false,
         systemNavigationBarIconBrightness:
             palette.isDark ? Brightness.light : Brightness.dark,
       ),
@@ -79,12 +81,12 @@ class _AccountTypeHeader extends StatelessWidget {
       children: <Widget>[
         IconButton(
           tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-          onPressed: () => context.pop(),
+          onPressed: () => context.back(),
           visualDensity: VisualDensity.compact,
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints.tightFor(width: 34, height: 34),
           icon: HugeIcon(
-            icon: HugeIcons.strokeRoundedArrowLeft01,
+            icon: context.isRTL ? HugeIcons.strokeRoundedArrowRight01 : HugeIcons.strokeRoundedArrowLeft01,
             color: palette.secondaryText,
             size: 23,
           ),
