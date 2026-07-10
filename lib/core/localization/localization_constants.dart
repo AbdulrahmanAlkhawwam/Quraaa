@@ -8,6 +8,10 @@ class LocalizationConstants {
   static const String homeRecommendedForYouKey = 'home.recommended_for_you';
   static const String homeNoteKey = 'home.note';
   static const String homeSearchHintKey = 'home.search_hint';
+  static const String homeActionBrowseFilesKey =
+      'home.actions.browse_files';
+  static const String homeActionAskAssistantKey =
+      'home.actions.ask_assistant';
   static const String homeBannerTitleKey = 'home.banner.title';
   static const String homeBannerSubtitleKey = 'home.banner.subtitle';
   static const String homeNotificationTitleKey = 'home.notification.title';

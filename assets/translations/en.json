@@ -8,6 +8,10 @@
     "recommended_for_you": "Recommended For you",
     "note": "Note",
     "search_hint": "History",
+    "actions": {
+      "browse_files": "Browse your files for a book",
+      "ask_assistant": "Ask your smart assistant"
+    },
     "banner": {
       "title": "Discover new books",
       "subtitle": "Explore our curated collection every day."

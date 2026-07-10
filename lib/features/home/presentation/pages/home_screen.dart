@@ -11,6 +11,7 @@ import '../widgets/home_app_bar.dart';
 import '../widgets/home_banner.dart';
 import '../widgets/home_bottom_nav.dart';
 import '../widgets/home_drawer.dart';
+import '../widgets/home_quick_actions.dart';
 import '../widgets/home_section.dart';
 
 /// The main home screen that serves as the central hub for the app.
@@ -168,6 +169,12 @@ class _HomeFeed extends StatelessWidget {
                   onTap: () => context.pushTo(RouteNames.search),
                 ),
               ),
+            ),
+            const SliverToBoxAdapter(
+              child: SizedBox(height: AppSpacing.spacing14),
+            ),
+            const SliverToBoxAdapter(
+              child: HomeQuickActions(),
             ),
             const SliverToBoxAdapter(
               child: SizedBox(height: AppSpacing.spacing24),

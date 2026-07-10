@@ -1,7 +1,5 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/theme/app_spacing.dart';
 import '../../domain/entities/local_directory_snapshot.dart';
 import '../../domain/entities/local_file_entry.dart';
@@ -10,7 +8,6 @@ import 'explorer_empty_view.dart';
 import 'explorer_grid.dart';
 import 'explorer_header.dart';
 import 'explorer_list.dart';
-import 'explorer_note.dart';
 
 class ExplorerContent extends StatelessWidget {
   const ExplorerContent({
@@ -59,11 +56,6 @@ class ExplorerContent extends StatelessWidget {
           BreadcrumbBar(
             breadcrumbs: snapshot.breadcrumbs,
             onSelected: onBreadcrumbSelected,
-          ),
-          const SizedBox(height: AppSpacing.spacing8),
-          ExplorerNote(
-            title: LocalizationConstants.explorerNoteTitleKey.tr(),
-            message: LocalizationConstants.explorerNoteMessageKey.tr(),
           ),
           const SizedBox(height: AppSpacing.spacing16),
           Expanded(
