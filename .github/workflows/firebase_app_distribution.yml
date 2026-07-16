@@ -50,12 +50,28 @@ jobs:
       - name: Build release artifact
         env:
           BUILD_TYPE: ${{ github.event.inputs.build_type }}
+          HOST: ${{ vars.HOST }}
+          BASEURL: ${{ vars.BASEURL }}
+          APP_ENV: production
+          LATEST_VERSION: ${{ vars.LATEST_VERSION }}
         run: |
+          if [ -z "$HOST" ] || [ -z "$BASEURL" ]; then
+            echo "ERROR: HOST and BASEURL repository variables must be set." >&2
+            exit 1
+          fi
+
+          dart_defines=(
+            "--dart-define=HOST=$HOST"
+            "--dart-define=BASEURL=$BASEURL"
+            "--dart-define=APP_ENV=$APP_ENV"
+          )
+          [ -n "$LATEST_VERSION" ] && dart_defines+=("--dart-define=LATEST_VERSION=$LATEST_VERSION")
+
           if [ "$BUILD_TYPE" = "apk" ]; then
-            flutter build apk --release
+            flutter build apk --release "${dart_defines[@]}"
             echo "ARTIFACT=build/app/outputs/flutter-apk/app-release.apk" >> "$GITHUB_ENV"
           elif [ "$BUILD_TYPE" = "aab" ]; then
-            flutter build appbundle --release
+            flutter build appbundle --release "${dart_defines[@]}"
             echo "ARTIFACT=build/app/outputs/bundle/release/app-release.aab" >> "$GITHUB_ENV"
           else
             echo "ERROR: Invalid build type: $BUILD_TYPE" >&2

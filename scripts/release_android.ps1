@@ -82,6 +82,16 @@ function Import-DotEnv {
 
 Import-DotEnv ".env"
 
+function Get-RequiredEnvironmentValue {
+    param([string]$Name)
+
+    $value = [Environment]::GetEnvironmentVariable($Name)
+    if ([string]::IsNullOrWhiteSpace($value)) {
+        Write-ErrorAndExit "$Name is not set. Add it to .env or set it in the terminal environment."
+    }
+    return $value
+}
+
 # Validate required tooling.
 foreach ($tool in @("flutter", "firebase")) {
     $found = Get-Command $tool -ErrorAction SilentlyContinue
@@ -97,18 +107,41 @@ if ([string]::IsNullOrWhiteSpace($appId)) {
 }
 
 if ([string]::IsNullOrWhiteSpace($Groups)) {
+    $Groups = $env:FIREBASE_TESTER_GROUPS
+}
+
+if ([string]::IsNullOrWhiteSpace($Groups)) {
     Write-ErrorAndExit "No tester groups provided. Set FIREBASE_TESTER_GROUPS in .env or pass -Groups."
 }
 
 $projectId = $env:FIREBASE_PROJECT_ID
+$hostValue = Get-RequiredEnvironmentValue "HOST"
+$baseUrlValue = Get-RequiredEnvironmentValue "BASEURL"
+$appEnvironment = if ([string]::IsNullOrWhiteSpace($env:APP_ENV)) {
+    "production"
+}
+else {
+    $env:APP_ENV
+}
+
+# Only these public runtime values are forwarded to the Flutter compiler.
+# Never pass the entire .env file because it may also contain CI credentials.
+$dartDefineArgs = @(
+    "--dart-define=HOST=$hostValue",
+    "--dart-define=BASEURL=$baseUrlValue",
+    "--dart-define=APP_ENV=$appEnvironment"
+)
+if (-not [string]::IsNullOrWhiteSpace($env:LATEST_VERSION)) {
+    $dartDefineArgs += "--dart-define=LATEST_VERSION=$env:LATEST_VERSION"
+}
 
 # Determine build command and artifact path.
 if ($BuildType -eq "apk") {
-    $buildArgs = @("build", "apk", "--release")
+    $buildArgs = @("build", "apk", "--release") + $dartDefineArgs
     $artifact = "build/app/outputs/flutter-apk/app-release.apk"
 }
 else {
-    $buildArgs = @("build", "appbundle", "--release")
+    $buildArgs = @("build", "appbundle", "--release") + $dartDefineArgs
     $artifact = "build/app/outputs/bundle/release/app-release.aab"
 }
 
