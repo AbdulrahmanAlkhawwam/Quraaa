@@ -65,17 +65,29 @@ fi
 APP_ID="${FIREBASE_ANDROID_APP_ID:-}"
 [ -n "$APP_ID" ] || fail "FIREBASE_ANDROID_APP_ID is not set. Add it to .env or set it as an environment variable."
 [ -n "$GROUPS" ] || fail "FIREBASE_TESTER_GROUPS is not set. Add it to .env or set it as an environment variable."
+[ -n "${HOST:-}" ] || fail "HOST is not set. Add it to .env or set it in the terminal environment."
+[ -n "${BASEURL:-}" ] || fail "BASEURL is not set. Add it to .env or set it in the terminal environment."
 
 PROJECT_ID="${FIREBASE_PROJECT_ID:-}"
+APP_ENV="${APP_ENV:-production}"
+
+# Forward only public runtime configuration to Dart. Passing the complete .env
+# file could embed unrelated CI credentials in the client application.
+dart_defines=(
+  "--dart-define=HOST=$HOST"
+  "--dart-define=BASEURL=$BASEURL"
+  "--dart-define=APP_ENV=$APP_ENV"
+)
+[ -n "${LATEST_VERSION:-}" ] && dart_defines+=("--dart-define=LATEST_VERSION=$LATEST_VERSION")
 
 # Determine build command and artifact path.
 if [ "$BUILD_TYPE" = "apk" ]; then
   info "Building Flutter APK release..."
-  flutter build apk --release
+  flutter build apk --release "${dart_defines[@]}"
   ARTIFACT="build/app/outputs/flutter-apk/app-release.apk"
 else
   info "Building Flutter AAB release..."
-  flutter build appbundle --release
+  flutter build appbundle --release "${dart_defines[@]}"
   ARTIFACT="build/app/outputs/bundle/release/app-release.aab"
 fi
 
