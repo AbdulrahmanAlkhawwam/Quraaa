@@ -23,6 +23,10 @@ import '../../features/auth/domain/use_cases/verify_otp_use_case.dart';
 import '../../features/auth/domain/use_cases/forgot_password_use_case.dart';
 import '../../features/auth/domain/use_cases/reset_password_use_case.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import '../../features/auth/presentation/bloc/auth_journey_cubit.dart';
+import '../../features/auth/presentation/bloc/auth_permission_cubit.dart';
+import '../../features/auth/presentation/bloc/auth_recovery_cubit.dart';
+import '../../features/auth/presentation/bloc/auth_registration_cubit.dart';
 import '../../features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import '../error_monitoring/app_bloc_observer.dart';
 import '../error_monitoring/crashlytics_service.dart';
@@ -33,13 +37,14 @@ import '../error_monitoring/error_report_cache.dart';
 import '../error_monitoring/telegram_notification_service.dart';
 import '../error_monitoring/user_context_provider.dart';
 import '../../shared/theme/app_theme_cubit.dart';
-import '../../features/account/data/user_data_local_data_source.dart';
+import '../../features/account/account.dart';
 import '../../features/profile/data/datasources/profile_local_data_source.dart';
 import '../../features/profile/data/datasources/profile_remote_data_source.dart';
 import '../../features/profile/data/repositories/profile_repository_impl.dart';
 import '../../features/profile/domain/repositories/profile_repository.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../../features/profile/presentation/bloc/edit_profile_bloc.dart';
+import '../../features/home/presentation/bloc/home_bloc.dart';
 import '../../features/libraries/data/datasources/libraries_remote_data_source.dart';
 import '../../features/libraries/data/repositories/libraries_repository_impl.dart';
 import '../../features/libraries/domain/repositories/libraries_repository.dart';
@@ -202,6 +207,10 @@ void registerCoreDependencies() {
     () => FirebaseNotificationService(),
   );
 
+  sl.registerLazySingleton<LocationPermissionService>(
+    () => const GeolocatorLocationPermissionService(),
+  );
+
   sl.registerLazySingleton<FirebaseMessagingService>(
     () => FirebaseMessagingService(
       notificationService: sl<LocalNotificationService>(),
@@ -320,6 +329,34 @@ void registerFeatureDependencies() {
     ),
   );
 
+  sl.registerFactory<AuthPermissionCubit>(
+    () => AuthPermissionCubit(
+      authJourney: sl<AuthLocalDataSource>(),
+      notificationService: sl<NotificationService>(),
+      locationPermissionService: sl<LocationPermissionService>(),
+    ),
+  );
+
+  sl.registerFactory<AuthJourneyCubit>(
+    () => AuthJourneyCubit(authJourney: sl<AuthLocalDataSource>()),
+  );
+
+  sl.registerFactory<AuthRegistrationCubit>(
+    () => AuthRegistrationCubit(
+      loadOnboardingStateUseCase: sl<LoadOnboardingStateUseCase>(),
+      loadCategoriesUseCase: sl<LoadCategoriesUseCase>(),
+    ),
+  );
+
+  sl.registerFactory<AuthRecoveryCubit>(
+    () => AuthRecoveryCubit(
+      forgotPasswordUseCase: sl<ForgotPasswordUseCase>(),
+      resetPasswordUseCase: sl<ResetPasswordUseCase>(),
+      verifyOtpUseCase: sl<VerifyOtpUseCase>(),
+      authJourney: sl<AuthLocalDataSource>(),
+    ),
+  );
+
   // Profile binding feature
   sl.registerLazySingleton<ProfileLocalDataSource>(
     () => ProfileLocalDataSourceImpl(sl<StorageService>()),
@@ -346,6 +383,23 @@ void registerFeatureDependencies() {
 
   sl.registerFactory<EditProfileBloc>(EditProfileBloc.new);
 
+  // Account feature
+  sl.registerLazySingleton<AccountRepository>(
+    () => AccountRepositoryImpl(sl<UserDataLocalDataSource>()),
+  );
+
+  sl.registerFactory<LoadAccountUserSnapshotUseCase>(
+    () => LoadAccountUserSnapshotUseCase(sl<AccountRepository>()),
+  );
+
+  // Home feature
+  sl.registerFactory<HomeBloc>(
+    () => HomeBloc(
+      loadUserSnapshot: sl<LoadAccountUserSnapshotUseCase>(),
+      notificationService: sl<NotificationService>(),
+    ),
+  );
+
   // Libraries feature
   sl.registerLazySingleton<LibrariesRemoteDataSource>(
     () => LibrariesRemoteDataSourceImpl(sl<HttpHelper>()),
@@ -360,7 +414,10 @@ void registerFeatureDependencies() {
   );
 
   sl.registerFactory<LibrariesCubit>(
-    () => LibrariesCubit(getLibrariesUseCase: sl<GetLibrariesUseCase>()),
+    () => LibrariesCubit(
+      getLibrariesUseCase: sl<GetLibrariesUseCase>(),
+      loadUserSnapshotUseCase: sl<LoadAccountUserSnapshotUseCase>(),
+    ),
   );
 
   // Library details feature
@@ -534,7 +591,7 @@ void registerFeatureDependencies() {
 
   if (!sl.isRegistered<SettingsRepository>()) {
     sl.registerLazySingleton<SettingsRepository>(
-      SettingsRepositoryImpl.new,
+      () => SettingsRepositoryImpl(sl<StorageService>()),
     );
   }
 
@@ -625,6 +682,7 @@ void registerFeatureDependencies() {
         updateAppearance: sl(),
         updateNotification: sl(),
         updateLanguage: sl(),
+        storageService: sl(),
       ),
     );
   }

@@ -34,8 +34,8 @@ class HomeBookCard extends StatelessWidget {
                           AppColors.primary400,
                           AppColors.primary600,
                         ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+                    begin: AlignmentDirectional.topStart,
+                    end: AlignmentDirectional.bottomEnd,
                   ),
                   borderRadius: BorderRadius.circular(AppRadius.radius16),
                 ),
@@ -65,7 +65,7 @@ class HomeBookCard extends StatelessWidget {
             Text(
               book.title,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textPrimary,
+                color: context.appTextPrimary,
                 fontWeight: FontWeight.w600,
               ),
               maxLines: 1,
@@ -77,7 +77,7 @@ class HomeBookCard extends StatelessWidget {
                 child: Text(
                   book.subtitle!,
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
+                    color: context.appTextSecondary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -88,7 +88,7 @@ class HomeBookCard extends StatelessWidget {
               child: Text(
                 book.size,
                 style: AppTextStyles.caption.copyWith(
-                  color: AppColors.textTertiary,
+                  color: context.appTextTertiary,
                 ),
               ),
             ),

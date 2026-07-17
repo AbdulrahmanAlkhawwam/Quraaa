@@ -29,8 +29,7 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
 
-        // The Flutter Gradle Plugin sets a default ABI filter. We clear it so
-        // `splits.abi` controls per-ABI packaging without conflict.
+        // Keep Flutter debug builds as a single APK so `flutter run` can locate and install them.
         ndk {
             abiFilters.clear()
         }
@@ -66,11 +65,11 @@ android {
 
     splits {
         abi {
-            isEnable = true
+            isEnable = false
             reset()
             include("armeabi-v7a", "arm64-v8a", "x86_64")
-            // Build one APK per ABI. Distribute the AAB or the matching APK.
-            isUniversalApk = false
+            // For per-ABI release artifacts, use `flutter build apk --split-per-abi`.
+            isUniversalApk = true
         }
     }
 

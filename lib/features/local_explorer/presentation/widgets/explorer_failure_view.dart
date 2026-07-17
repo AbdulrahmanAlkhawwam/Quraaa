@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../shared/extensions/app_context.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/localization/localization_constants.dart';
@@ -34,15 +36,15 @@ class ExplorerFailureView extends StatelessWidget {
               message,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppColors.textPrimary,
+                    color: context.appTextPrimary,
                   ),
             ),
             const SizedBox(height: AppSpacing.spacing24),
             OutlinedButton.icon(
               onPressed: onRetry,
-              icon: const HugeIcon(
+              icon:  HugeIcon(
                 icon: HugeIcons.strokeRoundedArrowReloadHorizontal,
-                color: AppColors.secondary,
+                color: context.isDark ? AppColors.primary300 : AppColors.secondary,
                 size: 20,
               ),
               label: Text(LocalizationConstants.retryKey.tr()),

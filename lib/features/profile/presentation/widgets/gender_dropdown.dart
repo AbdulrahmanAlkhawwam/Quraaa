@@ -1,9 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../shared/extensions/app_context.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/localization/localization_constants.dart';
-import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_dimensions.dart';
 import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/app_spacing.dart';
@@ -37,22 +38,22 @@ class GenderDropdown extends StatelessWidget {
           labelText: LocalizationConstants.profileEditGenderKey.tr(),
           floatingLabelBehavior: FloatingLabelBehavior.auto,
           labelStyle: AppTextStyles.bodySmall.copyWith(
-            color: AppColors.editProfileHint,
+            color: context.appTextSecondary,
           ),
           filled: true,
-          fillColor: AppColors.card,
+          fillColor: context.appCard,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.spacing18,
             vertical: AppSpacing.spacing18,
           ),
-          border: _outlineBorder(AppColors.editProfileBorder),
-          enabledBorder: _outlineBorder(AppColors.editProfileBorder),
-          focusedBorder: _outlineBorder(AppColors.editProfileTitle),
+          border: _outlineBorder(context.appBorder),
+          enabledBorder: _outlineBorder(context.appBorder),
+          focusedBorder: _outlineBorder(context.colors.primary),
           suffixIcon: Padding(
-            padding: const EdgeInsets.only(right: AppSpacing.spacing12),
+            padding: const EdgeInsetsDirectional.only(end: AppSpacing.spacing12),
             child: HugeIcon(
               icon: HugeIcons.strokeRoundedArrowDown01,
-              color: AppColors.editProfileTitle,
+              color: context.appTextPrimary,
               size: 20,
             ),
           ),
@@ -66,9 +67,9 @@ class GenderDropdown extends StatelessWidget {
             value: value,
             isExpanded: true,
             icon: const SizedBox.shrink(),
-            dropdownColor: AppColors.card,
+            dropdownColor: context.appCard,
             style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.editProfileTitle,
+              color: context.appTextPrimary,
             ),
             items: _optionKeys.map((String key) {
               final String label = key.tr();

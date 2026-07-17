@@ -3,12 +3,66 @@ class LocalizationConstants {
 
   static const String translationsPath = 'assets/translations';
   static const String appNameKey = 'app.name';
+  static const String homeGreetingKey = 'home.greeting';
   static const String homeBestSellersKey = 'home.best_sellers';
   static const String homeRecommendedForYouKey = 'home.recommended_for_you';
   static const String homeNoteKey = 'home.note';
   static const String homeSearchHintKey = 'home.search_hint';
+  static const String homeActionBrowseFilesKey =
+      'home.actions.browse_files';
+  static const String homeActionAskAssistantKey =
+      'home.actions.ask_assistant';
   static const String homeBannerTitleKey = 'home.banner.title';
   static const String homeBannerSubtitleKey = 'home.banner.subtitle';
+  static const String homeNotificationTitleKey = 'home.notification.title';
+  static const String homeNavHomeKey = 'home.nav.home';
+  static const String homeNavLibrariesKey = 'home.nav.libraries';
+  static const String homeNavUserBooksKey = 'home.nav.user_books';
+  static const String homeNavAudioBookKey = 'home.nav.audio_book';
+  static const String homeNavCartKey = 'home.nav.cart';
+  static const String homeDrawerWelcomeKey = 'home.drawer.welcome';
+  static const String homeDrawerUserKey = 'home.drawer.user';
+  static const String homeDrawerProfileKey = 'home.drawer.profile';
+  static const String homeDrawerBookmarksKey = 'home.drawer.bookmarks';
+  static const String homeDrawerLibraryKey = 'home.drawer.library';
+  static const String homeDrawerStoresKey = 'home.drawer.stores';
+  static const String homeDrawerSettingsKey = 'home.drawer.settings';
+  static const String homeDrawerHelpSupportKey = 'home.drawer.help_support';
+  static const String homeDrawerLogoutKey = 'home.drawer.logout';
+  static const String homeFeatureBackToHomeKey = 'home.feature.back_to_home';
+  static const String homeFeatureUnderDevelopmentKey =
+      'home.feature.under_development';
+  static const String homeFeatureWelcomeToKey = 'home.feature.welcome_to';
+  static const String homeFeatureStoresTitleKey = 'home.feature.stores.title';
+  static const String homeFeatureStoresSubtitleKey =
+      'home.feature.stores.subtitle';
+  static const String homeFeatureStoresDescriptionKey =
+      'home.feature.stores.description';
+  static const String homeFeatureUserBooksTitleKey =
+      'home.feature.user_books.title';
+  static const String homeFeatureUserBooksSubtitleKey =
+      'home.feature.user_books.subtitle';
+  static const String homeFeatureUserBooksDescriptionKey =
+      'home.feature.user_books.description';
+  static const String homeFeatureAudioBooksTitleKey =
+      'home.feature.audio_books.title';
+  static const String homeFeatureAudioBooksSubtitleKey =
+      'home.feature.audio_books.subtitle';
+  static const String homeFeatureAudioBooksDescriptionKey =
+      'home.feature.audio_books.description';
+  static const String assistantGreetingKey = 'assistant.greeting';
+  static const String assistantComposerHintKey = 'assistant.composer.hint';
+  static const String assistantComposerAddBookKey =
+      'assistant.composer.add_book';
+  static const String assistantPickerTitleKey = 'assistant.picker.title';
+  static const String assistantPromptAuthorOverviewKey =
+      'assistant.prompts.author_overview';
+  static const String assistantPromptFindBookKey =
+      'assistant.prompts.find_book';
+  static const String assistantPromptSummarizeKey =
+      'assistant.prompts.summarize';
+  static const String assistantPromptMainTitlesKey =
+      'assistant.prompts.main_titles';
   static const String libraryDetailsTitleKey = 'library_details.title';
   static const String libraryDetailsDefaultDescriptionKey =
       'library_details.default_description';
@@ -16,6 +70,14 @@ class LocalizationConstants {
   static const String libraryDetailsAuthorsKey = 'library_details.authors';
   static const String libraryDetailsRecentlyAddedKey =
       'library_details.recently_added';
+  static const String libraryDetailsTabGeneralKey =
+      'library_details.tabs.general';
+  static const String libraryDetailsTabProfileKey =
+      'library_details.tabs.profile';
+  static const String libraryDetailsTabBranchesKey =
+      'library_details.tabs.branches';
+  static const String libraryDetailsTabBooksKey = 'library_details.tabs.books';
+  static const String libraryDetailsTabAudioKey = 'library_details.tabs.audio';
   static const String commonOkKey = 'common.ok';
   static const String commonCancelKey = 'common.cancel';
   static const String commonRetryKey = 'common.retry';
@@ -104,6 +166,15 @@ class LocalizationConstants {
       'onboarding.interests.title';
   static const String onboardingInterestsEmptyKey =
       'onboarding.interests.empty';
+  static const String onboardingLoadErrorKey = 'onboarding.errors.load';
+  static const String onboardingSaveBirthDateErrorKey =
+      'onboarding.errors.save_birth_date';
+  static const String onboardingSaveGenderErrorKey =
+      'onboarding.errors.save_gender';
+  static const String onboardingSaveCategoriesErrorKey =
+      'onboarding.errors.save_categories';
+  static const String onboardingCompleteErrorKey =
+      'onboarding.errors.complete';
   static const String onboardingInterestSpaceScienceKey =
       'onboarding.interests.space_science';
   static const String onboardingInterestGeographyKey =
@@ -362,6 +433,8 @@ class LocalizationConstants {
   static const String explorerAccessActionKey = 'explorer.access.action';
   static const String explorerAccessDismissKey = 'explorer.access.dismiss';
   static const String explorerOpenPdfOnlyKey = 'explorer.open_pdf_only';
+  static const String explorerListViewKey = 'explorer.view.list';
+  static const String explorerGridViewKey = 'explorer.view.grid';
   static const String pdfReaderTitleKey = 'pdf_reader.title';
   static const String pdfReaderLoadingKey = 'pdf_reader.loading';
   static const String pdfReaderUnsupportedKey = 'pdf_reader.unsupported';
@@ -449,6 +522,7 @@ class LocalizationConstants {
   static const String settingsTitleKey = 'settings.title';
   static const String settingsSearchHintKey = 'settings.searchHint';
   static const String settingsLogoutKey = 'settings.logout';
+  static const String settingsEditKey = 'settings.edit';
 
   static const String settingsTabProfileKey = 'settings.tabs.profile';
   static const String settingsTabLibraryKey = 'settings.tabs.library';
@@ -520,9 +594,84 @@ class LocalizationConstants {
   static const String settingsNotificationUpgradeLevelKey =
       'settings.notification.upgradeLevel';
 
+  static const String settingsLoadFailureKey = 'settings.errors.load';
+
   static const String settingsLanguageSpanishKey =
       'settings.language.spanish';
   static const String settingsLanguageFranceKey = 'settings.language.france';
   static const String settingsLanguageGermanyKey =
       'settings.language.germany';
+
+  // Search
+  static const String searchHintKey = 'search.hint';
+  static const String searchTrendingKey = 'search.trending';
+  static const String searchRecentKey = 'search.recent';
+  static const String searchClearKey = 'search.clear';
+  static const String searchBrowseCategoriesTitleKey =
+      'search.browse_categories.title';
+  static const String searchBrowseCategoriesDescriptionKey =
+      'search.browse_categories.description';
+  static const String searchSearchingForKey = 'search.results.searching_for';
+  static const String searchResultsSoonKey = 'search.results.soon';
+  static const String searchMathematicalKey =
+      'search.trending_items.mathematical';
+  static const String searchPhilosophyKey = 'search.trending_items.philosophy';
+
+  // Account type
+  static const String settingsAccountTypePersonalTitleKey =
+      'settings.account_type.plans.personal.title';
+  static const String settingsAccountTypePersonalDescriptionKey =
+      'settings.account_type.plans.personal.description';
+  static const String settingsAccountTypeCurrentPlanKey =
+      'settings.account_type.current_plan';
+  static const String settingsAccountTypeFamilyTitleKey =
+      'settings.account_type.plans.family.title';
+  static const String settingsAccountTypeFamilyDescriptionKey =
+      'settings.account_type.plans.family.description';
+  static const String settingsAccountTypeProTitleKey =
+      'settings.account_type.plans.pro.title';
+  static const String settingsAccountTypeProDescriptionKey =
+      'settings.account_type.plans.pro.description';
+
+  // Subscription plan details
+  static const String subscriptionPlanFreeSubtitleKey =
+      'subscription.plan_details.free.subtitle';
+  static const String subscriptionPlanFreeFeatureBrowseKey =
+      'subscription.plan_details.free.features.browse';
+  static const String subscriptionPlanFreeFeatureSaveKey =
+      'subscription.plan_details.free.features.save';
+  static const String subscriptionPlanFreeFeatureSearchKey =
+      'subscription.plan_details.free.features.search';
+  static const String subscriptionPlanPlusSubtitleKey =
+      'subscription.plan_details.plus.subtitle';
+  static const String subscriptionPlanPlusFeatureBookmarksKey =
+      'subscription.plan_details.plus.features.bookmarks';
+  static const String subscriptionPlanPlusFeatureRecommendationsKey =
+      'subscription.plan_details.plus.features.recommendations';
+  static const String subscriptionPlanPlusFeatureSupportKey =
+      'subscription.plan_details.plus.features.support';
+  static const String subscriptionPlanPremiumSubtitleKey =
+      'subscription.plan_details.premium.subtitle';
+  static const String subscriptionPlanPremiumFeaturePlusKey =
+      'subscription.plan_details.premium.features.plus';
+  static const String subscriptionPlanPremiumFeatureCollectionsKey =
+      'subscription.plan_details.premium.features.collections';
+  static const String subscriptionPlanPremiumFeatureEarlyAccessKey =
+      'subscription.plan_details.premium.features.early_access';
+
+  // Cart
+  static const String cartAppliedKey = 'cart.applied';
+  static const String cartApplyKey = 'cart.apply';
+  static const String cartEmptyKey = 'cart.empty';
+  static const String cartSubtotalKey = 'cart.subtotal';
+  static const String cartFatKey = 'cart.fat';
+  static const String cartDeliveryKey = 'cart.delivery';
+  static const String cartDiscountKey = 'cart.discount';
+  static const String cartTotalKey = 'cart.total';
+  static const String cartRemoveKey = 'cart.remove';
+  static const String cartNavHomeKey = 'cart.nav.home';
+  static const String cartNavStoresKey = 'cart.nav.stores';
+  static const String cartNavLibrariesKey = 'cart.nav.libraries';
+  static const String cartNavAudioKey = 'cart.nav.audio';
+  static const String cartNavCartKey = 'cart.nav.cart';
 }

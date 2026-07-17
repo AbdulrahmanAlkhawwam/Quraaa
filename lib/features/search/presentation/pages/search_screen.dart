@@ -1,6 +1,8 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 
 /// Search screen with expanded search UI.
@@ -16,13 +18,13 @@ class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   final List<String> _recentSearches = <String>[];
-  final List<String> _trendingSearches = <String>[
-    'History',
-    'Mathematical',
-    'Science',
-    'Philosophy',
-    'Literature',
-    'Art',
+  final List<String> _trendingSearchKeys = <String>[
+    LocalizationConstants.onboardingInterestHistoryKey,
+    LocalizationConstants.searchMathematicalKey,
+    LocalizationConstants.onboardingInterestScienceKey,
+    LocalizationConstants.searchPhilosophyKey,
+    LocalizationConstants.onboardingInterestLiteratureKey,
+    LocalizationConstants.onboardingInterestArtKey,
   ];
 
   @override
@@ -44,7 +46,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.neutralBackground,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,18 +99,18 @@ class _SearchScreenState extends State<SearchScreen> {
         children: <Widget>[
           // Back button
           GestureDetector(
-            onTap: () => Navigator.of(context).maybePop(),
+            onTap: () => context.back(),
             child: Container(
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: AppColors.card,
+                color: context.appCard,
                 borderRadius: BorderRadius.circular(AppRadius.radius12),
               ),
-              child: const Center(
+              child:  Center(
                 child: HugeIcon(
-                  icon: HugeIcons.strokeRoundedArrowLeft01,
-                  color: AppColors.textPrimary,
+                  icon: context.isRTL ? HugeIcons.strokeRoundedArrowRight01 : HugeIcons.strokeRoundedArrowLeft01,
+                  color: context.appTextPrimary,
                   size: 22,
                 ),
               ),
@@ -120,7 +122,7 @@ class _SearchScreenState extends State<SearchScreen> {
             child: Container(
               height: 44,
               decoration: BoxDecoration(
-                color: AppColors.card,
+                color: context.appCard,
                 borderRadius: BorderRadius.circular(AppRadius.radius12),
               ),
               child: TextField(
@@ -129,18 +131,18 @@ class _SearchScreenState extends State<SearchScreen> {
                 onChanged: (_) => setState(() {}),
                 textAlignVertical: TextAlignVertical.center,
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textPrimary,
+                  color: context.appTextPrimary,
                 ),
                 decoration: InputDecoration(
-                  hintText: 'Search books, authors...',
+                  hintText: LocalizationConstants.searchHintKey.tr(),
                   hintStyle: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textTertiary,
+                    color: context.appTextTertiary,
                   ),
-                  prefixIcon: const Padding(
+                  prefixIcon:  Padding(
                     padding: EdgeInsets.all(AppSpacing.spacing12),
                     child: HugeIcon(
                       icon: HugeIcons.strokeRoundedSearch01,
-                      color: AppColors.textTertiary,
+                      color: context.appTextTertiary,
                       size: 20,
                     ),
                   ),
@@ -150,11 +152,11 @@ class _SearchScreenState extends State<SearchScreen> {
                             _searchController.clear();
                             setState(() {});
                           },
-                          child: const Padding(
+                          child:  Padding(
                             padding: EdgeInsets.all(AppSpacing.spacing12),
                             child: HugeIcon(
                               icon: HugeIcons.strokeRoundedCancel01,
-                              color: AppColors.textTertiary,
+                              color: context.appTextTertiary,
                               size: 20,
                             ),
                           ),
@@ -182,17 +184,17 @@ class _SearchScreenState extends State<SearchScreen> {
         children: <Widget>[
           // Trending searches
           Text(
-            'Trending',
+            LocalizationConstants.searchTrendingKey.tr(),
             style: AppTextStyles.h4.copyWith(
-              color: AppColors.textPrimary,
+              color: context.appTextPrimary,
             ),
           ),
           const SizedBox(height: AppSpacing.spacing16),
           Wrap(
             spacing: AppSpacing.spacing8,
             runSpacing: AppSpacing.spacing8,
-            children: _trendingSearches.map((String search) {
-              return _buildChip(search);
+            children: _trendingSearchKeys.map((String searchKey) {
+              return _buildChip(searchKey);
             }).toList(),
           ),
           const SizedBox(height: AppSpacing.spacing32),
@@ -202,15 +204,15 @@ class _SearchScreenState extends State<SearchScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Text(
-                  'Recent',
+                  LocalizationConstants.searchRecentKey.tr(),
                   style: AppTextStyles.h4.copyWith(
-                    color: AppColors.textPrimary,
+                    color: context.appTextPrimary,
                   ),
                 ),
                 TextButton(
                   onPressed: () => setState(() => _recentSearches.clear()),
                   child: Text(
-                    'Clear',
+                    LocalizationConstants.searchClearKey.tr(),
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppColors.primary600,
                     ),
@@ -229,7 +231,7 @@ class _SearchScreenState extends State<SearchScreen> {
             width: double.infinity,
             padding: const EdgeInsets.all(AppSpacing.spacing20),
             decoration: BoxDecoration(
-              color: AppColors.primary50,
+              color: context.appSubtleSurface,
               borderRadius: BorderRadius.circular(AppRadius.radius16),
             ),
             child: Column(
@@ -242,16 +244,16 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
                 const SizedBox(height: AppSpacing.spacing12),
                 Text(
-                  'Browse Categories',
+                  LocalizationConstants.searchBrowseCategoriesTitleKey.tr(),
                   style: AppTextStyles.titleMedium.copyWith(
-                    color: AppColors.textPrimary,
+                    color: context.appTextPrimary,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.spacing8),
                 Text(
-                  'Discover books by exploring different categories and genres.',
+                  LocalizationConstants.searchBrowseCategoriesDescriptionKey.tr(),
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
+                    color: context.appTextSecondary,
                   ),
                 ),
               ],
@@ -275,16 +277,18 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
           const SizedBox(height: AppSpacing.spacing16),
           Text(
-            'Searching for "${_searchController.text}"...',
+            LocalizationConstants.searchSearchingForKey.tr(
+              namedArgs: <String, String>{'query': _searchController.text},
+            ),
             style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textSecondary,
+              color: context.appTextSecondary,
             ),
           ),
           const SizedBox(height: AppSpacing.spacing8),
           Text(
-            'Results will appear here soon.',
+            LocalizationConstants.searchResultsSoonKey.tr(),
             style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textTertiary,
+              color: context.appTextTertiary,
             ),
           ),
         ],
@@ -292,7 +296,9 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  Widget _buildChip(String label) {
+  Widget _buildChip(String labelKey) {
+    final String label = labelKey.tr();
+
     return GestureDetector(
       onTap: () {
         _searchController.text = label;
@@ -304,14 +310,14 @@ class _SearchScreenState extends State<SearchScreen> {
           vertical: AppSpacing.spacing8,
         ),
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: context.appCard,
           borderRadius: BorderRadius.circular(AppRadius.radius24),
-          border: Border.all(color: AppColors.primary100),
+          border: Border.all(color: context.appBorder),
         ),
         child: Text(
           label,
           style: AppTextStyles.bodySmall.copyWith(
-            color: AppColors.textPrimary,
+            color: context.appTextPrimary,
           ),
         ),
       ),
@@ -330,7 +336,7 @@ class _SearchScreenState extends State<SearchScreen> {
           children: <Widget>[
             HugeIcon(
               icon: HugeIcons.strokeRoundedClock01,
-              color: AppColors.textTertiary,
+              color: context.appTextTertiary,
               size: 18,
             ),
             const SizedBox(width: AppSpacing.spacing12),
@@ -338,7 +344,7 @@ class _SearchScreenState extends State<SearchScreen> {
               child: Text(
                 search,
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textPrimary,
+                  color: context.appTextPrimary,
                 ),
               ),
             ),
@@ -346,7 +352,7 @@ class _SearchScreenState extends State<SearchScreen> {
               onTap: () => setState(() => _recentSearches.remove(search)),
               child: HugeIcon(
                 icon: HugeIcons.strokeRoundedCancel01,
-                color: AppColors.textTertiary,
+                color: context.appTextTertiary,
                 size: 16,
               ),
             ),

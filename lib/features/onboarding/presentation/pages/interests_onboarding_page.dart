@@ -9,7 +9,7 @@ import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import '../../../../shared/widgets/onboarding_scaffold.dart';
-import '../../../auth/data/datasources/auth_local_datasource.dart';
+import '../../../auth/auth.dart';
 import '../bloc/onboarding_bloc.dart';
 
 class InterestsOnboardingPage extends StatefulWidget {
@@ -21,20 +21,31 @@ class InterestsOnboardingPage extends StatefulWidget {
 }
 
 class _InterestsOnboardingPageState extends State<InterestsOnboardingPage> {
-  final AuthLocalDataSource _authJourney = sl<AuthLocalDataSource>();
+  late final AuthJourneyCubit _journeyCubit = sl<AuthJourneyCubit>();
 
   @override
   void initState() {
     super.initState();
     unawaited(
-      _authJourney.saveJourneyStage(AuthJourneyStage.onboardingInterests),
+      _journeyCubit.enterOnboardingInterests(),
     );
   }
 
   @override
+  void dispose() {
+    _journeyCubit.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider<OnboardingBloc>(
-      create: (_) => sl<OnboardingBloc>()..add(const OnboardingStarted()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<OnboardingBloc>(
+          create: (_) => sl<OnboardingBloc>()..add(const OnboardingStarted()),
+        ),
+        BlocProvider<AuthJourneyCubit>.value(value: _journeyCubit),
+      ],
       child: BlocListener<OnboardingBloc, OnboardingState>(
         listenWhen: (previous, current) => current.navigationTarget != null,
         listener: (context, state) {
@@ -60,7 +71,9 @@ class _InterestsOnboardingPageState extends State<InterestsOnboardingPage> {
             listener: (context, state) {
               final msg = state.errorMessage;
               if (msg != null) {
-                context.showResolvedErrorSnackBar(msg);
+                context.showErrorSnackBar(
+                  message: Message(title: '', value: msg.tr()),
+                );
               }
             },
             child: const _InterestsOnboardingView(),
@@ -75,18 +88,12 @@ class _InterestsOnboardingView extends StatelessWidget {
   const _InterestsOnboardingView();
 
   Future<void> _goBack(BuildContext context) async {
-    await sl<AuthLocalDataSource>().saveJourneyStage(
-      AuthJourneyStage.onboardingAge,
-      previousStage: AuthJourneyStage.onboardingInterests,
-    );
+    await context.read<AuthJourneyCubit>().moveFromInterestsToAge();
     if (context.mounted) context.goTo(RouteNames.onboardingAge);
   }
 
   Future<void> _skip(BuildContext context) async {
-    await sl<AuthLocalDataSource>().saveJourneyStage(
-      AuthJourneyStage.register,
-      previousStage: AuthJourneyStage.onboardingInterests,
-    );
+    await context.read<AuthJourneyCubit>().moveFromInterestsToRegister();
     if (context.mounted) {
       context.read<OnboardingBloc>().add(const OnboardingSkipRequested());
     }
@@ -99,6 +106,7 @@ class _InterestsOnboardingView extends StatelessWidget {
   void _onNext(BuildContext context) {
     context.read<OnboardingBloc>().add(const OnboardingInterestsNextRequested());
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -162,6 +170,7 @@ class _InterestChip extends StatelessWidget {
   final bool selected;
   final VoidCallback? onTap;
 
+
   @override
   Widget build(BuildContext context) {
     return Semantics(
@@ -177,16 +186,20 @@ class _InterestChip extends StatelessWidget {
             vertical: AppSpacing.spacing12,
           ),
           decoration: BoxDecoration(
-            color: selected ? AppColors.primary50 : AppColors.card,
+            color: selected ? context.appSubtleSurface : context.appCard,
             borderRadius: BorderRadius.circular(AppRadius.radius32),
             border: Border.all(
-              color: selected ? AppColors.primary300 : AppColors.surface,
+              color: selected ? AppColors.primary300 : context.appBorder,
             ),
           ),
           child: Text(
             label,
             style: AppTextStyles.bodyMedium.copyWith(
-              color: selected ? AppColors.primary700 : AppColors.textPrimary,
+              color: selected
+                  ? context.isDark
+                      ? AppColors.primary300
+                      : AppColors.primary700
+                  : context.appTextPrimary,
               fontWeight: FontWeight.w500,
             ),
           ),

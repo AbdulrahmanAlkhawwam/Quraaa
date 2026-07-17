@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../shared/extensions/app_context.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
 
@@ -106,7 +108,7 @@ class _PdfReaderBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: context.appBackground,
       resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: Center(
@@ -271,7 +273,7 @@ class _PdfReaderBody extends StatelessWidget {
   ) async {
     final PdfTextNote? deletedNote = await showModalBottomSheet<PdfTextNote>(
       context: context,
-      backgroundColor: AppColors.surfaceLight,
+      backgroundColor: context.appCard,
       barrierColor: const Color(0x55000000),
       showDragHandle: true,
       shape: const RoundedRectangleBorder(

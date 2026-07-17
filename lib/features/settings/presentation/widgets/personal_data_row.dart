@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/extensions/app_context.dart';
+
 import '../../../../shared/theme/app_spacing.dart';
 import '../../../../shared/theme/styles/text_styles.dart';
 
@@ -28,7 +29,7 @@ class PersonalDataRow extends StatelessWidget {
         child: Text(
           value,
           style: AppTextStyles.bodyLarge.copyWith(
-            color: AppColors.textPrimary,
+            color: context.appTextPrimary,
           ),
         ),
       ),

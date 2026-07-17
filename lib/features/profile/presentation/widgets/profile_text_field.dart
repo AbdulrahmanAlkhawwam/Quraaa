@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../../shared/theme/app_colors.dart';
+import '../../../../shared/extensions/app_context.dart';
+
 import '../../../../shared/theme/app_dimensions.dart';
 import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/app_spacing.dart';
@@ -45,7 +46,7 @@ class ProfileTextField extends StatelessWidget {
         readOnly: readOnly,
         onTap: onTap,
         style: AppTextStyles.bodyMedium.copyWith(
-          color: AppColors.editProfileTitle,
+          color: context.appTextPrimary,
         ),
         decoration: InputDecoration(
           labelText: label,
@@ -53,20 +54,20 @@ class ProfileTextField extends StatelessWidget {
           suffixIcon: suffixIcon,
           floatingLabelBehavior: FloatingLabelBehavior.auto,
           labelStyle: AppTextStyles.bodySmall.copyWith(
-            color: AppColors.editProfileHint,
+            color: context.appTextSecondary,
           ),
           hintStyle: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.editProfileHint,
+            color: context.appTextSecondary,
           ),
           filled: true,
-          fillColor: AppColors.card,
+          fillColor: context.appCard,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.spacing18,
             vertical: AppSpacing.spacing18,
           ),
-          border: _outlineBorder(AppColors.editProfileBorder),
-          enabledBorder: _outlineBorder(AppColors.editProfileBorder),
-          focusedBorder: _outlineBorder(AppColors.editProfileTitle),
+          border: _outlineBorder(context.appBorder),
+          enabledBorder: _outlineBorder(context.appBorder),
+          focusedBorder: _outlineBorder(context.colors.primary),
         ),
       ),
     );

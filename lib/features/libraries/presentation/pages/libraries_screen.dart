@@ -1,13 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hugeicons/hugeicons.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 import '../../../../config/routes/route_names.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
-import '../../../../features/account/data/user_data_local_data_source.dart';
+import '../../../../features/home/presentation/widgets/home_app_bar.dart';
 import '../../../../features/home/presentation/widgets/home_bottom_nav.dart';
 import '../../../../shared/shared.dart';
 import '../../../../shared/widgets/animated_search_bar.dart';
@@ -21,42 +20,16 @@ class LibrariesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<LibrariesCubit>(
-      create: (_) => sl<LibrariesCubit>(),
+      create: (_) => sl<LibrariesCubit>()..loadUserSnapshot(),
       child: const _LibrariesView(),
     );
   }
 }
 
-class _LibrariesView extends StatefulWidget {
+class _LibrariesView extends StatelessWidget {
   const _LibrariesView();
 
-  @override
-  State<_LibrariesView> createState() => _LibrariesViewState();
-}
-
-class _LibrariesViewState extends State<_LibrariesView> {
-  UserDataSnapshot? _userSnapshot;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadUserData();
-  }
-
-  Future<void> _loadUserData() async {
-    final UserDataLocalDataSource dataSource = sl<UserDataLocalDataSource>();
-    final UserDataSnapshot snapshot = await dataSource.load();
-    if (!mounted) return;
-    setState(() => _userSnapshot = snapshot);
-  }
-
-  String get _firstName {
-    final String fullName = _userSnapshot?.fullName ?? '';
-    if (fullName.trim().isEmpty) return '';
-    return fullName.trim().split(' ').first;
-  }
-
-  void _onNavItemTapped(int index) {
+  void _onNavItemTapped(BuildContext context, int index) {
     final String route = switch (index) {
       0 => RouteNames.home,
       1 => RouteNames.libraries,
@@ -74,84 +47,32 @@ class _LibrariesViewState extends State<_LibrariesView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       extendBodyBehindAppBar: true,
-      appBar: _buildAppBar(),
-      body: const _LibrariesBody(),
-      bottomNavigationBar: HomeBottomNav(
-        currentIndex: 1,
-        onTap: _onNavItemTapped,
-      ),
-    );
-  }
-
-  PreferredSizeWidget _buildAppBar() {
-    final String firstName = _firstName;
-    final String? profileImage = _userSnapshot?.profileImage;
-    final bool hasImage = profileImage != null && profileImage.isNotEmpty;
-
-    return AppBar(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      automaticallyImplyLeading: false,
-      titleSpacing: AppSpacing.spacing16,
-      title: Row(
+      appBar: _buildAppBar(context),
+      body: Stack(
         children: <Widget>[
-          Text(
-            'Hi, ',
-            style: AppTextStyles.h3.copyWith(
-              fontSize: 22,
-              color: AppColors.libraryGreen,
-            ),
-          ),
-          Expanded(
-            child: Text(
-              firstName,
-              style: AppTextStyles.h3.copyWith(
-                fontSize: 22,
-                color: AppColors.libraryGreen,
-              ),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
+          const _LibrariesBody(),
+          PositionedDirectional(
+            start: 0,
+            end: 0,
+            bottom: 0,
+            child: HomeBottomNav(
+              currentIndex: 1,
+              onTap: (int index) => _onNavItemTapped(context, index),
             ),
           ),
         ],
       ),
-      actions: <Widget>[
-        GestureDetector(
-          onTap: () => context.goTo(RouteNames.settings),
-          child: Container(
-            width: 44,
-            height: 44,
-            margin: const EdgeInsetsDirectional.only(end: AppSpacing.spacing16),
-            decoration: BoxDecoration(
-              color: AppColors.primary100,
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.card, width: 2),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: hasImage
-                ? AppImage(
-                    profileImage,
-                    isFile: true,
-                    fit: BoxFit.cover,
-                    errorWidget: const Center(
-                      child: HugeIcon(
-                        icon: HugeIcons.strokeRoundedUser,
-                        color: AppColors.primary600,
-                        size: 24,
-                      ),
-                    ),
-                  )
-                : const Center(
-                    child: HugeIcon(
-                      icon: HugeIcons.strokeRoundedUser,
-                      color: AppColors.primary600,
-                      size: 24,
-                    ),
-                  ),
-          ),
-        ),
-      ],
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    final LibrariesState librariesState = context.watch<LibrariesCubit>().state;
+    return HomeAppBar(
+      firstName: librariesState.firstName,
+      profileImage: librariesState.profileImage,
+      profileImageIsFile: true,
     );
   }
 }
@@ -161,13 +82,14 @@ class _LibrariesBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final List<Color> backgroundColors = context.isDark
+        ? <Color>[AppColors.neutralBackgroundDark, AppColors.surfaceDark]
+        : <Color>[AppColors.neutralBackground, AppColors.primary50];
+
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: <Color>[
-            AppColors.neutralBackground,
-            AppColors.primary50,
-          ],
+          colors: backgroundColors,
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -190,9 +112,9 @@ class _LibrariesBody extends StatelessWidget {
                   'Novels',
                   'Programming',
                 ],
-                onTap: () => context.goTo(RouteNames.search),
-                backgroundColor: AppColors.card,
-                textColor: AppColors.textPrimary,
+                onTap: () => context.pushTo(RouteNames.search),
+                backgroundColor: context.appCard,
+                textColor: context.appTextPrimary,
               ),
             ),
             const SizedBox(height: AppSpacing.spacing24),
@@ -203,7 +125,7 @@ class _LibrariesBody extends StatelessWidget {
               child: Text(
                 LocalizationConstants.homeBestSellersKey.tr(),
                 style: AppTextStyles.h4.copyWith(
-                  color: AppColors.textPrimary,
+                  color: context.appTextPrimary,
                 ),
               ),
             ),
@@ -227,7 +149,12 @@ class _LibrariesPagedGrid extends StatelessWidget {
 
     return PagedGridView<int, LibraryEntity>(
       pagingController: cubit.state.pagingController,
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.spacing16),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.spacing16,
+        0,
+        AppSpacing.spacing16,
+        128,
+      ),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         mainAxisSpacing: AppSpacing.spacing16,
@@ -274,7 +201,7 @@ class _LibraryCard extends StatelessWidget {
       ),
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: context.appCard,
           borderRadius: BorderRadius.circular(AppRadius.radius16),
           boxShadow: AppShadows.elevation1,
         ),
@@ -290,7 +217,7 @@ class _LibraryCard extends StatelessWidget {
                 width: double.infinity,
                 fit: BoxFit.cover,
                 errorWidget: Container(
-                  color: AppColors.primary100,
+                  color: context.appSubtleSurface,
                   child: const Center(
                     child: Icon(
                       Icons.store_outlined,
@@ -309,7 +236,7 @@ class _LibraryCard extends StatelessWidget {
                   Text(
                     library.libraryName,
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.textPrimary,
+                      color: context.appTextPrimary,
                       fontWeight: FontWeight.w600,
                     ),
                     maxLines: 1,
@@ -319,7 +246,7 @@ class _LibraryCard extends StatelessWidget {
                   Text(
                     library.location,
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textSecondary,
+                      color: context.appTextSecondary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -328,7 +255,7 @@ class _LibraryCard extends StatelessWidget {
                   Text(
                     library.email,
                     style: AppTextStyles.caption.copyWith(
-                      color: AppColors.textTertiary,
+                      color: context.appTextTertiary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -361,7 +288,7 @@ class _ErrorIndicator extends StatelessWidget {
               message,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+                color: context.appTextSecondary,
               ),
             ),
             const SizedBox(height: AppSpacing.spacing16),
@@ -389,7 +316,7 @@ class _EmptyIndicator extends StatelessWidget {
           LocalizationConstants.explorerEmptyMessageKey.tr(),
           textAlign: TextAlign.center,
           style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textSecondary,
+            color: context.appTextSecondary,
           ),
         ),
       ),

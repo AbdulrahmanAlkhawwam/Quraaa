@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../../shared/extensions/app_context.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
@@ -22,7 +24,7 @@ class PdfReaderHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
+      padding: const EdgeInsetsDirectional.fromSTEB(
         AppSpacing.spacing24,
         AppSpacing.spacing16,
         AppSpacing.spacing24,
@@ -33,12 +35,12 @@ class PdfReaderHeader extends StatelessWidget {
           final Widget leading = IconButton(
             tooltip: MaterialLocalizations.of(context).backButtonTooltip,
             onPressed: context.canPop() ? () => context.pop() : null,
-            icon: const HugeIcon(
-              icon: HugeIcons.strokeRoundedArrowLeft01,
-              color: AppColors.secondary,
+            icon: HugeIcon(
+              icon: context.isRTL ? HugeIcons.strokeRoundedArrowRight01 : HugeIcons.strokeRoundedArrowLeft01,
+              color: context.isDark ? AppColors.primary300 : AppColors.secondary,
               size: 28,
             ),
-            color: AppColors.secondary,
+            color: context.isDark ? AppColors.primary300 : AppColors.secondary,
             iconSize: 28,
           );
           final Widget title = PdfReaderTitleBlock(fileName: fileName);

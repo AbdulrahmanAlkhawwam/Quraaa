@@ -20,7 +20,7 @@ class _AccountTypeScreenState extends State<AccountTypeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.neutralBackground,
+      backgroundColor: context.appBackground,
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(AppSpacing.spacing16),
@@ -33,7 +33,7 @@ class _AccountTypeScreenState extends State<AccountTypeScreen> {
                   child: Text(
                     LocalizationConstants.subscriptionAccountTypeTitleKey.tr(),
                     style: AppTextStyles.h3.copyWith(
-                      color: AppColors.textPrimary,
+                      color: context.appTextPrimary,
                     ),
                   ),
                 ),
@@ -43,7 +43,7 @@ class _AccountTypeScreenState extends State<AccountTypeScreen> {
             Text(
               LocalizationConstants.subscriptionAccountTypeSubtitleKey.tr(),
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+                color: context.appTextSecondary,
               ),
             ),
             const SizedBox(height: AppSpacing.spacing24),
@@ -82,32 +82,32 @@ class _AccountTypeScreenState extends State<AccountTypeScreen> {
     return <_Plan>[
       _Plan(
         title: LocalizationConstants.subscriptionPlanFreeKey.tr(),
-        subtitle: 'Good for casual reading',
+        subtitle: LocalizationConstants.subscriptionPlanFreeSubtitleKey.tr(),
         price: '\$0 / month',
-        features: const <String>[
-          'Browse books and categories',
-          'Save a small reading list',
-          'Basic search experience',
+        features: <String>[
+          LocalizationConstants.subscriptionPlanFreeFeatureBrowseKey.tr(),
+          LocalizationConstants.subscriptionPlanFreeFeatureSaveKey.tr(),
+          LocalizationConstants.subscriptionPlanFreeFeatureSearchKey.tr(),
         ],
       ),
       _Plan(
         title: LocalizationConstants.subscriptionPlanPlusKey.tr(),
-        subtitle: 'Balanced for active readers',
+        subtitle: LocalizationConstants.subscriptionPlanPlusSubtitleKey.tr(),
         price: '\$4.99 / month',
-        features: const <String>[
-          'Unlimited bookmarks',
-          'Advanced recommendations',
-          'Priority support',
+        features: <String>[
+          LocalizationConstants.subscriptionPlanPlusFeatureBookmarksKey.tr(),
+          LocalizationConstants.subscriptionPlanPlusFeatureRecommendationsKey.tr(),
+          LocalizationConstants.subscriptionPlanPlusFeatureSupportKey.tr(),
         ],
       ),
       _Plan(
         title: LocalizationConstants.subscriptionPlanPremiumKey.tr(),
-        subtitle: 'Best for power readers',
+        subtitle: LocalizationConstants.subscriptionPlanPremiumSubtitleKey.tr(),
         price: '\$9.99 / month',
-        features: const <String>[
-          'All Plus features',
-          'Exclusive premium collections',
-          'Early access to new features',
+        features: <String>[
+          LocalizationConstants.subscriptionPlanPremiumFeaturePlusKey.tr(),
+          LocalizationConstants.subscriptionPlanPremiumFeatureCollectionsKey.tr(),
+          LocalizationConstants.subscriptionPlanPremiumFeatureEarlyAccessKey.tr(),
         ],
       ),
     ];
@@ -122,18 +122,18 @@ class _BackButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.card,
+      color: context.appCard,
       borderRadius: BorderRadius.circular(AppRadius.radius16),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppRadius.radius16),
-        child: const SizedBox(
+        child: SizedBox(
           width: 48,
           height: 48,
           child: Center(
             child: HugeIcon(
               icon: HugeIcons.strokeRoundedArrowLeft01,
-              color: AppColors.textPrimary,
+              color: context.appTextPrimary,
               size: 22,
             ),
           ),

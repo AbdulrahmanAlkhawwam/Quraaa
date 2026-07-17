@@ -7,19 +7,25 @@ class LibrariesState extends Equatable {
     required this.pageSize,
     required this.pagingController,
     this.status = LibrariesStatus.initial,
+    this.userSnapshot,
     this.errorMessage,
   });
 
   final String searchTerm;
   final int pageSize;
   final LibrariesStatus status;
+  final AccountUserSnapshot? userSnapshot;
   final String? errorMessage;
   final PagingController<int, LibraryEntity> pagingController;
+
+  String get firstName => userSnapshot?.firstName ?? '';
+  String? get profileImage => userSnapshot?.profileImage;
 
   LibrariesState copyWith({
     String? searchTerm,
     int? pageSize,
     LibrariesStatus? status,
+    AccountUserSnapshot? userSnapshot,
     String? errorMessage,
   }) {
     return LibrariesState(
@@ -27,6 +33,7 @@ class LibrariesState extends Equatable {
       pageSize: pageSize ?? this.pageSize,
       pagingController: pagingController,
       status: status ?? this.status,
+      userSnapshot: userSnapshot ?? this.userSnapshot,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
@@ -36,6 +43,7 @@ class LibrariesState extends Equatable {
         searchTerm,
         pageSize,
         status,
+        userSnapshot,
         errorMessage,
         pagingController,
       ];

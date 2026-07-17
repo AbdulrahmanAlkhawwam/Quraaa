@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/extensions/app_context.dart';
+
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/app_spacing.dart';
@@ -25,9 +27,9 @@ class PdfPageCounterBadge extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: AppColors.noteSurface,
+        color: context.appSubtleSurface,
         borderRadius: BorderRadius.circular(AppRadius.radius8),
-        border: Border.all(color: AppColors.noteBorder),
+        border: Border.all(color: context.appBorder),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(
@@ -37,7 +39,7 @@ class PdfPageCounterBadge extends StatelessWidget {
         child: Text(
           '$page / $total',
           style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: AppColors.secondary,
+                color: context.isDark ? AppColors.primary300 : AppColors.secondary,
                 fontWeight: FontWeight.w700,
               ),
         ),

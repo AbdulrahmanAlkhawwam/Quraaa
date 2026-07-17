@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../../shared/extensions/app_context.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -29,9 +31,9 @@ class ProfileAvatar extends StatelessWidget {
       width: _size,
       height: _size,
       decoration: BoxDecoration(
-        color: AppColors.primary100,
+        color: context.appSubtleSurface,
         shape: BoxShape.circle,
-        border: Border.all(color: AppColors.card, width: _borderWidth),
+        border: Border.all(color: context.appCard, width: _borderWidth),
       ),
       clipBehavior: Clip.antiAlias,
       child: hasImage
@@ -39,30 +41,30 @@ class ProfileAvatar extends StatelessWidget {
               imagePath,
               fit: BoxFit.cover,
               isFile: !isNetworkImage,
-              placeholder: _buildShimmer(),
-              errorWidget: _buildFallback(),
+              placeholder: _buildShimmer(context),
+              errorWidget: _buildFallback(context),
             )
-          : _buildFallback(),
+          : _buildFallback(context),
     );
   }
 
-  Widget _buildShimmer() {
+  Widget _buildShimmer(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: AppColors.primary100,
-      highlightColor: AppColors.primary50,
+      baseColor: context.appSubtleSurface,
+      highlightColor: context.appCard,
       child: Container(
         width: _size,
         height: _size,
-        color: AppColors.primary100,
+        color: context.appSubtleSurface,
       ),
     );
   }
 
-  Widget _buildFallback() {
+  Widget _buildFallback(BuildContext context) {
     return Center(
       child: HugeIcon(
         icon: HugeIcons.strokeRoundedUser,
-        color: AppColors.primary500,
+        color: context.isDark ? AppColors.primary300 : AppColors.primary500,
         size: _iconSize,
       ),
     );

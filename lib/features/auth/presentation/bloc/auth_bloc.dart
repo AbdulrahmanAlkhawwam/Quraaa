@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
 
+import '../../../../config/routes/route_names.dart';
 import '../../../../core/error_monitoring/user_context_provider.dart';
 import '../../data/datasources/auth_local_datasource.dart';
 import '../../data/datasources/user_local_datasource.dart';
@@ -23,8 +24,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this._userCache,
     required this._userContext,
   }) : super(const AuthState()) {
+    on<AuthLoginScreenStarted>(_onLoginScreenStarted);
+    on<AuthRegisterScreenStarted>(_onRegisterScreenStarted);
     on<AuthLoginRequested>(_onLoginRequested);
     on<AuthRegisterRequested>(_onRegisterRequested);
+    on<AuthGuestRequested>(_onGuestRequested);
+    on<AuthActionTracked>(_onActionTracked);
     on<AuthStarted>(_onStarted);
     on<AuthOnboardingRequested>(_onOnboardingRequested);
     on<AuthLoginRequestedFromAuth>(_onLoginRequestedFromAuth);
@@ -37,12 +42,31 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final UserContextProvider _userContext;
 
   static const String _subscriptionStatus = 'active';
+  static const String _defaultPhoneIsoCode = 'SY';
+
+  Future<void> _onLoginScreenStarted(
+    AuthLoginScreenStarted event,
+    Emitter<AuthState> emit,
+  ) async {
+    unawaited(_markLoginSeen());
+    await _loadSavedPhone(emit);
+  }
+
+  Future<void> _onRegisterScreenStarted(
+    AuthRegisterScreenStarted event,
+    Emitter<AuthState> emit,
+  ) async {
+    unawaited(_markRegisterSeen());
+    await _loadSavedPhone(emit);
+  }
 
   Future<void> _onLoginRequested(
     AuthLoginRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading));
+    emit(state.copyWith(status: AuthStatus.loading, clearError: true));
+    await _saveLastPhoneNumber(event.phoneNumber, event.phoneIsoCode);
+
     final response = await _loginUseCase(
       LoginParams(phoneNumber: event.phoneNumber, password: event.password),
     );
@@ -62,6 +86,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           phone: phone,
         );
         emit(state.copyWith(status: AuthStatus.success));
+        _emitNavigation(emit, await _resolvePostAuthRoute());
       },
     );
   }
@@ -70,7 +95,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthRegisterRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading));
+    emit(state.copyWith(status: AuthStatus.loading, clearError: true));
+    await _saveLastPhoneNumber(event.phoneNumber, event.phoneIsoCode);
+
     final response = await _registerUseCase(
       RegisterParams(
         firstName: event.firstName,
@@ -100,8 +127,33 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           phone: event.phoneNumber,
         );
         emit(state.copyWith(status: AuthStatus.success));
+        _emitNavigation(
+          emit,
+          RouteNames.otpVerification,
+          routeExtra: event.phoneNumber,
+        );
       },
     );
+  }
+
+  Future<void> _onGuestRequested(
+    AuthGuestRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(status: AuthStatus.loading, clearError: true));
+    await _authJourney.markGuestSession();
+    await _userContext.clearUser();
+    emit(state.copyWith(status: AuthStatus.success));
+    _emitNavigation(emit, await _resolvePostAuthRoute());
+  }
+
+  Future<void> _onActionTracked(
+    AuthActionTracked event,
+    Emitter<AuthState> emit,
+  ) async {
+    try {
+      await _userContext.recordAction(event.action);
+    } catch (_) {}
   }
 
   Future<void> _onStarted(AuthStarted event, Emitter<AuthState> emit) async {
@@ -141,6 +193,73 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       previousStage: AuthJourneyStage.auth,
     );
     emit(const AuthState(status: AuthStatus.navigateToLogin));
+  }
+
+  Future<void> _markLoginSeen() async {
+    try {
+      await _authJourney.markLoginSeen();
+    } catch (_) {}
+  }
+
+  Future<void> _markRegisterSeen() async {
+    try {
+      await _authJourney.markRegisterSeen();
+    } catch (_) {}
+  }
+
+  Future<void> _loadSavedPhone(Emitter<AuthState> emit) async {
+    try {
+      final String? phone = await _authJourney.getLastPhoneNumber();
+      final String? isoCode = await _authJourney.getLastPhoneIsoCode();
+      emit(
+        state.copyWith(
+          savedPhoneNumber: phone,
+          savedPhoneIsoCode: isoCode ?? _defaultPhoneIsoCode,
+          phoneSerial: state.phoneSerial + 1,
+        ),
+      );
+    } catch (_) {}
+  }
+
+  Future<void> _saveLastPhoneNumber(String? phone, String? isoCode) async {
+    if (phone == null || phone.trim().isEmpty) return;
+    try {
+      await _authJourney.saveLastPhoneNumber(
+        phone,
+        isoCode ?? _defaultPhoneIsoCode,
+      );
+    } catch (_) {}
+  }
+
+  Future<String> _resolvePostAuthRoute() async {
+    try {
+      final bool locationSeen = await _authJourney.isLocationPermissionSeen();
+      if (!locationSeen) return RouteNames.locationPermission;
+
+      final bool notificationSeen = await _authJourney
+          .isNotificationPermissionSeen();
+      return notificationSeen
+          ? RouteNames.home
+          : RouteNames.notificationPermission;
+    } catch (_) {
+      return RouteNames.home;
+    }
+  }
+
+  void _emitNavigation(
+    Emitter<AuthState> emit,
+    String route, {
+    Object? routeExtra,
+  }) {
+    emit(
+      state.copyWith(
+        status: AuthStatus.success,
+        nextRoute: route,
+        routeExtra: routeExtra,
+        clearRouteExtra: routeExtra == null,
+        navigationSerial: state.navigationSerial + 1,
+      ),
+    );
   }
 
   /// Persists the authenticated session, caches the user, and reports the

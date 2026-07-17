@@ -4,6 +4,8 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:meta/meta.dart';
 
 import '../../../../core/architecture/result.dart';
+import '../../../../core/architecture/use_case.dart';
+import '../../../account/account.dart';
 import '../../domain/entities/library_entity.dart';
 import '../../domain/repositories/libraries_repository.dart';
 import '../../domain/use_cases/get_libraries_use_case.dart';
@@ -12,10 +14,13 @@ part 'libraries_state.dart';
 
 class LibrariesCubit extends Cubit<LibrariesState> {
   LibrariesCubit({
-    required this._getLibrariesUseCase,
+    required GetLibrariesUseCase getLibrariesUseCase,
+    required LoadAccountUserSnapshotUseCase loadUserSnapshotUseCase,
     String initialSearchTerm = '',
     int pageSize = _defaultPageSize,
-  })  : super(
+  })  : _getLibrariesUseCase = getLibrariesUseCase,
+        _loadUserSnapshotUseCase = loadUserSnapshotUseCase,
+        super(
           LibrariesState(
             searchTerm: initialSearchTerm,
             pageSize: pageSize,
@@ -30,6 +35,18 @@ class LibrariesCubit extends Cubit<LibrariesState> {
   static const int _defaultPageSize = 10;
 
   final GetLibrariesUseCase _getLibrariesUseCase;
+  final LoadAccountUserSnapshotUseCase _loadUserSnapshotUseCase;
+
+  Future<void> loadUserSnapshot() async {
+    try {
+      final AccountUserSnapshot userSnapshot = await _loadUserSnapshotUseCase(
+        const NoParams(),
+      );
+      emit(state.copyWith(userSnapshot: userSnapshot));
+    } catch (_) {
+      // The header profile is optional; library paging should remain usable.
+    }
+  }
 
   void updateSearchTerm(String searchTerm) {
     if (searchTerm == state.searchTerm) return;

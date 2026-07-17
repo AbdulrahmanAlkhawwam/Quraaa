@@ -56,7 +56,7 @@ class HomeSearchBar extends StatelessWidget {
               horizontal: AppSpacing.spacing16,
             ),
         decoration: BoxDecoration(
-          color: backgroundColor ?? AppColors.primary50,
+          color: backgroundColor ?? context.appSubtleSurface,
           borderRadius: BorderRadius.circular(AppRadius.radius40),
           boxShadow: <BoxShadow>[
             BoxShadow(
@@ -89,7 +89,7 @@ class HomeSearchBar extends StatelessWidget {
                     Text(
                       secondaryText!,
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textTertiary,
+                        color: context.appTextTertiary,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

@@ -2,6 +2,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/architecture/result.dart';
 import '../../../../core/architecture/use_case.dart';
+import '../../../../core/localization/localization_constants.dart';
+import '../../../../core/services/storage_service.dart';
 import '../../domain/entities/appearance_option.dart';
 import '../../domain/entities/language_option.dart';
 import '../../domain/entities/notification_setting.dart';
@@ -142,6 +144,10 @@ final class SettingsFailure extends SettingsState {
   final String message;
 }
 
+final class SettingsLogoutSuccess extends SettingsState {
+  const SettingsLogoutSuccess();
+}
+
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   SettingsBloc({
     required GetSettingsTabsUseCase getTabs,
@@ -156,6 +162,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     required UpdateAppearanceOptionUseCase updateAppearance,
     required UpdateNotificationSettingUseCase updateNotification,
     required UpdateLanguageOptionUseCase updateLanguage,
+    required StorageService storageService,
   })  : _getTabs = getTabs,
         _getProfileSections = getProfileSections,
         _getSettingsSections = getSettingsSections,
@@ -168,6 +175,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         _updateAppearance = updateAppearance,
         _updateNotification = updateNotification,
         _updateLanguage = updateLanguage,
+        _storageService = storageService,
         super(const SettingsInitial()) {
     on<SettingsStarted>(_onStarted);
     on<SettingsTabChanged>(_onTabChanged);
@@ -190,6 +198,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   final UpdateAppearanceOptionUseCase _updateAppearance;
   final UpdateNotificationSettingUseCase _updateNotification;
   final UpdateLanguageOptionUseCase _updateLanguage;
+  final StorageService _storageService;
 
   Future<void> _onStarted(
     SettingsStarted event,
@@ -256,7 +265,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     };
 
     if (tabs.isEmpty) {
-      emit(const SettingsFailure('Could not load settings tabs'));
+      emit(const SettingsFailure(LocalizationConstants.settingsLoadFailureKey));
       return;
     }
 
@@ -367,11 +376,11 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     emit(state.copyWith(languageOptions: options));
   }
 
-  void _onLogoutRequested(
+  Future<void> _onLogoutRequested(
     SettingsLogoutRequested event,
     Emitter<SettingsState> emit,
-  ) {
-    // Placeholder: no real logout action is performed because the app does not
-    // support authentication state yet.
+  ) async {
+    await _storageService.clearAll();
+    emit(const SettingsLogoutSuccess());
   }
 }

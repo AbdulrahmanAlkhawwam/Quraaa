@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../../shared/extensions/app_context.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/app_spacing.dart';
@@ -17,9 +19,9 @@ class ExplorerNote extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: AppColors.noteSurface,
+        color: context.isDark ? AppColors.surfaceDark : AppColors.noteSurface,
         borderRadius: BorderRadius.circular(AppRadius.radius8),
-        border: Border.all(color: AppColors.noteBorder),
+        border: Border.all(color: context.isDark ? AppColors.outlineDark : AppColors.noteBorder),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(
@@ -32,7 +34,7 @@ class ExplorerNote extends StatelessWidget {
             Text(
               title,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: AppColors.textPrimary,
+                    color: context.appTextPrimary,
                     fontWeight: FontWeight.w700,
                   ),
             ),
@@ -40,7 +42,7 @@ class ExplorerNote extends StatelessWidget {
             Text(
               message,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: context.appTextSecondary,
                     height: 1.2,
                   ),
             ),

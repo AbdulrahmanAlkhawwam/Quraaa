@@ -22,7 +22,7 @@ class AppearanceBottomSheet extends StatelessWidget {
     return SafeArea(
       top: false,
       child: Padding(
-        padding: EdgeInsets.fromLTRB(28, 40, 28, bottomInset + 28),
+        padding: EdgeInsetsDirectional.fromSTEB(28, 40, 28, bottomInset + 28),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,7 +66,7 @@ class _AppearanceOptionCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(8),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.fromLTRB(20, 22, 20, 18),
+        padding: const EdgeInsetsDirectional.fromSTEB(20, 22, 20, 18),
         decoration: BoxDecoration(
           color: palette.card,
           borderRadius: BorderRadius.circular(8),

@@ -1,4 +1,10 @@
 export './bloc/auth_bloc.dart';
+export './bloc/auth_journey_cubit.dart';
+export './bloc/auth_permission_cubit.dart';
+export './bloc/auth_recovery_cubit.dart';
+export './bloc/auth_registration_cubit.dart';
 export './pages/landing_page.dart';
 export './pages/login_screen.dart';
 export './pages/register_screen.dart';
+export './pages/notification_permission_screen.dart';
+export './pages/location_permission_screen.dart';

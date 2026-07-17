@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,6 +8,11 @@ import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../config/routes/route_names.dart';
+import '../../../../core/localization/localization_constants.dart';
+import '../../../../core/localization/supported_locales.dart';
+import '../../../../shared/shared.dart' hide NotificationBottomSheet, LanguageBottomSheet;
+import '../../domain/entities/appearance_option.dart';
+import '../../domain/entities/language_option.dart';
 import '../../domain/entities/settings_section.dart';
 import '../../domain/entities/settings_tab.dart';
 import '../bloc/settings_bloc.dart';
@@ -70,13 +77,18 @@ class _SettingsViewState extends State<SettingsView> {
     SettingsLoaded state,
     SettingsSection section,
   ) {
-    if (section.action == SettingsSectionAction.navigate &&
-        section.id == 'account_type') {
-      context.push(RouteNames.settingsAccountType);
+    if (section.action == SettingsSectionAction.navigate) {
+      if (section.id == 'account_type') {
+        context.push(RouteNames.settingsAccountType);
+        return;
+      }
+
+      _showComingSoon(context, section.labelKey.tr());
       return;
     }
 
     if (section.action != SettingsSectionAction.bottomSheet) {
+      _showComingSoon(context, section.labelKey.tr());
       return;
     }
 
@@ -88,8 +100,20 @@ class _SettingsViewState extends State<SettingsView> {
       case 'language':
         _showLanguageSheet(context, state);
       default:
-        break;
+        _showComingSoon(context, section.labelKey.tr());
     }
+  }
+
+
+  void _showComingSoon(BuildContext context, String feature) {
+    context.showSuccessSnackBar(
+      message: Message(
+        title: LocalizationConstants.profileComingSoonTitleKey.tr(),
+        value: LocalizationConstants.profileComingSoonMessageKey.tr(
+          namedArgs: <String, String>{'feature': feature},
+        ),
+      ),
+    );
   }
 
   void _showAppearanceSheet(BuildContext context, SettingsLoaded state) {
@@ -107,10 +131,15 @@ class _SettingsViewState extends State<SettingsView> {
       builder: (BuildContext sheetContext) {
         return AppearanceBottomSheet(
           options: state.appearanceOptions,
-          onSelected: (option) {
+          onSelected: (AppearanceOption option) {
             context.read<SettingsBloc>().add(
                   SettingsAppearanceSelected(option.id),
                 );
+            unawaited(
+              context.read<AppThemeCubit>().setThemeMode(
+                    _themeModeFor(option.mode),
+                  ),
+            );
           },
         );
       },
@@ -160,14 +189,32 @@ class _SettingsViewState extends State<SettingsView> {
       builder: (BuildContext sheetContext) {
         return LanguageBottomSheet(
           options: state.languageOptions,
-          onSelected: (option) {
+          onSelected: (LanguageOption option) {
             context.read<SettingsBloc>().add(
                   SettingsLanguageSelected(option.id),
                 );
+            unawaited(_setLocale(context, option.languageCode));
           },
         );
       },
     );
+  }
+
+  ThemeMode _themeModeFor(AppearanceMode mode) {
+    return switch (mode) {
+      AppearanceMode.light => ThemeMode.light,
+      AppearanceMode.dark => ThemeMode.dark,
+      AppearanceMode.system => ThemeMode.system,
+    };
+  }
+
+  Future<void> _setLocale(BuildContext context, String languageCode) async {
+    final Locale locale = SupportedLocales.fromCode(languageCode);
+    if (context.locale == locale || !context.mounted) {
+      return;
+    }
+
+    await context.setLocale(locale);
   }
 
   List<_SettingsSearchResult> _searchResults(SettingsLoaded state) {
@@ -210,7 +257,14 @@ class _SettingsViewState extends State<SettingsView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SettingsBloc, SettingsState>(
+    return BlocConsumer<SettingsBloc, SettingsState>(
+      listenWhen: (SettingsState previous, SettingsState current) =>
+          current is SettingsLogoutSuccess,
+      listener: (BuildContext context, SettingsState state) {
+        if (state is SettingsLogoutSuccess) {
+          context.goTo(RouteNames.auth);
+        }
+      },
       builder: (BuildContext context, SettingsState state) {
         final SettingsPalette palette = SettingsPalette.of(context);
 
@@ -226,7 +280,7 @@ class _SettingsViewState extends State<SettingsView> {
         if (state is SettingsFailure) {
           return Scaffold(
             backgroundColor: palette.background,
-            body: Center(child: Text(state.message)),
+            body: Center(child: Text(state.message.tr())),
           );
         }
 
@@ -242,8 +296,10 @@ class _SettingsViewState extends State<SettingsView> {
             statusBarColor: palette.header,
             statusBarIconBrightness:
                 palette.isDark ? Brightness.light : Brightness.dark,
-            systemNavigationBarColor: palette.background,
-            systemNavigationBarIconBrightness:
+            systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarDividerColor: Colors.transparent,
+            systemNavigationBarContrastEnforced: false,
+        systemNavigationBarIconBrightness:
                 palette.isDark ? Brightness.light : Brightness.dark,
           ),
           child: Scaffold(
@@ -356,7 +412,7 @@ class _SettingsSearchResultsDropdown extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(40, 0, 40, 18),
+      padding: const EdgeInsetsDirectional.fromSTEB(40, 0, 40, 18),
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: palette.sheet,

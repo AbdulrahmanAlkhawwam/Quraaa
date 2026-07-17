@@ -1,20 +1,36 @@
 part of 'auth_bloc.dart';
 
 @immutable
-sealed class AuthEvent {}
+sealed class AuthEvent {
+  const AuthEvent();
+}
+
+class AuthLoginScreenStarted extends AuthEvent {
+  const AuthLoginScreenStarted();
+}
+
+class AuthRegisterScreenStarted extends AuthEvent {
+  const AuthRegisterScreenStarted();
+}
 
 class AuthLoginRequested extends AuthEvent {
-  AuthLoginRequested({required this.phoneNumber, required this.password});
+  const AuthLoginRequested({
+    required this.phoneNumber,
+    required this.password,
+    this.phoneIsoCode,
+  });
 
   final String phoneNumber;
   final String password;
+  final String? phoneIsoCode;
 }
 
 class AuthRegisterRequested extends AuthEvent {
-  AuthRegisterRequested({
+  const AuthRegisterRequested({
     this.firstName,
     this.lastName,
     this.phoneNumber,
+    this.phoneIsoCode,
     this.password,
     this.gender,
     this.dateOfBirth,
@@ -24,14 +40,31 @@ class AuthRegisterRequested extends AuthEvent {
   final String? firstName;
   final String? lastName;
   final String? phoneNumber;
+  final String? phoneIsoCode;
   final String? password;
   final int? gender;
   final String? dateOfBirth;
   final List<String>? categoryIds;
 }
 
-class AuthStarted extends AuthEvent {}
+class AuthGuestRequested extends AuthEvent {
+  const AuthGuestRequested();
+}
 
-class AuthOnboardingRequested extends AuthEvent {}
+class AuthActionTracked extends AuthEvent {
+  const AuthActionTracked(this.action);
 
-class AuthLoginRequestedFromAuth extends AuthEvent {}
+  final String action;
+}
+
+class AuthStarted extends AuthEvent {
+  const AuthStarted();
+}
+
+class AuthOnboardingRequested extends AuthEvent {
+  const AuthOnboardingRequested();
+}
+
+class AuthLoginRequestedFromAuth extends AuthEvent {
+  const AuthLoginRequestedFromAuth();
+}

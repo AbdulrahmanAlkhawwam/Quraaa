@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../core/localization/localization_constants.dart';
-import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
 import '../theme/app_radius.dart';
 import '../theme/app_spacing.dart';
@@ -163,8 +162,10 @@ class _CloseButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme colors = Theme.of(context).colorScheme;
+
     return Material(
-      color: AppColors.primary100,
+      color: colors.primaryContainer,
       shape: const CircleBorder(),
       child: InkWell(
         onTap: onPressed,
@@ -175,7 +176,7 @@ class _CloseButton extends StatelessWidget {
           alignment: Alignment.center,
           child: HugeIcon(
             icon: HugeIcons.strokeRoundedCancel01,
-            color: AppColors.textSecondary,
+            color: colors.onPrimaryContainer,
             size: 20,
           ),
         ),

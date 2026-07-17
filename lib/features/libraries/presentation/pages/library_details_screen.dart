@@ -35,9 +35,9 @@ class LibraryDetailsScreen extends StatelessWidget {
       backgroundColor: Colors.transparent,
       elevation: 0,
       leading: IconButton(
-        icon: const HugeIcon(
+        icon: HugeIcon(
           icon: HugeIcons.strokeRoundedArrowLeft01,
-          color: AppColors.libraryGreen,
+          color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
           size: 28,
         ),
         onPressed: () => context.back(),
@@ -46,14 +46,14 @@ class LibraryDetailsScreen extends StatelessWidget {
         library?.libraryName ??
             LocalizationConstants.libraryDetailsTitleKey.tr(),
         style: AppTextStyles.appBarTitle.copyWith(
-          color: AppColors.libraryGreen,
+          color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
         ),
       ),
       actions: <Widget>[
         IconButton(
-          icon: const HugeIcon(
+          icon: HugeIcon(
             icon: HugeIcons.strokeRoundedStar,
-            color: AppColors.libraryGreen,
+            color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
             size: 28,
           ),
           onPressed: () {
@@ -84,13 +84,14 @@ class _LibraryDetailsViewState extends State<_LibraryDetailsView> {
     final LibraryEntity? library =
         context.findAncestorWidgetOfExactType<LibraryDetailsScreen>()?.library;
 
+    final List<Color> backgroundColors = context.isDark
+        ? <Color>[AppColors.neutralBackgroundDark, AppColors.surfaceDark]
+        : <Color>[AppColors.neutralBackground, AppColors.primary50];
+
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: <Color>[
-            AppColors.neutralBackground,
-            AppColors.primary50,
-          ],
+          colors: backgroundColors,
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -200,7 +201,7 @@ class _SectionTitle extends StatelessWidget {
       child: Text(
         title,
         style: AppTextStyles.titleMedium.copyWith(
-          color: AppColors.textPrimary,
+          color: context.appTextPrimary,
           fontWeight: FontWeight.w700,
         ),
       ),
@@ -229,7 +230,7 @@ class _ErrorView extends StatelessWidget {
               message,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+                color: context.appTextSecondary,
               ),
             ),
             const SizedBox(height: AppSpacing.spacing16),

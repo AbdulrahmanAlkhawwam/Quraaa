@@ -142,8 +142,15 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   @override
   Future<Map<String, Object?>> getCachedUser() async {
-    // TODO: implement getCachedUser
-    throw UnimplementedError();
+    final AuthSessionMode? sessionMode = await getSessionMode();
+    final DateTime? accessTokenExpiration = await getAccessTokenExpiration();
+
+    return <String, Object?>{
+      'sessionMode': sessionMode?.key,
+      'accessToken': await getAccessToken(),
+      'refreshToken': await getRefreshToken(),
+      'accessTokenExpiration': accessTokenExpiration?.toIso8601String(),
+    };
   }
 
   @override

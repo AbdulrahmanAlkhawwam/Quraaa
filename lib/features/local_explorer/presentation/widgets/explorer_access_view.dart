@@ -1,6 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../shared/extensions/app_context.dart';
+
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_text_styles.dart';
@@ -44,8 +46,8 @@ class ExplorerAccessView extends StatelessWidget {
                   width: sheetWidth,
                   height: sheetHeight,
                   child: DecoratedBox(
-                    decoration: const BoxDecoration(
-                      color: AppColors.surfaceLight,
+                    decoration: BoxDecoration(
+                      color: context.appCard,
                       borderRadius: BorderRadius.vertical(
                         top: Radius.circular(_sheetRadius),
                       ),
@@ -108,7 +110,7 @@ class _PermissionSheetContent extends StatelessWidget {
                 LocalizationConstants.explorerAccessTitleKey.tr(),
                 textAlign: TextAlign.center,
                 style: AppTextStyles.explorerTitle().copyWith(
-                  color: AppColors.textPrimary,
+                  color: context.appTextPrimary,
                   fontSize: 22,
                   fontWeight: FontWeight.w600,
                   height: 1.05,
@@ -123,7 +125,7 @@ class _PermissionSheetContent extends StatelessWidget {
                 LocalizationConstants.explorerAccessMessageKey.tr(),
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: const Color(0xFF8C9A89),
+                      color: context.appTextSecondary,
                       fontSize: 12,
                       height: 1.2,
                     ),

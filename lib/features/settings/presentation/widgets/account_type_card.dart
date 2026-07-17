@@ -27,7 +27,7 @@ class AccountTypeCard extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+      padding: const EdgeInsetsDirectional.fromSTEB(14, 14, 14, 14),
       decoration: BoxDecoration(
         color: palette.card,
         borderRadius: BorderRadius.circular(6),

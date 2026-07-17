@@ -1,8 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../shared/extensions/app_context.dart';
+
 import '../../../../core/localization/localization_constants.dart';
-import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_dimensions.dart';
 import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/app_spacing.dart';
@@ -64,27 +65,27 @@ class _PhoneNumberFieldState extends State<PhoneNumberField> {
         onChanged: widget.onPhoneNumberChanged,
         keyboardType: TextInputType.phone,
         style: AppTextStyles.bodyMedium.copyWith(
-          color: AppColors.editProfileTitle,
+          color: context.appTextPrimary,
         ),
         decoration: InputDecoration(
           labelText: LocalizationConstants.profileEditPhoneNumberKey.tr(),
           floatingLabelBehavior: FloatingLabelBehavior.auto,
           labelStyle: AppTextStyles.bodySmall.copyWith(
-            color: AppColors.editProfileHint,
+            color: context.appTextSecondary,
           ),
           filled: true,
-          fillColor: AppColors.card,
-          contentPadding: const EdgeInsets.only(
-            left: AppSpacing.spacing12,
-            right: AppSpacing.spacing18,
+          fillColor: context.appCard,
+          contentPadding: const EdgeInsetsDirectional.only(
+            start: AppSpacing.spacing12,
+            end: AppSpacing.spacing18,
             top: AppSpacing.spacing18,
             bottom: AppSpacing.spacing18,
           ),
-          prefixIcon: _buildPrefix(),
+          prefixIcon: _buildPrefix(context),
           prefixIconConstraints: const BoxConstraints(minWidth: 108),
-          border: _outlineBorder(AppColors.editProfileBorder),
-          enabledBorder: _outlineBorder(AppColors.editProfileBorder),
-          focusedBorder: _outlineBorder(AppColors.editProfileTitle),
+          border: _outlineBorder(context.appBorder),
+          enabledBorder: _outlineBorder(context.appBorder),
+          focusedBorder: _outlineBorder(context.colors.primary),
         ),
       ),
     );
@@ -100,7 +101,7 @@ class _PhoneNumberFieldState extends State<PhoneNumberField> {
     );
   }
 
-  Widget _buildPrefix() {
+  Widget _buildPrefix(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -114,14 +115,14 @@ class _PhoneNumberFieldState extends State<PhoneNumberField> {
           widget.countryCode,
           style: AppTextStyles.bodyMedium.copyWith(
             fontWeight: FontWeight.w500,
-            color: AppColors.editProfileTitle,
+            color: context.appTextPrimary,
           ),
         ),
         const SizedBox(width: AppSpacing.spacing10),
         Container(
           width: 1,
           height: AppSpacing.spacing24,
-          color: AppColors.editProfileBorder,
+          color: context.appBorder,
         ),
         const SizedBox(width: AppSpacing.spacing10),
       ],

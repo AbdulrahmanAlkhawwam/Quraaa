@@ -10,7 +10,7 @@ import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import '../../../../shared/widgets/onboarding_scaffold.dart';
-import '../../../auth/data/datasources/auth_local_datasource.dart';
+import '../../../auth/auth.dart';
 import '../bloc/onboarding_bloc.dart';
 
 class AgeOnboardingPage extends StatefulWidget {
@@ -21,18 +21,29 @@ class AgeOnboardingPage extends StatefulWidget {
 }
 
 class _AgeOnboardingPageState extends State<AgeOnboardingPage> {
-  final AuthLocalDataSource _authJourney = sl<AuthLocalDataSource>();
+  late final AuthJourneyCubit _journeyCubit = sl<AuthJourneyCubit>();
 
   @override
   void initState() {
     super.initState();
-    unawaited(_authJourney.saveJourneyStage(AuthJourneyStage.onboardingAge));
+    unawaited(_journeyCubit.enterOnboardingAge());
+  }
+
+  @override
+  void dispose() {
+    _journeyCubit.close();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<OnboardingBloc>(
-      create: (_) => sl<OnboardingBloc>()..add(const OnboardingStarted()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<OnboardingBloc>(
+          create: (_) => sl<OnboardingBloc>()..add(const OnboardingStarted()),
+        ),
+        BlocProvider<AuthJourneyCubit>.value(value: _journeyCubit),
+      ],
       child: BlocListener<OnboardingBloc, OnboardingState>(
         listenWhen: (previous, current) =>
             previous.navigationTarget != current.navigationTarget &&
@@ -53,7 +64,9 @@ class _AgeOnboardingPageState extends State<AgeOnboardingPage> {
           listener: (context, state) {
             final msg = state.errorMessage;
             if (msg != null) {
-              context.showResolvedErrorSnackBar(msg);
+              context.showErrorSnackBar(
+                  message: Message(title: '', value: msg.tr()),
+                );
             }
           },
           child: const _AgeOnboardingView(),
@@ -84,6 +97,7 @@ class _AgeOnboardingView extends StatelessWidget {
     return null;
   }
 
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<OnboardingBloc, OnboardingState>(
@@ -99,20 +113,14 @@ class _AgeOnboardingView extends StatelessWidget {
           title: LocalizationConstants.onboardingAgeTitleKey.tr(),
           leading: OnboardingBackButton(
             onPressed: () async {
-              await sl<AuthLocalDataSource>().saveJourneyStage(
-                AuthJourneyStage.onboarding,
-                previousStage: AuthJourneyStage.onboardingAge,
-              );
+              await context.read<AuthJourneyCubit>().moveFromAgeToOnboarding();
               if (context.mounted) context.goTo(RouteNames.onboarding);
             },
           ),
           actions: [
             OnboardingSkipButton(
               onPressed: () async {
-                await sl<AuthLocalDataSource>().saveJourneyStage(
-                  AuthJourneyStage.register,
-                  previousStage: AuthJourneyStage.onboardingAge,
-                );
+                await context.read<AuthJourneyCubit>().moveFromAgeToRegister();
                 if (context.mounted) {
                   context.read<OnboardingBloc>().add(
                     const OnboardingSkipRequested(),
@@ -262,6 +270,7 @@ class _DateWheelPickerState extends State<_DateWheelPicker> {
     super.dispose();
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -276,7 +285,7 @@ class _DateWheelPickerState extends State<_DateWheelPicker> {
                   LocalizationConstants.onboardingAgeYearKey.tr(),
                   textAlign: TextAlign.center,
                   style: AppTextStyles.caption.copyWith(
-                    color: AppColors.textPrimary,
+                    color: context.appTextPrimary,
                   ),
                 ),
               ),
@@ -285,7 +294,7 @@ class _DateWheelPickerState extends State<_DateWheelPicker> {
                   LocalizationConstants.onboardingAgeMonthKey.tr(),
                   textAlign: TextAlign.center,
                   style: AppTextStyles.caption.copyWith(
-                    color: AppColors.textPrimary,
+                    color: context.appTextPrimary,
                   ),
                 ),
               ),
@@ -294,7 +303,7 @@ class _DateWheelPickerState extends State<_DateWheelPicker> {
                   LocalizationConstants.onboardingAgeDayKey.tr(),
                   textAlign: TextAlign.center,
                   style: AppTextStyles.caption.copyWith(
-                    color: AppColors.textPrimary,
+                    color: context.appTextPrimary,
                   ),
                 ),
               ),
@@ -356,6 +365,7 @@ class _WheelColumn extends StatelessWidget {
   final ValueChanged<int> onChanged;
   final double itemHeight;
 
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -366,7 +376,7 @@ class _WheelColumn extends StatelessWidget {
           height: itemHeight + 12,
           margin: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
-            color: AppColors.primary100,
+            color: context.appSubtleSurface,
             borderRadius: BorderRadius.circular(AppRadius.radius12),
           ),
         ),
@@ -384,7 +394,7 @@ class _WheelColumn extends StatelessWidget {
               child: Text(
                 item.toString(),
                 style: AppTextStyles.bodyLarge.copyWith(
-                  color: AppColors.libraryGreen,
+                  color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
                 ),
               ),
             );

@@ -25,10 +25,13 @@ import '../../../../mocks/mock_classes.dart';
 void main() {
   group('SettingsBloc', () {
     late MockSettingsRepository repository;
+    late MockStorageService storageService;
     late SettingsBloc bloc;
 
     setUp(() {
       repository = MockSettingsRepository();
+      storageService = MockStorageService();
+      when(() => storageService.clearAll()).thenAnswer((_) async => true);
 
       when(() => repository.getSettingsTabs()).thenAnswer(
         (_) async => const Success<List<SettingsTab>>(<SettingsTab>[
@@ -74,6 +77,7 @@ void main() {
         updateAppearance: UpdateAppearanceOptionUseCase(repository),
         updateNotification: UpdateNotificationSettingUseCase(repository),
         updateLanguage: UpdateLanguageOptionUseCase(repository),
+        storageService: storageService,
       );
     });
 
@@ -116,6 +120,18 @@ void main() {
           ),
         ),
       );
+    });
+
+
+    test('clears storage and emits logout success after logout requested', () async {
+      bloc.add(const SettingsLogoutRequested());
+
+      await expectLater(
+        bloc.stream,
+        emits(isA<SettingsLogoutSuccess>()),
+      );
+
+      verify(() => storageService.clearAll()).called(1);
     });
   });
 }

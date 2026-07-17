@@ -62,24 +62,24 @@ class LibraryInfoHeader extends StatelessWidget {
   Widget _buildCategoryChips(BuildContext context) {
     final List<_CategoryChipData> chips = <_CategoryChipData>[
       const _CategoryChipData(
-        label: 'General',
+        labelKey: LocalizationConstants.libraryDetailsTabGeneralKey,
         icon: HugeIcons.strokeRoundedStore04,
         isSelected: true,
       ),
       const _CategoryChipData(
-        label: 'Profile',
+        labelKey: LocalizationConstants.libraryDetailsTabProfileKey,
         icon: HugeIcons.strokeRoundedUser,
       ),
       const _CategoryChipData(
-        label: 'Branches',
+        labelKey: LocalizationConstants.libraryDetailsTabBranchesKey,
         icon: HugeIcons.strokeRoundedBuilding03,
       ),
       const _CategoryChipData(
-        label: 'Books',
+        labelKey: LocalizationConstants.libraryDetailsTabBooksKey,
         icon: HugeIcons.strokeRoundedBooks01,
       ),
       const _CategoryChipData(
-        label: 'Audio',
+        labelKey: LocalizationConstants.libraryDetailsTabAudioKey,
         icon: HugeIcons.strokeRoundedHeadphones,
       ),
     ];
@@ -108,7 +108,7 @@ class LibraryInfoHeader extends StatelessWidget {
       child: Text(
         description,
         style: AppTextStyles.bodyMedium.copyWith(
-          color: AppColors.textSecondary,
+          color: context.appTextSecondary,
           height: 1.5,
         ),
       ),
@@ -138,7 +138,7 @@ class LibraryInfoHeader extends StatelessWidget {
           Text(
             '$reviewCount ${LocalizationConstants.libraryDetailsReviewersKey.tr()}',
             style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.textTertiary,
+              color: context.appTextTertiary,
             ),
           ),
         ],
@@ -149,12 +149,12 @@ class LibraryInfoHeader extends StatelessWidget {
 
 class _CategoryChipData {
   const _CategoryChipData({
-    required this.label,
+    required this.labelKey,
     required this.icon,
     this.isSelected = false,
   });
 
-  final String label;
+  final String labelKey;
   final List<List<dynamic>> icon;
   final bool isSelected;
 }
@@ -166,10 +166,13 @@ class _CategoryChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color foregroundColor =
-        data.isSelected ? AppColors.primary600 : AppColors.primary600;
+    final Color foregroundColor = data.isSelected
+        ? AppColors.primary600
+        : context.isDark
+            ? AppColors.primary300
+            : AppColors.primary600;
     final Color backgroundColor =
-        data.isSelected ? AppColors.primary100 : Colors.transparent;
+        data.isSelected ? context.appSubtleSurface : Colors.transparent;
 
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -180,7 +183,7 @@ class _CategoryChip extends StatelessWidget {
         color: backgroundColor,
         borderRadius: BorderRadius.circular(AppRadius.radius24),
         border: Border.all(
-          color: data.isSelected ? AppColors.primary100 : AppColors.primary300,
+          color: data.isSelected ? context.appBorder : AppColors.primary300,
         ),
       ),
       child: Row(
@@ -194,7 +197,7 @@ class _CategoryChip extends StatelessWidget {
           if (data.isSelected) ...<Widget>[
             const SizedBox(width: AppSpacing.spacing8),
             Text(
-              data.label,
+              data.labelKey.tr(),
               style: AppTextStyles.bodySmall.copyWith(
                 color: foregroundColor,
                 fontWeight: FontWeight.w700,

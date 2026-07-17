@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../extensions/app_context.dart';
+
 import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
 import '../theme/app_radius.dart';
@@ -14,7 +16,7 @@ class BottomSheetDragHandle extends StatelessWidget {
       width: AppDimensions.dragHandleWidth,
       height: AppDimensions.dragHandleHeight,
       decoration: BoxDecoration(
-        color: AppColors.textTertiary.withAlpha(76),
+        color: context.appTextTertiary.withAlpha(76),
         borderRadius: BorderRadius.circular(AppRadius.radius2),
       ),
     );

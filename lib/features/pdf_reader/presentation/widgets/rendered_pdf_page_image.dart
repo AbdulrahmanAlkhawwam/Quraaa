@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+
+import '../../../../shared/extensions/app_context.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../shared/theme/app_colors.dart';
@@ -16,9 +18,9 @@ class RenderedPdfPageImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (snapshot.connectionState != ConnectionState.done) {
-      return const ColoredBox(
-        color: AppColors.surfaceLight,
-        child: Center(
+      return ColoredBox(
+        color: context.appCard,
+        child: const Center(
           child: CircularProgressIndicator(strokeWidth: 2.5),
         ),
       );
@@ -26,9 +28,9 @@ class RenderedPdfPageImage extends StatelessWidget {
 
     final Uint8List? bytes = snapshot.data;
     if (snapshot.hasError || bytes == null || bytes.isEmpty) {
-      return const ColoredBox(
-        color: AppColors.surfaceLight,
-        child: Center(
+      return ColoredBox(
+        color: context.appCard,
+        child: const Center(
           child: HugeIcon(
             icon: HugeIcons.strokeRoundedPdf02,
             color: AppColors.pdfLabel,

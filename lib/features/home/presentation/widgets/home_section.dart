@@ -33,7 +33,7 @@ class HomeSection extends StatelessWidget {
                 child: Text(
                   title,
                   style: AppTextStyles.titleMedium.copyWith(
-                    color: AppColors.textPrimary,
+                    color: context.appTextPrimary,
                     fontWeight: FontWeight.w700,
                   ),
                   maxLines: 1,
@@ -43,7 +43,7 @@ class HomeSection extends StatelessWidget {
               Text(
                 totalSize,
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.textTertiary,
+                  color: context.appTextTertiary,
                 ),
               ),
             ],
@@ -51,7 +51,7 @@ class HomeSection extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.spacing12),
         SizedBox(
-          height: 250,
+          height: 276,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(
