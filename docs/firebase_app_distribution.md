@@ -117,7 +117,10 @@ FIREBASE_ANDROID_APP_ID=1:126486177996:android:6e7a7fe20bcb49fc3bfa69
 FIREBASE_TESTER_GROUPS=beta-testers
 ```
 
-> `.env` is already listed in `.gitignore` and must never be committed.
+> `.env` is already listed in `.gitignore` and must never be committed or added
+> to `pubspec.yaml`. The release scripts read it in the terminal and forward
+> only `HOST`, `BASEURL`, `APP_ENV`, and `LATEST_VERSION` through
+> `--dart-define`; unrelated credentials are not compiled into the app.
 
 Optional variables:
 
@@ -139,9 +142,11 @@ Two release scripts are provided in `scripts/`:
 Both scripts:
 
 1. Load environment variables from `.env`.
-2. Validate that `FIREBASE_ANDROID_APP_ID` and `FIREBASE_TESTER_GROUPS` are set.
-3. Build the requested release artifact (`apk` or `aab`).
-4. Upload the artifact to Firebase App Distribution with release notes and tester groups.
+2. Validate the Firebase settings and the required `HOST`/`BASEURL` values.
+3. Pass the whitelisted runtime values to Flutter using terminal
+   `--dart-define` arguments.
+4. Build the requested release artifact (`apk` or `aab`).
+5. Upload the artifact to Firebase App Distribution with release notes and tester groups.
 
 ### PowerShell
 
@@ -185,6 +190,18 @@ Create the following secrets in the GitHub repository (**Settings → Secrets an
 | `FIREBASE_ANDROID_APP_ID` | The Android App ID from Firebase Console. |
 | `FIREBASE_TESTER_GROUPS` | Comma-separated list of tester group names. |
 | `FIREBASE_PROJECT_ID` *(optional)* | Firebase project ID, e.g. `quraa-otp`. |
+
+### Required repository variables
+
+Create these under **Settings → Secrets and variables → Actions →
+Variables**. They are passed to Flutter as compile-time values and are not
+secrets.
+
+| Variable | Value |
+|----------|-------|
+| `HOST` | Backend host, for example `api.quraa.dev`. |
+| `BASEURL` | Backend API path, for example `api`. |
+| `LATEST_VERSION` *(optional)* | Latest published application version. |
 
 #### Creating the service account key
 

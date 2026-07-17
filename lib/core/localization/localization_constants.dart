@@ -517,6 +517,7 @@ class LocalizationConstants {
   static const String errorsNoInternetMessageKey = 'errors.no_internet.message';
   static const String errorsUnknownMessageKey = 'errors.unknown.message';
 
+
   // Settings feature keys.
   static const String settingsTitleKey = 'settings.title';
   static const String settingsSearchHintKey = 'settings.searchHint';

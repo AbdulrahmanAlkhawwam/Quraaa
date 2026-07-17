@@ -11,7 +11,7 @@ Generated file index for quick project navigation.
 
 ## Root Configuration
 
-- `.env`
+- `.env.example`
 - `.flutter-plugins-dependencies`
 - `.gitignore`
 - `.metadata`

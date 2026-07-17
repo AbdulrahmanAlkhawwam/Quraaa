@@ -418,9 +418,16 @@ dart run build_runner build --delete-conflicting-outputs
 cp .env.example .env
 # Edit .env with your API keys and endpoints
 
-# 5. Run the app
-flutter run
+# 5. Run the app from the terminal with whitelisted runtime values
+flutter run \
+  --dart-define=HOST=api.quraa.dev \
+  --dart-define=BASEURL=api \
+  --dart-define=APP_ENV=development
 ```
+
+Never add `.env` to `pubspec.yaml` or use `--dart-define-from-file=.env` when
+the file also contains deployment credentials. The release scripts load `.env`
+in the terminal and forward only the public runtime values required by the app.
 
 > **Full Setup:** [Getting Started](development/getting_started.md)
 
