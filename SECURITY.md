@@ -112,17 +112,6 @@ We are committed to following industry best practices, including:
 - Dependency vulnerability monitoring
 - Regular security updates
 
-## Repository Secrets
-
-- Never commit `.env` or any environment-specific variant. Commit only
-  `.env.example`, using empty values or obvious placeholders.
-- Store CI credentials in the repository host's encrypted secrets store.
-- Do not embed bot tokens, service-account keys, or other server credentials in
-  Flutter builds. Client applications cannot keep bundled credentials secret.
-- If a credential is committed, rotate it immediately. Removing the file in a
-  later commit does not remove the credential from Git history; coordinate a
-  history rewrite and force-push with all repository contributors.
-
 ---
 
 # Responsible Disclosure

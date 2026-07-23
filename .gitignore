@@ -22,11 +22,7 @@ migrate_working_dir/
 # VS Code which you may wish to be included in version control, so this line
 # is commented out by default.
 .vscode/
-# Local environment files may contain credentials. Keep only the sanitized
-# example file in version control.
 .env
-.env.*
-!.env.example
 key.properties
 *.jks
 *.keystore
