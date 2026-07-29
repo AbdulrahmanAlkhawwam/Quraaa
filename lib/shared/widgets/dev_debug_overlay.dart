@@ -18,8 +18,8 @@ import '../../shared/theme/app_spacing.dart';
 /// - Device information
 /// - Connectivity / online status
 ///
-/// Place this as the last child in a [Stack] so it renders on top of every
-/// screen.
+/// Intended for [Scaffold.floatingActionButton]. Its layout must remain
+/// tightly constrained so floating SnackBars stay inside the visible screen.
 class DevDebugOverlay extends StatelessWidget {
   const DevDebugOverlay({super.key, this.navigatorKey});
 
@@ -31,34 +31,26 @@ class DevDebugOverlay extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return SafeArea(
-      child: Align(
-        alignment: AlignmentDirectional.bottomEnd,
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.spacing16),
-          child: Material(
-            color: Colors.transparent,
-            child: GestureDetector(
-              onTap: () => _showDebugSheet(context),
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: AppColors.error500.withValues(alpha: 0.9),
-                  shape: BoxShape.circle,
-                  boxShadow: <BoxShadow>[
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.25),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: const Center(
-                  child: Icon(Icons.bug_report, color: Colors.white, size: 20),
-                ),
+    return Material(
+      color: Colors.transparent,
+      child: GestureDetector(
+        onTap: () => _showDebugSheet(context),
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: AppColors.error500.withValues(alpha: 0.9),
+            shape: BoxShape.circle,
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.25),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
               ),
-            ),
+            ],
+          ),
+          child: const Center(
+            child: Icon(Icons.bug_report, color: Colors.white, size: 20),
           ),
         ),
       ),
@@ -211,7 +203,10 @@ class _DebugInfoSheetState extends State<_DebugInfoSheet> {
                               _buildInfoRow(context, e.key, e.value),
                         ),
                         const SizedBox(height: 16),
-                        _buildSectionTitle(context, 'Cache (SharedPreferences)'),
+                        _buildSectionTitle(
+                          context,
+                          'Cache (SharedPreferences)',
+                        ),
                         if (_cacheData == null || _cacheData!.isEmpty)
                           Text(
                             'No cached data',
@@ -219,8 +214,11 @@ class _DebugInfoSheetState extends State<_DebugInfoSheet> {
                           )
                         else
                           ..._cacheData!.entries.map(
-                            (MapEntry<String, dynamic> e) =>
-                                _buildInfoRow(context, e.key, _formatValue(e.value)),
+                            (MapEntry<String, dynamic> e) => _buildInfoRow(
+                              context,
+                              e.key,
+                              _formatValue(e.value),
+                            ),
                           ),
                       ],
                     ),
@@ -265,10 +263,7 @@ class _DebugInfoSheetState extends State<_DebugInfoSheet> {
           Expanded(
             child: Text(
               value,
-              style: TextStyle(
-                fontSize: 13,
-                color: context.appTextPrimary,
-              ),
+              style: TextStyle(fontSize: 13, color: context.appTextPrimary),
             ),
           ),
         ],

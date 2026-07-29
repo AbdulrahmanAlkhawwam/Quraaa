@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:quraaa/shared/extensions/app_context.dart';
+import 'package:quraaa/shared/models/message.dart';
 import 'package:quraaa/shared/widgets/app_layout.dart';
 
 void main() {
@@ -75,6 +77,42 @@ void main() {
 
       expect(find.text('Button 1'), findsOneWidget);
       expect(find.text('Button 2'), findsOneWidget);
+    });
+
+    testWidgets('keeps SnackBar inside the visible Scaffold', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: AppLayout(
+            child: Builder(
+              builder: (BuildContext context) {
+                return FilledButton(
+                  onPressed: () {
+                    context.showErrorSnackBar(
+                      message: const Message(
+                        title: 'Login failed',
+                        value: 'Invalid credentials',
+                      ),
+                    );
+                  },
+                  child: const Text('Show error'),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Show error'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+
+      final Rect scaffoldRect = tester.getRect(find.byType(Scaffold));
+      final Rect snackBarRect = tester.getRect(find.byType(SnackBar));
+
+      expect(snackBarRect.top, greaterThanOrEqualTo(scaffoldRect.top));
+      expect(snackBarRect.bottom, lessThanOrEqualTo(scaffoldRect.bottom));
     });
   });
 }

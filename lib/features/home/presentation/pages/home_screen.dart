@@ -27,6 +27,18 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   int _previousIndex = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+
+      context.read<HomeBloc>().add(const HomePermissionsRequested());
+    });
+  }
+
   void _onNavItemTapped(int index) {
     setState(() {
       _previousIndex = _selectedIndex;
@@ -50,7 +62,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void _showNotificationSnackBar(BuildContext context, HomeState state) {
     context.showSuccessSnackBar(
       message: Message(
-        title: state.notificationTitle ??
+        title:
+            state.notificationTitle ??
             LocalizationConstants.homeNotificationTitleKey.tr(),
         value: state.notificationBody,
       ),
@@ -98,9 +111,15 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildBody() {
     final List<Widget> pages = <Widget>[
       const _HomeFeed(),
-      const _PlaceholderPage(titleKey: LocalizationConstants.homeNavLibrariesKey),
-      const _PlaceholderPage(titleKey: LocalizationConstants.homeNavUserBooksKey),
-      const _PlaceholderPage(titleKey: LocalizationConstants.homeNavAudioBookKey),
+      const _PlaceholderPage(
+        titleKey: LocalizationConstants.homeNavLibrariesKey,
+      ),
+      const _PlaceholderPage(
+        titleKey: LocalizationConstants.homeNavUserBooksKey,
+      ),
+      const _PlaceholderPage(
+        titleKey: LocalizationConstants.homeNavAudioBookKey,
+      ),
       const _PlaceholderPage(titleKey: LocalizationConstants.homeNavCartKey),
     ];
 
@@ -111,16 +130,17 @@ class _HomeScreenState extends State<HomeScreen> {
         final int currentIndex = (child.key as ValueKey<int>).value;
         final int direction = currentIndex > _previousIndex ? 1 : -1;
         return SlideTransition(
-          position: Tween<Offset>(
-            begin: Offset(direction * 0.10, 0),
-            end: Offset.zero,
-          ).animate(
-            CurvedAnimation(
-              parent: animation,
-              curve: Curves.easeOutCubic,
-              reverseCurve: Curves.easeInCubic,
-            ),
-          ),
+          position:
+              Tween<Offset>(
+                begin: Offset(direction * 0.10, 0),
+                end: Offset.zero,
+              ).animate(
+                CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeOutCubic,
+                  reverseCurve: Curves.easeInCubic,
+                ),
+              ),
           child: FadeTransition(
             opacity: animation,
             child: ScaleTransition(
@@ -173,9 +193,7 @@ class _HomeFeed extends StatelessWidget {
             const SliverToBoxAdapter(
               child: SizedBox(height: AppSpacing.spacing14),
             ),
-            const SliverToBoxAdapter(
-              child: HomeQuickActions(),
-            ),
+            const SliverToBoxAdapter(child: HomeQuickActions()),
             const SliverToBoxAdapter(
               child: SizedBox(height: AppSpacing.spacing24),
             ),
@@ -215,9 +233,7 @@ class _HomeFeed extends StatelessWidget {
                 books: noteBooks,
               ),
             ),
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 128),
-            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 128)),
           ],
         ),
       ),
@@ -248,18 +264,16 @@ class _HomeSearchBar extends StatelessWidget {
               child: Text(
                 LocalizationConstants.homeSearchHintKey.tr(),
                 style: AppTextStyles.bodyLarge.copyWith(
-                  color: context.isDark ? AppColors.primary300 : AppColors.primary600,
+                  color: context.isDark
+                      ? AppColors.primary300
+                      : AppColors.primary600,
                   fontWeight: FontWeight.w600,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            const Icon(
-              Icons.search,
-              color: AppColors.primary600,
-              size: 24,
-            ),
+            const Icon(Icons.search, color: AppColors.primary600, size: 24),
           ],
         ),
       ),

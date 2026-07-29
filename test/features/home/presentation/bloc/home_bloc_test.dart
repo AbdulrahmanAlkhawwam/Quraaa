@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:quraaa/core/services/app_permission_service.dart';
 import 'package:quraaa/core/services/notification_service.dart';
 import 'package:quraaa/features/account/account.dart';
 import 'package:quraaa/features/home/presentation/bloc/home_bloc.dart';
@@ -13,6 +16,7 @@ void main() {
         ),
       ),
       notificationService: const _FakeNotificationService(),
+      appPermissionService: _FakeAppPermissionService(),
     );
     addTearDown(bloc.close);
 
@@ -47,6 +51,7 @@ void main() {
         const _ThrowingHomeRepository(),
       ),
       notificationService: const _FakeNotificationService(),
+      appPermissionService: _FakeAppPermissionService(),
     );
     addTearDown(bloc.close);
 
@@ -67,6 +72,24 @@ void main() {
         ),
       ]),
     );
+  });
+
+  test('requests the initial permission bundle when requested', () async {
+    final _FakeAppPermissionService permissionService =
+        _FakeAppPermissionService();
+    final HomeBloc bloc = HomeBloc(
+      loadUserSnapshot: LoadAccountUserSnapshotUseCase(
+        const _FakeHomeRepository(AccountUserSnapshot(fullName: 'Test User')),
+      ),
+      notificationService: const _FakeNotificationService(),
+      appPermissionService: permissionService,
+    );
+    addTearDown(bloc.close);
+
+    bloc.add(const HomePermissionsRequested());
+    await permissionService.requested.future;
+
+    expect(permissionService.requestCount, 1);
   });
 }
 
@@ -92,8 +115,7 @@ class _FakeNotificationService implements NotificationService {
   const _FakeNotificationService();
 
   @override
-  Stream<RemoteMessage> get foregroundMessages =>
-      Stream<RemoteMessage>.empty();
+  Stream<RemoteMessage> get foregroundMessages => Stream<RemoteMessage>.empty();
 
   @override
   Future<void> handleForegroundMessage(RemoteMessage message) async {}
@@ -103,4 +125,17 @@ class _FakeNotificationService implements NotificationService {
 
   @override
   Future<void> requestPermission() async {}
+}
+
+class _FakeAppPermissionService implements AppPermissionService {
+  final Completer<void> requested = Completer<void>();
+  int requestCount = 0;
+
+  @override
+  Future<void> requestInitialPermissions() async {
+    requestCount += 1;
+    if (!requested.isCompleted) {
+      requested.complete();
+    }
+  }
 }

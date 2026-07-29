@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
 
 import '../../../../core/architecture/use_case.dart';
+import '../../../../core/services/app_permission_service.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../../account/account.dart';
 
@@ -15,21 +16,22 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   HomeBloc({
     required LoadAccountUserSnapshotUseCase loadUserSnapshot,
     required NotificationService notificationService,
-  })  : _loadUserSnapshot = loadUserSnapshot,
-        _notificationService = notificationService,
-        super(const HomeState()) {
+    required AppPermissionService appPermissionService,
+  }) : _loadUserSnapshot = loadUserSnapshot,
+       _notificationService = notificationService,
+       _appPermissionService = appPermissionService,
+       super(const HomeState()) {
     on<HomeStarted>(_onStarted);
+    on<HomePermissionsRequested>(_onPermissionsRequested);
     on<HomeNotificationReceived>(_onNotificationReceived);
   }
 
   final LoadAccountUserSnapshotUseCase _loadUserSnapshot;
   final NotificationService _notificationService;
+  final AppPermissionService _appPermissionService;
   StreamSubscription<RemoteMessage>? _notificationSubscription;
 
-  Future<void> _onStarted(
-    HomeStarted event,
-    Emitter<HomeState> emit,
-  ) async {
+  Future<void> _onStarted(HomeStarted event, Emitter<HomeState> emit) async {
     unawaited(_startNotifications());
     emit(state.copyWith(status: HomeStatus.loading, clearError: true));
 
@@ -56,14 +58,22 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   Future<void> _startNotifications() async {
     try {
-      await _notificationService.initialize();
+      await _notificationService.initialize(shouldRequestPermission: false);
       await _notificationSubscription?.cancel();
-      _notificationSubscription = _notificationService.foregroundMessages.listen(
-        (RemoteMessage message) => add(HomeNotificationReceived(message)),
-      );
+      _notificationSubscription = _notificationService.foregroundMessages
+          .listen(
+            (RemoteMessage message) => add(HomeNotificationReceived(message)),
+          );
     } catch (_) {
       // Notification providers may be unavailable in local/dev builds.
     }
+  }
+
+  Future<void> _onPermissionsRequested(
+    HomePermissionsRequested event,
+    Emitter<HomeState> emit,
+  ) async {
+    await _appPermissionService.requestInitialPermissions();
   }
 
   void _onNotificationReceived(

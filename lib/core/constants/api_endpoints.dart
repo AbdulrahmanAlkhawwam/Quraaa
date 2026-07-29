@@ -5,15 +5,15 @@
 abstract class ApiEndpoints {
   ApiEndpoints._();
 
-  static const String login = '/Auth/login';
-  static const String register = '/Auth/register';
-  static const String verifyOtp = '/Otp/verify';
-  static const String forgotPassword = '/Auth/forgot-password';
-  static const String resetPassword = '/Auth/reset-password';
-  static const String refreshToken = '/api/Auth/refresh';
-  static const String categories = '/Categories';
-  static const String profileMe = '/Profile/me';
-  static const String libraries = '/Libraries';
+  static const String login = '/auth/login';
+  static const String register = '/auth/register';
+  static const String verifyOtp = '/otp/verify';
+  static const String forgotPassword = '/auth/forgot-password';
+  static const String resetPassword = '/auth/reset-password';
+  static const String refreshToken = '/api/auth/refresh';
+  static const String categories = '/categories';
+  static const String profileMe = '/profile/me';
+  static const String libraries = '/libraries';
 
-  static String libraryBooks(String libraryId) => '/Libraries/$libraryId/books';
+  static String libraryBooks(String libraryId) => '/libraries/$libraryId/books';
 }

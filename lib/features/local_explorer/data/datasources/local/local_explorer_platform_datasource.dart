@@ -2,8 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../../core/errors/exceptions.dart';
+import '../../../../../core/services/storage_permission_service.dart';
 
-class LocalExplorerPlatformDataSource {
+class LocalExplorerPlatformDataSource implements StoragePermissionService {
   LocalExplorerPlatformDataSource({
     this._channel = const MethodChannel('quraaa/local_explorer'),
   });
@@ -22,6 +23,7 @@ class LocalExplorerPlatformDataSource {
     return _invoke<String>('defaultRootPath');
   }
 
+  @override
   Future<bool> hasStorageAccess() async {
     if (!_usesAndroidBridge) {
       return true;
@@ -30,6 +32,7 @@ class LocalExplorerPlatformDataSource {
     return await _invoke<bool>('hasStorageAccess') ?? false;
   }
 
+  @override
   Future<bool> requestStorageAccess() async {
     if (!_usesAndroidBridge) {
       return true;

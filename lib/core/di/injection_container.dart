@@ -211,6 +211,15 @@ void registerCoreDependencies() {
     () => const GeolocatorLocationPermissionService(),
   );
 
+  sl.registerLazySingleton<AppPermissionService>(
+    () => AppPermissionServiceImpl(
+      storageService: sl<StorageService>(),
+      notificationService: sl<NotificationService>(),
+      locationPermissionService: sl<LocationPermissionService>(),
+      storagePermissionService: sl<StoragePermissionService>(),
+    ),
+  );
+
   sl.registerLazySingleton<FirebaseMessagingService>(
     () => FirebaseMessagingService(
       notificationService: sl<LocalNotificationService>(),
@@ -230,6 +239,12 @@ void registerFeatureDependencies() {
   if (!sl.isRegistered<LocalExplorerPlatformDataSource>()) {
     sl.registerLazySingleton<LocalExplorerPlatformDataSource>(
       LocalExplorerPlatformDataSource.new,
+    );
+  }
+
+  if (!sl.isRegistered<StoragePermissionService>()) {
+    sl.registerLazySingleton<StoragePermissionService>(
+      () => sl<LocalExplorerPlatformDataSource>(),
     );
   }
 
@@ -397,6 +412,7 @@ void registerFeatureDependencies() {
     () => HomeBloc(
       loadUserSnapshot: sl<LoadAccountUserSnapshotUseCase>(),
       notificationService: sl<NotificationService>(),
+      appPermissionService: sl<AppPermissionService>(),
     ),
   );
 
@@ -521,17 +537,12 @@ void registerFeatureDependencies() {
     );
   }
 
-
   if (!sl.isRegistered<CartRepository>()) {
-    sl.registerLazySingleton<CartRepository>(
-      CartRepositoryImpl.new,
-    );
+    sl.registerLazySingleton<CartRepository>(CartRepositoryImpl.new);
   }
 
   if (!sl.isRegistered<GetCartUseCase>()) {
-    sl.registerLazySingleton<GetCartUseCase>(
-      () => GetCartUseCase(sl()),
-    );
+    sl.registerLazySingleton<GetCartUseCase>(() => GetCartUseCase(sl()));
   }
 
   if (!sl.isRegistered<UpdateCartItemQuantityUseCase>()) {
@@ -582,10 +593,7 @@ void registerFeatureDependencies() {
 
   if (!sl.isRegistered<BookAssistantBloc>()) {
     sl.registerFactory<BookAssistantBloc>(
-      () => BookAssistantBloc(
-        getBooks: sl(),
-        askAssistant: sl(),
-      ),
+      () => BookAssistantBloc(getBooks: sl(), askAssistant: sl()),
     );
   }
 

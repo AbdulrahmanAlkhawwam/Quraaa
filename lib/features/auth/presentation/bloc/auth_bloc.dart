@@ -232,18 +232,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<String> _resolvePostAuthRoute() async {
-    try {
-      final bool locationSeen = await _authJourney.isLocationPermissionSeen();
-      if (!locationSeen) return RouteNames.locationPermission;
-
-      final bool notificationSeen = await _authJourney
-          .isNotificationPermissionSeen();
-      return notificationSeen
-          ? RouteNames.home
-          : RouteNames.notificationPermission;
-    } catch (_) {
-      return RouteNames.home;
-    }
+    return RouteNames.home;
   }
 
   void _emitNavigation(
