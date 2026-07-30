@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import '../../../../core/constants/api_endpoints.dart';
+import '../../../../core/errors/error_codes.dart';
 import '../../../../core/errors/error_mapper.dart';
 import '../../../../core/errors/error_response_model.dart';
 import '../../../../core/errors/exceptions.dart';
@@ -65,7 +66,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       throw const UnknownException(message: 'Invalid login response.');
     } on DioException catch (error) {
-      throw _mapDioException(error, 'Unable to login.');
+      throw _mapDioException(
+        error,
+        'Unable to login.',
+        unauthorizedFallbackCode: ErrorCodes.loginFailed,
+      );
     }
   }
 
@@ -121,7 +126,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       throw const UnknownException(message: 'Invalid refresh token response.');
     } on DioException catch (error) {
-      throw _mapDioException(error, 'Unable to refresh session.');
+      throw _mapDioException(
+        error,
+        'Unable to refresh session.',
+        unauthorizedFallbackCode: ErrorCodes.tokenExpired,
+      );
     }
   }
 
@@ -145,7 +154,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         message: 'Invalid OTP verification response.',
       );
     } on DioException catch (error) {
-      throw _mapDioException(error, 'Unable to verify OTP.');
+      throw _mapDioException(
+        error,
+        'Unable to verify OTP.',
+        unauthorizedFallbackCode: ErrorCodes.invalidVerificationCode,
+      );
     }
   }
 
@@ -177,23 +190,91 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         ),
       );
     } on DioException catch (error) {
-      throw _mapDioException(error, 'Unable to reset password.');
+      throw _mapDioException(
+        error,
+        'Unable to reset password.',
+        unauthorizedFallbackCode: ErrorCodes.invalidVerificationCode,
+      );
     }
   }
 
-  AppException _mapDioException(DioException error, String fallbackMessage) {
+  AppException _mapDioException(
+    DioException error,
+    String fallbackMessage, {
+    String? unauthorizedFallbackCode,
+  }) {
     final Object? underlying = error.error;
     if (underlying is AppException) {
       return underlying;
     }
 
     final dynamic payload = error.response?.data;
-    if (payload is Map<String, dynamic>) {
+    if (payload is Map) {
+      final Map<String, dynamic> responseJson = Map<String, dynamic>.from(
+        payload,
+      );
+      _addUnauthorizedFallbackCode(
+        responseJson,
+        error.response?.statusCode,
+        unauthorizedFallbackCode,
+      );
       return ErrorMapper.mapResponseToException(
-        ErrorResponseModel.fromJson(payload),
+        ErrorResponseModel.fromJson(
+          responseJson,
+          statusCode: error.response?.statusCode,
+        ),
+      );
+    }
+    if (payload is String && payload.trim().isNotEmpty) {
+      final Map<String, dynamic> responseJson = <String, dynamic>{
+        'message': payload.trim(),
+      };
+      _addUnauthorizedFallbackCode(
+        responseJson,
+        error.response?.statusCode,
+        unauthorizedFallbackCode,
+      );
+      return ErrorMapper.mapResponseToException(
+        ErrorResponseModel.fromJson(
+          responseJson,
+          statusCode: error.response?.statusCode,
+        ),
       );
     }
 
-    return UnknownException(message: error.message ?? fallbackMessage);
+    final int? statusCode = error.response?.statusCode;
+    if (statusCode != null) {
+      final Map<String, dynamic> responseJson = <String, dynamic>{};
+      _addUnauthorizedFallbackCode(
+        responseJson,
+        statusCode,
+        unauthorizedFallbackCode,
+      );
+      return ErrorMapper.mapResponseToException(
+        ErrorResponseModel.fromJson(responseJson, statusCode: statusCode),
+      );
+    }
+
+    return switch (error.type) {
+      DioExceptionType.cancel => const OperationCancelledException(),
+      DioExceptionType.connectionTimeout ||
+      DioExceptionType.sendTimeout ||
+      DioExceptionType.receiveTimeout => const TimeoutException(),
+      DioExceptionType.connectionError ||
+      DioExceptionType.badCertificate => const NetworkException(),
+      _ => UnknownException(message: fallbackMessage),
+    };
+  }
+
+  void _addUnauthorizedFallbackCode(
+    Map<String, dynamic> responseJson,
+    int? statusCode,
+    String? unauthorizedFallbackCode,
+  ) {
+    if (statusCode == 401 &&
+        unauthorizedFallbackCode != null &&
+        !responseJson.containsKey('code')) {
+      responseJson['code'] = unauthorizedFallbackCode;
+    }
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -5,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:pinput/pinput.dart';
 
+import '../../../../config/routes/route_names.dart';
 import '../../../../core/connectivity/connectivity_ui_helper.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
@@ -30,8 +33,23 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       TextEditingController();
   final FocusNode _codeFocusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
+  String _phoneNumber = '';
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_loadPhoneNumber());
+  }
+
+  Future<void> _loadPhoneNumber() async {
+    final String phoneNumber = await _recoveryCubit.resolvePhoneNumber(
+      widget.phoneNumber,
+    );
+    if (!mounted) return;
+    setState(() => _phoneNumber = phoneNumber);
+  }
 
   @override
   void dispose() {
@@ -52,7 +70,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     if (!isOnline) return;
 
     await _recoveryCubit.resetPassword(
-      phoneNumber: widget.phoneNumber ?? '',
+      phoneNumber: _phoneNumber,
       code: _codeController.text.trim(),
       newPassword: _passwordController.text,
     );
@@ -64,7 +82,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       return;
     }
 
-    if (state.status != AuthRecoveryStatus.navigate || state.nextRoute == null) {
+    if (state.status != AuthRecoveryStatus.navigate ||
+        state.nextRoute == null) {
       return;
     }
 
@@ -152,10 +171,15 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   Row(
                     children: [
                       IconButton(
-                        onPressed: () => context.back(),
+                        onPressed: () =>
+                            context.goTo(RouteNames.forgotPassword),
                         icon: Icon(
-                          context.isRTL ? Icons.arrow_forward_ios : Icons.arrow_back_ios,
-                          color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
+                          context.isRTL
+                              ? Icons.arrow_forward_ios
+                              : Icons.arrow_back_ios,
+                          color: context.isDark
+                              ? AppColors.primary300
+                              : AppColors.libraryGreen,
                         ),
                       ),
                       Expanded(
@@ -163,7 +187,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           LocalizationConstants.authResetPasswordTitleKey.tr(),
                           textAlign: TextAlign.center,
                           style: AppTextStyles.h3.copyWith(
-                            color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
+                            color: context.isDark
+                                ? AppColors.primary300
+                                : AppColors.libraryGreen,
                           ),
                         ),
                       ),
@@ -172,17 +198,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   ),
                   const SizedBox(height: AppSpacing.spacing32),
                   Text(
-                    LocalizationConstants
-                        .authResetPasswordDescriptionKey
-                        .tr(),
+                    LocalizationConstants.authResetPasswordDescriptionKey.tr(),
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: context.appTextTertiary,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.spacing24),
                   AuthLabeledField(
-                    label: LocalizationConstants
-                        .authResetPasswordCodeLabelKey
+                    label: LocalizationConstants.authResetPasswordCodeLabelKey
                         .tr(),
                     child: AutofillGroup(
                       child: Pinput(
@@ -199,8 +222,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly,
                         ],
-                        pinputAutovalidateMode:
-                            PinputAutovalidateMode.onSubmit,
+                        pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
                       ),
                     ),
                   ),
@@ -249,8 +271,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       suffixIcon: IconButton(
                         onPressed: () {
                           setState(() {
-                            _obscureConfirmPassword =
-                                !_obscureConfirmPassword;
+                            _obscureConfirmPassword = !_obscureConfirmPassword;
                           });
                         },
                         icon: HugeIcon(

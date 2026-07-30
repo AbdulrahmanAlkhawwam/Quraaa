@@ -6,6 +6,7 @@ import '../../features/auth/data/datasources/auth_local_datasource.dart';
 import '../../features/auth/data/datasources/user_local_datasource.dart';
 import '../../features/auth/data/datasources/auth_remote_datasource.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
+import '../../features/auth/data/services/auth_session_service.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/onboarding/data/datasources/onboarding_local_datasource.dart';
 import '../../features/onboarding/data/repositories/onboarding_repository_impl.dart';
@@ -138,6 +139,14 @@ void registerCoreDependencies() {
 
   sl.registerLazySingleton<UserLocalDataSource>(
     () => UserLocalDataSourceImpl(sl<StorageService>()),
+  );
+
+  sl.registerLazySingleton<AuthSessionService>(
+    () => AuthSessionService(
+      authLocalDataSource: sl<AuthLocalDataSource>(),
+      userLocalDataSource: sl<UserLocalDataSource>(),
+      userContextProvider: sl<UserContextProvider>(),
+    ),
   );
 
   sl.registerLazySingleton<UserDataLocalDataSource>(
@@ -339,7 +348,7 @@ void registerFeatureDependencies() {
       loginUseCase: sl<LoginUseCase>(),
       registerUseCase: sl<RegisterUseCase>(),
       authJourney: sl<AuthLocalDataSource>(),
-      userCache: sl<UserLocalDataSource>(),
+      authSessionService: sl<AuthSessionService>(),
       userContext: sl<UserContextProvider>(),
     ),
   );
@@ -369,6 +378,7 @@ void registerFeatureDependencies() {
       resetPasswordUseCase: sl<ResetPasswordUseCase>(),
       verifyOtpUseCase: sl<VerifyOtpUseCase>(),
       authJourney: sl<AuthLocalDataSource>(),
+      authSessionService: sl<AuthSessionService>(),
     ),
   );
 

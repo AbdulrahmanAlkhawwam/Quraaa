@@ -6,7 +6,6 @@ import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 import '../../../../config/routes/route_names.dart';
 import '../../../../core/connectivity/connectivity_ui_helper.dart';
-import '../../../../core/connectivity/offline_route_guard.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/utils/validators.dart';
@@ -29,7 +28,7 @@ class RegisterScreen extends StatelessWidget {
           create: (_) => sl<AuthRegistrationCubit>()..load(),
         ),
       ],
-      child: const OfflineRouteGuard(child: _RegisterView()),
+      child: const _RegisterView(),
     );
   }
 }
@@ -118,25 +117,35 @@ class _RegisterViewState extends State<_RegisterView> {
     digitError: LocalizationConstants.authPasswordDigitErrorKey.tr(),
   );
 
-  String? get _dateOfBirthError => Validators.validateDateOfBirth(
-    year: _birthYear,
-    month: _birthMonth,
-    day: _birthDay,
-    emptyError: LocalizationConstants.authDateOfBirthRequiredErrorKey.tr(),
-    invalidError: LocalizationConstants.authDateOfBirthInvalidErrorKey.tr(),
-  );
+  bool get _hasAnyBirthDate =>
+      _birthYear != null || _birthMonth != null || _birthDay != null;
 
-  String? get _genderError => Validators.validateGender(
-    _selectedGender,
-    invalidError: LocalizationConstants.authGenderInvalidErrorKey.tr(),
-  );
+  String? get _dateOfBirthError {
+    if (!_hasAnyBirthDate) return null;
+    return Validators.validateDateOfBirth(
+      year: _birthYear,
+      month: _birthMonth,
+      day: _birthDay,
+      emptyError: LocalizationConstants.authDateOfBirthRequiredErrorKey.tr(),
+      invalidError: LocalizationConstants.authDateOfBirthInvalidErrorKey.tr(),
+    );
+  }
 
-  String? get _interestsError => Validators.validateInterests(
-    categoryIds: _selectedCategoryIds,
-    validCategoryIds: _validCategoryIds,
-    emptyError: LocalizationConstants.authInterestsEmptyErrorKey.tr(),
-    invalidError: LocalizationConstants.authInterestsInvalidErrorKey.tr(),
-  );
+  String? get _genderError => _selectedGender == null
+      ? null
+      : Validators.validateGender(
+          _selectedGender,
+          invalidError: LocalizationConstants.authGenderInvalidErrorKey.tr(),
+        );
+
+  String? get _interestsError => _selectedCategoryIds.isEmpty
+      ? null
+      : Validators.validateInterests(
+          categoryIds: _selectedCategoryIds,
+          validCategoryIds: _validCategoryIds,
+          emptyError: LocalizationConstants.authInterestsEmptyErrorKey.tr(),
+          invalidError: LocalizationConstants.authInterestsInvalidErrorKey.tr(),
+        );
 
   bool get _canSubmit {
     if (_isLoadingOnboarding) return false;
@@ -180,6 +189,7 @@ class _RegisterViewState extends State<_RegisterView> {
     }
 
     final bool isOnline = await ensureOnline(context);
+    if (!mounted) return;
     if (!isOnline) {
       context.read<AuthBloc>().add(
         const AuthActionTracked('Auth submit offline'),
@@ -191,8 +201,9 @@ class _RegisterViewState extends State<_RegisterView> {
       const AuthActionTracked('Auth submit with data'),
     );
 
-    final String formattedDateOfBirth =
-        '${_birthYear.toString().padLeft(4, '0')}-${_birthMonth.toString().padLeft(2, '0')}-${_birthDay.toString().padLeft(2, '0')}';
+    final String? formattedDateOfBirth = _hasAnyBirthDate
+        ? '${_birthYear.toString().padLeft(4, '0')}-${_birthMonth.toString().padLeft(2, '0')}-${_birthDay.toString().padLeft(2, '0')}'
+        : null;
 
     final PhoneNumber phoneNumber = _phoneNumber ?? PhoneNumber();
     final String normalizedPhone =
@@ -207,9 +218,11 @@ class _RegisterViewState extends State<_RegisterView> {
         phoneNumber: normalizedPhone,
         phoneIsoCode: _phoneNumber?.isoCode ?? 'SY',
         password: _passwordController.text,
-        gender: _genderToApiValue(_selectedGender!),
+        gender: _selectedGender == null
+            ? null
+            : _genderToApiValue(_selectedGender!),
         dateOfBirth: formattedDateOfBirth,
-        categoryIds: _selectedCategoryIds,
+        categoryIds: _selectedCategoryIds.isEmpty ? null : _selectedCategoryIds,
       ),
     );
   }
@@ -254,231 +267,243 @@ class _RegisterViewState extends State<_RegisterView> {
       child: BlocListener<AuthBloc, AuthState>(
         listener: _onAuthStateChanged,
         child: PopScope(
-        canPop: false,
-        child: Form(
-          key: _formKey,
-          child: AppLayout(
-            expandContent: true,
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    LocalizationConstants.authRegisterTitleKey.tr(),
-                    textAlign: TextAlign.start,
-                    style: AppTextStyles.h2.copyWith(
-                      color: AppColors.libraryGreen,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.spacing32),
-                  AuthLabeledField(
-                    label: LocalizationConstants.authFirstNameLabelKey.tr(),
-                    child: AuthTextField(
-                      controller: _firstNameController,
-                      hintText: LocalizationConstants.authFirstNameHintKey.tr(),
-                      textInputAction: TextInputAction.next,
-                      textCapitalization: TextCapitalization.words,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: (String? value) => Validators.validateName(
-                        value,
-                        emptyError: LocalizationConstants
-                            .authFirstNameRequiredErrorKey
-                            .tr(),
-                        maxLengthError: LocalizationConstants
-                            .authFirstNameMaxLengthErrorKey
-                            .tr(),
+          canPop: false,
+          child: Form(
+            key: _formKey,
+            child: AppLayout(
+              expandContent: true,
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      LocalizationConstants.authRegisterTitleKey.tr(),
+                      textAlign: TextAlign.start,
+                      style: AppTextStyles.h2.copyWith(
+                        color: AppColors.libraryGreen,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.spacing12),
-                  AuthLabeledField(
-                    label: LocalizationConstants.authLastNameLabelKey.tr(),
-                    child: AuthTextField(
-                      controller: _lastNameController,
-                      hintText: LocalizationConstants.authLastNameHintKey.tr(),
-                      textInputAction: TextInputAction.next,
-                      textCapitalization: TextCapitalization.words,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: (String? value) => Validators.validateName(
-                        value,
-                        emptyError: LocalizationConstants
-                            .authLastNameRequiredErrorKey
+                    const SizedBox(height: AppSpacing.spacing32),
+                    AuthLabeledField(
+                      label: LocalizationConstants.authFirstNameLabelKey.tr(),
+                      child: AuthTextField(
+                        controller: _firstNameController,
+                        hintText: LocalizationConstants.authFirstNameHintKey
                             .tr(),
-                        maxLengthError: LocalizationConstants
-                            .authLastNameMaxLengthErrorKey
-                            .tr(),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.spacing12),
-                  AuthLabeledField(
-                    label: LocalizationConstants.authPhoneLabelKey.tr(),
-                    child: Material(
-                      type: MaterialType.transparency,
-                      child: PhoneNumberInput(
-                        controller: _phoneController,
-                        initialValue:
-                            _initialPhoneNumber ?? PhoneNumber(isoCode: 'SY'),
-                        countries: const <String>[
-                          'AE',
-                          'BH',
-                          'EG',
-                          'IQ',
-                          'JO',
-                          'KW',
-                          'LB',
-                          'OM',
-                          'QA',
-                          'SA',
-                          'SY',
-                        ],
-                        onInputChanged: (PhoneNumber value) {
-                          _phoneNumber = value;
-                        },
-                        onInputValidated: (bool value) {
-                          if (_isPhoneValid != value) {
-                            setState(() {
-                              _isPhoneValid = value;
-                            });
-                          }
-                        },
-                        validator: (String? value) => Validators.validatePhone(
+                        textInputAction: TextInputAction.next,
+                        textCapitalization: TextCapitalization.words,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        validator: (String? value) => Validators.validateName(
                           value,
                           emptyError: LocalizationConstants
-                              .authPhoneRequiredErrorKey
+                              .authFirstNameRequiredErrorKey
                               .tr(),
-                          formatError: LocalizationConstants
-                              .authPhoneFormatErrorKey
+                          maxLengthError: LocalizationConstants
+                              .authFirstNameMaxLengthErrorKey
                               .tr(),
-                          isValid: _isPhoneFormatValid,
                         ),
-                        autoValidateMode: AutovalidateMode.onUserInteraction,
-                        onFieldSubmitted: _submitRegistration,
-                        hintText: LocalizationConstants.authPhoneHintKey.tr(),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.spacing12),
-                  AuthLabeledField(
-                    label: LocalizationConstants.authPasswordLabelKey.tr(),
-                    child: AuthTextField(
-                      controller: _passwordController,
-                      hintText: LocalizationConstants.authPasswordHintKey.tr(),
-                      obscureText: _obscurePassword,
-                      textInputAction: TextInputAction.done,
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
-                        },
-                        icon: HugeIcon(
-                          icon: _obscurePassword
-                              ? HugeIcons.strokeRoundedViewOff
-                              : HugeIcons.strokeRoundedView,
-                          color: AppColors.primary300,
-                          size: 20,
+                    const SizedBox(height: AppSpacing.spacing12),
+                    AuthLabeledField(
+                      label: LocalizationConstants.authLastNameLabelKey.tr(),
+                      child: AuthTextField(
+                        controller: _lastNameController,
+                        hintText: LocalizationConstants.authLastNameHintKey
+                            .tr(),
+                        textInputAction: TextInputAction.next,
+                        textCapitalization: TextCapitalization.words,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        validator: (String? value) => Validators.validateName(
+                          value,
+                          emptyError: LocalizationConstants
+                              .authLastNameRequiredErrorKey
+                              .tr(),
+                          maxLengthError: LocalizationConstants
+                              .authLastNameMaxLengthErrorKey
+                              .tr(),
                         ),
                       ),
-                      validator: (String? value) => Validators.validatePassword(
-                        value,
-                        emptyError: LocalizationConstants
-                            .authPasswordRequiredErrorKey
-                            .tr(),
-                        minLengthError: LocalizationConstants
-                            .authPasswordMinLengthErrorKey
-                            .tr(),
-                        digitError: LocalizationConstants
-                            .authPasswordDigitErrorKey
-                            .tr(),
-                      ),
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      onSubmitted: (_) => _submitRegistration(),
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.spacing12),
-                  _PasswordChecklist(password: _passwordController.text),
-                  const SizedBox(height: AppSpacing.spacing16),
-                  _OnboardingValidationSummary(
-                    isLoading: _isLoadingOnboarding,
-                    dateOfBirthError: _dateOfBirthError,
-                    genderError: _genderError,
-                    interestsError: _interestsError,
-                  ),
-                  const SizedBox(height: AppSpacing.spacing32),
-                  BlocBuilder<AuthBloc, AuthState>(
-                    builder: (BuildContext context, AuthState state) {
-                      return SizedBox(
-                        height: AppDimensions.onboardingButtonHeight,
-                        child: FilledButton(
-                          onPressed:
-                              state.status == AuthStatus.loading || !_canSubmit
-                              ? null
-                              : () {
-                                  context.read<AuthBloc>().add(
-                                    const AuthActionTracked('Auth primary button'),
-                                  );
-                                  _submitRegistration();
-                                },
-                          child: state.status == AuthStatus.loading
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2.5,
-                                    color: AppColors.card,
-                                  ),
-                                )
-                              : Text(LocalizationConstants.authNextKey.tr()),
+                    const SizedBox(height: AppSpacing.spacing12),
+                    AuthLabeledField(
+                      label: LocalizationConstants.authPhoneLabelKey.tr(),
+                      child: Material(
+                        type: MaterialType.transparency,
+                        child: PhoneNumberInput(
+                          controller: _phoneController,
+                          initialValue:
+                              _initialPhoneNumber ?? PhoneNumber(isoCode: 'SY'),
+                          countries: const <String>[
+                            'AE',
+                            'BH',
+                            'EG',
+                            'IQ',
+                            'JO',
+                            'KW',
+                            'LB',
+                            'OM',
+                            'QA',
+                            'SA',
+                            'SY',
+                          ],
+                          onInputChanged: (PhoneNumber value) {
+                            _phoneNumber = value;
+                          },
+                          onInputValidated: (bool value) {
+                            if (_isPhoneValid != value) {
+                              setState(() {
+                                _isPhoneValid = value;
+                              });
+                            }
+                          },
+                          validator: (String? value) =>
+                              Validators.validatePhone(
+                                value,
+                                emptyError: LocalizationConstants
+                                    .authPhoneRequiredErrorKey
+                                    .tr(),
+                                formatError: LocalizationConstants
+                                    .authPhoneFormatErrorKey
+                                    .tr(),
+                                isValid: _isPhoneFormatValid,
+                              ),
+                          autoValidateMode: AutovalidateMode.onUserInteraction,
+                          onFieldSubmitted: _submitRegistration,
+                          hintText: LocalizationConstants.authPhoneHintKey.tr(),
                         ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: AppSpacing.spacing24),
-                  BlocBuilder<AuthBloc, AuthState>(
-                    builder: (BuildContext context, AuthState state) {
-                      return SizedBox(
-                        height: AppDimensions.onboardingButtonHeight,
-                        child: OutlinedButton(
-                          onPressed: state.status == AuthStatus.loading
-                              ? null
-                              : () {
-                                  context.read<AuthBloc>().add(
-                                    const AuthActionTracked('Auth secondary button'),
-                                  );
-                                  _continueAsGuest();
-                                },
-                          child: Text(
-                            LocalizationConstants.authContinueAsGuestKey.tr(),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.spacing12),
+                    AuthLabeledField(
+                      label: LocalizationConstants.authPasswordLabelKey.tr(),
+                      child: AuthTextField(
+                        controller: _passwordController,
+                        hintText: LocalizationConstants.authPasswordHintKey
+                            .tr(),
+                        obscureText: _obscurePassword,
+                        textInputAction: TextInputAction.done,
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                          icon: HugeIcon(
+                            icon: _obscurePassword
+                                ? HugeIcons.strokeRoundedViewOff
+                                : HugeIcons.strokeRoundedView,
+                            color: AppColors.primary300,
+                            size: 20,
                           ),
                         ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: AppSpacing.spacing16),
-                  TextButton(
-                    onPressed: () {
-                      context.read<AuthBloc>().add(
-                        const AuthActionTracked('Auth already have account button'),
-                      );
-                      context.goTo(RouteNames.login);
-                    },
-                    child: Text(
-                      LocalizationConstants.authAlreadyHaveAccountKey.tr(),
+                        validator: (String? value) =>
+                            Validators.validatePassword(
+                              value,
+                              emptyError: LocalizationConstants
+                                  .authPasswordRequiredErrorKey
+                                  .tr(),
+                              minLengthError: LocalizationConstants
+                                  .authPasswordMinLengthErrorKey
+                                  .tr(),
+                              digitError: LocalizationConstants
+                                  .authPasswordDigitErrorKey
+                                  .tr(),
+                            ),
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        onSubmitted: (_) => _submitRegistration(),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.spacing12),
-                  const TermsPrivacyTextButton(),
-                ],
+                    const SizedBox(height: AppSpacing.spacing12),
+                    _PasswordChecklist(password: _passwordController.text),
+                    const SizedBox(height: AppSpacing.spacing16),
+                    _OnboardingValidationSummary(
+                      isLoading: _isLoadingOnboarding,
+                      dateOfBirthError: _dateOfBirthError,
+                      genderError: _genderError,
+                      interestsError: _interestsError,
+                    ),
+                    const SizedBox(height: AppSpacing.spacing32),
+                    BlocBuilder<AuthBloc, AuthState>(
+                      builder: (BuildContext context, AuthState state) {
+                        return SizedBox(
+                          height: AppDimensions.onboardingButtonHeight,
+                          child: FilledButton(
+                            onPressed:
+                                state.status == AuthStatus.loading ||
+                                    !_canSubmit
+                                ? null
+                                : () {
+                                    context.read<AuthBloc>().add(
+                                      const AuthActionTracked(
+                                        'Auth primary button',
+                                      ),
+                                    );
+                                    _submitRegistration();
+                                  },
+                            child: state.status == AuthStatus.loading
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.5,
+                                      color: AppColors.card,
+                                    ),
+                                  )
+                                : Text(LocalizationConstants.authNextKey.tr()),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: AppSpacing.spacing24),
+                    BlocBuilder<AuthBloc, AuthState>(
+                      builder: (BuildContext context, AuthState state) {
+                        return SizedBox(
+                          height: AppDimensions.onboardingButtonHeight,
+                          child: OutlinedButton(
+                            onPressed: state.status == AuthStatus.loading
+                                ? null
+                                : () {
+                                    context.read<AuthBloc>().add(
+                                      const AuthActionTracked(
+                                        'Auth secondary button',
+                                      ),
+                                    );
+                                    _continueAsGuest();
+                                  },
+                            child: Text(
+                              LocalizationConstants.authContinueAsGuestKey.tr(),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: AppSpacing.spacing16),
+                    TextButton(
+                      onPressed: () {
+                        context.read<AuthBloc>().add(
+                          const AuthActionTracked(
+                            'Auth already have account button',
+                          ),
+                        );
+                        context.goTo(RouteNames.login);
+                      },
+                      child: Text(
+                        LocalizationConstants.authAlreadyHaveAccountKey.tr(),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.spacing12),
+                    const TermsPrivacyTextButton(),
+                  ],
+                ),
               ),
             ),
           ),
         ),
       ),
-    ),
-  );
+    );
   }
 }
 

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 
 import '../../features/auth/data/datasources/auth_local_datasource.dart';
+import '../constants/api_endpoints.dart';
 
 /// {@template auth_interceptor}
 /// Dio interceptor that automatically attaches the stored access token to
@@ -16,20 +17,30 @@ import '../../features/auth/data/datasources/auth_local_datasource.dart';
 /// preventing accidental leakage to third-party URLs.
 /// {@endtemplate}
 class AuthInterceptor extends Interceptor {
-  AuthInterceptor(
-    this._authLocalDataSource, {
-    required String baseUrl,
-  }) : _backendUri = Uri.parse(baseUrl);
+  AuthInterceptor(this._authLocalDataSource, {required String baseUrl})
+    : _backendUri = Uri.parse(baseUrl);
 
   final AuthLocalDataSource _authLocalDataSource;
   final Uri _backendUri;
 
   static const String _bearerPrefix = 'Bearer';
+  static const Set<String> _publicAuthPaths = <String>{
+    ApiEndpoints.login,
+    ApiEndpoints.register,
+    ApiEndpoints.verifyOtp,
+    ApiEndpoints.forgotPassword,
+    ApiEndpoints.resetPassword,
+    ApiEndpoints.refreshToken,
+  };
 
   bool _isBackendRequest(Uri requestUri) {
     return requestUri.host == _backendUri.host &&
         requestUri.scheme == _backendUri.scheme &&
         requestUri.port == _backendUri.port;
+  }
+
+  bool _isPublicAuthRequest(RequestOptions options) {
+    return _publicAuthPaths.contains(Uri.parse(options.path).path);
   }
 
   @override
@@ -44,6 +55,11 @@ class AuthInterceptor extends Interceptor {
 
     // Never attach auth tokens to non-backend requests.
     if (!_isBackendRequest(options.uri)) {
+      return handler.next(options);
+    }
+
+    // Public authentication endpoints must not inherit a stale session token.
+    if (_isPublicAuthRequest(options)) {
       return handler.next(options);
     }
 

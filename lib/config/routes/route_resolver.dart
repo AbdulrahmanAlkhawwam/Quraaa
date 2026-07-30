@@ -1,5 +1,3 @@
-import '../../core/connectivity/connection_status.dart';
-import '../../core/connectivity/connectivity_service.dart';
 import '../../core/di/injection_container.dart';
 import '../../features/auth/data/datasources/auth_local_datasource.dart'
     show AuthLocalDataSource, AuthJourneyStage, AuthSessionMode;
@@ -11,7 +9,8 @@ Future<String> resolveStartupRoute() async {
   final OnboardingRepository onboardingRepository = sl<OnboardingRepository>();
   final AuthLocalDataSource authJourney = sl<AuthLocalDataSource>();
 
-  final OnboardingDraft onboardingDraft = await onboardingRepository.loadState();
+  final OnboardingDraft onboardingDraft = await onboardingRepository
+      .loadState();
   final AuthSessionMode? sessionMode = await authJourney.getSessionMode();
   final AuthJourneyStage? currentStage = await authJourney.getCurrentStage();
 
@@ -21,18 +20,18 @@ Future<String> resolveStartupRoute() async {
   }
 
   if (onboardingDraft.completed) {
-    return await _guardOnlineRoute(RouteNames.register);
+    return RouteNames.register;
   }
 
   if (currentStage != null) {
-    return await _guardOnlineRoute(_normalizeStageRoute(currentStage));
+    return _normalizeStageRoute(currentStage);
   }
 
   if (_hasOnboardingProgress(onboardingDraft)) {
-    return await _guardOnlineRoute(_deriveRouteFromDraft(onboardingDraft));
+    return _deriveRouteFromDraft(onboardingDraft);
   }
 
-  return await _guardOnlineRoute(RouteNames.auth);
+  return RouteNames.auth;
 }
 
 String _deriveRouteFromDraft(OnboardingDraft onboardingDraft) {
@@ -44,7 +43,8 @@ String _deriveRouteFromDraft(OnboardingDraft onboardingDraft) {
     return RouteNames.onboarding;
   }
 
-  final bool hasBirthDate = onboardingDraft.birthYear != null &&
+  final bool hasBirthDate =
+      onboardingDraft.birthYear != null &&
       onboardingDraft.birthMonth != null &&
       onboardingDraft.birthDay != null;
   if (!hasBirthDate) {
@@ -77,6 +77,8 @@ String _normalizeStageRoute(AuthJourneyStage stage) {
     AuthJourneyStage.onboarding => RouteNames.onboarding,
     AuthJourneyStage.onboardingAge => RouteNames.onboardingAge,
     AuthJourneyStage.onboardingInterests => RouteNames.onboardingInterests,
+    AuthJourneyStage.otpVerification => RouteNames.otpVerification,
+    AuthJourneyStage.resetPassword => RouteNames.resetPassword,
     AuthJourneyStage.home => RouteNames.home,
   };
 }
@@ -116,16 +118,3 @@ const Set<String> _knownRoutes = <String>{
   RouteNames.forgotPassword,
   RouteNames.resetPassword,
 };
-
-Future<String> _guardOnlineRoute(String route) async {
-  if (route != RouteNames.register && route != RouteNames.otpVerification) {
-    return route;
-  }
-
-  final ConnectionStatus status = await sl<ConnectivityService>().currentStatus();
-  if (status == ConnectionStatus.disconnected) {
-    return RouteNames.auth;
-  }
-
-  return route;
-}

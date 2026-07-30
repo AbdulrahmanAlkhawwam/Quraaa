@@ -29,8 +29,6 @@ import '../../features/profile/presentation/bloc/profile_event.dart';
 import '../../features/settings/presentation/pages/settings_screen.dart';
 import '../../features/subscription/presentation/pages/account_type_screen.dart';
 import '../../features/search/search.dart';
-import '../../core/connectivity/connection_status.dart';
-import '../../core/connectivity/connectivity_service.dart';
 import '../../core/di/injection_container.dart';
 import '../../features/splash/presentation/pages/splash_screen.dart';
 import '../../features/local_explorer/presentation/pages/local_explorer_page.dart';
@@ -54,14 +52,6 @@ GoRouter buildAppRouter({
       if (location == RouteNames.routeBridge) {
         return resolveBridgeRoute(state.uri.queryParameters['route']) ??
             RouteNames.splash;
-      }
-
-      if (_isOnlineOnlyRoute(location)) {
-        final ConnectionStatus status = await sl<ConnectivityService>()
-            .currentStatus();
-        if (status == ConnectionStatus.disconnected) {
-          return RouteNames.auth;
-        }
       }
 
       if (location == RouteNames.splash || _isKnownRoute(location)) {
@@ -295,32 +285,36 @@ Page<void> _buildSoftTransitionPage({
     transitionDuration: const Duration(milliseconds: 360),
     reverseTransitionDuration: const Duration(milliseconds: 280),
     child: child,
-    transitionsBuilder: (
-      BuildContext context,
-      Animation<double> animation,
-      Animation<double> secondaryAnimation,
-      Widget child,
-    ) {
-      final Animation<double> curvedAnimation = CurvedAnimation(
-        parent: animation,
-        curve: Curves.easeOutCubic,
-        reverseCurve: Curves.easeInCubic,
-      );
+    transitionsBuilder:
+        (
+          BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+          Widget child,
+        ) {
+          final Animation<double> curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+            reverseCurve: Curves.easeInCubic,
+          );
 
-      return FadeTransition(
-        opacity: curvedAnimation,
-        child: SlideTransition(
-          position: Tween<Offset>(
-            begin: beginOffset,
-            end: Offset.zero,
-          ).animate(curvedAnimation),
-          child: ScaleTransition(
-            scale: Tween<double>(begin: 0.985, end: 1).animate(curvedAnimation),
-            child: child,
-          ),
-        ),
-      );
-    },
+          return FadeTransition(
+            opacity: curvedAnimation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: beginOffset,
+                end: Offset.zero,
+              ).animate(curvedAnimation),
+              child: ScaleTransition(
+                scale: Tween<double>(
+                  begin: 0.985,
+                  end: 1,
+                ).animate(curvedAnimation),
+                child: child,
+              ),
+            ),
+          );
+        },
   );
 }
 
@@ -364,11 +358,4 @@ bool _isKnownRoute(String location) {
   }
 
   return false;
-}
-
-bool _isOnlineOnlyRoute(String location) {
-  return location == RouteNames.register ||
-      location == RouteNames.otpVerification ||
-      location == RouteNames.forgotPassword ||
-      location == RouteNames.resetPassword;
 }

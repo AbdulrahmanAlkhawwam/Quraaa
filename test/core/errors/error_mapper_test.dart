@@ -54,6 +54,37 @@ void main() {
         failureMatcher: isA<ConflictFailure>(),
       );
     });
+
+    test('maps a top-level API message using the HTTP status', () {
+      final ErrorResponseModel response = ErrorResponseModel.fromJson(
+        <String, dynamic>{'message': 'The credentials are incorrect.'},
+        statusCode: 401,
+      );
+
+      final Failure failure = ErrorMapper.mapResponseToFailure(response);
+
+      expect(failure, isA<UnauthorizedFailure>());
+      expect(failure.code, ErrorCodes.unauthorized);
+      expect(failure.message, 'The credentials are incorrect.');
+    });
+
+    test('combines validation messages instead of hiding the reason', () {
+      final ErrorResponseModel response = ErrorResponseModel.fromJson(
+        <String, dynamic>{
+          'status': 422,
+          'errors': <String, dynamic>{
+            'phoneNumber': <String>['Phone number is invalid.'],
+            'password': <String>['Password is too short.'],
+          },
+        },
+      );
+
+      final Failure failure = ErrorMapper.mapResponseToFailure(response);
+
+      expect(failure, isA<ValidationFailure>());
+      expect(failure.message, contains('Phone number is invalid.'));
+      expect(failure.message, contains('Password is too short.'));
+    });
   });
 }
 

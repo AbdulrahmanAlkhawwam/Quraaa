@@ -34,6 +34,7 @@ class ErrorCodes {
   static const String insufficientStorage = 'insufficient_storage';
   static const String fileAccessDenied = 'file_access_denied';
   static const String loginFailed = 'login_failed';
+  static const String invalidVerificationCode = 'invalid_verification_code';
   static const String tokenExpired = 'token_expired';
   static const String userNotFound = 'user_not_found';
   static const String organizationNotFound = 'organization_not_found';

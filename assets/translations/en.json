@@ -592,6 +592,22 @@
       "title": "Unauthorized",
       "message": "Your credentials are incorrect."
     },
+    "login_failed": {
+      "title": "Sign-in failed",
+      "message": "We could not sign you in. Check your details and try again."
+    },
+    "wrong_password": {
+      "title": "Incorrect password",
+      "message": "The password you entered is incorrect."
+    },
+    "invalid_verification_code": {
+      "title": "Invalid verification code",
+      "message": "The verification code is incorrect or has expired. Request a new code and try again."
+    },
+    "session_expired": {
+      "title": "Session expired",
+      "message": "Your session expired. Please sign in again."
+    },
     "forbidden": {
       "title": "Forbidden",
       "message": "You do not have permission to continue."
@@ -607,6 +623,14 @@
     "conflict": {
       "title": "Conflict",
       "message": "The requested action conflicts with existing data."
+    },
+    "too_many_requests": {
+      "title": "Too many attempts",
+      "message": "Please wait a moment before trying again."
+    },
+    "operation_failed": {
+      "title": "Operation failed",
+      "message": "The operation could not be completed. Please try again."
     },
     "payment_required": {
       "title": "Payment required",
