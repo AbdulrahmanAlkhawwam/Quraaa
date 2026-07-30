@@ -15,7 +15,6 @@ import 'core/localization/supported_locales.dart';
 import 'core/services/app_diagnostics_service.dart';
 import 'core/services/firebase_messaging_service.dart';
 import 'core/services/firebase_service.dart';
-import 'core/services/notification_service.dart';
 import 'core/services/storage_service.dart';
 
 RawReceivePort? _isolateErrorPort;
@@ -27,7 +26,6 @@ Future<void> main() async {
     () async {
       WidgetsFlutterBinding.ensureInitialized();
       await LocalizationService.ensureInitialized();
-      await FirebaseService.initialize();
 
       // Register the top-level background message handler before runApp.
       FirebaseMessaging.onBackgroundMessage(firebaseBackgroundMessageHandler);
@@ -35,15 +33,13 @@ Future<void> main() async {
       await configureDependencies();
 
       final StorageService storageService = sl<StorageService>();
-      final Locale startLocale =
-          SupportedLocales.fromCode(storageService.getString(AppStorageKeys.userLanguage));
+      final Locale startLocale = SupportedLocales.fromCode(
+        storageService.getString(AppStorageKeys.userLanguage),
+      );
 
       appLogger = sl<AppLogger>();
-      await _initializeFirebase(appLogger!);
       await appLogger!.initialize();
-      await sl<TelegramNotificationService>().flushPendingReports();
       await _configureErrorHandlers(appLogger!);
-      await sl<AppDiagnosticsService>().logStartupSnapshot();
 
       runApp(
         LocalizationService.wrap(
@@ -51,6 +47,7 @@ Future<void> main() async {
           child: const QuraaaApp(),
         ),
       );
+      unawaited(_initializeOptionalServices(appLogger!));
     },
     (Object error, StackTrace stackTrace) {
       if (appLogger != null) {
@@ -67,13 +64,14 @@ Future<void> main() async {
   );
 }
 
-Future<void> _initializeFirebase(AppLogger appLogger) async {
+Future<void> _initializeOptionalServices(AppLogger appLogger) async {
+  await FirebaseService.initialize();
+
   try {
-    final NotificationService notificationService = sl<NotificationService>();
-    await notificationService.initialize(shouldRequestPermission: false);
+    await initializeNotificationDependencies();
   } catch (error, stackTrace) {
     appLogger.warning(
-      'Firebase initialization skipped: $error',
+      'Notification initialization skipped: $error',
       source: 'main',
       data: <String, Object?>{
         'error': error.toString(),
@@ -81,6 +79,21 @@ Future<void> _initializeFirebase(AppLogger appLogger) async {
       },
     );
   }
+
+  try {
+    await sl<TelegramNotificationService>().flushPendingReports();
+  } catch (error, stackTrace) {
+    appLogger.warning(
+      'Pending error report flush skipped: $error',
+      source: 'main',
+      data: <String, Object?>{
+        'error': error.toString(),
+        'stackTrace': stackTrace.toString(),
+      },
+    );
+  }
+
+  await sl<AppDiagnosticsService>().logStartupSnapshot();
 }
 
 Future<void> _configureErrorHandlers(AppLogger appLogger) async {
@@ -97,8 +110,9 @@ Future<void> _configureErrorHandlers(AppLogger appLogger) async {
   _isolateErrorPort = RawReceivePort((dynamic errorData) {
     if (errorData is List<dynamic> && errorData.isNotEmpty) {
       final Object error = errorData.first as Object;
-      final String stackTraceText =
-          errorData.length > 1 ? errorData[1].toString() : '';
+      final String stackTraceText = errorData.length > 1
+          ? errorData[1].toString()
+          : '';
       unawaited(
         appLogger.recordAsyncError(
           error,

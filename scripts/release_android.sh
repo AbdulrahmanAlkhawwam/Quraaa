@@ -68,17 +68,15 @@ APP_ID="${FIREBASE_ANDROID_APP_ID:-}"
 
 PROJECT_ID="${FIREBASE_PROJECT_ID:-}"
 
-# Determine build command and artifact path.
+# Build and verify the release artifact.
 if [ "$BUILD_TYPE" = "apk" ]; then
-  info "Building Flutter APK release..."
-  flutter build apk --release
-  ARTIFACT="build/app/outputs/flutter-apk/app-release.apk"
+  ARTIFACT="build/distributions/quraaa-universal-release.apk"
 else
-  info "Building Flutter AAB release..."
-  flutter build appbundle --release
-  ARTIFACT="build/app/outputs/bundle/release/app-release.aab"
+  ARTIFACT="build/distributions/quraaa-release.aab"
 fi
 
+info "Building verified Flutter $BUILD_TYPE release..."
+"$SCRIPT_DIR/build_android_release.sh" "$BUILD_TYPE"
 [ -f "$ARTIFACT" ] || fail "Expected artifact not found: $ARTIFACT"
 
 # Assemble Firebase CLI arguments.

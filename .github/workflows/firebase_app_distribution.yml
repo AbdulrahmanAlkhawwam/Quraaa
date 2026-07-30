@@ -50,13 +50,19 @@ jobs:
       - name: Build release artifact
         env:
           BUILD_TYPE: ${{ github.event.inputs.build_type }}
+          HOST: ${{ secrets.HOST }}
+          BASEURL: ${{ secrets.BASEURL }}
         run: |
+          if [ -z "$HOST" ] || [ -z "$BASEURL" ]; then
+            echo "ERROR: HOST and BASEURL secrets must be configured." >&2
+            exit 1
+          fi
+          chmod +x scripts/build_android_release.sh
+          scripts/build_android_release.sh "$BUILD_TYPE"
           if [ "$BUILD_TYPE" = "apk" ]; then
-            flutter build apk --release
-            echo "ARTIFACT=build/app/outputs/flutter-apk/app-release.apk" >> "$GITHUB_ENV"
+            echo "ARTIFACT=build/distributions/quraaa-universal-release.apk" >> "$GITHUB_ENV"
           elif [ "$BUILD_TYPE" = "aab" ]; then
-            flutter build appbundle --release
-            echo "ARTIFACT=build/app/outputs/bundle/release/app-release.aab" >> "$GITHUB_ENV"
+            echo "ARTIFACT=build/distributions/quraaa-release.aab" >> "$GITHUB_ENV"
           else
             echo "ERROR: Invalid build type: $BUILD_TYPE" >&2
             exit 1

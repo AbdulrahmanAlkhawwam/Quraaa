@@ -123,7 +123,6 @@ Future<void> configureDependencies() async {
 
   registerCoreDependencies();
   registerFeatureDependencies();
-  await initializeNotificationDependencies();
 }
 
 void registerCoreDependencies() {

@@ -23,6 +23,7 @@ plugins {
     id("org.jetbrains.kotlin.android") version "2.3.20" apply false
     // FlutterFire / Firebase configuration (migrated from quraa_otp)
     id("com.google.gms.google-services") version "4.4.1" apply false
+    id("com.google.firebase.crashlytics") version "3.0.7" apply false
 }
 
 include(":app")

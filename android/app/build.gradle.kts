@@ -4,6 +4,7 @@ plugins {
     id("com.android.application")
     // FlutterFire / Firebase configuration (migrated from quraa_otp)
     id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
@@ -29,9 +30,12 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
 
-        // Keep Flutter debug builds as a single APK so `flutter run` can locate and install them.
+        // Package only the Android ABIs supported by Flutter. Excluding legacy
+        // x86 prevents Android from selecting an ABI that has plugin libraries
+        // but no Flutter engine.
         ndk {
             abiFilters.clear()
+            abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86_64"))
         }
     }
 
