@@ -74,9 +74,7 @@ class AvatarCustomizationTabs extends StatelessWidget {
         vertical: AppSpacing.spacing8,
       ),
       decoration: BoxDecoration(
-        color: isSelected
-            ? AppColors.avatarTabSelected
-            : Colors.transparent,
+        color: isSelected ? AppColors.avatarTabSelected : Colors.transparent,
         borderRadius: BorderRadius.circular(AppRadius.radius12),
       ),
       child: InkWell(

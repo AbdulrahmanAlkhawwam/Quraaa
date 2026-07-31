@@ -13,6 +13,7 @@ abstract class ApiEndpoints {
   static const String refreshToken = '/auth/refresh';
   static const String categories = '/categories';
   static const String profileMe = '/profile/me';
+  static const String profileLocation = '/profile/location';
   static const String libraries = '/libraries';
   static const String recommendedBooks = '/books/recommended';
   static const String mostPopularBooks = '/books/most-popular';

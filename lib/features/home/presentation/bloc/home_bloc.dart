@@ -9,6 +9,7 @@ import '../../../../core/architecture/use_case.dart';
 import '../../../../core/services/app_permission_service.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../../account/account.dart';
+import '../../../auth/auth.dart';
 import '../../domain/entities/home_book_entity.dart';
 import '../../domain/repositories/home_books_repository.dart';
 import '../../domain/use_cases/get_most_popular_books_use_case.dart';
@@ -24,11 +25,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     required GetMostPopularBooksUseCase getMostPopularBooks,
     required NotificationService notificationService,
     required AppPermissionService appPermissionService,
+    required AuthLocalDataSource authLocalDataSource,
   }) : _loadUserSnapshot = loadUserSnapshot,
        _getRecommendedBooks = getRecommendedBooks,
        _getMostPopularBooks = getMostPopularBooks,
        _notificationService = notificationService,
        _appPermissionService = appPermissionService,
+       _authLocalDataSource = authLocalDataSource,
        super(const HomeState()) {
     on<HomeStarted>(_onStarted);
     on<HomeRecommendedBooksRequested>(_onRecommendedBooksRequested);
@@ -42,14 +45,19 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final GetMostPopularBooksUseCase _getMostPopularBooks;
   final NotificationService _notificationService;
   final AppPermissionService _appPermissionService;
+  final AuthLocalDataSource _authLocalDataSource;
   StreamSubscription<RemoteMessage>? _notificationSubscription;
 
   Future<void> _onStarted(HomeStarted event, Emitter<HomeState> emit) async {
     unawaited(_startNotifications());
+    final bool isGuest = !await _authLocalDataSource.isAuthenticatedSession();
     emit(
       state.copyWith(
         status: HomeStatus.loading,
-        recommendedStatus: HomeBooksStatus.loading,
+        isGuest: isGuest,
+        recommendedStatus: isGuest
+            ? HomeBooksStatus.initial
+            : HomeBooksStatus.loading,
         mostPopularStatus: HomeBooksStatus.loading,
         clearError: true,
         clearRecommendedError: true,
@@ -59,33 +67,37 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
     final List<Object> results = await Future.wait<Object>(<Future<Object>>[
       _loadUser(),
-      _loadBooksSafely(_getRecommendedBooks),
+      if (!isGuest) _loadBooksSafely(_getRecommendedBooks),
       _loadBooksSafely(_getMostPopularBooks),
     ]);
     final _HomeUserLoadResult userResult = results[0] as _HomeUserLoadResult;
-    final Result<HomeBooksPage> recommendedResult =
-        results[1] as Result<HomeBooksPage>;
+    final Result<HomeBooksPage>? recommendedResult = isGuest
+        ? null
+        : results[1] as Result<HomeBooksPage>;
     final Result<HomeBooksPage> mostPopularResult =
-        results[2] as Result<HomeBooksPage>;
+        results[isGuest ? 1 : 2] as Result<HomeBooksPage>;
 
     emit(
       state.copyWith(
         status: userResult.error == null
             ? HomeStatus.loaded
             : HomeStatus.failure,
+        isGuest: isGuest,
         userSnapshot: userResult.snapshot,
         errorMessage: userResult.error?.toString(),
-        recommendedStatus: recommendedResult is Success<HomeBooksPage>
+        recommendedStatus: isGuest
+            ? HomeBooksStatus.initial
+            : recommendedResult is Success<HomeBooksPage>
             ? HomeBooksStatus.loaded
             : HomeBooksStatus.failure,
         recommendedBooks: switch (recommendedResult) {
           Success<HomeBooksPage>(value: final HomeBooksPage page) => page.items,
-          ResultFailure<HomeBooksPage>() => const <HomeBookEntity>[],
+          _ => const <HomeBookEntity>[],
         },
         recommendedErrorMessage: switch (recommendedResult) {
-          Success<HomeBooksPage>() => null,
           ResultFailure<HomeBooksPage>(message: final String message) =>
             message,
+          _ => null,
         },
         mostPopularStatus: mostPopularResult is Success<HomeBooksPage>
             ? HomeBooksStatus.loaded
@@ -100,7 +112,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             message,
         },
         clearError: userResult.error == null,
-        clearRecommendedError: recommendedResult is Success<HomeBooksPage>,
+        clearRecommendedError:
+            isGuest || recommendedResult is Success<HomeBooksPage>,
         clearMostPopularError: mostPopularResult is Success<HomeBooksPage>,
       ),
     );
@@ -130,6 +143,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     HomeRecommendedBooksRequested event,
     Emitter<HomeState> emit,
   ) async {
+    if (state.isGuest) {
+      return;
+    }
+
     emit(
       state.copyWith(
         recommendedStatus: HomeBooksStatus.loading,

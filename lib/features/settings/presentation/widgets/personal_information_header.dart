@@ -7,7 +7,6 @@ import '../../../../shared/extensions/app_context.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/styles/text_styles.dart';
-import '../../../profile/presentation/pages/edit_profile_screen.dart';
 import 'profile_image_card.dart';
 
 /// Sliver header for the Personal Information screen.
@@ -16,9 +15,10 @@ import 'profile_image_card.dart';
 /// bottom corners, back arrow, centered title, edit action, and the profile
 /// avatar inside the flexibleSpace.
 class PersonalInformationHeader extends StatelessWidget {
-  const PersonalInformationHeader({super.key, this.avatarUrl});
+  const PersonalInformationHeader({super.key, this.avatarUrl, this.onEdit});
 
   final String? avatarUrl;
+  final VoidCallback? onEdit;
 
   static const double _toolbarHeight = 64;
   static const double _expandedHeight = 244;
@@ -40,7 +40,9 @@ class PersonalInformationHeader extends StatelessWidget {
       leading: IconButton(
         onPressed: () => Navigator.of(context).pop(),
         icon: HugeIcon(
-          icon: context.isRTL ? HugeIcons.strokeRoundedArrowRight01 : HugeIcons.strokeRoundedArrowLeft01,
+          icon: context.isRTL
+              ? HugeIcons.strokeRoundedArrowRight01
+              : HugeIcons.strokeRoundedArrowLeft01,
           color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
           size: _iconSize,
         ),
@@ -54,24 +56,18 @@ class PersonalInformationHeader extends StatelessWidget {
       ),
       actions: [
         IconButton(
-          onPressed: () => _openEditProfile(context),
+          onPressed: onEdit,
           icon: HugeIcon(
             icon: HugeIcons.strokeRoundedEdit03,
-            color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
+            color: context.isDark
+                ? AppColors.primary300
+                : AppColors.libraryGreen,
             size: _iconSize,
           ),
         ),
       ],
       flexibleSpace: FlexibleSpaceBar(
         background: ProfileImageCard(avatarUrl: avatarUrl),
-      ),
-    );
-  }
-
-  void _openEditProfile(BuildContext context) {
-    Navigator.of(context).push<void>(
-      MaterialPageRoute<void>(
-        builder: (_) => const EditProfileScreen(),
       ),
     );
   }

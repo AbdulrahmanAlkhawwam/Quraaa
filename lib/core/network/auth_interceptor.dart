@@ -31,6 +31,7 @@ class AuthInterceptor extends Interceptor {
     ApiEndpoints.forgotPassword,
     ApiEndpoints.forgotPasswordVerify,
     ApiEndpoints.refreshToken,
+    ApiEndpoints.mostPopularBooks,
   };
 
   bool _isBackendRequest(Uri requestUri) {

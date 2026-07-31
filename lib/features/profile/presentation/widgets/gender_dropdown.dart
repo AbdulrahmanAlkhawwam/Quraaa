@@ -50,7 +50,9 @@ class GenderDropdown extends StatelessWidget {
           enabledBorder: _outlineBorder(context.appBorder),
           focusedBorder: _outlineBorder(context.colors.primary),
           suffixIcon: Padding(
-            padding: const EdgeInsetsDirectional.only(end: AppSpacing.spacing12),
+            padding: const EdgeInsetsDirectional.only(
+              end: AppSpacing.spacing12,
+            ),
             child: HugeIcon(
               icon: HugeIcons.strokeRoundedArrowDown01,
               color: context.appTextPrimary,
@@ -73,10 +75,7 @@ class GenderDropdown extends StatelessWidget {
             ),
             items: _optionKeys.map((String key) {
               final String label = key.tr();
-              return DropdownMenuItem<String>(
-                value: label,
-                child: Text(label),
-              );
+              return DropdownMenuItem<String>(value: label, child: Text(label));
             }).toList(),
             onChanged: (String? newValue) {
               if (newValue != null) {
@@ -92,10 +91,7 @@ class GenderDropdown extends StatelessWidget {
   OutlineInputBorder _outlineBorder(Color color) {
     return OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppRadius.radius16),
-      borderSide: BorderSide(
-        color: color,
-        width: _borderWidth,
-      ),
+      borderSide: BorderSide(color: color, width: _borderWidth),
     );
   }
 }

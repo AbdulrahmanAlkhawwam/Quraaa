@@ -27,9 +27,7 @@ class ColorPalette extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: _verticalSpacing),
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            child: Row(
-              children: _buildRow(row),
-            ),
+            child: Row(children: _buildRow(row)),
           ),
         );
       }).toList(),
@@ -79,10 +77,7 @@ class _ColorSwatch extends StatelessWidget {
         color: color,
         borderRadius: BorderRadius.circular(AppRadius.radius10),
         border: isSelected
-            ? Border.all(
-                color: AppColors.editProfileTitle,
-                width: 2.5,
-              )
+            ? Border.all(color: AppColors.editProfileTitle, width: 2.5)
             : null,
       ),
       child: Material(

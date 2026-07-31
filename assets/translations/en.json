@@ -27,6 +27,8 @@
       "libraries": "Libraries",
       "user_books": "User Books",
       "audio_book": "Audio Book",
+      "ai": "AI",
+      "settings": "Settings",
       "cart": "Cart"
     },
     "drawer": {
@@ -490,6 +492,11 @@
       "deviceSystem": "Device System (Recommended)"
     },
     "logout": "Log out",
+    "guest_login": {
+      "title": "Sign in required",
+      "message": "This option belongs to your personal account. Would you like to sign in now?",
+      "action": "Sign in"
+    },
     "errors": {
       "load": "Could not load settings tabs"
     },
@@ -553,6 +560,11 @@
   },
   "edit_profile": {
     "title": "Edit Profile",
+    "first_name": "First name",
+    "last_name": "Last name",
+    "phone_read_only": "The phone number cannot be changed here.",
+    "interests": "Interests",
+    "required": "This field is required.",
     "personal_data": "Personal Data",
     "full_name": "Full Name",
     "gender": "Gender",
@@ -781,6 +793,21 @@
       "mathematical": "Mathematical",
       "philosophy": "Philosophy"
     }
+  },
+  "profile_location": {
+    "title": "My Location",
+    "add": "Add location",
+    "new": "New Location",
+    "current": "My current location",
+    "empty": "No location is saved yet.",
+    "use_current": "Use my current location",
+    "saved": "Your location was saved.",
+    "delete": "Delete",
+    "delete_title": "Delete location?",
+    "delete_message": "This will remove your saved location from your account.",
+    "service_disabled": "Location services are disabled.",
+    "permission_denied": "Location permission was denied.",
+    "unavailable": "Your current location could not be determined."
   },
   "assistant": {
     "greeting": "Hi, {name}",

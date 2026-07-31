@@ -38,20 +38,11 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _onNavItemTapped(int index) {
+  void _onNavItemTapped(int index, String route) {
     setState(() {
       _previousIndex = _selectedIndex;
       _selectedIndex = index;
     });
-
-    final String route = switch (index) {
-      0 => RouteNames.home,
-      1 => RouteNames.libraries,
-      2 => RouteNames.userBooks,
-      3 => RouteNames.audioBooks,
-      4 => RouteNames.cart,
-      _ => RouteNames.home,
-    };
 
     if (route != RouteNames.home) {
       context.goTo(route);
@@ -89,6 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
               bottom: 0,
               child: HomeBottomNav(
                 currentIndex: _selectedIndex,
+                isGuest: context.watch<HomeBloc>().state.isGuest,
                 onTap: _onNavItemTapped,
               ),
             ),
@@ -205,22 +197,24 @@ class _HomeFeed extends StatelessWidget {
             const SliverToBoxAdapter(
               child: SizedBox(height: AppSpacing.spacing32),
             ),
-            SliverToBoxAdapter(
-              child: HomeSection(
-                title: LocalizationConstants.homeRecommendedForYouKey.tr(),
-                books: state.recommendedBooks,
-                isLoading:
-                    state.recommendedStatus == HomeBooksStatus.initial ||
-                    state.recommendedStatus == HomeBooksStatus.loading,
-                errorMessage: state.recommendedErrorMessage,
-                onRetry: () => context.read<HomeBloc>().add(
-                  const HomeRecommendedBooksRequested(),
+            if (!state.isGuest) ...<Widget>[
+              SliverToBoxAdapter(
+                child: HomeSection(
+                  title: LocalizationConstants.homeRecommendedForYouKey.tr(),
+                  books: state.recommendedBooks,
+                  isLoading:
+                      state.recommendedStatus == HomeBooksStatus.initial ||
+                      state.recommendedStatus == HomeBooksStatus.loading,
+                  errorMessage: state.recommendedErrorMessage,
+                  onRetry: () => context.read<HomeBloc>().add(
+                    const HomeRecommendedBooksRequested(),
+                  ),
                 ),
               ),
-            ),
-            const SliverToBoxAdapter(
-              child: SizedBox(height: AppSpacing.spacing24),
-            ),
+              const SliverToBoxAdapter(
+                child: SizedBox(height: AppSpacing.spacing24),
+              ),
+            ],
             SliverToBoxAdapter(
               child: HomeSection(
                 title: LocalizationConstants.homeMostPopularKey.tr(),

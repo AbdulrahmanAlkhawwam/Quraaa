@@ -20,6 +20,8 @@ class LocalizationConstants {
   static const String homeNavLibrariesKey = 'home.nav.libraries';
   static const String homeNavUserBooksKey = 'home.nav.user_books';
   static const String homeNavAudioBookKey = 'home.nav.audio_book';
+  static const String homeNavAiKey = 'home.nav.ai';
+  static const String homeNavSettingsKey = 'home.nav.settings';
   static const String homeNavCartKey = 'home.nav.cart';
   static const String homeDrawerWelcomeKey = 'home.drawer.welcome';
   static const String homeDrawerUserKey = 'home.drawer.user';
@@ -308,6 +310,25 @@ class LocalizationConstants {
   static const String profileMenuPersonalInfoKey =
       'profile.menu.my_personal_information';
   static const String profileMenuLocationsKey = 'profile.menu.my_locations';
+  static const String profileLocationsTitleKey = 'profile_location.title';
+  static const String profileLocationAddKey = 'profile_location.add';
+  static const String profileLocationNewKey = 'profile_location.new';
+  static const String profileLocationCurrentKey = 'profile_location.current';
+  static const String profileLocationEmptyKey = 'profile_location.empty';
+  static const String profileLocationUseCurrentKey =
+      'profile_location.use_current';
+  static const String profileLocationSavedKey = 'profile_location.saved';
+  static const String profileLocationDeleteKey = 'profile_location.delete';
+  static const String profileLocationDeleteTitleKey =
+      'profile_location.delete_title';
+  static const String profileLocationDeleteMessageKey =
+      'profile_location.delete_message';
+  static const String profileLocationServiceDisabledKey =
+      'profile_location.service_disabled';
+  static const String profileLocationPermissionDeniedKey =
+      'profile_location.permission_denied';
+  static const String profileLocationUnavailableKey =
+      'profile_location.unavailable';
   static const String profileMenuPaymentInfoKey =
       'profile.menu.payment_information';
   static const String profileMenuPersonalFilesKey =
@@ -321,6 +342,12 @@ class LocalizationConstants {
   static const String profileEditTitleKey = 'edit_profile.title';
   static const String profileEditPersonalDataKey = 'edit_profile.personal_data';
   static const String profileEditFullNameKey = 'edit_profile.full_name';
+  static const String profileEditFirstNameKey = 'edit_profile.first_name';
+  static const String profileEditLastNameKey = 'edit_profile.last_name';
+  static const String profileEditPhoneReadOnlyKey =
+      'edit_profile.phone_read_only';
+  static const String profileEditInterestsKey = 'edit_profile.interests';
+  static const String profileEditRequiredKey = 'edit_profile.required';
   static const String profileEditGenderKey = 'edit_profile.gender';
   static const String profileEditGenderMaleKey = 'edit_profile.gender_male';
   static const String profileEditGenderFemaleKey = 'edit_profile.gender_female';
@@ -592,6 +619,11 @@ class LocalizationConstants {
       'settings.notification.upgradeLevel';
 
   static const String settingsLoadFailureKey = 'settings.errors.load';
+  static const String settingsGuestLoginTitleKey = 'settings.guest_login.title';
+  static const String settingsGuestLoginMessageKey =
+      'settings.guest_login.message';
+  static const String settingsGuestLoginActionKey =
+      'settings.guest_login.action';
 
   static const String settingsLanguageSpanishKey = 'settings.language.spanish';
   static const String settingsLanguageFranceKey = 'settings.language.france';

@@ -1,13 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 
 import '../../../../core/localization/localization_constants.dart';
-import '../../data/models/profile_model.dart';
+import '../../domain/entities/profile.dart';
 
-/// UI-oriented extensions for [ProfileModel].
+/// UI-oriented extensions for [Profile].
 ///
 /// Keep all user-facing string resolution in the presentation layer rather
 /// than inside the data model.
-extension ProfileModelUiExtension on ProfileModel {
+extension ProfileModelUiExtension on Profile {
   /// Localized gender label based on the integer [gender] value.
   String get localizedGenderLabel => localizedGenderLabelFromValue(gender);
 }

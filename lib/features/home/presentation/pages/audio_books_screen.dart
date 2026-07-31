@@ -14,10 +14,10 @@ class AudioBooksScreen extends StatelessWidget {
     return HomeFeatureScreen(
       title: LocalizationConstants.homeFeatureAudioBooksTitleKey.tr(),
       subtitle: LocalizationConstants.homeFeatureAudioBooksSubtitleKey.tr(),
-      description: LocalizationConstants.homeFeatureAudioBooksDescriptionKey.tr(),
+      description: LocalizationConstants.homeFeatureAudioBooksDescriptionKey
+          .tr(),
       icon: HugeIcons.strokeRoundedAudioBook04,
       accentColor: AppColors.woodBrown,
-      currentIndex: 3,
     );
   }
 }

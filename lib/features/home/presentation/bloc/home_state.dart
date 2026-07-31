@@ -8,6 +8,7 @@ enum HomeBooksStatus { initial, loading, loaded, failure }
 class HomeState {
   const HomeState({
     this.status = HomeStatus.initial,
+    this.isGuest = true,
     this.userSnapshot,
     this.errorMessage,
     this.recommendedStatus = HomeBooksStatus.initial,
@@ -22,6 +23,7 @@ class HomeState {
   });
 
   final HomeStatus status;
+  final bool isGuest;
   final AccountUserSnapshot? userSnapshot;
   final String? errorMessage;
   final HomeBooksStatus recommendedStatus;
@@ -39,6 +41,7 @@ class HomeState {
 
   HomeState copyWith({
     HomeStatus? status,
+    bool? isGuest,
     AccountUserSnapshot? userSnapshot,
     String? errorMessage,
     HomeBooksStatus? recommendedStatus,
@@ -56,6 +59,7 @@ class HomeState {
   }) {
     return HomeState(
       status: status ?? this.status,
+      isGuest: isGuest ?? this.isGuest,
       userSnapshot: userSnapshot ?? this.userSnapshot,
       errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
       recommendedStatus: recommendedStatus ?? this.recommendedStatus,

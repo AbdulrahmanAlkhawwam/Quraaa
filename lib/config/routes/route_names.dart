@@ -18,6 +18,9 @@ abstract class RouteNames {
   static const String routeBridge = '/open';
   static const String search = '/search';
   static const String settings = '/settings';
+  static const String settingsPersonalInformation =
+      '/settings/personal-information';
+  static const String settingsLocations = '/settings/locations';
   static const String subscriptionAccountType = '/subscription/account-type';
   static const String notificationPermission = '/notification-permission';
   static const String locationPermission = '/location-permission';

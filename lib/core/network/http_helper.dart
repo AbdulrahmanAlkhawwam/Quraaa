@@ -37,11 +37,19 @@ class HttpHelper {
     Object? data,
     Options? options,
   }) {
-    return _dio.post<dynamic>(
-      path,
-      data: data,
-      options: options,
-    );
+    return _dio.post<dynamic>(path, data: data, options: options);
+  }
+
+  Future<Response<dynamic>> put(String path, {Object? data, Options? options}) {
+    return _dio.put<dynamic>(path, data: data, options: options);
+  }
+
+  Future<Response<dynamic>> delete(
+    String path, {
+    Object? data,
+    Options? options,
+  }) {
+    return _dio.delete<dynamic>(path, data: data, options: options);
   }
 
   static Dio buildDio(List<Interceptor> interceptors) {

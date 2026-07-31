@@ -7,10 +7,7 @@ import 'profile_avatar_illustration.dart';
 /// Large rounded preview card that shows the avatar over the selected
 /// background color.
 class ProfilePreviewCard extends StatelessWidget {
-  const ProfilePreviewCard({
-    super.key,
-    required this.backgroundColor,
-  });
+  const ProfilePreviewCard({super.key, required this.backgroundColor});
 
   final Color backgroundColor;
 

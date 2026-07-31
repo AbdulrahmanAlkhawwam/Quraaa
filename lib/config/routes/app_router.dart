@@ -27,6 +27,8 @@ import '../../features/onboarding/presentation/pages/interests_onboarding_page.d
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../../features/profile/presentation/bloc/profile_event.dart';
 import '../../features/settings/presentation/pages/settings_screen.dart';
+import '../../features/settings/presentation/pages/personal_information_screen.dart';
+import '../../features/profile/presentation/pages/profile_locations_screen.dart';
 import '../../features/subscription/presentation/pages/account_type_screen.dart';
 import '../../features/search/search.dart';
 import '../../core/di/injection_container.dart';
@@ -177,7 +179,11 @@ GoRouter buildAppRouter({
       GoRoute(
         name: RouteNames.bookAssistant,
         path: RouteNames.bookAssistant,
-        builder: (context, state) => const BookAssistantScreen(),
+        pageBuilder: (context, state) => _buildTabTransitionPage(
+          state: state,
+          tabIndex: 3,
+          child: const BookAssistantScreen(),
+        ),
       ),
       GoRoute(
         name: RouteNames.profile,
@@ -211,7 +217,25 @@ GoRouter buildAppRouter({
       GoRoute(
         name: RouteNames.settings,
         path: RouteNames.settings,
-        builder: (context, state) => const SettingsScreen(),
+        pageBuilder: (context, state) => _buildTabTransitionPage(
+          state: state,
+          tabIndex: 3,
+          child: const SettingsScreen(),
+        ),
+      ),
+      GoRoute(
+        name: RouteNames.settingsPersonalInformation,
+        path: RouteNames.settingsPersonalInformation,
+        builder: (context, state) => BlocProvider<ProfileBloc>(
+          create: (_) =>
+              sl<ProfileBloc>()..add(const ProfileCachedLoadRequested()),
+          child: const PersonalInformationScreen(),
+        ),
+      ),
+      GoRoute(
+        name: RouteNames.settingsLocations,
+        path: RouteNames.settingsLocations,
+        builder: (context, state) => const ProfileLocationsScreen(),
       ),
       GoRoute(
         name: RouteNames.subscriptionAccountType,
@@ -331,6 +355,8 @@ bool _isKnownRoute(String location) {
     RouteNames.bookAssistant,
     RouteNames.search,
     RouteNames.settings,
+    RouteNames.settingsPersonalInformation,
+    RouteNames.settingsLocations,
     RouteNames.settingsAccountType,
     RouteNames.subscriptionAccountType,
     RouteNames.explorer,

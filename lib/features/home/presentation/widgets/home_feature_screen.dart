@@ -26,16 +26,7 @@ class HomeFeatureScreen extends StatelessWidget {
   final Color accentColor;
   final int? currentIndex;
 
-  void _onNavItemTapped(BuildContext context, int index) {
-    final String route = switch (index) {
-      0 => RouteNames.home,
-      1 => RouteNames.libraries,
-      2 => RouteNames.userBooks,
-      3 => RouteNames.audioBooks,
-      4 => RouteNames.cart,
-      _ => RouteNames.home,
-    };
-
+  void _onNavItemTapped(BuildContext context, int index, String route) {
     if (currentIndex != index) {
       context.goTo(route);
     }
@@ -55,17 +46,23 @@ class HomeFeatureScreen extends StatelessWidget {
           : AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
-              foregroundColor: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
+              foregroundColor: context.isDark
+                  ? AppColors.primary300
+                  : AppColors.libraryGreen,
               leading: IconButton(
                 onPressed: () => context.back(),
                 icon: Icon(
-                  context.isRTL ? Icons.arrow_forward_rounded : Icons.arrow_back_rounded,
+                  context.isRTL
+                      ? Icons.arrow_forward_rounded
+                      : Icons.arrow_back_rounded,
                 ),
               ),
               title: Text(
                 title,
                 style: AppTextStyles.appBarTitle.copyWith(
-                  color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
+                  color: context.isDark
+                      ? AppColors.primary300
+                      : AppColors.libraryGreen,
                 ),
               ),
               centerTitle: true,
@@ -76,7 +73,10 @@ class HomeFeatureScreen extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: context.isDark
-                    ? <Color>[AppColors.neutralBackgroundDark, AppColors.surfaceDark]
+                    ? <Color>[
+                        AppColors.neutralBackgroundDark,
+                        AppColors.surfaceDark,
+                      ]
                     : <Color>[AppColors.neutralBackground, AppColors.primary50],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
@@ -176,7 +176,8 @@ class HomeFeatureScreen extends StatelessWidget {
               bottom: 0,
               child: HomeBottomNav(
                 currentIndex: currentIndex!,
-                onTap: (int index) => _onNavItemTapped(context, index),
+                onTap: (int index, String route) =>
+                    _onNavItemTapped(context, index, route),
               ),
             ),
         ],

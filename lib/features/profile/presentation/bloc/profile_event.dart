@@ -1,8 +1,7 @@
 import 'package:equatable/equatable.dart';
 
-/// {@template profile_event}
-/// Events that can be dispatched to the [ProfileBloc].
-/// {@endtemplate}
+import '../../domain/entities/profile.dart';
+
 abstract class ProfileEvent extends Equatable {
   const ProfileEvent();
 
@@ -10,7 +9,22 @@ abstract class ProfileEvent extends Equatable {
   List<Object?> get props => <Object?>[];
 }
 
-/// Request loading the authenticated user's profile from the backend.
+/// Loads a fresh profile from the API and refreshes the cache.
 class ProfileLoadRequested extends ProfileEvent {
   const ProfileLoadRequested();
+}
+
+/// Loads only the profile cached immediately after authentication.
+class ProfileCachedLoadRequested extends ProfileEvent {
+  const ProfileCachedLoadRequested();
+}
+
+/// Replaces the visible profile after a successful edit or location change.
+class ProfileReplaced extends ProfileEvent {
+  const ProfileReplaced(this.profile);
+
+  final Profile profile;
+
+  @override
+  List<Object?> get props => <Object?>[profile];
 }

@@ -10,7 +10,7 @@ import '../../../auth/data/datasources/user_local_datasource.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../data/datasources/profile_local_data_source.dart';
-import '../../data/models/profile_model.dart';
+import '../../domain/entities/profile.dart';
 import '../../domain/repositories/profile_repository.dart';
 import 'profile_event.dart';
 import 'profile_state.dart';
@@ -27,6 +27,11 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     required this.profileLocalDataSource,
   }) : super(const ProfileState()) {
     on<ProfileLoadRequested>(_onLoadRequested);
+    on<ProfileCachedLoadRequested>(_onCachedLoadRequested);
+    on<ProfileReplaced>(
+      (ProfileReplaced event, Emitter<ProfileState> emit) =>
+          emit(state.copyWith(profile: event.profile, clearError: true)),
+    );
   }
 
   final ProfileRepository profileRepository;
@@ -35,6 +40,19 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final UserLocalDataSource userLocalDataSource;
   final ConnectivityService connectivityService;
   final ProfileLocalDataSource profileLocalDataSource;
+
+  Future<void> _onCachedLoadRequested(
+    ProfileCachedLoadRequested event,
+    Emitter<ProfileState> emit,
+  ) async {
+    emit(state.copyWith(loading: true, clearError: true));
+    try {
+      final Profile? profile = await profileRepository.getCachedProfile();
+      emit(state.copyWith(loading: false, profile: profile));
+    } catch (error) {
+      emit(state.copyWith(loading: false, error: _mapToFailure(error)));
+    }
+  }
 
   /// Loads the user's profile when the device is online and the user is
   /// authenticated. Falls back to the cached profile when offline.
@@ -53,8 +71,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       return;
     }
 
-    final ConnectionStatus connectionStatus =
-        await connectivityService.currentStatus();
+    final ConnectionStatus connectionStatus = await connectivityService
+        .currentStatus();
 
     if (connectionStatus == ConnectionStatus.disconnected) {
       await _loadCachedProfile(emit);
@@ -69,17 +87,11 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
   Future<void> _loadCachedProfile(Emitter<ProfileState> emit) async {
     try {
-      final ProfileModel? cachedProfile =
-          await profileLocalDataSource.getCachedProfile();
-      emit(state.copyWith(
-        loading: false,
-        profile: cachedProfile,
-      ));
+      final Profile? cachedProfile = await profileLocalDataSource
+          .getCachedProfile();
+      emit(state.copyWith(loading: false, profile: cachedProfile));
     } catch (error) {
-      emit(state.copyWith(
-        loading: false,
-        error: const NoInternetFailure(),
-      ));
+      emit(state.copyWith(loading: false, error: const NoInternetFailure()));
     }
   }
 
@@ -88,12 +100,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     required String refreshToken,
   }) async {
     try {
-      final ProfileModel profile = await profileRepository.getMyProfile();
-      await profileLocalDataSource.cacheProfile(profile);
-      emit(state.copyWith(
-        loading: false,
-        profile: profile,
-      ));
+      final Profile profile = await profileRepository.getMyProfile();
+      emit(state.copyWith(loading: false, profile: profile));
     } on UnauthorizedException catch (error) {
       await _handleUnauthorized(
         emit: emit,
@@ -107,32 +115,32 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         refreshToken: refreshToken,
       );
     } on ForbiddenException catch (error) {
-      emit(state.copyWith(
-        loading: false,
-        error: ForbiddenFailure(message: error.message),
-      ));
+      emit(
+        state.copyWith(
+          loading: false,
+          error: ForbiddenFailure(message: error.message),
+        ),
+      );
     } on NotFoundException catch (error) {
-      emit(state.copyWith(
-        loading: false,
-        error: NotFoundFailure(
-          code: error.code,
-          message: error.message,
+      emit(
+        state.copyWith(
+          loading: false,
+          error: NotFoundFailure(code: error.code, message: error.message),
         ),
-      ));
+      );
     } on ServerException catch (error) {
-      emit(state.copyWith(
-        loading: false,
-        error: ServerFailure(
-          code: error.code,
-          statusCode: error.statusCode,
-          message: error.message,
+      emit(
+        state.copyWith(
+          loading: false,
+          error: ServerFailure(
+            code: error.code,
+            statusCode: error.statusCode,
+            message: error.message,
+          ),
         ),
-      ));
+      );
     } catch (error) {
-      emit(state.copyWith(
-        loading: false,
-        error: _mapToFailure(error),
-      ));
+      emit(state.copyWith(loading: false, error: _mapToFailure(error)));
     }
   }
 
@@ -157,13 +165,15 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       final User? user = refreshedUser;
       if (user == null) {
         await _logout();
-        emit(state.copyWith(
-          loading: false,
-          error: UnauthorizedFailure(
-            message: refreshFailureMessage ?? error.message,
+        emit(
+          state.copyWith(
+            loading: false,
+            error: UnauthorizedFailure(
+              message: refreshFailureMessage ?? error.message,
+            ),
+            requiresLogin: true,
           ),
-          requiresLogin: true,
-        ));
+        );
         return;
       }
 
@@ -174,19 +184,17 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       );
 
       // Retry the profile request once.
-      final ProfileModel profile = await profileRepository.getMyProfile();
-      await profileLocalDataSource.cacheProfile(profile);
-      emit(state.copyWith(
-        loading: false,
-        profile: profile,
-      ));
+      final Profile profile = await profileRepository.getMyProfile();
+      emit(state.copyWith(loading: false, profile: profile));
     } catch (_) {
       await _logout();
-      emit(state.copyWith(
-        loading: false,
-        error: UnauthorizedFailure(message: error.message),
-        requiresLogin: true,
-      ));
+      emit(
+        state.copyWith(
+          loading: false,
+          error: UnauthorizedFailure(message: error.message),
+          requiresLogin: true,
+        ),
+      );
     }
   }
 

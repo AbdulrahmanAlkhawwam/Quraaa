@@ -12,7 +12,7 @@ import '../../core/services/storage_service.dart';
 import '../../features/account/data/user_data_local_data_source.dart';
 import '../../features/auth/data/datasources/user_local_datasource.dart';
 import '../../features/auth/data/models/user_model.dart';
-import '../../features/profile/data/models/profile_model.dart';
+import '../../features/profile/domain/entities/profile.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../../features/profile/presentation/extensions/profile_model_ui_extensions.dart';
 import '../../features/profile/presentation/bloc/profile_state.dart';
@@ -95,7 +95,7 @@ class _AppShellState extends State<AppShell> {
 
   UserDataSnapshot _mergeProfile(
     UserDataSnapshot localSnapshot,
-    ProfileModel? profile,
+    Profile? profile,
   ) {
     if (profile == null) {
       return localSnapshot;
@@ -192,8 +192,12 @@ class _AppShellState extends State<AppShell> {
                 leading: IconButton(
                   onPressed: () => context.back(),
                   icon: HugeIcon(
-                    icon: context.isRTL ? HugeIcons.strokeRoundedArrowRight01 : HugeIcons.strokeRoundedArrowLeft01,
-                    color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
+                    icon: context.isRTL
+                        ? HugeIcons.strokeRoundedArrowRight01
+                        : HugeIcons.strokeRoundedArrowLeft01,
+                    color: context.isDark
+                        ? AppColors.primary300
+                        : AppColors.libraryGreen,
                     size: _backIconSize,
                   ),
                 ),
@@ -201,7 +205,9 @@ class _AppShellState extends State<AppShell> {
                 title: Text(
                   _tabTitle(context),
                   style: AppTextStyles.h3.copyWith(
-                    color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
+                    color: context.isDark
+                        ? AppColors.primary300
+                        : AppColors.libraryGreen,
                   ),
                 ),
                 flexibleSpace: FlexibleSpaceBar(
@@ -350,7 +356,7 @@ class _AppShellState extends State<AppShell> {
       return const ProfileInfoShimmer();
     }
 
-    final ProfileModel? profile = profileState.profile;
+    final Profile? profile = profileState.profile;
     if (profile == null) {
       return const SizedBox.shrink();
     }
@@ -447,7 +453,9 @@ class _AppShellState extends State<AppShell> {
       builder: (BuildContext ctx) {
         return AlertDialog(
           title: Text(title),
-          content: Text(LocalizationConstants.profileDialogNotDesignedContentKey.tr()),
+          content: Text(
+            LocalizationConstants.profileDialogNotDesignedContentKey.tr(),
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
@@ -626,9 +634,10 @@ class _MenuItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color effectiveBackgroundColor =
-        backgroundColor == AppColors.primary50 || backgroundColor == AppColors.card
-            ? context.appCard
-            : backgroundColor;
+        backgroundColor == AppColors.primary50 ||
+            backgroundColor == AppColors.card
+        ? context.appCard
+        : backgroundColor;
 
     return InkWell(
       onTap: onTap,
@@ -651,8 +660,12 @@ class _MenuItem extends StatelessWidget {
               ),
             ),
             HugeIcon(
-              icon: context.isRTL ? HugeIcons.strokeRoundedArrowLeft01 : HugeIcons.strokeRoundedArrowRight01,
-              color: context.isDark ? AppColors.primary300 : AppColors.primary600,
+              icon: context.isRTL
+                  ? HugeIcons.strokeRoundedArrowLeft01
+                  : HugeIcons.strokeRoundedArrowRight01,
+              color: context.isDark
+                  ? AppColors.primary300
+                  : AppColors.primary600,
               size: _chevronIconSize,
             ),
           ],
@@ -775,9 +788,12 @@ class _UserDataEditScreenState extends State<UserDataEditScreen> {
         break;
       case UserDataTab.settings:
         final String languageInput = _twoController.text.trim().toLowerCase();
-        final String arabicLabel =
-            LocalizationConstants.userDataArabicLanguageKey.tr().toLowerCase();
-        final bool isArabic = languageInput == 'arabic' ||
+        final String arabicLabel = LocalizationConstants
+            .userDataArabicLanguageKey
+            .tr()
+            .toLowerCase();
+        final bool isArabic =
+            languageInput == 'arabic' ||
             languageInput == 'ar' ||
             languageInput == arabicLabel;
         final String languageCode = isArabic ? 'ar' : 'en';
@@ -1082,9 +1098,7 @@ class _IconButtonShell extends StatelessWidget {
       height: size,
       child: Material(
         color: backgroundColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         child: IconButton(
           onPressed: onPressed,
           icon: HugeIcon(icon: icon, color: iconColor, size: 20),

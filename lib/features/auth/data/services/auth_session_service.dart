@@ -13,13 +13,16 @@ class AuthSessionService {
     required AuthLocalDataSource authLocalDataSource,
     required UserLocalDataSource userLocalDataSource,
     required UserContextProvider userContextProvider,
+    Future<void> Function()? afterAuthentication,
   }) : _authLocalDataSource = authLocalDataSource,
        _userLocalDataSource = userLocalDataSource,
-       _userContextProvider = userContextProvider;
+       _userContextProvider = userContextProvider,
+       _afterAuthentication = afterAuthentication;
 
   final AuthLocalDataSource _authLocalDataSource;
   final UserLocalDataSource _userLocalDataSource;
   final UserContextProvider _userContextProvider;
+  final Future<void> Function()? _afterAuthentication;
 
   Future<void> completeAuthenticatedSession(
     User user, {
@@ -47,6 +50,11 @@ class AuthSessionService {
         refreshToken: user.refreshToken,
         accessTokenExpiration: user.accessTokenExpiration,
       );
+      try {
+        await _afterAuthentication?.call();
+      } catch (_) {
+        // Profile bootstrapping must never turn a valid login into a failure.
+      }
     } catch (_) {
       await _rollbackPartialSession();
       rethrow;

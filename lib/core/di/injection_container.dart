@@ -42,9 +42,13 @@ import '../../features/account/account.dart';
 import '../../features/profile/data/datasources/profile_local_data_source.dart';
 import '../../features/profile/data/datasources/profile_remote_data_source.dart';
 import '../../features/profile/data/repositories/profile_repository_impl.dart';
+import '../../features/profile/data/services/profile_bootstrap_service.dart';
 import '../../features/profile/domain/repositories/profile_repository.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../../features/profile/presentation/bloc/edit_profile_bloc.dart';
+import '../../features/profile/presentation/cubit/profile_edit_cubit.dart';
+import '../../features/profile/presentation/cubit/profile_location_cubit.dart';
+import '../../features/profile/domain/entities/profile.dart';
 import '../../features/home/home.dart';
 import '../../features/libraries/data/datasources/libraries_remote_data_source.dart';
 import '../../features/libraries/data/repositories/libraries_repository_impl.dart';
@@ -59,6 +63,7 @@ import '../../features/libraries/presentation/cubit/library_details_cubit.dart';
 import '../../config/env/env.dart';
 import '../network/auth_interceptor.dart';
 import '../network/connectivity_interceptor.dart';
+import '../network/language_interceptor.dart';
 import '../network/http_helper.dart';
 import '../services/app_diagnostics_service.dart';
 import '../connectivity/connectivity_service.dart';
@@ -145,6 +150,8 @@ void registerCoreDependencies() {
       authLocalDataSource: sl<AuthLocalDataSource>(),
       userLocalDataSource: sl<UserLocalDataSource>(),
       userContextProvider: sl<UserContextProvider>(),
+      afterAuthentication: () =>
+          sl<ProfileBootstrapService>().refreshAfterLogin(),
     ),
   );
 
@@ -198,9 +205,13 @@ void registerCoreDependencies() {
   sl.registerLazySingleton<ConnectivityInterceptor>(
     () => ConnectivityInterceptor(sl<ConnectivityService>()),
   );
+  sl.registerLazySingleton<LanguageInterceptor>(
+    () => LanguageInterceptor(sl<StorageService>()),
+  );
   sl.registerLazySingleton<Dio>(
     () => HttpHelper.buildDio(<Interceptor>[
       sl<ConnectivityInterceptor>(),
+      sl<LanguageInterceptor>(),
       sl<AuthInterceptor>(),
       sl<DioLoggingInterceptor>(),
     ]),
@@ -391,9 +402,18 @@ void registerFeatureDependencies() {
   );
 
   sl.registerLazySingleton<ProfileRepository>(
-    () => ProfileRepositoryImpl(sl<ProfileRemoteDataSource>()),
+    () => ProfileRepositoryImpl(
+      sl<ProfileRemoteDataSource>(),
+      sl<ProfileLocalDataSource>(),
+    ),
   );
 
+  sl.registerLazySingleton<ProfileBootstrapService>(
+    () => ProfileBootstrapService(
+      sl<ProfileRepository>(),
+      sl<UserContextProvider>(),
+    ),
+  );
   sl.registerFactory<ProfileBloc>(
     () => ProfileBloc(
       profileRepository: sl<ProfileRepository>(),
@@ -406,10 +426,25 @@ void registerFeatureDependencies() {
   );
 
   sl.registerFactory<EditProfileBloc>(EditProfileBloc.new);
+  sl.registerFactoryParam<ProfileEditCubit, Profile, void>(
+    (Profile profile, _) => ProfileEditCubit(
+      sl<ProfileRepository>(),
+      sl<UserContextProvider>(),
+      profile,
+    ),
+  );
+
+  sl.registerFactory<ProfileLocationCubit>(
+    () => ProfileLocationCubit(sl<ProfileRepository>()),
+  );
 
   // Account feature
   sl.registerLazySingleton<AccountRepository>(
-    () => AccountRepositoryImpl(sl<UserDataLocalDataSource>()),
+    () => AccountRepositoryImpl(
+      sl<UserDataLocalDataSource>(),
+      sl<AuthLocalDataSource>(),
+      sl<ProfileLocalDataSource>(),
+    ),
   );
 
   sl.registerFactory<LoadAccountUserSnapshotUseCase>(
@@ -436,6 +471,7 @@ void registerFeatureDependencies() {
       getMostPopularBooks: sl<GetMostPopularBooksUseCase>(),
       notificationService: sl<NotificationService>(),
       appPermissionService: sl<AppPermissionService>(),
+      authLocalDataSource: sl<AuthLocalDataSource>(),
     ),
   );
 

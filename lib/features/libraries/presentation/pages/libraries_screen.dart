@@ -29,16 +29,7 @@ class LibrariesScreen extends StatelessWidget {
 class _LibrariesView extends StatelessWidget {
   const _LibrariesView();
 
-  void _onNavItemTapped(BuildContext context, int index) {
-    final String route = switch (index) {
-      0 => RouteNames.home,
-      1 => RouteNames.libraries,
-      2 => RouteNames.userBooks,
-      3 => RouteNames.audioBooks,
-      4 => RouteNames.cart,
-      _ => RouteNames.home,
-    };
-
+  void _onNavItemTapped(BuildContext context, int index, String route) {
     if (route != RouteNames.libraries) {
       context.goTo(route);
     }
@@ -59,7 +50,8 @@ class _LibrariesView extends StatelessWidget {
             bottom: 0,
             child: HomeBottomNav(
               currentIndex: 1,
-              onTap: (int index) => _onNavItemTapped(context, index),
+              onTap: (int index, String route) =>
+                  _onNavItemTapped(context, index, route),
             ),
           ),
         ],
@@ -124,15 +116,11 @@ class _LibrariesBody extends StatelessWidget {
               ),
               child: Text(
                 LocalizationConstants.homeBestSellersKey.tr(),
-                style: AppTextStyles.h4.copyWith(
-                  color: context.appTextPrimary,
-                ),
+                style: AppTextStyles.h4.copyWith(color: context.appTextPrimary),
               ),
             ),
             const SizedBox(height: AppSpacing.spacing16),
-            const Expanded(
-              child: _LibrariesPagedGrid(),
-            ),
+            const Expanded(child: _LibrariesPagedGrid()),
           ],
         ),
       ),
@@ -166,21 +154,21 @@ class _LibrariesPagedGrid extends StatelessWidget {
           return _LibraryCard(library: library);
         },
         firstPageErrorIndicatorBuilder: (_) => _ErrorIndicator(
-          message: cubit.state.errorMessage ??
+          message:
+              cubit.state.errorMessage ??
               LocalizationConstants.errorsNoInternetMessageKey.tr(),
           onRetry: cubit.state.pagingController.retryLastFailedRequest,
         ),
         newPageErrorIndicatorBuilder: (_) => _ErrorIndicator(
-          message: cubit.state.errorMessage ??
+          message:
+              cubit.state.errorMessage ??
               LocalizationConstants.errorsNoInternetMessageKey.tr(),
           onRetry: cubit.state.pagingController.retryLastFailedRequest,
         ),
-        firstPageProgressIndicatorBuilder: (_) => const Center(
-          child: CircularProgressIndicator(),
-        ),
-        newPageProgressIndicatorBuilder: (_) => const Center(
-          child: CircularProgressIndicator(),
-        ),
+        firstPageProgressIndicatorBuilder: (_) =>
+            const Center(child: CircularProgressIndicator()),
+        newPageProgressIndicatorBuilder: (_) =>
+            const Center(child: CircularProgressIndicator()),
         noItemsFoundIndicatorBuilder: (_) => const _EmptyIndicator(),
       ),
     );
@@ -195,10 +183,7 @@ class _LibraryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.pushTo(
-        '/libraries/${library.id}',
-        extra: library,
-      ),
+      onTap: () => context.pushTo('/libraries/${library.id}', extra: library),
       child: Container(
         decoration: BoxDecoration(
           color: context.appCard,

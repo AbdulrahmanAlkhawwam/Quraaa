@@ -63,6 +63,7 @@ void main() {
         ApiEndpoints.forgotPassword,
         ApiEndpoints.forgotPasswordVerify,
         ApiEndpoints.refreshToken,
+        ApiEndpoints.mostPopularBooks,
       ];
 
       for (final String path in publicPaths) {
@@ -81,7 +82,7 @@ void main() {
         () => authLocalDataSource.getAccessToken(),
       ).thenAnswer((_) async => 'access-token');
 
-      await dio.get<dynamic>('/profile/me');
+      await dio.get<dynamic>(ApiEndpoints.recommendedBooks);
 
       expect(
         adapter.requests.single.headers['authorization'],
