@@ -45,7 +45,7 @@ import '../../features/profile/data/repositories/profile_repository_impl.dart';
 import '../../features/profile/domain/repositories/profile_repository.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../../features/profile/presentation/bloc/edit_profile_bloc.dart';
-import '../../features/home/presentation/bloc/home_bloc.dart';
+import '../../features/home/home.dart';
 import '../../features/libraries/data/datasources/libraries_remote_data_source.dart';
 import '../../features/libraries/data/repositories/libraries_repository_impl.dart';
 import '../../features/libraries/domain/repositories/libraries_repository.dart';
@@ -417,9 +417,23 @@ void registerFeatureDependencies() {
   );
 
   // Home feature
+  sl.registerLazySingleton<HomeBooksRemoteDataSource>(
+    () => HomeBooksRemoteDataSourceImpl(sl<HttpHelper>()),
+  );
+  sl.registerLazySingleton<HomeBooksRepository>(
+    () => HomeBooksRepositoryImpl(sl<HomeBooksRemoteDataSource>()),
+  );
+  sl.registerFactory<GetRecommendedBooksUseCase>(
+    () => GetRecommendedBooksUseCase(sl<HomeBooksRepository>()),
+  );
+  sl.registerFactory<GetMostPopularBooksUseCase>(
+    () => GetMostPopularBooksUseCase(sl<HomeBooksRepository>()),
+  );
   sl.registerFactory<HomeBloc>(
     () => HomeBloc(
       loadUserSnapshot: sl<LoadAccountUserSnapshotUseCase>(),
+      getRecommendedBooks: sl<GetRecommendedBooksUseCase>(),
+      getMostPopularBooks: sl<GetMostPopularBooksUseCase>(),
       notificationService: sl<NotificationService>(),
       appPermissionService: sl<AppPermissionService>(),
     ),

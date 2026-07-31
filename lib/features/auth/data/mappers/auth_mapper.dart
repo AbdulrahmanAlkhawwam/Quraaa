@@ -49,7 +49,7 @@ class AuthMapper {
   }) {
     return <String, Object?>{
       'phoneNumber': phoneNumber,
-      'code': code,
+      'otpCode': code,
       'newPassword': newPassword,
     };
   }

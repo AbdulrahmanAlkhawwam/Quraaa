@@ -52,6 +52,7 @@ class _RegisterViewState extends State<_RegisterView> {
   bool _obscurePassword = true;
 
   bool _isLoadingOnboarding = true;
+  bool _isOnboardingCompleted = false;
   GenderSelection? _selectedGender;
   int? _birthYear;
   int? _birthMonth;
@@ -121,7 +122,6 @@ class _RegisterViewState extends State<_RegisterView> {
       _birthYear != null || _birthMonth != null || _birthDay != null;
 
   String? get _dateOfBirthError {
-    if (!_hasAnyBirthDate) return null;
     return Validators.validateDateOfBirth(
       year: _birthYear,
       month: _birthMonth,
@@ -131,24 +131,20 @@ class _RegisterViewState extends State<_RegisterView> {
     );
   }
 
-  String? get _genderError => _selectedGender == null
-      ? null
-      : Validators.validateGender(
-          _selectedGender,
-          invalidError: LocalizationConstants.authGenderInvalidErrorKey.tr(),
-        );
+  String? get _genderError => Validators.validateGender(
+    _selectedGender,
+    invalidError: LocalizationConstants.authGenderInvalidErrorKey.tr(),
+  );
 
-  String? get _interestsError => _selectedCategoryIds.isEmpty
-      ? null
-      : Validators.validateInterests(
-          categoryIds: _selectedCategoryIds,
-          validCategoryIds: _validCategoryIds,
-          emptyError: LocalizationConstants.authInterestsEmptyErrorKey.tr(),
-          invalidError: LocalizationConstants.authInterestsInvalidErrorKey.tr(),
-        );
+  String? get _interestsError => Validators.validateInterests(
+    categoryIds: _selectedCategoryIds,
+    validCategoryIds: _validCategoryIds,
+    emptyError: LocalizationConstants.authInterestsEmptyErrorKey.tr(),
+    invalidError: LocalizationConstants.authInterestsInvalidErrorKey.tr(),
+  );
 
   bool get _canSubmit {
-    if (_isLoadingOnboarding) return false;
+    if (_isLoadingOnboarding || !_isOnboardingCompleted) return false;
     return _firstNameError == null &&
         _lastNameError == null &&
         _phoneError == null &&
@@ -168,6 +164,7 @@ class _RegisterViewState extends State<_RegisterView> {
   ) {
     if (!mounted) return;
     setState(() {
+      _isOnboardingCompleted = state.onboardingCompleted;
       _isLoadingOnboarding =
           state.isLoading || state.status == AuthRegistrationStatus.initial;
       _selectedGender = state.selectedGender;
@@ -177,6 +174,11 @@ class _RegisterViewState extends State<_RegisterView> {
       _selectedCategoryIds = state.selectedCategoryIds;
       _validCategoryIds = state.validCategoryIds;
     });
+
+    if (state.status == AuthRegistrationStatus.loaded &&
+        !state.hasRequiredOnboardingData) {
+      context.goTo(RouteNames.onboarding);
+    }
   }
 
   Future<void> _submitRegistration() async {

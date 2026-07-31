@@ -67,7 +67,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     if (!isValid) return;
 
     final bool isOnline = await ensureOnline(context);
-    if (!isOnline) return;
+    if (!mounted || !isOnline) return;
 
     await _recoveryCubit.resetPassword(
       phoneNumber: _phoneNumber,
@@ -222,6 +222,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly,
                         ],
+                        validator: (String? value) {
+                          if (value == null || value.length != 6) {
+                            return LocalizationConstants
+                                .authResetPasswordCodeHintKey
+                                .tr();
+                          }
+                          return null;
+                        },
                         pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
                       ),
                     ),

@@ -82,6 +82,8 @@ class ErrorMapper {
         return TokenExpiredException(message: message);
       case ErrorCodes.loginFailed:
         return LoginFailedException(message: message);
+      case ErrorCodes.otpVerificationRequired:
+        return OtpVerificationRequiredException(message: message);
       case ErrorCodes.forbidden:
         return ForbiddenException(message: message);
       case ErrorCodes.resourceNotFound:
@@ -236,6 +238,8 @@ class ErrorMapper {
         return FileAccessDeniedFailure(message: exception.message);
       case LoginFailedException():
         return LoginFailure(message: exception.message);
+      case OtpVerificationRequiredException():
+        return OtpVerificationRequiredFailure(message: exception.message);
       case TokenExpiredException():
         return TokenExpiredFailure(message: exception.message);
       case UserNotFoundException():

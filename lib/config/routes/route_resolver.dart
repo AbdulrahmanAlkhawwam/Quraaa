@@ -1,4 +1,5 @@
 import '../../core/di/injection_container.dart';
+import '../../core/utils/validators.dart';
 import '../../features/auth/data/datasources/auth_local_datasource.dart'
     show AuthLocalDataSource, AuthJourneyStage, AuthSessionMode;
 import '../../features/onboarding/domain/entities/onboarding_draft.dart';
@@ -19,40 +20,32 @@ Future<String> resolveStartupRoute() async {
     return RouteNames.home;
   }
 
-  if (onboardingDraft.completed) {
-    return RouteNames.register;
-  }
-
   if (currentStage != null) {
-    return _normalizeStageRoute(currentStage);
+    return _normalizeStageRoute(currentStage, onboardingDraft);
   }
 
   if (_hasOnboardingProgress(onboardingDraft)) {
-    return _deriveRouteFromDraft(onboardingDraft);
+    return resolveRegistrationDraftRoute(onboardingDraft);
   }
 
   return RouteNames.auth;
 }
 
-String _deriveRouteFromDraft(OnboardingDraft onboardingDraft) {
-  if (onboardingDraft.completed) {
-    return RouteNames.register;
-  }
-
-  if (onboardingDraft.selectedGender == null) {
+String resolveRegistrationDraftRoute(OnboardingDraft onboardingDraft) {
+  if (!Validators.genderValid(onboardingDraft.selectedGender)) {
     return RouteNames.onboarding;
   }
 
-  final bool hasBirthDate =
-      onboardingDraft.birthYear != null &&
-      onboardingDraft.birthMonth != null &&
-      onboardingDraft.birthDay != null;
-  if (!hasBirthDate) {
+  if (!Validators.dateOfBirthAgeInRange(
+    year: onboardingDraft.birthYear,
+    month: onboardingDraft.birthMonth,
+    day: onboardingDraft.birthDay,
+  )) {
     return RouteNames.onboardingAge;
   }
 
-  if (onboardingDraft.selectedCategoryIds == null ||
-      onboardingDraft.selectedCategoryIds!.isEmpty) {
+  if (!Validators.interestsNotEmpty(onboardingDraft.selectedCategoryIds) ||
+      !onboardingDraft.completed) {
     return RouteNames.onboardingInterests;
   }
 
@@ -69,14 +62,29 @@ bool _hasOnboardingProgress(OnboardingDraft onboardingDraft) {
       onboardingDraft.birthDay != null;
 }
 
-String _normalizeStageRoute(AuthJourneyStage stage) {
+String _normalizeStageRoute(
+  AuthJourneyStage stage,
+  OnboardingDraft onboardingDraft,
+) {
   return switch (stage) {
     AuthJourneyStage.auth => RouteNames.auth,
     AuthJourneyStage.login => RouteNames.login,
-    AuthJourneyStage.register => RouteNames.register,
+    AuthJourneyStage.register => resolveRegistrationDraftRoute(onboardingDraft),
     AuthJourneyStage.onboarding => RouteNames.onboarding,
-    AuthJourneyStage.onboardingAge => RouteNames.onboardingAge,
-    AuthJourneyStage.onboardingInterests => RouteNames.onboardingInterests,
+    AuthJourneyStage.onboardingAge =>
+      Validators.genderValid(onboardingDraft.selectedGender)
+          ? RouteNames.onboardingAge
+          : RouteNames.onboarding,
+    AuthJourneyStage.onboardingInterests =>
+      !Validators.genderValid(onboardingDraft.selectedGender)
+          ? RouteNames.onboarding
+          : Validators.dateOfBirthAgeInRange(
+              year: onboardingDraft.birthYear,
+              month: onboardingDraft.birthMonth,
+              day: onboardingDraft.birthDay,
+            )
+          ? RouteNames.onboardingInterests
+          : RouteNames.onboardingAge,
     AuthJourneyStage.otpVerification => RouteNames.otpVerification,
     AuthJourneyStage.resetPassword => RouteNames.resetPassword,
     AuthJourneyStage.home => RouteNames.home,

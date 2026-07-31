@@ -47,6 +47,14 @@ void main() {
       );
     });
 
+    test('maps OTP verification required to its typed failure', () {
+      _expectMapping(
+        code: ErrorCodes.otpVerificationRequired,
+        exceptionMatcher: isA<OtpVerificationRequiredException>(),
+        failureMatcher: isA<OtpVerificationRequiredFailure>(),
+      );
+    });
+
     test('maps conflict to exception and failure', () {
       _expectMapping(
         code: ErrorCodes.conflict,
@@ -66,6 +74,43 @@ void main() {
       expect(failure, isA<UnauthorizedFailure>());
       expect(failure.code, ErrorCodes.unauthorized);
       expect(failure.message, 'The credentials are incorrect.');
+    });
+
+    test('reads validation messages from the backend errors array', () {
+      final ErrorResponseModel response = ErrorResponseModel.fromJson(
+        <String, dynamic>{
+          'type': 'ValidationFailure',
+          'title': 'Validation Error',
+          'errors': <Map<String, dynamic>>[
+            <String, dynamic>{
+              'field': 'PhoneNumber',
+              'message': 'Invalid international phone number format.',
+            },
+          ],
+        },
+        statusCode: 400,
+      );
+
+      final Failure failure = ErrorMapper.mapResponseToFailure(response);
+
+      expect(failure, isA<ValidationFailure>());
+      expect(failure.message, 'Invalid international phone number format.');
+    });
+
+    test('uses detail from a problem-details response', () {
+      final ErrorResponseModel response =
+          ErrorResponseModel.fromJson(<String, dynamic>{
+            'type': 'invalid-otp',
+            'title': 'Invalid OTP',
+            'status': 400,
+            'detail': 'The verification code is invalid or expired.',
+            'instance': '/api/auth/forgot-password/verify',
+          });
+
+      final Failure failure = ErrorMapper.mapResponseToFailure(response);
+
+      expect(failure, isA<BadRequestFailure>());
+      expect(failure.message, 'The verification code is invalid or expired.');
     });
 
     test('combines validation messages instead of hiding the reason', () {

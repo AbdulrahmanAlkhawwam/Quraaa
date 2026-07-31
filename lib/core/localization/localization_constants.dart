@@ -6,12 +6,13 @@ class LocalizationConstants {
   static const String homeGreetingKey = 'home.greeting';
   static const String homeBestSellersKey = 'home.best_sellers';
   static const String homeRecommendedForYouKey = 'home.recommended_for_you';
+  static const String homeMostPopularKey = 'home.most_popular';
+  static const String homeBooksEmptyKey = 'home.books_empty';
+  static const String homeBooksLoadFailedKey = 'home.books_load_failed';
   static const String homeNoteKey = 'home.note';
   static const String homeSearchHintKey = 'home.search_hint';
-  static const String homeActionBrowseFilesKey =
-      'home.actions.browse_files';
-  static const String homeActionAskAssistantKey =
-      'home.actions.ask_assistant';
+  static const String homeActionBrowseFilesKey = 'home.actions.browse_files';
+  static const String homeActionAskAssistantKey = 'home.actions.ask_assistant';
   static const String homeBannerTitleKey = 'home.banner.title';
   static const String homeBannerSubtitleKey = 'home.banner.subtitle';
   static const String homeNotificationTitleKey = 'home.notification.title';
@@ -173,8 +174,7 @@ class LocalizationConstants {
       'onboarding.errors.save_gender';
   static const String onboardingSaveCategoriesErrorKey =
       'onboarding.errors.save_categories';
-  static const String onboardingCompleteErrorKey =
-      'onboarding.errors.complete';
+  static const String onboardingCompleteErrorKey = 'onboarding.errors.complete';
   static const String onboardingInterestSpaceScienceKey =
       'onboarding.interests.space_science';
   static const String onboardingInterestGeographyKey =
@@ -517,7 +517,6 @@ class LocalizationConstants {
   static const String errorsNoInternetMessageKey = 'errors.no_internet.message';
   static const String errorsUnknownMessageKey = 'errors.unknown.message';
 
-
   // Settings feature keys.
   static const String settingsTitleKey = 'settings.title';
   static const String settingsSearchHintKey = 'settings.searchHint';
@@ -547,8 +546,7 @@ class LocalizationConstants {
   static const String settingsLibraryMyBooksKey = 'settings.library.myBooks';
   static const String settingsLibraryDownloadsKey =
       'settings.library.downloads';
-  static const String settingsLibraryWishlistKey =
-      'settings.library.wishlist';
+  static const String settingsLibraryWishlistKey = 'settings.library.wishlist';
   static const String settingsLibraryCollectionsKey =
       'settings.library.collections';
 
@@ -579,7 +577,6 @@ class LocalizationConstants {
   static const String settingsAppearanceDeviceSystemKey =
       'settings.appearance.deviceSystem';
 
-
   static const String settingsNotificationNewUpdateKey =
       'settings.notification.newUpdate';
   static const String settingsNotificationAdsKey = 'settings.notification.ads';
@@ -596,11 +593,9 @@ class LocalizationConstants {
 
   static const String settingsLoadFailureKey = 'settings.errors.load';
 
-  static const String settingsLanguageSpanishKey =
-      'settings.language.spanish';
+  static const String settingsLanguageSpanishKey = 'settings.language.spanish';
   static const String settingsLanguageFranceKey = 'settings.language.france';
-  static const String settingsLanguageGermanyKey =
-      'settings.language.germany';
+  static const String settingsLanguageGermanyKey = 'settings.language.germany';
 
   // Search
   static const String searchHintKey = 'search.hint';

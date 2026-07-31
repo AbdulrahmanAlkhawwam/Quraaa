@@ -109,7 +109,37 @@ class ErrorResponseModel {
       return Map<String, dynamic>.from(value);
     }
 
+    if (value is Iterable) {
+      final Map<String, dynamic> parsed = <String, dynamic>{};
+      var unnamedIndex = 0;
+      for (final dynamic item in value) {
+        if (item is! Map) continue;
+        final Map<String, dynamic> error = Map<String, dynamic>.from(item);
+        final String field =
+            _asNonEmptyString(error['field']) ?? 'error_${unnamedIndex++}';
+        final dynamic message =
+            error['message'] ?? error['detail'] ?? error['errorMessage'];
+        if (message == null) continue;
+
+        final dynamic existing = parsed[field];
+        if (existing == null) {
+          parsed[field] = message;
+        } else if (existing is List<dynamic>) {
+          existing.add(message);
+        } else {
+          parsed[field] = <dynamic>[existing, message];
+        }
+      }
+      return parsed;
+    }
+
     return <String, dynamic>{};
+  }
+
+  static String? _asNonEmptyString(dynamic value) {
+    if (value is! String) return null;
+    final String normalized = value.trim();
+    return normalized.isEmpty ? null : normalized;
   }
 
   static ErrorResponseDetail? _parseDetail(dynamic value) {

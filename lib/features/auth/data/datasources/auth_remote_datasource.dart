@@ -105,7 +105,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       throw const UnknownException(message: 'Invalid register response.');
     } on DioException catch (error) {
-      throw _mapDioException(error, 'Unable to register.');
+      final AppException mapped = _mapDioException(
+        error,
+        'Unable to register.',
+      );
+      if (_requiresOtpVerification(error.response?.data, mapped)) {
+        throw OtpVerificationRequiredException(message: mapped.message);
+      }
+      throw mapped;
     }
   }
 
@@ -182,7 +189,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }) async {
     try {
       await _httpHelper.post(
-        ApiEndpoints.resetPassword,
+        ApiEndpoints.forgotPasswordVerify,
         data: AuthMapper.resetPasswordToJson(
           phoneNumber: phoneNumber,
           code: code,
@@ -196,6 +203,66 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         unauthorizedFallbackCode: ErrorCodes.invalidVerificationCode,
       );
     }
+  }
+
+  bool _requiresOtpVerification(dynamic payload, AppException mapped) {
+    final String responseCode = payload is Map
+        ? (payload['code'] ?? payload['type'] ?? '').toString()
+        : '';
+    final Set<String> codes = <String>{
+      mapped.code,
+      responseCode,
+    }.map((String value) => value.toLowerCase().replaceAll('-', '_')).toSet();
+    const Set<String> verificationCodes = <String>{
+      ErrorCodes.otpVerificationRequired,
+      'pending_verification',
+      'phone_verification_required',
+      'phone_number_not_verified',
+      'user_not_verified',
+      'account_not_verified',
+      'unverified_user',
+    };
+    if (codes.any(verificationCodes.contains)) {
+      return true;
+    }
+
+    final String text = <String>[
+      mapped.message,
+      _flattenErrorPayload(payload),
+    ].join(' ').toLowerCase().replaceAll(RegExp('[_-]+'), ' ');
+    final bool mentionsVerification =
+        text.contains('otp') ||
+        text.contains('verification') ||
+        text.contains('verify') ||
+        text.contains('not verified') ||
+        text.contains('unverified');
+    final bool mentionsPendingAccount =
+        text.contains('pending') ||
+        text.contains('awaiting') ||
+        text.contains('not verified') ||
+        text.contains('unverified') ||
+        text.contains('already registered') ||
+        text.contains('already exists');
+    return mentionsVerification && mentionsPendingAccount;
+  }
+
+  String _flattenErrorPayload(dynamic value) {
+    if (value == null) return '';
+    if (value is String || value is num || value is bool) {
+      return value.toString();
+    }
+    if (value is Iterable) {
+      return value.map(_flattenErrorPayload).join(' ');
+    }
+    if (value is Map) {
+      return value.entries
+          .map(
+            (MapEntry<dynamic, dynamic> entry) =>
+                '${entry.key} ${_flattenErrorPayload(entry.value)}',
+          )
+          .join(' ');
+    }
+    return '';
   }
 
   AppException _mapDioException(

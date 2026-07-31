@@ -61,7 +61,7 @@ void main() {
         ApiEndpoints.register,
         ApiEndpoints.verifyOtp,
         ApiEndpoints.forgotPassword,
-        ApiEndpoints.resetPassword,
+        ApiEndpoints.forgotPasswordVerify,
         ApiEndpoints.refreshToken,
       ];
 

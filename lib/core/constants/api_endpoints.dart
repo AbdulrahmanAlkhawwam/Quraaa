@@ -9,11 +9,13 @@ abstract class ApiEndpoints {
   static const String register = '/auth/register';
   static const String verifyOtp = '/otp/verify';
   static const String forgotPassword = '/auth/forgot-password';
-  static const String resetPassword = '/auth/reset-password';
-  static const String refreshToken = '/api/auth/refresh';
+  static const String forgotPasswordVerify = '/auth/forgot-password/verify';
+  static const String refreshToken = '/auth/refresh';
   static const String categories = '/categories';
   static const String profileMe = '/profile/me';
   static const String libraries = '/libraries';
+  static const String recommendedBooks = '/books/recommended';
+  static const String mostPopularBooks = '/books/most-popular';
 
   static String libraryBooks(String libraryId) => '/libraries/$libraryId/books';
 }

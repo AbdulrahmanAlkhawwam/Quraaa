@@ -3,27 +3,31 @@ import 'package:quraaa/features/auth/presentation/bloc/auth_registration_cubit.d
 import 'package:quraaa/features/onboarding/onboarding.dart';
 
 void main() {
-  test('load emits loaded registration data from onboarding use cases', () async {
-    final AuthRegistrationCubit cubit = AuthRegistrationCubit(
-      loadOnboardingStateUseCase: LoadOnboardingStateUseCase(
-        const _FakeOnboardingRepository(),
-      ),
-      loadCategoriesUseCase: LoadCategoriesUseCase(
-        const _FakeOnboardingRepository(),
-      ),
-    );
-    addTearDown(cubit.close);
+  test(
+    'load emits loaded registration data from onboarding use cases',
+    () async {
+      final AuthRegistrationCubit cubit = AuthRegistrationCubit(
+        loadOnboardingStateUseCase: LoadOnboardingStateUseCase(
+          const _FakeOnboardingRepository(),
+        ),
+        loadCategoriesUseCase: LoadCategoriesUseCase(
+          const _FakeOnboardingRepository(),
+        ),
+      );
+      addTearDown(cubit.close);
 
-    await cubit.load();
+      await cubit.load();
 
-    expect(cubit.state.status, AuthRegistrationStatus.loaded);
-    expect(cubit.state.birthYear, 2000);
-    expect(cubit.state.birthMonth, 5);
-    expect(cubit.state.birthDay, 10);
-    expect(cubit.state.selectedGender, GenderSelection.boy);
-    expect(cubit.state.selectedCategoryIds, <String>['fiction']);
-    expect(cubit.state.validCategoryIds, <String>['fiction', 'science']);
-  });
+      expect(cubit.state.status, AuthRegistrationStatus.loaded);
+      expect(cubit.state.hasRequiredOnboardingData, isTrue);
+      expect(cubit.state.birthYear, 2000);
+      expect(cubit.state.birthMonth, 5);
+      expect(cubit.state.birthDay, 10);
+      expect(cubit.state.selectedGender, GenderSelection.boy);
+      expect(cubit.state.selectedCategoryIds, <String>['fiction']);
+      expect(cubit.state.validCategoryIds, <String>['fiction', 'science']);
+    },
+  );
 
   test('load emits failure when registration data cannot be loaded', () async {
     final AuthRegistrationCubit cubit = AuthRegistrationCubit(
@@ -49,7 +53,7 @@ class _FakeOnboardingRepository implements OnboardingRepository {
   @override
   Future<OnboardingDraft> loadState() async {
     return const OnboardingDraft(
-      completed: false,
+      completed: true,
       selectedGender: GenderSelection.boy,
       selectedCategoryIds: <String>['fiction'],
       birthYear: 2000,
@@ -97,4 +101,3 @@ class _ThrowingOnboardingRepository extends _FakeOnboardingRepository {
     throw StateError('cannot load');
   }
 }
-

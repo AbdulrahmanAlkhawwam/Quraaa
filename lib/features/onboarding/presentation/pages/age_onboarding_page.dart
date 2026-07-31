@@ -59,17 +59,25 @@ class _AgeOnboardingPageState extends State<AgeOnboardingPage> {
         },
         child: BlocListener<OnboardingBloc, OnboardingState>(
           listenWhen: (previous, current) =>
-              current.errorMessage != null &&
-              previous.errorMessage != current.errorMessage,
-          listener: (context, state) {
-            final msg = state.errorMessage;
-            if (msg != null) {
-              context.showErrorSnackBar(
+              previous.isLoading &&
+              !current.isLoading &&
+              current.errorMessage == null &&
+              current.selectedGender == null,
+          listener: (context, state) => context.goTo(RouteNames.onboarding),
+          child: BlocListener<OnboardingBloc, OnboardingState>(
+            listenWhen: (previous, current) =>
+                current.errorMessage != null &&
+                previous.errorMessage != current.errorMessage,
+            listener: (context, state) {
+              final msg = state.errorMessage;
+              if (msg != null) {
+                context.showErrorSnackBar(
                   message: Message(title: '', value: msg.tr()),
                 );
-            }
-          },
-          child: const _AgeOnboardingView(),
+              }
+            },
+            child: const _AgeOnboardingView(),
+          ),
         ),
       ),
     );
@@ -81,22 +89,10 @@ class _AgeOnboardingView extends StatelessWidget {
 
   String? _validateDate(OnboardingState state) {
     if (!state.hasBirthDate) return null;
-    final DateTime parsed = DateTime(
-      state.birthYear!,
-      state.birthMonth!,
-      state.birthDay!,
-    );
-    if (parsed.year != state.birthYear! ||
-        parsed.month != state.birthMonth! ||
-        parsed.day != state.birthDay!) {
-      return LocalizationConstants.onboardingAgeInvalidDateKey.tr();
-    }
-    if (parsed.isAfter(DateTime.now())) {
-      return LocalizationConstants.onboardingAgeInvalidDateKey.tr();
-    }
-    return null;
+    return state.isBirthDateValid
+        ? null
+        : LocalizationConstants.onboardingAgeInvalidDateKey.tr();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -117,18 +113,7 @@ class _AgeOnboardingView extends StatelessWidget {
               if (context.mounted) context.goTo(RouteNames.onboarding);
             },
           ),
-          actions: [
-            OnboardingSkipButton(
-              onPressed: () async {
-                await context.read<AuthJourneyCubit>().moveFromAgeToRegister();
-                if (context.mounted) {
-                  context.read<OnboardingBloc>().add(
-                    const OnboardingSkipRequested(),
-                  );
-                }
-              },
-            ),
-          ],
+
           activeIndex: 2,
           totalSteps: 3,
           content: Column(
@@ -167,8 +152,8 @@ class _AgeOnboardingView extends StatelessWidget {
           bottomButton: OnboardingNextButton(
             onPressed: state.canContinueAge
                 ? () => context.read<OnboardingBloc>().add(
-                      const OnboardingAgeNextRequested(),
-                    )
+                    const OnboardingAgeNextRequested(),
+                  )
                 : null,
             isLoading: state.isLoading,
           ),
@@ -220,7 +205,10 @@ class _DateWheelPickerState extends State<_DateWheelPicker> {
     final dayIndex = _days.indexOf(widget.initialDay);
 
     assert(yearIndex >= 0, 'Initial year ${widget.initialYear} not in range');
-    assert(monthIndex >= 0, 'Initial month ${widget.initialMonth} not in range');
+    assert(
+      monthIndex >= 0,
+      'Initial month ${widget.initialMonth} not in range',
+    );
     assert(dayIndex >= 0, 'Initial day ${widget.initialDay} not in month');
 
     _yearController = FixedExtentScrollController(
@@ -232,6 +220,10 @@ class _DateWheelPickerState extends State<_DateWheelPicker> {
     _dayController = FixedExtentScrollController(
       initialItem: dayIndex.clamp(0, _days.length - 1),
     );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _notifyChange();
+    });
   }
 
   List<int> _generateDays(int year, int month) {
@@ -269,7 +261,6 @@ class _DateWheelPickerState extends State<_DateWheelPicker> {
     _dayController.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -365,7 +356,6 @@ class _WheelColumn extends StatelessWidget {
   final ValueChanged<int> onChanged;
   final double itemHeight;
 
-
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -394,7 +384,9 @@ class _WheelColumn extends StatelessWidget {
               child: Text(
                 item.toString(),
                 style: AppTextStyles.bodyLarge.copyWith(
-                  color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
+                  color: context.isDark
+                      ? AppColors.primary300
+                      : AppColors.libraryGreen,
                 ),
               ),
             );

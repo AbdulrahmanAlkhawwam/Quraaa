@@ -38,7 +38,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     if (!isValid) return;
 
     final bool isOnline = await ensureOnline(context);
-    if (!isOnline) return;
+    if (!mounted || !isOnline) return;
 
     final PhoneNumber phoneNumber = _phoneNumber ?? PhoneNumber();
     final String normalizedPhone =

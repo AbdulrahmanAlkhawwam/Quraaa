@@ -6,6 +6,9 @@
     "greeting": "Hi, {name}",
     "best_sellers": "Best Sellers",
     "recommended_for_you": "Recommended For you",
+    "most_popular": "Most Popular",
+    "books_empty": "No books are available yet.",
+    "books_load_failed": "We couldn't load these books.",
     "note": "Note",
     "search_hint": "History",
     "actions": {

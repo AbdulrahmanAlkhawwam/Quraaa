@@ -95,7 +95,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     if (_recoveryCubit.state.isLoading || _phoneNumber.isEmpty) return;
 
     final bool isOnline = await ensureOnline(context);
-    if (!isOnline) return;
+    if (!mounted || !isOnline) return;
 
     await _recoveryCubit.verifyOtp(
       phoneNumber: _phoneNumber,

@@ -26,9 +26,7 @@ class _InterestsOnboardingPageState extends State<InterestsOnboardingPage> {
   @override
   void initState() {
     super.initState();
-    unawaited(
-      _journeyCubit.enterOnboardingInterests(),
-    );
+    unawaited(_journeyCubit.enterOnboardingInterests());
   }
 
   @override
@@ -59,11 +57,16 @@ class _InterestsOnboardingPageState extends State<InterestsOnboardingPage> {
         },
         child: BlocListener<OnboardingBloc, OnboardingState>(
           listenWhen: (previous, current) =>
-              current.isCompleted && !previous.isCompleted,
+              previous.isLoading &&
+              !current.isLoading &&
+              current.errorMessage == null &&
+              (!current.hasGender || !current.isBirthDateValid),
           listener: (context, state) {
-            if (state.isCompleted) {
-              context.goTo(RouteNames.register);
-            }
+            context.goTo(
+              state.hasGender
+                  ? RouteNames.onboardingAge
+                  : RouteNames.onboarding,
+            );
           },
           child: BlocListener<OnboardingBloc, OnboardingState>(
             listenWhen: (p, c) =>
@@ -92,21 +95,15 @@ class _InterestsOnboardingView extends StatelessWidget {
     if (context.mounted) context.goTo(RouteNames.onboardingAge);
   }
 
-  Future<void> _skip(BuildContext context) async {
-    await context.read<AuthJourneyCubit>().moveFromInterestsToRegister();
-    if (context.mounted) {
-      context.read<OnboardingBloc>().add(const OnboardingSkipRequested());
-    }
-  }
-
   void _onCategorySelected(BuildContext context, String categoryId) {
     context.read<OnboardingBloc>().add(OnboardingCategorySelected(categoryId));
   }
 
   void _onNext(BuildContext context) {
-    context.read<OnboardingBloc>().add(const OnboardingInterestsNextRequested());
+    context.read<OnboardingBloc>().add(
+      const OnboardingInterestsNextRequested(),
+    );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -115,25 +112,27 @@ class _InterestsOnboardingView extends StatelessWidget {
         return OnboardingScaffold(
           title: LocalizationConstants.onboardingInterestsTitleKey.tr(),
           leading: OnboardingBackButton(onPressed: () => _goBack(context)),
-          actions: [OnboardingSkipButton(onPressed: () => _skip(context))],
+
           activeIndex: 3,
           totalSteps: 3,
           content: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: state.categories.isEmpty
                 ? state.isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : Center(
-                        child: Text(
-                          LocalizationConstants.onboardingInterestsEmptyKey.tr(),
-                        ),
-                      )
+                      ? const Center(child: CircularProgressIndicator())
+                      : Center(
+                          child: Text(
+                            LocalizationConstants.onboardingInterestsEmptyKey
+                                .tr(),
+                          ),
+                        )
                 : Wrap(
                     spacing: AppSpacing.spacing12,
                     runSpacing: AppSpacing.spacing12,
                     children: state.categories.map((category) {
-                      final selected =
-                          state.selectedCategoryIds.contains(category.id);
+                      final selected = state.selectedCategoryIds.contains(
+                        category.id,
+                      );
                       return _InterestChip(
                         label: context.locale.languageCode == 'ar'
                             ? category.nameAr
@@ -141,8 +140,7 @@ class _InterestsOnboardingView extends StatelessWidget {
                         selected: selected,
                         onTap: state.isLoading
                             ? null
-                            : () =>
-                                _onCategorySelected(context, category.id),
+                            : () => _onCategorySelected(context, category.id),
                       );
                     }).toList(),
                   ),
@@ -170,7 +168,6 @@ class _InterestChip extends StatelessWidget {
   final bool selected;
   final VoidCallback? onTap;
 
-
   @override
   Widget build(BuildContext context) {
     return Semantics(
@@ -197,8 +194,8 @@ class _InterestChip extends StatelessWidget {
             style: AppTextStyles.bodyMedium.copyWith(
               color: selected
                   ? context.isDark
-                      ? AppColors.primary300
-                      : AppColors.primary700
+                        ? AppColors.primary300
+                        : AppColors.primary700
                   : context.appTextPrimary,
               fontWeight: FontWeight.w500,
             ),

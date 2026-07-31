@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 
 import '../../../../config/routes/route_names.dart';
 import '../../../../core/error_monitoring/user_context_provider.dart';
+import '../../../../core/errors/failures.dart';
 import '../../data/datasources/auth_local_datasource.dart';
 import '../../data/services/auth_session_service.dart';
 import '../../domain/use_cases/login_use_case.dart';
@@ -111,28 +112,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         categoryIds: event.categoryIds,
       ),
     );
-    await response.fold(
-      (failure) async => emit(
+    await response.fold((failure) async {
+      if (failure.cause is OtpVerificationRequiredFailure) {
+        await _continueRegistrationWithOtp(emit, event.phoneNumber);
+        return;
+      }
+      emit(
         state.copyWith(
           status: AuthStatus.error,
           error: failure.cause ?? failure.message,
         ),
-      ),
-      (_) async {
-        try {
-          await _authJourney.saveJourneyStage(
-            AuthJourneyStage.otpVerification,
-            previousStage: AuthJourneyStage.register,
-          );
-        } catch (_) {}
-        emit(state.copyWith(status: AuthStatus.success));
-        _emitNavigation(
-          emit,
-          RouteNames.otpVerification,
-          routeExtra: event.phoneNumber,
-        );
-      },
-    );
+      );
+    }, (_) => _continueRegistrationWithOtp(emit, event.phoneNumber));
   }
 
   Future<void> _onGuestRequested(
@@ -228,6 +219,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         isoCode ?? _defaultPhoneIsoCode,
       );
     } catch (_) {}
+  }
+
+  Future<void> _continueRegistrationWithOtp(
+    Emitter<AuthState> emit,
+    String? phoneNumber,
+  ) async {
+    try {
+      await _authJourney.saveJourneyStage(
+        AuthJourneyStage.otpVerification,
+        previousStage: AuthJourneyStage.register,
+      );
+    } catch (_) {}
+    emit(state.copyWith(status: AuthStatus.success));
+    _emitNavigation(emit, RouteNames.otpVerification, routeExtra: phoneNumber);
   }
 
   Future<String> _resolvePostAuthRoute() async {

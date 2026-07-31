@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../config/routes/route_names.dart';
 import '../../../../core/architecture/use_case.dart';
 import '../../../../core/localization/localization_constants.dart';
+import '../../../../core/utils/validators.dart';
 import '../../domain/entities/category.dart';
 import '../../domain/entities/gender_selection.dart';
 import '../../domain/entities/onboarding_draft.dart';
@@ -78,10 +79,6 @@ final class OnboardingInterestsNextRequested extends OnboardingEvent {
   const OnboardingInterestsNextRequested();
 }
 
-final class OnboardingSkipRequested extends OnboardingEvent {
-  const OnboardingSkipRequested();
-}
-
 final class OnboardingNextRequested extends OnboardingEvent {
   const OnboardingNextRequested();
 }
@@ -120,52 +117,21 @@ class OnboardingState extends Equatable {
   bool get hasBirthDate =>
       birthYear != null && birthMonth != null && birthDay != null;
 
-  bool get isBirthDateValid {
-    if (!hasBirthDate) {
-      return false;
-    }
-
-    final DateTime? date = _tryParseBirthDate(
-      birthYear!,
-      birthMonth!,
-      birthDay!,
-    );
-    if (date == null) {
-      return false;
-    }
-
-    final int currentYear = DateTime.now().year;
-    final DateTime now = DateTime.now();
-    return birthYear! >= 1900 &&
-        birthYear! <= currentYear &&
-        birthMonth! >= 1 &&
-        birthMonth! <= 12 &&
-        birthDay! >= 1 &&
-        birthDay! <= 31 &&
-        !date.isAfter(now);
-  }
+  bool get isBirthDateValid => Validators.dateOfBirthAgeInRange(
+    year: birthYear,
+    month: birthMonth,
+    day: birthDay,
+  );
 
   bool get canContinueAge => isBirthDateValid && !isLoading && !isCompleted;
 
-  bool get canContinueGender =>
-      selectedGender != null && !isLoading && !isCompleted;
+  bool get hasGender => selectedGender != null;
+
+  bool get canContinueGender => hasGender && !isLoading && !isCompleted;
 
   bool get hasCategory => selectedCategoryIds.isNotEmpty;
 
-  bool get canContinueCategory =>
-      hasCategory && !isLoading && !isCompleted;
-
-  static DateTime? _tryParseBirthDate(int year, int month, int day) {
-    try {
-      final DateTime parsed = DateTime(year, month, day);
-      if (parsed.year != year || parsed.month != month || parsed.day != day) {
-        return null;
-      }
-      return parsed;
-    } catch (_) {
-      return null;
-    }
-  }
+  bool get canContinueCategory => hasCategory && !isLoading && !isCompleted;
 
   OnboardingState copyWith({
     Object? birthYear = _unset,
@@ -180,10 +146,12 @@ class OnboardingState extends Equatable {
     Object? errorMessage = _unset,
   }) {
     return OnboardingState(
-      birthYear:
-          identical(birthYear, _unset) ? this.birthYear : birthYear as int?,
-      birthMonth:
-          identical(birthMonth, _unset) ? this.birthMonth : birthMonth as int?,
+      birthYear: identical(birthYear, _unset)
+          ? this.birthYear
+          : birthYear as int?,
+      birthMonth: identical(birthMonth, _unset)
+          ? this.birthMonth
+          : birthMonth as int?,
       birthDay: identical(birthDay, _unset) ? this.birthDay : birthDay as int?,
       selectedGender: identical(selectedGender, _unset)
           ? this.selectedGender
@@ -207,17 +175,17 @@ class OnboardingState extends Equatable {
 
   @override
   List<Object?> get props => <Object?>[
-        birthYear,
-        birthMonth,
-        birthDay,
-        selectedGender,
-        categories,
-        selectedCategoryIds,
-        isLoading,
-        isCompleted,
-        navigationTarget,
-        errorMessage,
-      ];
+    birthYear,
+    birthMonth,
+    birthDay,
+    selectedGender,
+    categories,
+    selectedCategoryIds,
+    isLoading,
+    isCompleted,
+    navigationTarget,
+    errorMessage,
+  ];
 }
 
 class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
@@ -228,7 +196,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     required this._saveCategoryIdUseCase,
     required this._loadCategoriesUseCase,
     required this._completeOnboardingUseCase,
-  })  : super(const OnboardingState()) {
+  }) : super(const OnboardingState()) {
     on<OnboardingStarted>(_onStarted);
     on<OnboardingAgeYearChanged>(_onAgeYearChanged);
     on<OnboardingAgeMonthChanged>(_onAgeMonthChanged);
@@ -237,7 +205,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     on<OnboardingGenderSelected>(_onGenderSelected);
     on<OnboardingCategorySelected>(_onCategorySelected);
     on<OnboardingInterestsNextRequested>(_onCategoryNextRequested);
-    on<OnboardingSkipRequested>(_onSkipRequested);
+
     on<OnboardingNextRequested>(_onNextRequested);
     on<OnboardingNavigationCompleted>(_onNavigationCompleted);
   }
@@ -255,8 +223,12 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
   ) async {
     emit(state.copyWith(isLoading: true, errorMessage: null));
     try {
-      final OnboardingDraft draft = await _loadOnboardingStateUseCase(const NoParams());
-      final List<Category> categories = await _loadCategoriesUseCase(const NoParams());
+      final OnboardingDraft draft = await _loadOnboardingStateUseCase(
+        const NoParams(),
+      );
+      final List<Category> categories = await _loadCategoriesUseCase(
+        const NoParams(),
+      );
       emit(
         OnboardingState(
           birthYear: draft.birthYear,
@@ -359,7 +331,11 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     try {
       await _saveGenderUseCase(event.gender);
     } catch (_) {
-      emit(state.copyWith(errorMessage: LocalizationConstants.onboardingSaveGenderErrorKey));
+      emit(
+        state.copyWith(
+          errorMessage: LocalizationConstants.onboardingSaveGenderErrorKey,
+        ),
+      );
     }
   }
 
@@ -367,8 +343,9 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     OnboardingCategorySelected event,
     Emitter<OnboardingState> emit,
   ) async {
-    final List<String> newCategoryIds =
-        List<String>.from(state.selectedCategoryIds);
+    final List<String> newCategoryIds = List<String>.from(
+      state.selectedCategoryIds,
+    );
     if (newCategoryIds.contains(event.categoryId)) {
       newCategoryIds.remove(event.categoryId);
     } else {
@@ -376,20 +353,19 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     }
 
     emit(
-      state.copyWith(
-        selectedCategoryIds: newCategoryIds,
-        errorMessage: null,
-      ),
+      state.copyWith(selectedCategoryIds: newCategoryIds, errorMessage: null),
     );
 
     try {
       await _saveCategoryIdUseCase(
-        SaveCategoryIdParams(
-          newCategoryIds.isEmpty ? null : newCategoryIds,
-        ),
+        SaveCategoryIdParams(newCategoryIds.isEmpty ? null : newCategoryIds),
       );
     } catch (_) {
-      emit(state.copyWith(errorMessage: LocalizationConstants.onboardingSaveCategoriesErrorKey));
+      emit(
+        state.copyWith(
+          errorMessage: LocalizationConstants.onboardingSaveCategoriesErrorKey,
+        ),
+      );
     }
   }
 
@@ -397,34 +373,12 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     OnboardingInterestsNextRequested event,
     Emitter<OnboardingState> emit,
   ) async {
-    if (!state.canContinueCategory) {
+    if (!state.canContinueGender ||
+        !state.isBirthDateValid ||
+        !state.canContinueCategory) {
       return;
     }
 
-    emit(state.copyWith(isLoading: true, errorMessage: null));
-    try {
-      await _completeOnboardingUseCase(const NoParams());
-      emit(
-        state.copyWith(
-          isLoading: false,
-          isCompleted: true,
-          navigationTarget: RouteNames.register,
-        ),
-      );
-    } catch (_) {
-      emit(
-        state.copyWith(
-          isLoading: false,
-          errorMessage: LocalizationConstants.onboardingCompleteErrorKey,
-        ),
-      );
-    }
-  }
-
-  Future<void> _onSkipRequested(
-    OnboardingSkipRequested event,
-    Emitter<OnboardingState> emit,
-  ) async {
     emit(state.copyWith(isLoading: true, errorMessage: null));
     try {
       await _completeOnboardingUseCase(const NoParams());

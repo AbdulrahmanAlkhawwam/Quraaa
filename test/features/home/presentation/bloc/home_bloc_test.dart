@@ -2,10 +2,11 @@ import 'dart:async';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:quraaa/core/architecture/result.dart';
 import 'package:quraaa/core/services/app_permission_service.dart';
 import 'package:quraaa/core/services/notification_service.dart';
 import 'package:quraaa/features/account/account.dart';
-import 'package:quraaa/features/home/presentation/bloc/home_bloc.dart';
+import 'package:quraaa/features/home/home.dart';
 
 void main() {
   test('emits loading then loaded when home starts', () async {
@@ -14,6 +15,12 @@ void main() {
         const _FakeHomeRepository(
           AccountUserSnapshot(fullName: 'Abdulrahman Alkhawwam'),
         ),
+      ),
+      getRecommendedBooks: GetRecommendedBooksUseCase(
+        const _FakeHomeBooksRepository(),
+      ),
+      getMostPopularBooks: GetMostPopularBooksUseCase(
+        const _FakeHomeBooksRepository(),
       ),
       notificationService: const _FakeNotificationService(),
       appPermissionService: _FakeAppPermissionService(),
@@ -40,6 +47,16 @@ void main() {
               (HomeState state) => state.firstName,
               'firstName',
               'Abdulrahman',
+            )
+            .having(
+              (HomeState state) => state.recommendedBooks.single.title,
+              'recommended title',
+              'Recommended book',
+            )
+            .having(
+              (HomeState state) => state.mostPopularBooks.single.title,
+              'popular title',
+              'Popular book',
             ),
       ]),
     );
@@ -49,6 +66,12 @@ void main() {
     final HomeBloc bloc = HomeBloc(
       loadUserSnapshot: LoadAccountUserSnapshotUseCase(
         const _ThrowingHomeRepository(),
+      ),
+      getRecommendedBooks: GetRecommendedBooksUseCase(
+        const _FakeHomeBooksRepository(),
+      ),
+      getMostPopularBooks: GetMostPopularBooksUseCase(
+        const _FakeHomeBooksRepository(),
       ),
       notificationService: const _FakeNotificationService(),
       appPermissionService: _FakeAppPermissionService(),
@@ -81,6 +104,12 @@ void main() {
       loadUserSnapshot: LoadAccountUserSnapshotUseCase(
         const _FakeHomeRepository(AccountUserSnapshot(fullName: 'Test User')),
       ),
+      getRecommendedBooks: GetRecommendedBooksUseCase(
+        const _FakeHomeBooksRepository(),
+      ),
+      getMostPopularBooks: GetMostPopularBooksUseCase(
+        const _FakeHomeBooksRepository(),
+      ),
       notificationService: const _FakeNotificationService(),
       appPermissionService: permissionService,
     );
@@ -108,6 +137,70 @@ class _ThrowingHomeRepository implements AccountRepository {
   @override
   Future<AccountUserSnapshot> loadUserSnapshot() async {
     throw StateError('cannot load user');
+  }
+}
+
+class _FakeHomeBooksRepository implements HomeBooksRepository {
+  const _FakeHomeBooksRepository();
+
+  @override
+  Future<Result<HomeBooksPage>> getRecommendedBooks() async {
+    return const Success<HomeBooksPage>(
+      HomeBooksPage(
+        items: <HomeBookEntity>[
+          HomeBookEntity(
+            bookId: 'recommended',
+            title: 'Recommended book',
+            author: 'Author',
+            description: '',
+            coverImageUrl: '',
+            categoryId: '',
+            language: 'en',
+            isbn: '',
+            purchaseCount: '0',
+            ratingCount: '0',
+            averageRating: '0',
+            activeListingCount: '0',
+          ),
+        ],
+        pageNumber: '1',
+        pageSize: '1',
+        totalCount: '1',
+        totalPages: '1',
+        hasNextPage: false,
+        hasPreviousPage: false,
+      ),
+    );
+  }
+
+  @override
+  Future<Result<HomeBooksPage>> getMostPopularBooks() async {
+    return const Success<HomeBooksPage>(
+      HomeBooksPage(
+        items: <HomeBookEntity>[
+          HomeBookEntity(
+            bookId: 'popular',
+            title: 'Popular book',
+            author: 'Author',
+            description: '',
+            coverImageUrl: '',
+            categoryId: '',
+            language: 'en',
+            isbn: '',
+            purchaseCount: '0',
+            ratingCount: '0',
+            averageRating: '0',
+            activeListingCount: '0',
+          ),
+        ],
+        pageNumber: '1',
+        pageSize: '1',
+        totalCount: '1',
+        totalPages: '1',
+        hasNextPage: false,
+        hasPreviousPage: false,
+      ),
+    );
   }
 }
 

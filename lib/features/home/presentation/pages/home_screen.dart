@@ -6,7 +6,6 @@ import '../../../../config/routes/route_names.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import '../bloc/home_bloc.dart';
-import '../mock/home_mock_data.dart';
 import '../widgets/home_app_bar.dart';
 import '../widgets/home_banner.dart';
 import '../widgets/home_bottom_nav.dart';
@@ -159,12 +158,12 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 /// The main home feed matching the design in img_1.png.
-/// Uses local mock data only - no server side binding.
 class _HomeFeed extends StatelessWidget {
   const _HomeFeed();
 
   @override
   Widget build(BuildContext context) {
+    final HomeState state = context.watch<HomeBloc>().state;
     final List<Color> backgroundColors = context.isDark
         ? <Color>[AppColors.neutralBackgroundDark, AppColors.surfaceDark]
         : <Color>[AppColors.neutralBackground, AppColors.primary50];
@@ -209,8 +208,14 @@ class _HomeFeed extends StatelessWidget {
             SliverToBoxAdapter(
               child: HomeSection(
                 title: LocalizationConstants.homeRecommendedForYouKey.tr(),
-                totalSize: '3.5 KB',
-                books: recommendedBooks,
+                books: state.recommendedBooks,
+                isLoading:
+                    state.recommendedStatus == HomeBooksStatus.initial ||
+                    state.recommendedStatus == HomeBooksStatus.loading,
+                errorMessage: state.recommendedErrorMessage,
+                onRetry: () => context.read<HomeBloc>().add(
+                  const HomeRecommendedBooksRequested(),
+                ),
               ),
             ),
             const SliverToBoxAdapter(
@@ -218,19 +223,15 @@ class _HomeFeed extends StatelessWidget {
             ),
             SliverToBoxAdapter(
               child: HomeSection(
-                title: LocalizationConstants.homeNoteKey.tr(),
-                totalSize: '3.5 KB',
-                books: noteBooks,
-              ),
-            ),
-            const SliverToBoxAdapter(
-              child: SizedBox(height: AppSpacing.spacing24),
-            ),
-            SliverToBoxAdapter(
-              child: HomeSection(
-                title: LocalizationConstants.homeNoteKey.tr(),
-                totalSize: '3.5 KB',
-                books: noteBooks,
+                title: LocalizationConstants.homeMostPopularKey.tr(),
+                books: state.mostPopularBooks,
+                isLoading:
+                    state.mostPopularStatus == HomeBooksStatus.initial ||
+                    state.mostPopularStatus == HomeBooksStatus.loading,
+                errorMessage: state.mostPopularErrorMessage,
+                onRetry: () => context.read<HomeBloc>().add(
+                  const HomeMostPopularBooksRequested(),
+                ),
               ),
             ),
             const SliverToBoxAdapter(child: SizedBox(height: 128)),

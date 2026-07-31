@@ -29,7 +29,7 @@ class AuthInterceptor extends Interceptor {
     ApiEndpoints.register,
     ApiEndpoints.verifyOtp,
     ApiEndpoints.forgotPassword,
-    ApiEndpoints.resetPassword,
+    ApiEndpoints.forgotPasswordVerify,
     ApiEndpoints.refreshToken,
   };
 

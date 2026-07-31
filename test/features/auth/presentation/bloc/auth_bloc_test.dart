@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:quraaa/core/architecture/result.dart';
+import 'package:quraaa/core/errors/failures.dart';
+import 'package:quraaa/config/routes/route_names.dart';
 import 'package:quraaa/features/auth/data/datasources/auth_local_datasource.dart';
 import 'package:quraaa/features/auth/data/models/user_model.dart';
 import 'package:quraaa/features/auth/domain/entities/user.dart';
@@ -178,6 +180,53 @@ void main() {
             AuthState(status: AuthStatus.error, error: 'register failed'),
           ]),
         );
+      });
+
+      test('navigates pending unverified registration to OTP', () async {
+        const OtpVerificationRequiredFailure pendingFailure =
+            OtpVerificationRequiredFailure(
+              message: 'Account is pending OTP verification.',
+            );
+        const ResultFailure<User> result = ResultFailure<User>(
+          'Account is pending OTP verification.',
+          cause: pendingFailure,
+        );
+        when(() => registerUseCase(any())).thenAnswer((_) async => result);
+        when(
+          () => authJourney.saveJourneyStage(
+            AuthJourneyStage.otpVerification,
+            previousStage: AuthJourneyStage.register,
+          ),
+        ).thenAnswer((_) async {});
+
+        final AuthBloc bloc = createBloc();
+        bloc.add(
+          const AuthRegisterRequested(
+            phoneNumber: phoneNumber,
+            password: password,
+          ),
+        );
+
+        await expectLater(
+          bloc.stream,
+          emitsInOrder(const <AuthState>[
+            AuthState(status: AuthStatus.loading),
+            AuthState(status: AuthStatus.success),
+            AuthState(
+              status: AuthStatus.success,
+              nextRoute: RouteNames.otpVerification,
+              routeExtra: phoneNumber,
+              navigationSerial: 1,
+            ),
+          ]),
+        );
+
+        verify(
+          () => authJourney.saveJourneyStage(
+            AuthJourneyStage.otpVerification,
+            previousStage: AuthJourneyStage.register,
+          ),
+        ).called(1);
       });
     });
 
