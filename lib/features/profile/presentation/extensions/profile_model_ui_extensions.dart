@@ -15,9 +15,10 @@ extension ProfileModelUiExtension on Profile {
 /// Maps the backend gender integer to a localized label.
 String localizedGenderLabelFromValue(int? gender) {
   return switch (gender) {
-    0 => LocalizationConstants.userDataGenderMaleKey.tr(),
-    1 => LocalizationConstants.userDataGenderFemaleKey.tr(),
-    2 => LocalizationConstants.userDataGenderPreferNotToSayKey.tr(),
+    ProfileGenderValue.male =>
+      LocalizationConstants.userDataGenderMaleKey.tr(),
+    ProfileGenderValue.female =>
+      LocalizationConstants.userDataGenderFemaleKey.tr(),
     _ => '',
   };
 }

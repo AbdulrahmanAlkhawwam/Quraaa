@@ -1,5 +1,16 @@
 import 'package:equatable/equatable.dart';
 
+abstract class ProfileGenderValue {
+  ProfileGenderValue._();
+
+  static const int male = 1;
+  static const int female = 2;
+
+  static bool isSupported(int? value) => value == male || value == female;
+
+  static int normalize(int? value) => isSupported(value) ? value! : male;
+}
+
 class ProfileInterest extends Equatable {
   const ProfileInterest({
     required this.id,

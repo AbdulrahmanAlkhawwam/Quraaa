@@ -46,7 +46,7 @@ class _EditProfileViewState extends State<_EditProfileView> {
     _lastNameController = TextEditingController(text: profile.lastName);
     _birthDateController = TextEditingController(text: profile.dateOfBirth);
     _phoneController = TextEditingController(text: profile.phoneNumber);
-    _gender = profile.gender ?? 0;
+    _gender = ProfileGenderValue.normalize(profile.gender);
   }
 
   @override
@@ -127,22 +127,15 @@ class _EditProfileViewState extends State<_EditProfileView> {
                   ),
                   items: <DropdownMenuItem<int>>[
                     DropdownMenuItem<int>(
-                      value: 0,
+                      value: ProfileGenderValue.male,
                       child: Text(
                         LocalizationConstants.profileEditGenderMaleKey.tr(),
                       ),
                     ),
                     DropdownMenuItem<int>(
-                      value: 1,
+                      value: ProfileGenderValue.female,
                       child: Text(
                         LocalizationConstants.profileEditGenderFemaleKey.tr(),
-                      ),
-                    ),
-                    DropdownMenuItem<int>(
-                      value: 2,
-                      child: Text(
-                        LocalizationConstants.userDataGenderPreferNotToSayKey
-                            .tr(),
                       ),
                     ),
                   ],

@@ -30,8 +30,19 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<Profile> updateMyProfile(UpdateProfileInput input) async {
     final Profile? cachedProfile = await _localDataSource.getCachedProfile();
+    final int gender = ProfileGenderValue.isSupported(input.gender)
+        ? input.gender
+        : ProfileGenderValue.normalize(cachedProfile?.gender);
+    final UpdateProfileInput effectiveInput = UpdateProfileInput(
+      firstName: input.firstName,
+      lastName: input.lastName,
+      gender: gender,
+      dateOfBirth: input.dateOfBirth,
+      profileImageUrl: input.profileImageUrl,
+      interestIds: input.interestIds,
+    );
     final ProfileModel remoteProfile = await _remoteDataSource.updateMyProfile(
-      UpdateProfileRequestModel(input),
+      UpdateProfileRequestModel(effectiveInput),
     );
     final ProfileModel profile = _mergeCachedLocationLabel(
       remoteProfile,
