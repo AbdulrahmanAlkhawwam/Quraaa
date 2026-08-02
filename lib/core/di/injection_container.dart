@@ -75,10 +75,13 @@ import '../services/services.dart';
 import '../../features/local_explorer/data/datasources/local/local_explorer_platform_datasource.dart';
 import '../../features/local_explorer/data/datasources/local/local_file_system_datasource.dart';
 import '../../features/local_explorer/data/datasources/local/local_file_system_datasource_factory.dart';
+import '../../features/local_explorer/data/repositories/explorer_history_repository_impl.dart';
 import '../../features/local_explorer/data/repositories/local_file_repository_impl.dart';
+import '../../features/local_explorer/domain/repositories/explorer_history_repository.dart';
 import '../../features/local_explorer/domain/repositories/local_file_repository.dart';
 import '../../features/local_explorer/domain/use_cases/load_local_directory_use_case.dart';
 import '../../features/local_explorer/presentation/bloc/local_explorer_bloc.dart';
+import '../../features/local_explorer/presentation/cubit/explorer_history_cubit.dart';
 import '../../features/pdf_reader/data/datasources/local/pdf_render_datasource.dart';
 import '../../features/pdf_reader/data/datasources/local/pdf_note_datasource.dart';
 import '../../features/pdf_reader/data/repositories/pdf_reader_repository_impl.dart';
@@ -573,6 +576,15 @@ void registerFeatureDependencies() {
     );
   }
 
+  if (!sl.isRegistered<ExplorerHistoryRepository>()) {
+    sl.registerLazySingleton<ExplorerHistoryRepository>(
+      () => ExplorerHistoryRepositoryImpl(
+        storageService: sl<StorageService>(),
+        fileSystemDataSource: sl<LocalFileSystemDataSource>(),
+      ),
+    );
+  }
+
   if (!sl.isRegistered<LoadLocalDirectoryUseCase>()) {
     sl.registerLazySingleton<LoadLocalDirectoryUseCase>(
       () => LoadLocalDirectoryUseCase(sl()),
@@ -583,6 +595,10 @@ void registerFeatureDependencies() {
     sl.registerFactory<LocalExplorerBloc>(
       () => LocalExplorerBloc(loadDirectory: sl(), repository: sl()),
     );
+  }
+
+  if (!sl.isRegistered<ExplorerHistoryCubit>()) {
+    sl.registerFactory<ExplorerHistoryCubit>(() => ExplorerHistoryCubit(sl()));
   }
 
   if (!sl.isRegistered<PdfReaderBloc>()) {

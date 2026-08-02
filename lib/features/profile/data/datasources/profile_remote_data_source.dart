@@ -37,8 +37,8 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       () => _httpHelper.post(
         ApiEndpoints.profileLocation,
         data: <String, dynamic>{
-          'latitude': location.latitude,
-          'longitude': location.longitude,
+          'latitude': location.latitude.toString(),
+          'longitude': location.longitude.toString(),
         },
       ),
     );
@@ -82,7 +82,10 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
     final dynamic payload = error.response?.data;
     if (payload is Map<String, dynamic>) {
       return ErrorMapper.mapResponseToException(
-        ErrorResponseModel.fromJson(payload),
+        ErrorResponseModel.fromJson(
+          payload,
+          statusCode: error.response?.statusCode,
+        ),
       );
     }
 

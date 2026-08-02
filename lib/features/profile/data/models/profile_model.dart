@@ -80,6 +80,7 @@ class ProfileModel extends Profile {
         : <String, dynamic>{
             'latitude': location!.latitude,
             'longitude': location!.longitude,
+            'label': location!.label,
           },
     'lastLoginDate': lastLoginDate,
     'previousLoginDate': previousLoginDate,
@@ -115,7 +116,11 @@ class ProfileModel extends Profile {
     if (latitude == null || longitude == null) {
       return null;
     }
-    return ProfileLocation(latitude: latitude, longitude: longitude);
+    return ProfileLocation(
+      latitude: latitude,
+      longitude: longitude,
+      label: raw['label']?.toString(),
+    );
   }
 
   static int? _asInt(Object? value) {

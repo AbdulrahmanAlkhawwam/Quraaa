@@ -21,6 +21,7 @@ abstract class RouteNames {
   static const String settingsPersonalInformation =
       '/settings/personal-information';
   static const String settingsLocations = '/settings/locations';
+  static const String settingsPersonalFiles = '/settings/personal-files';
   static const String subscriptionAccountType = '/subscription/account-type';
   static const String notificationPermission = '/notification-permission';
   static const String locationPermission = '/location-permission';

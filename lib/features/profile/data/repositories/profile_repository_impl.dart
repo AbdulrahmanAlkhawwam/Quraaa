@@ -14,7 +14,12 @@ class ProfileRepositoryImpl implements ProfileRepository {
 
   @override
   Future<Profile> getMyProfile() async {
-    final ProfileModel profile = await _remoteDataSource.getMyProfile();
+    final Profile? cachedProfile = await _localDataSource.getCachedProfile();
+    final ProfileModel remoteProfile = await _remoteDataSource.getMyProfile();
+    final ProfileModel profile = _mergeCachedLocationLabel(
+      remoteProfile,
+      cachedProfile,
+    );
     await _localDataSource.cacheProfile(profile);
     return profile;
   }
@@ -24,8 +29,13 @@ class ProfileRepositoryImpl implements ProfileRepository {
 
   @override
   Future<Profile> updateMyProfile(UpdateProfileInput input) async {
-    final ProfileModel profile = await _remoteDataSource.updateMyProfile(
+    final Profile? cachedProfile = await _localDataSource.getCachedProfile();
+    final ProfileModel remoteProfile = await _remoteDataSource.updateMyProfile(
       UpdateProfileRequestModel(input),
+    );
+    final ProfileModel profile = _mergeCachedLocationLabel(
+      remoteProfile,
+      cachedProfile,
     );
     await _localDataSource.cacheProfile(profile);
     return profile;
@@ -54,6 +64,36 @@ class ProfileRepositoryImpl implements ProfileRepository {
     );
     await _localDataSource.cacheProfile(updated);
     return updated;
+  }
+
+  ProfileModel _mergeCachedLocationLabel(
+    ProfileModel remoteProfile,
+    Profile? cachedProfile,
+  ) {
+    final ProfileLocation? remoteLocation = remoteProfile.location;
+    final ProfileLocation? cachedLocation = cachedProfile?.location;
+    final String label = cachedLocation?.label?.trim() ?? '';
+    final String remoteUserId = remoteProfile.userId?.trim() ?? '';
+    final String cachedUserId = cachedProfile?.userId?.trim() ?? '';
+    final bool sameUser =
+        remoteUserId.isNotEmpty && remoteUserId == cachedUserId;
+    final bool sameLocation =
+        remoteLocation != null &&
+        cachedLocation != null &&
+        (remoteLocation.latitude - cachedLocation.latitude).abs() < 0.000001 &&
+        (remoteLocation.longitude - cachedLocation.longitude).abs() < 0.000001;
+    if (!sameUser || !sameLocation || label.isEmpty) {
+      return remoteProfile;
+    }
+    return ProfileModel.fromEntity(
+      remoteProfile.copyWith(
+        location: ProfileLocation(
+          latitude: remoteLocation.latitude,
+          longitude: remoteLocation.longitude,
+          label: label,
+        ),
+      ),
+    );
   }
 
   Future<Profile> _cachedOrRemote() async {

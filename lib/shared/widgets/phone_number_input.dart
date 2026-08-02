@@ -1,17 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
-import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
-import '../theme/app_radius.dart';
-import '../theme/app_spacing.dart';
 import '../theme/styles/text_styles.dart';
 
-/// A styled international phone number input that matches the app's design.
-///
-/// Wraps [IntlPhoneNumberInput] from the `intl_phone_number_input` package
-/// with a theme-aware rounded container, a vertical divider between the country
-/// selector and the phone text field.
+/// An international phone input that uses the same visual treatment as the
+/// other authentication text fields.
 class PhoneNumberInput extends StatelessWidget {
   const PhoneNumberInput({
     super.key,
@@ -44,13 +38,8 @@ class PhoneNumberInput extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme colors = Theme.of(context).colorScheme;
 
-    return Container(
+    return SizedBox(
       height: AppDimensions.onboardingInputHeight,
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(AppRadius.radius8),
-        border: Border.all(color: colors.outline, width: 1),
-      ),
       child: InternationalPhoneNumberInput(
         onInputChanged: onInputChanged,
         onInputValidated: onInputValidated,
@@ -59,6 +48,8 @@ class PhoneNumberInput extends StatelessWidget {
           selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
           setSelectorButtonAsPrefixIcon: true,
           useBottomSheetSafeArea: true,
+          leadingPadding: 12,
+          trailingSpace: false,
         ),
         countries: countries,
         initialValue: initialValue ?? PhoneNumber(isoCode: 'SY'),
@@ -75,29 +66,15 @@ class PhoneNumberInput extends StatelessWidget {
             ),
         inputDecoration: InputDecoration(
           hintText: hintText,
-          hintStyle: AppTextStyles.bodyMedium.copyWith(
-            color: colors.onSurfaceVariant,
-          ),
-          filled: true,
-          fillColor: Theme.of(context).cardColor,
-          contentPadding: const EdgeInsetsDirectional.fromSTEB(
-            AppSpacing.spacing12,
-            AppSpacing.spacing20,
-            AppSpacing.spacing20,
-            AppSpacing.spacing20,
-          ),
           prefixIconConstraints: const BoxConstraints(
-            minWidth: 120,
-            maxWidth: 120,
+            minWidth: 112,
+            maxWidth: 112,
             minHeight: AppDimensions.onboardingInputHeight,
             maxHeight: AppDimensions.onboardingInputHeight,
           ),
-          border: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          focusedBorder: InputBorder.none,
-          errorBorder: InputBorder.none,
-          focusedErrorBorder: InputBorder.none,
         ),
+        autoValidateMode: autoValidateMode ?? AutovalidateMode.disabled,
+        autofillHints: const <String>[AutofillHints.telephoneNumber],
         onFieldSubmitted:
             onFieldSubmitted != null ? (String _) => onFieldSubmitted!() : null,
       ),

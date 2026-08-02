@@ -13,10 +13,7 @@ class DioLoggingInterceptor extends Interceptor {
   static const String _startedAtKey = 'monitoring_started_at';
 
   @override
-  void onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) {
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     options.extra[_startedAtKey] = DateTime.now().millisecondsSinceEpoch;
     _logger.recordUserAction(
       'HTTP ${options.method} ${options.uri}',
@@ -57,8 +54,9 @@ class DioLoggingInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     final Duration duration = _duration(err.requestOptions);
-    final ErrorSeverity severity =
-        err.type == DioExceptionType.cancel ? ErrorSeverity.warning : ErrorSeverity.error;
+    final ErrorSeverity severity = err.type == DioExceptionType.cancel
+        ? ErrorSeverity.warning
+        : ErrorSeverity.error;
 
     if (severity == ErrorSeverity.warning) {
       _logger.warning(
@@ -68,6 +66,28 @@ class DioLoggingInterceptor extends Interceptor {
       handler.next(err);
       return;
     }
+
+    final String requestBody = truncateBody(
+      encodeSanitizedBody(err.requestOptions.data),
+    );
+    final String responseBody = truncateBody(
+      encodeSanitizedBody(err.response?.data),
+    );
+
+    // Keep actionable HTTP details next to the Dio error in debug logs.
+    // Sensitive header/body values are redacted by encodeSanitizedBody.
+    _logger.warning(
+      'HTTP failure details: ${err.requestOptions.method} '
+      '${err.requestOptions.uri}',
+      source: 'dio',
+      data: <String, Object?>{
+        'statusCode': err.response?.statusCode,
+        'requestHeaders': encodeSanitizedBody(err.requestOptions.headers),
+        'requestBody': requestBody,
+        'responseHeaders': encodeSanitizedBody(err.response?.headers.map),
+        'responseBody': responseBody,
+      },
+    );
 
     unawaited(
       _logger.error(
@@ -79,8 +99,8 @@ class DioLoggingInterceptor extends Interceptor {
         apiUrl: err.requestOptions.uri.toString(),
         apiStatusCode: err.response?.statusCode,
         apiDuration: duration,
-        apiRequestBody: truncateBody(encodeSanitizedBody(err.requestOptions.data)),
-        apiResponseBody: truncateBody(encodeSanitizedBody(err.response?.data)),
+        apiRequestBody: requestBody,
+        apiResponseBody: responseBody,
       ),
     );
     handler.next(err);

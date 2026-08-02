@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../../shared/extensions/app_context.dart';
@@ -5,10 +7,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../config/routes/route_names.dart';
+import '../../../../core/di/injection_container.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_dimensions.dart';
 import '../../domain/entities/local_directory_snapshot.dart';
 import '../../domain/entities/local_file_entry.dart';
+import '../../domain/repositories/explorer_history_repository.dart';
 import '../bloc/local_explorer_bloc.dart';
 import 'explorer_access_view.dart';
 import 'explorer_content.dart';
@@ -39,30 +43,33 @@ class _LocalExplorerViewState extends State<LocalExplorerView> {
             child: BlocConsumer<LocalExplorerBloc, LocalExplorerState>(
               listener: (BuildContext context, LocalExplorerState state) {
                 if (state is LocalExplorerFailure && state.previous != null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(state.message)),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(state.message)));
                 }
               },
               builder: (BuildContext context, LocalExplorerState state) {
                 return switch (state) {
                   LocalExplorerInitial() => const ExplorerLoadingView(),
                   LocalExplorerAccessRequired() => ExplorerAccessView(
-                      onAccessRequested: () => _dispatch(
-                        context,
-                        const LocalExplorerAccessRequested(),
-                      ),
-                      onDismissed: () => _dismissAccess(context),
+                    onAccessRequested: () => _dispatch(
+                      context,
+                      const LocalExplorerAccessRequested(),
                     ),
+                    onDismissed: () => _dismissAccess(context),
+                  ),
                   LocalExplorerLoading(previous: final previous) =>
                     previous == null
                         ? const ExplorerLoadingView()
-                        : ProgressOverlay(
-                            child: _content(context, previous),
-                          ),
-                  LocalExplorerLoaded(snapshot: final snapshot) =>
-                    _content(context, snapshot),
-                  LocalExplorerFailure(message: final message, previous: final previous) =>
+                        : ProgressOverlay(child: _content(context, previous)),
+                  LocalExplorerLoaded(snapshot: final snapshot) => _content(
+                    context,
+                    snapshot,
+                  ),
+                  LocalExplorerFailure(
+                    message: final message,
+                    previous: final previous,
+                  ) =>
                     previous == null
                         ? ExplorerFailureView(
                             message: message,
@@ -91,18 +98,12 @@ class _LocalExplorerViewState extends State<LocalExplorerView> {
       canNavigateBack: snapshot.canNavigateUp || context.canPop(),
       onToggleView: _toggleView,
       onNavigateBack: () => _navigateBack(context, snapshot),
-      onRefresh: () => _dispatch(
-        context,
-        const LocalExplorerRefreshRequested(),
-      ),
-      onBreadcrumbSelected: (LocalPathSegment segment) => _dispatch(
-        context,
-        LocalExplorerBreadcrumbSelected(segment.path),
-      ),
-      onOpenDirectory: (LocalFileEntry entry) => _dispatch(
-        context,
-        LocalExplorerDirectoryOpened(entry.path),
-      ),
+      onRefresh: () =>
+          _dispatch(context, const LocalExplorerRefreshRequested()),
+      onBreadcrumbSelected: (LocalPathSegment segment) =>
+          _dispatch(context, LocalExplorerBreadcrumbSelected(segment.path)),
+      onOpenDirectory: (LocalFileEntry entry) =>
+          _dispatch(context, LocalExplorerDirectoryOpened(entry.path)),
       onOpenPdf: (LocalFileEntry entry) => _openPdf(context, entry),
     );
   }
@@ -113,10 +114,7 @@ class _LocalExplorerViewState extends State<LocalExplorerView> {
     });
   }
 
-  void _navigateBack(
-    BuildContext context,
-    LocalDirectorySnapshot snapshot,
-  ) {
+  void _navigateBack(BuildContext context, LocalDirectorySnapshot snapshot) {
     if (snapshot.canNavigateUp) {
       _dispatch(context, const LocalExplorerParentRequested());
       return;
@@ -134,12 +132,23 @@ class _LocalExplorerViewState extends State<LocalExplorerView> {
   }
 
   void _openPdf(BuildContext context, LocalFileEntry entry) {
+    unawaited(_recordAndOpenPdf(context, entry));
+  }
+
+  Future<void> _recordAndOpenPdf(
+    BuildContext context,
+    LocalFileEntry entry,
+  ) async {
+    try {
+      await sl<ExplorerHistoryRepository>().recordOpenedFile(entry);
+    } catch (_) {
+      // History is optional and must never prevent the PDF from opening.
+    }
+
+    if (!context.mounted) return;
     context.pushNamed(
       RouteNames.pdfReaderName,
-      queryParameters: <String, String>{
-        'path': entry.path,
-        'name': entry.name,
-      },
+      queryParameters: <String, String>{'path': entry.path, 'name': entry.name},
       extra: entry,
     );
   }

@@ -309,6 +309,7 @@ class LocalizationConstants {
       'user_data.edit.multiline_hint';
   static const String profileMenuPersonalInfoKey =
       'profile.menu.my_personal_information';
+  static const String profilePersonalTitleKey = 'profile.personal_title';
   static const String profileMenuLocationsKey = 'profile.menu.my_locations';
   static const String profileLocationsTitleKey = 'profile_location.title';
   static const String profileLocationAddKey = 'profile_location.add';
@@ -329,6 +330,15 @@ class LocalizationConstants {
       'profile_location.permission_denied';
   static const String profileLocationUnavailableKey =
       'profile_location.unavailable';
+  static const String profileLocationDefaultNameKey =
+      'profile_location.default_name';
+  static const String profileLocationNameKey = 'profile_location.name';
+  static const String profileLocationNameHintKey = 'profile_location.name_hint';
+  static const String profileLocationSelectKey = 'profile_location.select';
+  static const String profileLocationSelectedKey = 'profile_location.selected';
+  static const String profileLocationNextKey = 'profile_location.next';
+  static const String profileLocationRequiredKey = 'profile_location.required';
+  static const String profileLocationMapTitleKey = 'profile_location.map_title';
   static const String profileMenuPaymentInfoKey =
       'profile.menu.payment_information';
   static const String profileMenuPersonalFilesKey =
@@ -450,6 +460,18 @@ class LocalizationConstants {
       'terms_privacy.footer.continue_part2';
 
   static const String retryKey = 'common.retry';
+  static const String explorerHistoryTitleKey = 'explorer_history.title';
+  static const String explorerHistoryEmptyKey = 'explorer_history.empty';
+  static const String explorerHistoryFileMissingKey =
+      'explorer_history.file_missing';
+  static const String explorerHistoryInternalStorageKey =
+      'explorer_history.internal_storage';
+  static const String explorerHistoryTodayKey = 'explorer_history.today';
+  static const String explorerHistoryYesterdayKey =
+      'explorer_history.yesterday';
+  static const String explorerHistoryLastWeekKey = 'explorer_history.last_week';
+  static const String explorerHistoryLastMonthKey =
+      'explorer_history.last_month';
   static const String explorerTitleKey = 'explorer.title';
   static const String explorerNoteTitleKey = 'explorer.note.title';
   static const String explorerNoteMessageKey = 'explorer.note.message';

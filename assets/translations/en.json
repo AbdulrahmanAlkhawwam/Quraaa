@@ -324,6 +324,16 @@
       "operations": "Operations"
     }
   },
+  "explorer_history": {
+    "title": "Explorer History",
+    "empty": "No files have been opened yet.",
+    "file_missing": "This file is no longer available on your device.",
+    "internal_storage": "Internal Storage",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "last_week": "Last Week",
+    "last_month": "Last Month"
+  },
   "explorer": {
     "title": "Explorer",
     "note": {
@@ -540,6 +550,7 @@
     }
   },
   "profile": {
+    "personal_title": "Me",
     "menu": {
       "my_personal_information": "My Personal Information",
       "my_locations": "My Locations",
@@ -795,7 +806,7 @@
     }
   },
   "profile_location": {
-    "title": "My Location",
+    "title": "My Locations",
     "add": "Add location",
     "new": "New Location",
     "current": "My current location",
@@ -807,6 +818,14 @@
     "delete_message": "This will remove your saved location from your account.",
     "service_disabled": "Location services are disabled.",
     "permission_denied": "Location permission was denied.",
+    "default_name": "My Location",
+    "name": "Location Name",
+    "name_hint": "Enter the name of the location in your mind",
+    "select": "Add the location",
+    "selected": "Location selected",
+    "next": "Next",
+    "required": "Select a location on the map.",
+    "map_title": "Choose Location",
     "unavailable": "Your current location could not be determined."
   },
   "assistant": {

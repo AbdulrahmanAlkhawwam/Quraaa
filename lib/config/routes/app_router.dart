@@ -33,6 +33,7 @@ import '../../features/subscription/presentation/pages/account_type_screen.dart'
 import '../../features/search/search.dart';
 import '../../core/di/injection_container.dart';
 import '../../features/splash/presentation/pages/splash_screen.dart';
+import '../../features/local_explorer/presentation/pages/explorer_history_screen.dart';
 import '../../features/local_explorer/presentation/pages/local_explorer_page.dart';
 import '../../features/pdf_reader/presentation/pages/pdf_reader_page.dart';
 import '../../shared/widgets/app_shell.dart';
@@ -238,6 +239,11 @@ GoRouter buildAppRouter({
         builder: (context, state) => const ProfileLocationsScreen(),
       ),
       GoRoute(
+        name: RouteNames.settingsPersonalFiles,
+        path: RouteNames.settingsPersonalFiles,
+        builder: (context, state) => const ExplorerHistoryScreen(),
+      ),
+      GoRoute(
         name: RouteNames.subscriptionAccountType,
         path: RouteNames.subscriptionAccountType,
         builder: (context, state) => const AccountTypeScreen(),
@@ -357,6 +363,7 @@ bool _isKnownRoute(String location) {
     RouteNames.settings,
     RouteNames.settingsPersonalInformation,
     RouteNames.settingsLocations,
+    RouteNames.settingsPersonalFiles,
     RouteNames.settingsAccountType,
     RouteNames.subscriptionAccountType,
     RouteNames.explorer,

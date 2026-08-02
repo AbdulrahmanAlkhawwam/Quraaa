@@ -16,13 +16,18 @@ class ProfileInterest extends Equatable {
 }
 
 class ProfileLocation extends Equatable {
-  const ProfileLocation({required this.latitude, required this.longitude});
+  const ProfileLocation({
+    required this.latitude,
+    required this.longitude,
+    this.label,
+  });
 
   final double latitude;
   final double longitude;
+  final String? label;
 
   @override
-  List<Object?> get props => <Object?>[latitude, longitude];
+  List<Object?> get props => <Object?>[latitude, longitude, label];
 }
 
 class Profile extends Equatable {

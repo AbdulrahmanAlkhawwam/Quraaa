@@ -3,16 +3,12 @@ import 'package:flutter/material.dart';
 import '../../../../shared/extensions/app_context.dart';
 
 import '../../../../shared/theme/app_radius.dart';
-import '../../../../shared/theme/app_spacing.dart';
 import '../../domain/entities/personal_information.dart';
 import 'personal_data_row.dart';
 
 /// Card that displays the four personal information rows.
 class PersonalDataCard extends StatelessWidget {
-  const PersonalDataCard({
-    super.key,
-    required this.information,
-  });
+  const PersonalDataCard({super.key, required this.information});
 
   final PersonalInformation information;
 
@@ -22,10 +18,8 @@ class PersonalDataCard extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         color: context.appCard,
-        borderRadius: BorderRadius.circular(AppRadius.radius32),
-        border: Border.all(
-          color: context.appBorder,
-        ),
+        borderRadius: BorderRadius.circular(AppRadius.radius12),
+        border: Border.all(color: context.appBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -47,19 +41,10 @@ class PersonalDataCard extends StatelessWidget {
     for (int index = 0; index < values.length; index++) {
       final bool isLast = index == values.length - 1;
 
-      rows.add(
-        PersonalDataRow(value: values[index]),
-      );
+      rows.add(PersonalDataRow(value: values[index]));
 
       if (!isLast) {
-        rows.add(
-          Divider(
-            height: 1,
-            indent: AppSpacing.spacing20,
-            endIndent: AppSpacing.spacing20,
-            color: context.appBorder,
-          ),
-        );
+        rows.add(Divider(height: 1, color: context.appBorder));
       }
     }
 

@@ -94,6 +94,10 @@ class _SettingsViewState extends State<SettingsView> {
         context.pushTo(RouteNames.settingsLocations);
         return;
       }
+      if (section.id == 'my_personal_files') {
+        context.pushTo(RouteNames.settingsPersonalFiles);
+        return;
+      }
       if (section.id == 'account_type') {
         context.push(RouteNames.settingsAccountType);
         return;
