@@ -10,6 +10,9 @@ class AccountTypeCard extends StatelessWidget {
     this.selected = false,
     this.badgeColor,
     this.badgeTextColor,
+    this.badgeGradient,
+    this.footer,
+    this.minHeight,
     super.key,
   });
 
@@ -19,6 +22,9 @@ class AccountTypeCard extends StatelessWidget {
   final bool selected;
   final Color? badgeColor;
   final Color? badgeTextColor;
+  final Gradient? badgeGradient;
+  final Widget? footer;
+  final double? minHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -27,10 +33,11 @@ class AccountTypeCard extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
       width: double.infinity,
-      padding: const EdgeInsetsDirectional.fromSTEB(14, 14, 14, 14),
+      constraints: BoxConstraints(minHeight: minHeight ?? 0),
+      padding: const EdgeInsetsDirectional.fromSTEB(17, 16, 17, 16),
       decoration: BoxDecoration(
         color: palette.card,
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(18),
         border: selected
             ? Border.all(color: palette.accent, width: 1.4)
             : Border.all(color: Colors.transparent),
@@ -39,7 +46,7 @@ class AccountTypeCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Expanded(
                 child: Text(
@@ -47,10 +54,10 @@ class AccountTypeCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: palette.secondaryText,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
+                    color: palette.text,
+                    fontSize: 19,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
               if (badgeText != null) ...<Widget>[
@@ -59,21 +66,26 @@ class AccountTypeCard extends StatelessWidget {
                   text: badgeText!,
                   color: badgeColor ?? palette.accent,
                   textColor: badgeTextColor ?? palette.onAccent,
+                  gradient: badgeGradient,
                 ),
               ],
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 7),
           Text(
             description,
-            maxLines: 2,
+            maxLines: 3,
             overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: palette.secondaryText,
-                  fontSize: 13,
-                  height: 1.3,
-                ),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: palette.secondaryText,
+              fontSize: 15,
+              height: 1.35,
+            ),
           ),
+          if (footer != null) ...<Widget>[
+            const SizedBox(height: 12),
+            footer!,
+          ],
         ],
       ),
     );
@@ -85,17 +97,20 @@ class _AccountTypeBadge extends StatelessWidget {
     required this.text,
     required this.color,
     required this.textColor,
+    this.gradient,
   });
 
   final String text;
   final Color color;
   final Color textColor;
+  final Gradient? gradient;
 
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: color,
+        color: gradient == null ? color : null,
+        gradient: gradient,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Padding(
@@ -104,11 +119,11 @@ class _AccountTypeBadge extends StatelessWidget {
           text,
           maxLines: 1,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: textColor,
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                height: 1,
-              ),
+            color: textColor,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            height: 1,
+          ),
         ),
       ),
     );

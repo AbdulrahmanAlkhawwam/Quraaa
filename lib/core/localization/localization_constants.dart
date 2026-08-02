@@ -681,6 +681,12 @@ class LocalizationConstants {
       'settings.account_type.plans.pro.title';
   static const String settingsAccountTypeProDescriptionKey =
       'settings.account_type.plans.pro.description';
+  static const String settingsAccountTypeLibraryTitleKey =
+      'settings.account_type.plans.library.title';
+  static const String settingsAccountTypeLibraryDescriptionKey =
+      'settings.account_type.plans.library.description';
+  static const String settingsAccountTypeLibraryActionKey =
+      'settings.account_type.plans.library.action';
 
   // Subscription plan details
   static const String subscriptionPlanFreeSubtitleKey =

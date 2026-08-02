@@ -414,6 +414,11 @@
         "pro": {
           "title": "Pro Account",
           "description": "This account is for one user with unlimited AI access."
+        },
+        "library": {
+          "title": "Library Account",
+          "description": "This account is for libraries. If you want to start with us, create your library now.",
+          "action": "Create Your Library"
         }
       }
     },
