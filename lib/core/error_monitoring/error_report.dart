@@ -320,7 +320,8 @@ String redactSensitiveText(String input) {
       )
       .replaceAllMapped(
         RegExp(
-          r'\b(password|pass|token|refreshToken|accessToken|authorization|cookie|cookies|jwt|secret|apiKey|clientSecret)\b\s*[:=]\s*[^,\s&]+',
+          r'\b([A-Za-z]*password|pass|token|refreshToken|accessToken|authorization|cookie|cookies|jwt|secret|apiKey|clientSecret)\b\s*[:=]\s*[^,\s&]+',
+          caseSensitive: false,
         ),
         (Match match) => '${match.group(1)}: ***',
       );
@@ -364,20 +365,22 @@ String encodeSanitizedBody(Object? value) {
 }
 
 bool _isSensitiveKey(String key) {
-  return <String>{
-    'password',
-    'pass',
-    'token',
-    'refreshtoken',
-    'accesstoken',
-    'authorization',
-    'cookie',
-    'cookies',
-    'jwt',
-    'secret',
-    'apikey',
-    'clientsecret',
-  }.contains(key.replaceAll(RegExp(r'[\s_\-]'), ''));
+  final String normalized = key.replaceAll(RegExp(r'[\s_\-]'), '');
+  return normalized.endsWith('password') ||
+      <String>{
+        'password',
+        'pass',
+        'token',
+        'refreshtoken',
+        'accesstoken',
+        'authorization',
+        'cookie',
+        'cookies',
+        'jwt',
+        'secret',
+        'apikey',
+        'clientsecret',
+      }.contains(normalized);
 }
 
 String _display(String? value) {

@@ -114,6 +114,7 @@ const Set<String> _knownRoutes = <String>{
   RouteNames.search,
   RouteNames.settings,
   RouteNames.settingsPersonalFiles,
+  RouteNames.settingsChangePassword,
   RouteNames.settingsAccountType,
   RouteNames.subscriptionAccountType,
   RouteNames.explorer,

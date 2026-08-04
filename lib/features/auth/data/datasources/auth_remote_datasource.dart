@@ -38,6 +38,11 @@ abstract class AuthRemoteDataSource {
     required String code,
     required String newPassword,
   });
+
+  Future<void> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  });
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -202,6 +207,24 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'Unable to reset password.',
         unauthorizedFallbackCode: ErrorCodes.invalidVerificationCode,
       );
+    }
+  }
+
+  @override
+  Future<void> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    try {
+      await _httpHelper.post(
+        ApiEndpoints.changePassword,
+        data: AuthMapper.changePasswordToJson(
+          oldPassword: oldPassword,
+          newPassword: newPassword,
+        ),
+      );
+    } on DioException catch (error) {
+      throw _mapDioException(error, 'Unable to change password.');
     }
   }
 

@@ -186,6 +186,22 @@
         "password_mismatch": "Passwords do not match."
       }
     },
+    "change_password": {
+      "title": "Change Password",
+      "description": "Enter your current password and choose a new password.",
+      "old_password_label": "Current Password",
+      "old_password_hint": "Enter your current password",
+      "new_password_label": "New Password",
+      "new_password_hint": "Enter your new password",
+      "confirm_password_label": "Confirm New Password",
+      "confirm_password_hint": "Re-enter your new password",
+      "button": "Update Password",
+      "success": "Password changed successfully.",
+      "validation": {
+        "same_password": "New password must be different from the current password.",
+        "password_mismatch": "Passwords do not match."
+      }
+    },
     "location": {
       "title": "Get Your Place",
       "description": "Can us Get your Location for make delivery service available",

@@ -23,10 +23,12 @@ import '../../features/auth/domain/use_cases/login_use_case.dart';
 import '../../features/auth/domain/use_cases/verify_otp_use_case.dart';
 import '../../features/auth/domain/use_cases/forgot_password_use_case.dart';
 import '../../features/auth/domain/use_cases/reset_password_use_case.dart';
+import '../../features/auth/domain/use_cases/change_password_use_case.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_journey_cubit.dart';
 import '../../features/auth/presentation/bloc/auth_permission_cubit.dart';
 import '../../features/auth/presentation/bloc/auth_recovery_cubit.dart';
+import '../../features/auth/presentation/bloc/change_password_cubit.dart';
 import '../../features/auth/presentation/bloc/auth_registration_cubit.dart';
 import '../../features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import '../error_monitoring/app_bloc_observer.dart';
@@ -356,6 +358,10 @@ void registerFeatureDependencies() {
     () => ResetPasswordUseCase(sl<AuthRepository>()),
   );
 
+  sl.registerFactory<ChangePasswordUseCase>(
+    () => ChangePasswordUseCase(sl<AuthRepository>()),
+  );
+
   sl.registerFactory<AuthBloc>(
     () => AuthBloc(
       loginUseCase: sl<LoginUseCase>(),
@@ -383,6 +389,10 @@ void registerFeatureDependencies() {
       loadOnboardingStateUseCase: sl<LoadOnboardingStateUseCase>(),
       loadCategoriesUseCase: sl<LoadCategoriesUseCase>(),
     ),
+  );
+
+  sl.registerFactory<ChangePasswordCubit>(
+    () => ChangePasswordCubit(sl<ChangePasswordUseCase>()),
   );
 
   sl.registerFactory<AuthRecoveryCubit>(

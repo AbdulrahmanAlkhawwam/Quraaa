@@ -539,6 +539,29 @@ class LocalizationConstants {
       'auth.reset_password.success';
   static const String authResetPasswordPasswordMismatchKey =
       'auth.reset_password.validation.password_mismatch';
+  static const String authChangePasswordTitleKey = 'auth.change_password.title';
+  static const String authChangePasswordDescriptionKey =
+      'auth.change_password.description';
+  static const String authChangePasswordOldPasswordLabelKey =
+      'auth.change_password.old_password_label';
+  static const String authChangePasswordOldPasswordHintKey =
+      'auth.change_password.old_password_hint';
+  static const String authChangePasswordNewPasswordLabelKey =
+      'auth.change_password.new_password_label';
+  static const String authChangePasswordNewPasswordHintKey =
+      'auth.change_password.new_password_hint';
+  static const String authChangePasswordConfirmPasswordLabelKey =
+      'auth.change_password.confirm_password_label';
+  static const String authChangePasswordConfirmPasswordHintKey =
+      'auth.change_password.confirm_password_hint';
+  static const String authChangePasswordButtonKey =
+      'auth.change_password.button';
+  static const String authChangePasswordSuccessKey =
+      'auth.change_password.success';
+  static const String authChangePasswordSamePasswordKey =
+      'auth.change_password.validation.same_password';
+  static const String authChangePasswordMismatchKey =
+      'auth.change_password.validation.password_mismatch';
   static const String authLocationTitleKey = 'auth.location.title';
   static const String authLocationAlwaysKey = 'auth.location.always';
   static const String authLocationMaybeLaterKey = 'auth.location.maybe_later';

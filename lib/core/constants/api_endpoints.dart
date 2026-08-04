@@ -10,6 +10,7 @@ abstract class ApiEndpoints {
   static const String verifyOtp = '/otp/verify';
   static const String forgotPassword = '/auth/forgot-password';
   static const String forgotPasswordVerify = '/auth/forgot-password/verify';
+  static const String changePassword = '/auth/reset-password';
   static const String refreshToken = '/auth/refresh';
   static const String categories = '/categories';
   static const String profileMe = '/profile/me';

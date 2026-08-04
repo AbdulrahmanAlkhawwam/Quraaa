@@ -102,6 +102,10 @@ class _SettingsViewState extends State<SettingsView> {
         context.push(RouteNames.settingsAccountType);
         return;
       }
+      if (section.id == 'change_password') {
+        context.pushTo(RouteNames.settingsChangePassword);
+        return;
+      }
 
       _showComingSoon(context, section.labelKey.tr());
       return;

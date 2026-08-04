@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/pages/otp_verification_screen.dart';
 import '../../features/auth/presentation/pages/forgot_password_screen.dart';
 import '../../features/auth/presentation/pages/reset_password_screen.dart';
+import '../../features/auth/presentation/pages/change_password_screen.dart';
 import '../../features/auth/presentation/pages/location_permission_screen.dart';
 import '../../features/auth/presentation/pages/notification_permission_screen.dart';
 import '../../features/home/presentation/pages/home_screen.dart';
@@ -270,6 +271,11 @@ GoRouter buildAppRouter({
         },
       ),
       GoRoute(
+        name: RouteNames.settingsChangePassword,
+        path: RouteNames.settingsChangePassword,
+        builder: (context, state) => const ChangePasswordScreen(),
+      ),
+      GoRoute(
         name: RouteNames.notificationPermission,
         path: RouteNames.notificationPermission,
         builder: (context, state) => const NotificationPermissionScreen(),
@@ -364,6 +370,7 @@ bool _isKnownRoute(String location) {
     RouteNames.settingsPersonalInformation,
     RouteNames.settingsLocations,
     RouteNames.settingsPersonalFiles,
+    RouteNames.settingsChangePassword,
     RouteNames.settingsAccountType,
     RouteNames.subscriptionAccountType,
     RouteNames.explorer,

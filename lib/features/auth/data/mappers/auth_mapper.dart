@@ -54,6 +54,16 @@ class AuthMapper {
     };
   }
 
+  static Map<String, Object?> changePasswordToJson({
+    required String oldPassword,
+    required String newPassword,
+  }) {
+    return <String, Object?>{
+      'oldPassword': oldPassword,
+      'newPassword': newPassword,
+    };
+  }
+
   static UserModel fromJson(Map<String, Object?> json) {
     return UserModel.fromJson(json);
   }
