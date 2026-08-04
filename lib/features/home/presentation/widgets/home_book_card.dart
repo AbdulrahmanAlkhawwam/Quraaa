@@ -2,17 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../shared/shared.dart';
-import '../models/home_book.dart';
+import '../../domain/entities/home_book_entity.dart';
 
 /// A book item used in horizontal lists on the home screen.
 class HomeBookCard extends StatelessWidget {
-  const HomeBookCard({
-    super.key,
-    required this.book,
-    this.onTap,
-  });
+  const HomeBookCard({super.key, required this.book, this.onTap});
 
-  final HomeBook book;
+  final HomeBookEntity book;
   final VoidCallback? onTap;
 
   @override
@@ -26,39 +22,18 @@ class HomeBookCard extends StatelessWidget {
           children: <Widget>[
             AspectRatio(
               aspectRatio: 3 / 4,
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: book.coverColors ??
-                        <Color>[
-                          AppColors.primary400,
-                          AppColors.primary600,
-                        ],
-                    begin: AlignmentDirectional.topStart,
-                    end: AlignmentDirectional.bottomEnd,
-                  ),
-                  borderRadius: BorderRadius.circular(AppRadius.radius16),
-                ),
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      const HugeIcon(
-                        icon: HugeIcons.strokeRoundedBookOpen02,
-                        color: AppColors.card,
-                        size: 40,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(AppRadius.radius16),
+                child: book.coverImageUrl.isEmpty
+                    ? const _BookCoverFallback()
+                    : AppImage(
+                        book.coverImageUrl,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                        placeholder: const _BookCoverFallback(),
+                        errorWidget: const _BookCoverFallback(),
                       ),
-                      const SizedBox(height: AppSpacing.spacing8),
-                      Text(
-                        'Emar',
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.card,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               ),
             ),
             const SizedBox(height: AppSpacing.spacing10),
@@ -71,11 +46,11 @@ class HomeBookCard extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            if (book.subtitle != null && book.subtitle!.isNotEmpty)
+            if (book.author.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: AppSpacing.spacing4),
                 child: Text(
-                  book.subtitle!,
+                  book.author,
                   style: AppTextStyles.bodySmall.copyWith(
                     color: context.appTextSecondary,
                   ),
@@ -83,16 +58,31 @@ class HomeBookCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-            Padding(
-              padding: const EdgeInsets.only(top: AppSpacing.spacing4),
-              child: Text(
-                book.size,
-                style: AppTextStyles.caption.copyWith(
-                  color: context.appTextTertiary,
-                ),
-              ),
-            ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BookCoverFallback extends StatelessWidget {
+  const _BookCoverFallback();
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: <Color>[AppColors.primary400, AppColors.primary600],
+          begin: AlignmentDirectional.topStart,
+          end: AlignmentDirectional.bottomEnd,
+        ),
+      ),
+      child: const Center(
+        child: HugeIcon(
+          icon: HugeIcons.strokeRoundedBookOpen02,
+          color: AppColors.card,
+          size: 40,
         ),
       ),
     );

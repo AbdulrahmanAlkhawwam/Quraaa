@@ -1,8 +1,7 @@
 import 'package:equatable/equatable.dart';
 
-import '../../data/models/profile_model.dart';
+import '../../domain/entities/profile.dart';
 
-/// Immutable state exposed by [ProfileBloc].
 class ProfileState extends Equatable {
   const ProfileState({
     this.loading = false,
@@ -13,7 +12,7 @@ class ProfileState extends Equatable {
 
   final bool loading;
   final Object? error;
-  final ProfileModel? profile;
+  final Profile? profile;
   final bool requiresLogin;
 
   bool get hasError => error != null;
@@ -21,7 +20,7 @@ class ProfileState extends Equatable {
   ProfileState copyWith({
     bool? loading,
     Object? error,
-    ProfileModel? profile,
+    Profile? profile,
     bool? requiresLogin,
     bool clearError = false,
     bool clearProfile = false,
@@ -35,10 +34,5 @@ class ProfileState extends Equatable {
   }
 
   @override
-  List<Object?> get props => <Object?>[
-        loading,
-        error,
-        profile,
-        requiresLogin,
-      ];
+  List<Object?> get props => <Object?>[loading, error, profile, requiresLogin];
 }

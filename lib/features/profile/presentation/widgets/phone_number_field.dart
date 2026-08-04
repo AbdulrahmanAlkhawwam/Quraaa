@@ -64,9 +64,7 @@ class _PhoneNumberFieldState extends State<PhoneNumberField> {
         controller: _controller,
         onChanged: widget.onPhoneNumberChanged,
         keyboardType: TextInputType.phone,
-        style: AppTextStyles.bodyMedium.copyWith(
-          color: context.appTextPrimary,
-        ),
+        style: AppTextStyles.bodyMedium.copyWith(color: context.appTextPrimary),
         decoration: InputDecoration(
           labelText: LocalizationConstants.profileEditPhoneNumberKey.tr(),
           floatingLabelBehavior: FloatingLabelBehavior.auto,
@@ -106,10 +104,7 @@ class _PhoneNumberFieldState extends State<PhoneNumberField> {
       mainAxisSize: MainAxisSize.min,
       children: [
         const SizedBox(width: AppSpacing.spacing14),
-        const Text(
-          '🇦🇪',
-          style: TextStyle(fontSize: 20),
-        ),
+        const Text('🇦🇪', style: TextStyle(fontSize: 20)),
         const SizedBox(width: AppSpacing.spacing6),
         Text(
           widget.countryCode,

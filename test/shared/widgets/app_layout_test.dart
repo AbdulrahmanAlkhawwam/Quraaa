@@ -110,9 +110,14 @@ void main() {
 
       final Rect scaffoldRect = tester.getRect(find.byType(Scaffold));
       final Rect snackBarRect = tester.getRect(find.byType(SnackBar));
+      final SnackBar snackBar = tester.widget<SnackBar>(find.byType(SnackBar));
 
       expect(snackBarRect.top, greaterThanOrEqualTo(scaffoldRect.top));
       expect(snackBarRect.bottom, lessThanOrEqualTo(scaffoldRect.bottom));
+      expect(find.text('Login failed'), findsOneWidget);
+      expect(find.text('Invalid credentials'), findsOneWidget);
+      expect(snackBar.duration, const Duration(seconds: 6));
+      expect(snackBar.showCloseIcon, isTrue);
     });
   });
 }

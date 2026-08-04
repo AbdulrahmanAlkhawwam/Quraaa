@@ -47,6 +47,7 @@ class LibraryDetailsState extends Equatable {
         () => LibraryAuthorViewModel(
           name: book.author,
           imageUrl: book.coverImageUrl,
+          subtitle: book.language,
         ),
       );
     }
@@ -56,12 +57,12 @@ class LibraryDetailsState extends Equatable {
 
   @override
   List<Object?> get props => <Object?>[
-        status,
-        books,
-        authors,
-        hasMore,
-        errorMessage,
-      ];
+    status,
+    books,
+    authors,
+    hasMore,
+    errorMessage,
+  ];
 }
 
 enum LibraryDetailsStatus { initial, loading, success, error }
@@ -71,11 +72,13 @@ class LibraryAuthorViewModel extends Equatable {
   const LibraryAuthorViewModel({
     required this.name,
     required this.imageUrl,
+    this.subtitle = '',
   });
 
   final String name;
   final String imageUrl;
+  final String subtitle;
 
   @override
-  List<Object?> get props => <Object?>[name, imageUrl];
+  List<Object?> get props => <Object?>[name, imageUrl, subtitle];
 }

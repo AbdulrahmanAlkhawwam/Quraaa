@@ -63,14 +63,14 @@ void main() {
     test('loadUserSnapshot stores the account header snapshot', () async {
       when(() => loadUserSnapshotUseCase(any())).thenAnswer(
         (_) async => const AccountUserSnapshot(
-          fullName: 'Abdulrahman Alkhawwam',
+          fullName: 'Test User',
           profileImage: '/tmp/avatar.png',
         ),
       );
 
       await cubit.loadUserSnapshot();
 
-      expect(cubit.state.firstName, 'Abdulrahman');
+      expect(cubit.state.firstName, 'Test');
       expect(cubit.state.profileImage, '/tmp/avatar.png');
       verify(() => loadUserSnapshotUseCase(any())).called(1);
     });

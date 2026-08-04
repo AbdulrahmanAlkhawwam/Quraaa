@@ -45,9 +45,7 @@ class ProfileTextField extends StatelessWidget {
         keyboardType: keyboardType,
         readOnly: readOnly,
         onTap: onTap,
-        style: AppTextStyles.bodyMedium.copyWith(
-          color: context.appTextPrimary,
-        ),
+        style: AppTextStyles.bodyMedium.copyWith(color: context.appTextPrimary),
         decoration: InputDecoration(
           labelText: label,
           hintText: hintText,
@@ -76,10 +74,7 @@ class ProfileTextField extends StatelessWidget {
   OutlineInputBorder _outlineBorder(Color color) {
     return OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppRadius.radius16),
-      borderSide: BorderSide(
-        color: color,
-        width: _borderWidth,
-      ),
+      borderSide: BorderSide(color: color, width: _borderWidth),
     );
   }
 }

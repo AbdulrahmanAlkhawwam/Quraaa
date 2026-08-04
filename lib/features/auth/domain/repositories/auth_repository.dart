@@ -31,4 +31,9 @@ abstract class AuthRepository {
     required String code,
     required String newPassword,
   });
+
+  Future<Result<bool>> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  });
 }

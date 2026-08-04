@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/pages/otp_verification_screen.dart';
 import '../../features/auth/presentation/pages/forgot_password_screen.dart';
 import '../../features/auth/presentation/pages/reset_password_screen.dart';
+import '../../features/auth/presentation/pages/change_password_screen.dart';
 import '../../features/auth/presentation/pages/location_permission_screen.dart';
 import '../../features/auth/presentation/pages/notification_permission_screen.dart';
 import '../../features/home/presentation/pages/home_screen.dart';
@@ -27,12 +28,13 @@ import '../../features/onboarding/presentation/pages/interests_onboarding_page.d
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../../features/profile/presentation/bloc/profile_event.dart';
 import '../../features/settings/presentation/pages/settings_screen.dart';
+import '../../features/settings/presentation/pages/personal_information_screen.dart';
+import '../../features/profile/presentation/pages/profile_locations_screen.dart';
 import '../../features/subscription/presentation/pages/account_type_screen.dart';
 import '../../features/search/search.dart';
-import '../../core/connectivity/connection_status.dart';
-import '../../core/connectivity/connectivity_service.dart';
 import '../../core/di/injection_container.dart';
 import '../../features/splash/presentation/pages/splash_screen.dart';
+import '../../features/local_explorer/presentation/pages/explorer_history_screen.dart';
 import '../../features/local_explorer/presentation/pages/local_explorer_page.dart';
 import '../../features/pdf_reader/presentation/pages/pdf_reader_page.dart';
 import '../../shared/widgets/app_shell.dart';
@@ -54,14 +56,6 @@ GoRouter buildAppRouter({
       if (location == RouteNames.routeBridge) {
         return resolveBridgeRoute(state.uri.queryParameters['route']) ??
             RouteNames.splash;
-      }
-
-      if (_isOnlineOnlyRoute(location)) {
-        final ConnectionStatus status = await sl<ConnectivityService>()
-            .currentStatus();
-        if (status == ConnectionStatus.disconnected) {
-          return RouteNames.auth;
-        }
       }
 
       if (location == RouteNames.splash || _isKnownRoute(location)) {
@@ -187,7 +181,11 @@ GoRouter buildAppRouter({
       GoRoute(
         name: RouteNames.bookAssistant,
         path: RouteNames.bookAssistant,
-        builder: (context, state) => const BookAssistantScreen(),
+        pageBuilder: (context, state) => _buildTabTransitionPage(
+          state: state,
+          tabIndex: 3,
+          child: const BookAssistantScreen(),
+        ),
       ),
       GoRoute(
         name: RouteNames.profile,
@@ -221,7 +219,30 @@ GoRouter buildAppRouter({
       GoRoute(
         name: RouteNames.settings,
         path: RouteNames.settings,
-        builder: (context, state) => const SettingsScreen(),
+        pageBuilder: (context, state) => _buildTabTransitionPage(
+          state: state,
+          tabIndex: 3,
+          child: const SettingsScreen(),
+        ),
+      ),
+      GoRoute(
+        name: RouteNames.settingsPersonalInformation,
+        path: RouteNames.settingsPersonalInformation,
+        builder: (context, state) => BlocProvider<ProfileBloc>(
+          create: (_) =>
+              sl<ProfileBloc>()..add(const ProfileCachedLoadRequested()),
+          child: const PersonalInformationScreen(),
+        ),
+      ),
+      GoRoute(
+        name: RouteNames.settingsLocations,
+        path: RouteNames.settingsLocations,
+        builder: (context, state) => const ProfileLocationsScreen(),
+      ),
+      GoRoute(
+        name: RouteNames.settingsPersonalFiles,
+        path: RouteNames.settingsPersonalFiles,
+        builder: (context, state) => const ExplorerHistoryScreen(),
       ),
       GoRoute(
         name: RouteNames.subscriptionAccountType,
@@ -248,6 +269,11 @@ GoRouter buildAppRouter({
           final String? phoneNumber = state.extra as String?;
           return ResetPasswordScreen(phoneNumber: phoneNumber);
         },
+      ),
+      GoRoute(
+        name: RouteNames.settingsChangePassword,
+        path: RouteNames.settingsChangePassword,
+        builder: (context, state) => const ChangePasswordScreen(),
       ),
       GoRoute(
         name: RouteNames.notificationPermission,
@@ -295,32 +321,36 @@ Page<void> _buildSoftTransitionPage({
     transitionDuration: const Duration(milliseconds: 360),
     reverseTransitionDuration: const Duration(milliseconds: 280),
     child: child,
-    transitionsBuilder: (
-      BuildContext context,
-      Animation<double> animation,
-      Animation<double> secondaryAnimation,
-      Widget child,
-    ) {
-      final Animation<double> curvedAnimation = CurvedAnimation(
-        parent: animation,
-        curve: Curves.easeOutCubic,
-        reverseCurve: Curves.easeInCubic,
-      );
+    transitionsBuilder:
+        (
+          BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+          Widget child,
+        ) {
+          final Animation<double> curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+            reverseCurve: Curves.easeInCubic,
+          );
 
-      return FadeTransition(
-        opacity: curvedAnimation,
-        child: SlideTransition(
-          position: Tween<Offset>(
-            begin: beginOffset,
-            end: Offset.zero,
-          ).animate(curvedAnimation),
-          child: ScaleTransition(
-            scale: Tween<double>(begin: 0.985, end: 1).animate(curvedAnimation),
-            child: child,
-          ),
-        ),
-      );
-    },
+          return FadeTransition(
+            opacity: curvedAnimation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: beginOffset,
+                end: Offset.zero,
+              ).animate(curvedAnimation),
+              child: ScaleTransition(
+                scale: Tween<double>(
+                  begin: 0.985,
+                  end: 1,
+                ).animate(curvedAnimation),
+                child: child,
+              ),
+            ),
+          );
+        },
   );
 }
 
@@ -337,6 +367,10 @@ bool _isKnownRoute(String location) {
     RouteNames.bookAssistant,
     RouteNames.search,
     RouteNames.settings,
+    RouteNames.settingsPersonalInformation,
+    RouteNames.settingsLocations,
+    RouteNames.settingsPersonalFiles,
+    RouteNames.settingsChangePassword,
     RouteNames.settingsAccountType,
     RouteNames.subscriptionAccountType,
     RouteNames.explorer,
@@ -364,11 +398,4 @@ bool _isKnownRoute(String location) {
   }
 
   return false;
-}
-
-bool _isOnlineOnlyRoute(String location) {
-  return location == RouteNames.register ||
-      location == RouteNames.otpVerification ||
-      location == RouteNames.forgotPassword ||
-      location == RouteNames.resetPassword;
 }

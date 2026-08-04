@@ -1,3 +1,4 @@
+import '../../../config/env/env.dart';
 import '../../../../core/constants/app_storage_keys.dart';
 import '../../../../core/services/storage_service.dart';
 
@@ -20,18 +21,22 @@ class UserDataLocalDataSource {
 
   Future<UserDataSnapshot> load() async {
     return UserDataSnapshot(
-      fullName: _storageService.getString(_fullNameKey) ?? 'Abdulrahman Alkhawwam',
+      fullName: _storageService.getString(_fullNameKey) ?? Env.appName,
       birthDate: _storageService.getString(_birthDateKey) ?? '2005/04/21',
       country: _storageService.getString(_countryKey) ?? 'United Arab Emirates',
       phone: _storageService.getString(_phoneKey) ?? '+971 500 000 000',
       theme: _storageService.getString(_themeKey) ?? 'Light',
       language: _storageService.getString(_languageKey) ?? 'en',
-      bookmarks: _storageService.getStringList(_bookmarksKey) ??
+      bookmarks:
+          _storageService.getStringList(_bookmarksKey) ??
           <String>['Quran recitations', 'Book notes'],
-      budgetBalance: _storageService.getString(_budgetBalanceKey) ?? 'AED 250.00',
-      libraryItems: _storageService.getStringList(_libraryItemsKey) ??
+      budgetBalance:
+          _storageService.getString(_budgetBalanceKey) ?? 'AED 250.00',
+      libraryItems:
+          _storageService.getStringList(_libraryItemsKey) ??
           <String>['Saved books', 'Listening queue'],
-      operations: _storageService.getStringList(_operationsKey) ??
+      operations:
+          _storageService.getStringList(_operationsKey) ??
           <String>['Login', 'Bookmark added', 'Budget update'],
       profileImage: _storageService.getString(_profileImageKey),
     );

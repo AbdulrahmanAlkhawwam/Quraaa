@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/architecture/use_case.dart';
+import '../../../../core/utils/validators.dart';
 import '../../../onboarding/onboarding.dart';
 
 enum AuthRegistrationStatus { initial, loading, loaded, failure }
@@ -9,6 +10,7 @@ enum AuthRegistrationStatus { initial, loading, loaded, failure }
 class AuthRegistrationState extends Equatable {
   const AuthRegistrationState({
     this.status = AuthRegistrationStatus.initial,
+    this.onboardingCompleted = false,
     this.birthYear,
     this.birthMonth,
     this.birthDay,
@@ -19,6 +21,7 @@ class AuthRegistrationState extends Equatable {
   });
 
   final AuthRegistrationStatus status;
+  final bool onboardingCompleted;
   final int? birthYear;
   final int? birthMonth;
   final int? birthDay;
@@ -29,30 +32,44 @@ class AuthRegistrationState extends Equatable {
 
   bool get isLoading => status == AuthRegistrationStatus.loading;
 
+  bool get hasRequiredOnboardingData =>
+      onboardingCompleted &&
+      Validators.genderValid(selectedGender) &&
+      Validators.dateOfBirthAgeInRange(
+        year: birthYear,
+        month: birthMonth,
+        day: birthDay,
+      ) &&
+      Validators.interestsExist(
+        categoryIds: selectedCategoryIds,
+        validCategoryIds: validCategoryIds,
+      );
+
   List<String> get validCategoryIds => categories
       .map((Category category) => category.id)
       .toList(growable: false);
 
   @override
   List<Object?> get props => <Object?>[
-        status,
-        birthYear,
-        birthMonth,
-        birthDay,
-        selectedGender,
-        categories,
-        selectedCategoryIds,
-        errorMessage,
-      ];
+    status,
+    onboardingCompleted,
+    birthYear,
+    birthMonth,
+    birthDay,
+    selectedGender,
+    categories,
+    selectedCategoryIds,
+    errorMessage,
+  ];
 }
 
 class AuthRegistrationCubit extends Cubit<AuthRegistrationState> {
   AuthRegistrationCubit({
     required LoadOnboardingStateUseCase loadOnboardingStateUseCase,
     required LoadCategoriesUseCase loadCategoriesUseCase,
-  })  : _loadOnboardingStateUseCase = loadOnboardingStateUseCase,
-        _loadCategoriesUseCase = loadCategoriesUseCase,
-        super(const AuthRegistrationState());
+  }) : _loadOnboardingStateUseCase = loadOnboardingStateUseCase,
+       _loadCategoriesUseCase = loadCategoriesUseCase,
+       super(const AuthRegistrationState());
 
   final LoadOnboardingStateUseCase _loadOnboardingStateUseCase;
   final LoadCategoriesUseCase _loadCategoriesUseCase;
@@ -69,6 +86,7 @@ class AuthRegistrationCubit extends Cubit<AuthRegistrationState> {
       emit(
         AuthRegistrationState(
           status: AuthRegistrationStatus.loaded,
+          onboardingCompleted: draft.completed,
           birthYear: draft.birthYear,
           birthMonth: draft.birthMonth,
           birthDay: draft.birthDay,

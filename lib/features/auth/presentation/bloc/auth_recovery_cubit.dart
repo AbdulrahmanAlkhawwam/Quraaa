@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 import '../../../../config/routes/route_names.dart';
 import '../../../../core/architecture/result.dart';
 import '../../data/datasources/auth_local_datasource.dart';
+import '../../data/services/auth_session_service.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/use_cases/forgot_password_use_case.dart';
 import '../../domain/use_cases/reset_password_use_case.dart';
@@ -13,7 +14,12 @@ import '../../domain/use_cases/verify_otp_use_case.dart';
 
 enum AuthRecoveryStatus { initial, loading, success, failure, navigate }
 
-enum AuthRecoverySuccess { none, forgotPasswordSent, passwordReset, otpVerified }
+enum AuthRecoverySuccess {
+  none,
+  forgotPasswordSent,
+  passwordReset,
+  otpVerified,
+}
 
 @immutable
 class AuthRecoveryState {
@@ -69,16 +75,19 @@ class AuthRecoveryCubit extends Cubit<AuthRecoveryState> {
     required ResetPasswordUseCase resetPasswordUseCase,
     required VerifyOtpUseCase verifyOtpUseCase,
     required AuthLocalDataSource authJourney,
-  })  : _forgotPasswordUseCase = forgotPasswordUseCase,
-        _resetPasswordUseCase = resetPasswordUseCase,
-        _verifyOtpUseCase = verifyOtpUseCase,
-        _authJourney = authJourney,
-        super(const AuthRecoveryState());
+    required AuthSessionService authSessionService,
+  }) : _forgotPasswordUseCase = forgotPasswordUseCase,
+       _resetPasswordUseCase = resetPasswordUseCase,
+       _verifyOtpUseCase = verifyOtpUseCase,
+       _authJourney = authJourney,
+       _authSessionService = authSessionService,
+       super(const AuthRecoveryState());
 
   final ForgotPasswordUseCase _forgotPasswordUseCase;
   final ResetPasswordUseCase _resetPasswordUseCase;
   final VerifyOtpUseCase _verifyOtpUseCase;
   final AuthLocalDataSource _authJourney;
+  final AuthSessionService _authSessionService;
   Timer? _resendTimer;
 
   Future<void> requestPasswordReset({
@@ -100,7 +109,13 @@ class AuthRecoveryCubit extends Cubit<AuthRecoveryState> {
     await result.fold(
       (ResultFailure<bool> failure) async => _emitFailure(failure),
       (_) async {
-        await _authJourney.saveLastPhoneNumber(phoneNumber, phoneIsoCode);
+        try {
+          await _authJourney.saveLastPhoneNumber(phoneNumber, phoneIsoCode);
+          await _authJourney.saveJourneyStage(
+            AuthJourneyStage.resetPassword,
+            previousStage: AuthJourneyStage.login,
+          );
+        } catch (_) {}
         _emitNavigation(
           RouteNames.resetPassword,
           success: AuthRecoverySuccess.forgotPasswordSent,
@@ -131,12 +146,20 @@ class AuthRecoveryCubit extends Cubit<AuthRecoveryState> {
       ),
     );
 
-    result.fold(
-      (ResultFailure<bool> failure) => _emitFailure(failure),
-      (_) => _emitNavigation(
-        RouteNames.login,
-        success: AuthRecoverySuccess.passwordReset,
-      ),
+    await result.fold(
+      (ResultFailure<bool> failure) async => _emitFailure(failure),
+      (_) async {
+        try {
+          await _authJourney.saveJourneyStage(
+            AuthJourneyStage.login,
+            previousStage: AuthJourneyStage.resetPassword,
+          );
+        } catch (_) {}
+        _emitNavigation(
+          RouteNames.login,
+          success: AuthRecoverySuccess.passwordReset,
+        );
+      },
     );
   }
 
@@ -160,17 +183,34 @@ class AuthRecoveryCubit extends Cubit<AuthRecoveryState> {
     await result.fold(
       (ResultFailure<User> failure) async => _emitFailure(failure),
       (User user) async {
-        await _authJourney.markAuthenticatedSession(
-          accessToken: user.accessToken,
-          refreshToken: user.refreshToken,
-          accessTokenExpiration: user.accessTokenExpiration,
-        );
+        try {
+          await _authSessionService.completeAuthenticatedSession(
+            user,
+            fallbackId: phoneNumber,
+            fallbackPhone: phoneNumber,
+          );
+        } catch (error) {
+          emit(
+            state.copyWith(
+              status: AuthRecoveryStatus.failure,
+              success: AuthRecoverySuccess.none,
+              error: error,
+            ),
+          );
+          return;
+        }
         _emitNavigation(
           RouteNames.home,
           success: AuthRecoverySuccess.otpVerified,
         );
       },
     );
+  }
+
+  Future<String> resolvePhoneNumber(String? routePhoneNumber) async {
+    final String provided = routePhoneNumber?.trim() ?? '';
+    if (provided.isNotEmpty) return provided;
+    return (await _authJourney.getLastPhoneNumber())?.trim() ?? '';
   }
 
   void startOtpResendCountdown({int seconds = 60}) {

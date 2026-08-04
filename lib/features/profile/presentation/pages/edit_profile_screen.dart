@@ -1,185 +1,264 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hugeicons/hugeicons.dart';
 
-import '../../../../../core/di/injection_container.dart';
-import '../../../../../core/localization/localization_constants.dart';
-import '../../../../../shared/shared.dart';
-import '../bloc/edit_profile_bloc.dart';
-import '../bloc/edit_profile_event.dart';
-import '../bloc/edit_profile_state.dart';
-import '../widgets/avatar_customization_tabs.dart';
-import '../widgets/color_palette.dart';
-import '../widgets/gender_dropdown.dart';
-import '../widgets/phone_number_field.dart';
-import '../widgets/profile_preview_card.dart';
-import '../widgets/profile_text_field.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/localization/localization_constants.dart';
+import '../../../../shared/shared.dart';
+import '../../domain/entities/profile.dart';
+import '../../domain/entities/update_profile_input.dart';
+import '../cubit/profile_edit_cubit.dart';
 
-/// Pixel-perfect Edit Profile screen.
 class EditProfileScreen extends StatelessWidget {
-  const EditProfileScreen({super.key});
+  const EditProfileScreen({required this.profile, super.key});
+
+  final Profile profile;
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<EditProfileBloc>(),
-      child: Scaffold(
-        backgroundColor: context.appBackground,
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsetsDirectional.only(bottom: AppSpacing.spacing40),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const _EditProfileHeader(),
+    return BlocProvider<ProfileEditCubit>(
+      create: (_) => sl<ProfileEditCubit>(param1: profile),
+      child: const _EditProfileView(),
+    );
+  }
+}
+
+class _EditProfileView extends StatefulWidget {
+  const _EditProfileView();
+
+  @override
+  State<_EditProfileView> createState() => _EditProfileViewState();
+}
+
+class _EditProfileViewState extends State<_EditProfileView> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  late final TextEditingController _firstNameController;
+  late final TextEditingController _lastNameController;
+  late final TextEditingController _birthDateController;
+  late final TextEditingController _phoneController;
+  late int _gender;
+
+  @override
+  void initState() {
+    super.initState();
+    final Profile profile = context.read<ProfileEditCubit>().state.profile;
+    _firstNameController = TextEditingController(text: profile.firstName);
+    _lastNameController = TextEditingController(text: profile.lastName);
+    _birthDateController = TextEditingController(text: profile.dateOfBirth);
+    _phoneController = TextEditingController(text: profile.phoneNumber);
+    _gender = ProfileGenderValue.normalize(profile.gender);
+  }
+
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _birthDateController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<ProfileEditCubit, ProfileEditState>(
+      listenWhen: (previous, current) =>
+          previous.error != current.error || previous.saved != current.saved,
+      listener: (context, state) {
+        if (state.error != null) {
+          context.showResolvedErrorSnackBar(state.error);
+        }
+        if (state.saved) {
+          Navigator.of(context).pop<Profile>(state.profile);
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: context.appBackground,
+          appBar: AppBar(
+            elevation: 0,
+            backgroundColor: context.appBackground,
+            foregroundColor: context.isDark
+                ? AppColors.primary300
+                : AppColors.libraryGreen,
+            title: Text(LocalizationConstants.profileEditTitleKey.tr()),
+            actions: <Widget>[
+              TextButton(
+                onPressed: state.saving ? null : _save,
+                child: state.saving
+                    ? const SizedBox.square(
+                        dimension: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(LocalizationConstants.commonSaveKey.tr()),
+              ),
+            ],
+          ),
+          body: Form(
+            key: _formKey,
+            child: ListView(
+              padding: const EdgeInsets.all(AppSpacing.spacing24),
+              children: <Widget>[
+                _ProfileImagePreview(url: state.profile.profileImageUrl),
                 const SizedBox(height: AppSpacing.spacing24),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.spacing24,
+                TextFormField(
+                  controller: _firstNameController,
+                  textInputAction: TextInputAction.next,
+                  decoration: InputDecoration(
+                    labelText: LocalizationConstants.profileEditFirstNameKey
+                        .tr(),
                   ),
-                  child: BlocBuilder<EditProfileBloc, EditProfileState>(
-                    builder: (
-                      BuildContext context,
-                      EditProfileState state,
-                    ) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          ProfilePreviewCard(
-                            backgroundColor: state.selectedBackgroundColor,
-                          ),
-                          const SizedBox(height: AppSpacing.spacing18),
-                          AvatarCustomizationTabs(
-                            selectedTab: state.selectedTab,
-                            onTabSelected: (int index) => context
-                                .read<EditProfileBloc>()
-                                .add(EditProfileTabSelected(index)),
-                          ),
-                          const SizedBox(height: AppSpacing.spacing18),
-                          ColorPalette(
-                            selectedColor: state.selectedBackgroundColor,
-                            onColorSelected: (Color color) => context
-                                .read<EditProfileBloc>()
-                                .add(EditProfileBackgroundColorSelected(color)),
-                          ),
-                          const SizedBox(height: AppSpacing.spacing26),
-                          Text(
-                            LocalizationConstants
-                                .profileEditPersonalDataKey
-                                .tr(),
-                            style: AppTextStyles.titleMedium.copyWith(
-                              color: context.isDark ? AppColors.primary300 : AppColors.editProfileSectionTitle,
-                            ),
-                          ),
-                          const SizedBox(height: AppSpacing.spacing18),
-                          ProfileTextField(
-                            label: LocalizationConstants
-                                .profileEditFullNameKey
-                                .tr(),
-                            initialValue: state.name,
-                            onChanged: (String value) => context
-                                .read<EditProfileBloc>()
-                                .add(EditProfileNameChanged(value)),
-                          ),
-                          const SizedBox(height: AppSpacing.spacing18),
-                          GenderDropdown(
-                            value: state.gender,
-                            onChanged: (String value) => context
-                                .read<EditProfileBloc>()
-                                .add(EditProfileGenderChanged(value)),
-                          ),
-                          const SizedBox(height: AppSpacing.spacing18),
-                          ProfileTextField(
-                            label: LocalizationConstants
-                                .profileEditBirthDateKey
-                                .tr(),
-                            hintText: LocalizationConstants
-                                .profileEditBirthDateHintKey
-                                .tr(),
-                            initialValue: state.birthDate,
-                            onChanged: (String value) => context
-                                .read<EditProfileBloc>()
-                                .add(EditProfileBirthDateChanged(value)),
-                          ),
-                          const SizedBox(height: AppSpacing.spacing18),
-                          PhoneNumberField(
-                            countryCode: LocalizationConstants
-                                .profileEditCountryCodeKey
-                                .tr(),
-                            phoneNumber: state.phoneNumber,
-                            onPhoneNumberChanged: (String value) => context
-                                .read<EditProfileBloc>()
-                                .add(EditProfilePhoneNumberChanged(value)),
-                          ),
-                        ],
-                      );
-                    },
+                  validator: _requiredValidator,
+                ),
+                const SizedBox(height: AppSpacing.spacing16),
+                TextFormField(
+                  controller: _lastNameController,
+                  textInputAction: TextInputAction.next,
+                  decoration: InputDecoration(
+                    labelText: LocalizationConstants.profileEditLastNameKey
+                        .tr(),
+                  ),
+                  validator: _requiredValidator,
+                ),
+                const SizedBox(height: AppSpacing.spacing16),
+                DropdownButtonFormField<int>(
+                  initialValue: _gender,
+                  decoration: InputDecoration(
+                    labelText: LocalizationConstants.profileEditGenderKey.tr(),
+                  ),
+                  items: <DropdownMenuItem<int>>[
+                    DropdownMenuItem<int>(
+                      value: ProfileGenderValue.male,
+                      child: Text(
+                        LocalizationConstants.profileEditGenderMaleKey.tr(),
+                      ),
+                    ),
+                    DropdownMenuItem<int>(
+                      value: ProfileGenderValue.female,
+                      child: Text(
+                        LocalizationConstants.profileEditGenderFemaleKey.tr(),
+                      ),
+                    ),
+                  ],
+                  onChanged: state.saving
+                      ? null
+                      : (int? value) => _gender = value ?? _gender,
+                ),
+                const SizedBox(height: AppSpacing.spacing16),
+                TextFormField(
+                  controller: _birthDateController,
+                  readOnly: true,
+                  onTap: state.saving ? null : _pickBirthDate,
+                  decoration: InputDecoration(
+                    labelText: LocalizationConstants.profileEditBirthDateKey
+                        .tr(),
+                    suffixIcon: const Icon(Icons.calendar_today_outlined),
+                  ),
+                  validator: _requiredValidator,
+                ),
+                const SizedBox(height: AppSpacing.spacing16),
+                TextFormField(
+                  controller: _phoneController,
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    labelText: LocalizationConstants.profileEditPhoneNumberKey
+                        .tr(),
+                    helperText: LocalizationConstants
+                        .profileEditPhoneReadOnlyKey
+                        .tr(),
                   ),
                 ),
+                if (state.profile.interests.isNotEmpty) ...<Widget>[
+                  const SizedBox(height: AppSpacing.spacing24),
+                  Text(
+                    LocalizationConstants.profileEditInterestsKey.tr(),
+                    style: AppTextStyles.titleMedium.copyWith(
+                      color: context.appTextPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.spacing8),
+                  Wrap(
+                    spacing: AppSpacing.spacing8,
+                    runSpacing: AppSpacing.spacing8,
+                    children: state.profile.interests
+                        .map(
+                          (interest) => Chip(
+                            label: Text(
+                              context.locale.languageCode == 'ar'
+                                  ? interest.nameAr
+                                  : interest.nameEn,
+                            ),
+                          ),
+                        )
+                        .toList(growable: false),
+                  ),
+                ],
               ],
             ),
           ),
-        ),
+        );
+      },
+    );
+  }
+
+  String? _requiredValidator(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return LocalizationConstants.profileEditRequiredKey.tr();
+    }
+    return null;
+  }
+
+  Future<void> _pickBirthDate() async {
+    final DateTime initial =
+        DateTime.tryParse(_birthDateController.text) ?? DateTime(2000);
+    final DateTime? selected = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (selected != null) {
+      _birthDateController.text =
+          '${selected.year.toString().padLeft(4, '0')}-'
+          '${selected.month.toString().padLeft(2, '0')}-'
+          '${selected.day.toString().padLeft(2, '0')}';
+    }
+  }
+
+  void _save() {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    final Profile profile = context.read<ProfileEditCubit>().state.profile;
+    context.read<ProfileEditCubit>().save(
+      UpdateProfileInput(
+        firstName: _firstNameController.text.trim(),
+        lastName: _lastNameController.text.trim(),
+        gender: _gender,
+        dateOfBirth: _birthDateController.text,
+        profileImageUrl: profile.profileImageUrl,
+        interestIds: profile.interests
+            .map((interest) => interest.id)
+            .toList(growable: false),
       ),
     );
   }
 }
 
-class _EditProfileHeader extends StatelessWidget {
-  const _EditProfileHeader();
+class _ProfileImagePreview extends StatelessWidget {
+  const _ProfileImagePreview({this.url});
+
+  final String? url;
 
   @override
   Widget build(BuildContext context) {
-    final Color headerColor =
-        context.isDark ? AppColors.primary300 : AppColors.editProfileTitle;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.spacing24,
-        vertical: AppSpacing.spacing12,
-      ),
-      child: Row(
-        children: [
-          InkWell(
-            onTap: () => Navigator.of(context).pop(),
-            borderRadius: BorderRadius.circular(AppRadius.radius12),
-            child: Icon(
-              context.isRTL ? CupertinoIcons.chevron_forward : CupertinoIcons.chevron_back,
-              color: headerColor,
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.spacing16),
-          Expanded(
-            child: Text(
-              LocalizationConstants.profileEditTitleKey.tr(),
-              style: AppTextStyles.h3.copyWith(
-                color: headerColor,
-              ),
-            ),
-          ),
-          InkWell(
-            onTap: () => _onSave(context),
-            borderRadius: BorderRadius.circular(AppRadius.radius12),
-            child: HugeIcon(
-              icon: HugeIcons.strokeRoundedSave,
-              color: headerColor,
-              size: 26,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _onSave(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          LocalizationConstants.profileEditSaveComingSoonKey.tr(),
-        ),
+    return Center(
+      child: CircleAvatar(
+        radius: 54,
+        backgroundColor: context.appSubtleSurface,
+        backgroundImage: url != null && url!.trim().isNotEmpty
+            ? NetworkImage(url!)
+            : null,
+        child: url == null || url!.trim().isEmpty
+            ? const Icon(Icons.person_outline_rounded, size: 52)
+            : null,
       ),
     );
   }

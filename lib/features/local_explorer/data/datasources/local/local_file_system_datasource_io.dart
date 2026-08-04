@@ -45,8 +45,9 @@ class IoLocalFileSystemDataSource implements LocalFileSystemDataSource {
     final List<LocalFileEntryModel> entries = <LocalFileEntryModel>[];
 
     try {
-      await for (final FileSystemEntity entity
-          in directory.list(followLinks: false)) {
+      await for (final FileSystemEntity entity in directory.list(
+        followLinks: false,
+      )) {
         final String name = _basename(entity.path);
         if (name.isEmpty || name.startsWith('.')) {
           continue;
@@ -89,14 +90,15 @@ class IoLocalFileSystemDataSource implements LocalFileSystemDataSource {
         );
       }
     } on FileSystemException catch (error) {
-      throw FileAccessDeniedException(
-        message: error.message,
-      );
+      throw FileAccessDeniedException(message: error.message);
     }
 
     entries.sort(_compareEntries);
     return entries;
   }
+
+  @override
+  Future<bool> fileExists(String path) => File(path).exists();
 
   @override
   List<LocalPathSegmentModel> buildBreadcrumbs(String path) {
@@ -203,9 +205,7 @@ class IoLocalFileSystemDataSource implements LocalFileSystemDataSource {
     String currentPath = _androidRootPath;
     for (final String segment in _segments(rest)) {
       currentPath = '$currentPath/$segment';
-      breadcrumbs.add(
-        LocalPathSegmentModel(label: segment, path: currentPath),
-      );
+      breadcrumbs.add(LocalPathSegmentModel(label: segment, path: currentPath));
     }
 
     return breadcrumbs;
@@ -256,9 +256,7 @@ class IoLocalFileSystemDataSource implements LocalFileSystemDataSource {
     String currentPath = '';
     for (final String segment in _segments(rest)) {
       currentPath = '$currentPath/$segment';
-      breadcrumbs.add(
-        LocalPathSegmentModel(label: segment, path: currentPath),
-      );
+      breadcrumbs.add(LocalPathSegmentModel(label: segment, path: currentPath));
     }
 
     return breadcrumbs;

@@ -6,6 +6,8 @@ abstract class LocalFileSystemDataSource {
 
   Future<List<LocalFileEntryModel>> listDirectory(String path);
 
+  Future<bool> fileExists(String path);
+
   List<LocalPathSegmentModel> buildBreadcrumbs(String path);
 
   String? parentOf(String path);

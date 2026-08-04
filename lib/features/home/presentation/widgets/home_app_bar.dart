@@ -24,13 +24,15 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final String resolvedFirstName = firstName.trim().isEmpty
-        ? LocalizationConstants.homeDrawerUserKey.tr()
+        ? LocalizationConstants.appNameKey.tr()
         : firstName.trim();
     final bool hasImage = profileImage != null && profileImage!.isNotEmpty;
-    final Color headerTextColor =
-        context.isDark ? AppColors.primary300 : AppColors.libraryGreen;
-    final Color avatarColor =
-        context.isDark ? AppColors.primary300 : AppColors.primary600;
+    final Color headerTextColor = context.isDark
+        ? AppColors.primary300
+        : AppColors.libraryGreen;
+    final Color avatarColor = context.isDark
+        ? AppColors.primary300
+        : AppColors.primary600;
 
     return AppBar(
       backgroundColor: Colors.transparent,

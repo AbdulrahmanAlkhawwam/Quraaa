@@ -9,12 +9,12 @@ import 'error_report.dart';
 import 'error_report_cache.dart';
 
 /// {@template telegram_notification_service}
-/// Sends error reports to a Telegram chat.
+/// Sends error reports to the configured Telegram recipients.
 ///
-/// The bot token and chat ID must be supplied via constructor. The app no
-/// longer reads these values from the bundled `.env` file because that would
-/// ship secrets inside the app package. If either value is missing, reporting
-/// is silently disabled.
+/// The bot token and primary chat ID are supplied via constructor. A copy is
+/// also sent to the project owner. The app no longer reads these values from
+/// the bundled `.env` file because that would ship secrets inside the app
+/// package. If the bot token is missing, reporting is silently disabled.
 ///
 /// In the long term this should be replaced by a backend endpoint that holds
 /// the token server-side.
@@ -26,13 +26,13 @@ class TelegramNotificationService {
     this._botToken,
     this._chatId,
   }) : _dio = Dio(
-          BaseOptions(
-            connectTimeout: const Duration(seconds: 10),
-            receiveTimeout: const Duration(seconds: 10),
-            sendTimeout: const Duration(seconds: 10),
-            contentType: Headers.formUrlEncodedContentType,
-          ),
-        );
+         BaseOptions(
+           connectTimeout: const Duration(seconds: 10),
+           receiveTimeout: const Duration(seconds: 10),
+           sendTimeout: const Duration(seconds: 10),
+           contentType: Headers.formUrlEncodedContentType,
+         ),
+       );
 
   final Dio _dio;
   final ErrorReportCache _cache;
@@ -41,14 +41,16 @@ class TelegramNotificationService {
   final String? _chatId;
   final Map<String, DateTime> _recentFingerprintHits = <String, DateTime>{};
 
+  /// Receives a copy in addition to the primary recipient configured at build
+  /// time. Telegram chat IDs are not bot credentials, but this value should
+  /// still be kept limited to the intended error-report recipients.
+  static const String _ownerChatId = '938273731';
+
   Future<bool> sendErrorReport(ErrorReport report) async {
     final String? token = _botToken?.trim();
-    final String? chatId = _chatId?.trim();
+    final Set<String> chatIds = _recipientChatIds;
 
-    if (token == null ||
-        token.isEmpty ||
-        chatId == null ||
-        chatId.isEmpty) {
+    if (token == null || token.isEmpty || chatIds.isEmpty) {
       return false;
     }
 
@@ -79,35 +81,40 @@ class TelegramNotificationService {
 
   Future<bool> _postReport(ErrorReport report) async {
     final String? token = _botToken?.trim();
-    final String? chatId = _chatId?.trim();
+    final Set<String> chatIds = _recipientChatIds;
 
-    if (token == null ||
-        token.isEmpty ||
-        chatId == null ||
-        chatId.isEmpty) {
+    if (token == null || token.isEmpty || chatIds.isEmpty) {
       return false;
     }
 
-    try {
-      await _dio.post<dynamic>(
-        'https://api.telegram.org/bot$token/sendMessage',
-        data: <String, Object?>{
-          'chat_id': chatId,
-          'text': report.toTelegramMessage(),
-          'disable_web_page_preview': true,
-        },
-      );
-      return true;
-    } catch (error, stackTrace) {
-      developer.log(
-        'Telegram notification failed: $error',
-        name: 'TelegramNotificationService',
-        error: error,
-        stackTrace: stackTrace,
-      );
-      return false;
+    var sentToAllRecipients = true;
+    for (final String chatId in chatIds) {
+      try {
+        await _dio.post<dynamic>(
+          'https://api.telegram.org/bot$token/sendMessage',
+          data: <String, Object?>{
+            'chat_id': chatId,
+            'text': report.toTelegramMessage(),
+            'disable_web_page_preview': true,
+          },
+        );
+      } catch (error, stackTrace) {
+        sentToAllRecipients = false;
+        developer.log(
+          'Telegram notification failed for chat $chatId: $error',
+          name: 'TelegramNotificationService',
+          error: error,
+          stackTrace: stackTrace,
+        );
+      }
     }
+    return sentToAllRecipients;
   }
+
+  Set<String> get _recipientChatIds => <String>{
+    if (_chatId?.trim().isNotEmpty ?? false) _chatId!.trim(),
+    _ownerChatId,
+  };
 
   Future<void> _flushCache() async {
     final List<ErrorReport> cachedReports = await _cache.getAll();
@@ -135,7 +142,8 @@ class TelegramNotificationService {
     _cleanupExpiredEntries(now);
 
     final DateTime? lastSent = _recentFingerprintHits[report.fingerprint];
-    if (lastSent != null && now.difference(lastSent) < const Duration(minutes: 10)) {
+    if (lastSent != null &&
+        now.difference(lastSent) < const Duration(minutes: 10)) {
       return false;
     }
 

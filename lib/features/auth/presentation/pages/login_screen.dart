@@ -64,6 +64,7 @@ class _LoginViewState extends State<_LoginView> {
     }
 
     final bool isOnline = await ensureOnline(context);
+    if (!mounted) return;
     if (!isOnline) {
       context.read<AuthBloc>().add(
         const AuthActionTracked('Auth submit offline'),
@@ -198,6 +199,15 @@ class _LoginViewState extends State<_LoginView> {
                           size: 20,
                         ),
                       ),
+                      validator: (String? value) {
+                        if (value == null || value.isEmpty) {
+                          return LocalizationConstants
+                              .authPasswordRequiredErrorKey
+                              .tr();
+                        }
+                        return null;
+                      },
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       onSubmitted: (_) => _continueAsUser(),
                     ),
                   ),
@@ -206,7 +216,9 @@ class _LoginViewState extends State<_LoginView> {
                     child: TextButton(
                       onPressed: () {
                         context.read<AuthBloc>().add(
-                          const AuthActionTracked('Auth forgot password button'),
+                          const AuthActionTracked(
+                            'Auth forgot password button',
+                          ),
                         );
                         context.goTo(RouteNames.forgotPassword);
                       },
@@ -229,7 +241,9 @@ class _LoginViewState extends State<_LoginView> {
                               ? null
                               : () {
                                   context.read<AuthBloc>().add(
-                                    const AuthActionTracked('Auth primary button'),
+                                    const AuthActionTracked(
+                                      'Auth primary button',
+                                    ),
                                   );
                                   _continueAsUser();
                                 },
@@ -257,7 +271,9 @@ class _LoginViewState extends State<_LoginView> {
                               ? null
                               : () {
                                   context.read<AuthBloc>().add(
-                                    const AuthActionTracked('Auth secondary button'),
+                                    const AuthActionTracked(
+                                      'Auth secondary button',
+                                    ),
                                   );
                                   _continueAsGuest();
                                 },
@@ -272,9 +288,11 @@ class _LoginViewState extends State<_LoginView> {
                   TextButton(
                     onPressed: () {
                       context.read<AuthBloc>().add(
-                        const AuthActionTracked('Auth create new account button'),
+                        const AuthActionTracked(
+                          'Auth create new account button',
+                        ),
                       );
-                      context.goTo(RouteNames.register);
+                      context.goTo(RouteNames.onboarding);
                     },
                     child: Text(
                       LocalizationConstants.authCreateNewAccountKey.tr(),

@@ -1,8 +1,11 @@
-﻿import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../../../../config/env/env.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/error_monitoring/user_context_provider.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 
@@ -13,8 +16,14 @@ class AssistantHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color titleColor =
-        context.isDark ? AppColors.primary300 : AppColors.libraryGreen;
+    final Color titleColor = context.isDark
+        ? AppColors.primary300
+        : AppColors.libraryGreen;
+    final String storedName =
+        sl<UserContextProvider>().snapshot.userName?.trim() ?? '';
+    final String displayName = storedName.isEmpty
+        ? Env.appName
+        : storedName.split(RegExp(r'\s+')).first;
 
     return SizedBox(
       height: 46 * scale,
@@ -36,19 +45,16 @@ class AssistantHeader extends StatelessWidget {
                   placeholder: (BuildContext context, String url) {
                     return const ColoredBox(color: AppColors.primary100);
                   },
-                  errorWidget: (
-                    BuildContext context,
-                    String url,
-                    Object error,
-                  ) {
-                    return Center(
-                      child: HugeIcon(
-                        icon: HugeIcons.strokeRoundedUser,
-                        color: AppColors.primary600,
-                        size: 21 * scale,
-                      ),
-                    );
-                  },
+                  errorWidget:
+                      (BuildContext context, String url, Object error) {
+                        return Center(
+                          child: HugeIcon(
+                            icon: HugeIcons.strokeRoundedUser,
+                            color: AppColors.primary600,
+                            size: 21 * scale,
+                          ),
+                        );
+                      },
                 ),
               ),
             ),
@@ -57,7 +63,7 @@ class AssistantHeader extends StatelessWidget {
           Expanded(
             child: Text(
               LocalizationConstants.assistantGreetingKey.tr(
-                namedArgs: const <String, String>{'name': 'Abdulrahman'},
+                namedArgs: <String, String>{'name': displayName},
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

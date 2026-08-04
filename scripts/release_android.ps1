@@ -102,21 +102,19 @@ if ([string]::IsNullOrWhiteSpace($Groups)) {
 
 $projectId = $env:FIREBASE_PROJECT_ID
 
-# Determine build command and artifact path.
+# Determine artifact path.
 if ($BuildType -eq "apk") {
-    $buildArgs = @("build", "apk", "--release")
-    $artifact = "build/app/outputs/flutter-apk/app-release.apk"
+    $artifact = "build/distributions/quraaa-universal-release.apk"
 }
 else {
-    $buildArgs = @("build", "appbundle", "--release")
-    $artifact = "build/app/outputs/bundle/release/app-release.aab"
+    $artifact = "build/distributions/quraaa-release.aab"
 }
 
-# Build the release artifact.
-Write-Info "Building Flutter $BuildType release..."
-& flutter @buildArgs
+# Build and verify the release artifact.
+Write-Info "Building verified Flutter $BuildType release..."
+& (Join-Path $scriptDir "build_android_release.ps1") -BuildType $BuildType
 if ($LASTEXITCODE -ne 0) {
-    Write-ErrorAndExit "Flutter build failed with exit code $LASTEXITCODE."
+    Write-ErrorAndExit "Verified Flutter build failed with exit code $LASTEXITCODE."
 }
 
 if (-not (Test-Path $artifact)) {

@@ -112,6 +112,22 @@ class AuthRepositoryImpl extends BaseRepository<User>
   }
 
   @override
+  Future<Result<bool>> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    try {
+      await _remoteDataSource.changePassword(
+        oldPassword: oldPassword,
+        newPassword: newPassword,
+      );
+      return const Success(true);
+    } catch (error) {
+      return _mapError(error);
+    }
+  }
+
+  @override
   Future<User> getCached() async {
     return const User();
   }

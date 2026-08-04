@@ -7,6 +7,8 @@ enum AuthJourneyStage {
   onboarding,
   onboardingAge,
   onboardingInterests,
+  otpVerification,
+  resetPassword,
   home,
 }
 
@@ -18,6 +20,8 @@ extension AuthJourneyStageX on AuthJourneyStage {
     AuthJourneyStage.onboarding => 'onboarding',
     AuthJourneyStage.onboardingAge => 'onboarding_age',
     AuthJourneyStage.onboardingInterests => 'onboarding_interests',
+    AuthJourneyStage.otpVerification => 'otp_verification',
+    AuthJourneyStage.resetPassword => 'reset_password',
     AuthJourneyStage.home => 'home',
   };
 }
@@ -45,6 +49,10 @@ AuthJourneyStage? authJourneyStageFromKey(String? key) {
       return AuthJourneyStage.onboardingAge;
     case 'onboarding_interests':
       return AuthJourneyStage.onboardingInterests;
+    case 'otp_verification':
+      return AuthJourneyStage.otpVerification;
+    case 'reset_password':
+      return AuthJourneyStage.resetPassword;
     case 'home':
       return AuthJourneyStage.home;
   }

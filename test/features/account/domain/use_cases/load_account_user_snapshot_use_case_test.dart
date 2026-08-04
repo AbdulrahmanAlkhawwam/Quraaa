@@ -5,7 +5,7 @@ import 'package:quraaa/features/account/account.dart';
 void main() {
   test('loads the account user snapshot from the repository', () async {
     const AccountUserSnapshot snapshot = AccountUserSnapshot(
-      fullName: 'Abdulrahman Alkhawwam',
+      fullName: 'Test User',
       profileImage: '/tmp/avatar.png',
     );
     final LoadAccountUserSnapshotUseCase useCase =
@@ -14,7 +14,7 @@ void main() {
     final AccountUserSnapshot result = await useCase(const NoParams());
 
     expect(result.fullName, snapshot.fullName);
-    expect(result.firstName, 'Abdulrahman');
+    expect(result.firstName, 'Test');
     expect(result.profileImage, snapshot.profileImage);
   });
 }

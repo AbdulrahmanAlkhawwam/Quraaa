@@ -1,3 +1,4 @@
+import '../../../../config/env/env.dart';
 import '../../../../core/architecture/result.dart';
 import '../../domain/entities/cart_item.dart';
 import '../../domain/entities/cart_summary.dart';
@@ -46,13 +47,14 @@ class CartRepositoryImpl extends CartRepository {
       0,
       (double value, CartItem item) => value + item.lineTotal,
     );
-    final double total = subtotal +
+    final double total =
+        subtotal +
         _delivery +
         (subtotal * _fatPercent / 100) -
         (couponApplied ? _fixedCouponDiscount : 0);
 
     return CartSummary(
-      userName: 'Abdulrahman',
+      userName: Env.appName,
       avatarUrl: _avatarUrl,
       items: List<CartItem>.unmodifiable(items),
       couponCode: couponCode,
@@ -84,9 +86,13 @@ class CartRepositoryImpl extends CartRepository {
     required int quantity,
   }) async {
     final int nextQuantity = quantity.clamp(1, 99).toInt();
-    final List<CartItem> updated = _summary.items.map((CartItem item) {
-      return item.id == itemId ? item.copyWith(quantity: nextQuantity) : item;
-    }).toList(growable: false);
+    final List<CartItem> updated = _summary.items
+        .map((CartItem item) {
+          return item.id == itemId
+              ? item.copyWith(quantity: nextQuantity)
+              : item;
+        })
+        .toList(growable: false);
     _summary = _recalculate(updated);
     return Success<CartSummary>(_summary);
   }

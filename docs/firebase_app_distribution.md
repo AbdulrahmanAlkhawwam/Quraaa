@@ -139,9 +139,22 @@ Two release scripts are provided in `scripts/`:
 Both scripts:
 
 1. Load environment variables from `.env`.
-2. Validate that `FIREBASE_ANDROID_APP_ID` and `FIREBASE_TESTER_GROUPS` are set.
-3. Build the requested release artifact (`apk` or `aab`).
-4. Upload the artifact to Firebase App Distribution with release notes and tester groups.
+2. Validate the public runtime configuration (`HOST` and `BASEURL`).
+3. Build a universal artifact containing Flutter for `armeabi-v7a`,
+   `arm64-v8a`, and `x86_64`.
+4. Reject the build if any ABI is missing `libapp.so` or `libflutter.so`.
+5. Upload the verified artifact to Firebase App Distribution.
+
+To build without uploading, use:
+
+```powershell
+.\scripts\build_android_release.ps1 -BuildType apk
+```
+
+The APK safe to share is:
+`build/distributions/quraaa-universal-release.apk`.
+Do not share `app-release.apk` produced by `flutter run --release`, because that
+artifact can be limited to the ABI of the connected device.
 
 ### PowerShell
 
@@ -185,6 +198,8 @@ Create the following secrets in the GitHub repository (**Settings → Secrets an
 | `FIREBASE_ANDROID_APP_ID` | The Android App ID from Firebase Console. |
 | `FIREBASE_TESTER_GROUPS` | Comma-separated list of tester group names. |
 | `FIREBASE_PROJECT_ID` *(optional)* | Firebase project ID, e.g. `quraa-otp`. |
+| `HOST` | Production backend host, including scheme when needed. |
+| `BASEURL` | Production backend base path. |
 
 #### Creating the service account key
 

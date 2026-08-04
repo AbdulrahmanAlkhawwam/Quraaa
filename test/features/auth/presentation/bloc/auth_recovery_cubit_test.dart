@@ -1,30 +1,41 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:quraaa/config/routes/route_names.dart';
 import 'package:quraaa/core/architecture/result.dart';
 import 'package:quraaa/features/auth/data/datasources/auth_local_datasource.dart';
+import 'package:quraaa/features/auth/data/services/auth_session_service.dart';
 import 'package:quraaa/features/auth/domain/domain.dart';
 import 'package:quraaa/features/auth/presentation/bloc/auth_recovery_cubit.dart';
 
 void main() {
-  test('requestPasswordReset saves phone and navigates to reset password',
-      () async {
-    final _FakeAuthRepository repository = _FakeAuthRepository();
-    final _FakeAuthLocalDataSource authJourney = _FakeAuthLocalDataSource();
-    final AuthRecoveryCubit cubit = _createCubit(repository, authJourney);
-    addTearDown(cubit.close);
+  setUpAll(() => registerFallbackValue(const User()));
 
-    await cubit.requestPasswordReset(
-      phoneNumber: '+963999111222',
-      phoneIsoCode: 'SY',
-    );
+  test(
+    'requestPasswordReset saves phone and navigates to reset password',
+    () async {
+      final _FakeAuthRepository repository = _FakeAuthRepository();
+      final _FakeAuthLocalDataSource authJourney = _FakeAuthLocalDataSource();
+      final AuthRecoveryCubit cubit = _createCubit(
+        repository,
+        authJourney,
+        _MockAuthSessionService(),
+      );
+      addTearDown(cubit.close);
 
-    expect(cubit.state.status, AuthRecoveryStatus.navigate);
-    expect(cubit.state.success, AuthRecoverySuccess.forgotPasswordSent);
-    expect(cubit.state.nextRoute, RouteNames.resetPassword);
-    expect(cubit.state.routeExtra, '+963999111222');
-    expect(authJourney.lastPhoneNumber, '+963999111222');
-    expect(authJourney.lastPhoneIsoCode, 'SY');
-  });
+      await cubit.requestPasswordReset(
+        phoneNumber: '+963999111222',
+        phoneIsoCode: 'SY',
+      );
+
+      expect(cubit.state.status, AuthRecoveryStatus.navigate);
+      expect(cubit.state.success, AuthRecoverySuccess.forgotPasswordSent);
+      expect(cubit.state.nextRoute, RouteNames.resetPassword);
+      expect(cubit.state.routeExtra, '+963999111222');
+      expect(authJourney.lastPhoneNumber, '+963999111222');
+      expect(authJourney.lastPhoneIsoCode, 'SY');
+      expect(authJourney.currentStage, AuthJourneyStage.resetPassword);
+    },
+  );
 
   test('resetPassword emits failure when repository fails', () async {
     final _FakeAuthRepository repository = _FakeAuthRepository(
@@ -33,6 +44,7 @@ void main() {
     final AuthRecoveryCubit cubit = _createCubit(
       repository,
       _FakeAuthLocalDataSource(),
+      _MockAuthSessionService(),
     );
     addTearDown(cubit.close);
 
@@ -49,7 +61,20 @@ void main() {
   test('verifyOtp marks authenticated session and navigates home', () async {
     final _FakeAuthRepository repository = _FakeAuthRepository();
     final _FakeAuthLocalDataSource authJourney = _FakeAuthLocalDataSource();
-    final AuthRecoveryCubit cubit = _createCubit(repository, authJourney);
+    final _MockAuthSessionService authSessionService =
+        _MockAuthSessionService();
+    when(
+      () => authSessionService.completeAuthenticatedSession(
+        any(),
+        fallbackId: any(named: 'fallbackId'),
+        fallbackPhone: any(named: 'fallbackPhone'),
+      ),
+    ).thenAnswer((_) async {});
+    final AuthRecoveryCubit cubit = _createCubit(
+      repository,
+      authJourney,
+      authSessionService,
+    );
     addTearDown(cubit.close);
 
     await cubit.verifyOtp(phoneNumber: '+963999111222', code: '123456');
@@ -57,22 +82,31 @@ void main() {
     expect(cubit.state.status, AuthRecoveryStatus.navigate);
     expect(cubit.state.success, AuthRecoverySuccess.otpVerified);
     expect(cubit.state.nextRoute, RouteNames.home);
-    expect(authJourney.accessToken, 'access');
-    expect(authJourney.refreshToken, 'refresh');
+    verify(
+      () => authSessionService.completeAuthenticatedSession(
+        const User(accessToken: 'access', refreshToken: 'refresh'),
+        fallbackId: '+963999111222',
+        fallbackPhone: '+963999111222',
+      ),
+    ).called(1);
   });
 }
 
 AuthRecoveryCubit _createCubit(
   _FakeAuthRepository repository,
   _FakeAuthLocalDataSource authJourney,
+  AuthSessionService authSessionService,
 ) {
   return AuthRecoveryCubit(
     forgotPasswordUseCase: ForgotPasswordUseCase(repository),
     resetPasswordUseCase: ResetPasswordUseCase(repository),
     verifyOtpUseCase: VerifyOtpUseCase(repository),
     authJourney: authJourney,
+    authSessionService: authSessionService,
   );
 }
+
+class _MockAuthSessionService extends Mock implements AuthSessionService {}
 
 class _FakeAuthRepository implements AuthRepository {
   _FakeAuthRepository({this.resetPasswordResult = const Success<bool>(true)});

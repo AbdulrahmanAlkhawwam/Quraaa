@@ -5,4 +5,5 @@ abstract class AppStorageKeys {
   static const String userLanguage = 'user_language';
   static const String initialPermissionsRequested =
       'initial_permissions_requested';
+  static const String explorerHistory = 'explorer_history';
 }

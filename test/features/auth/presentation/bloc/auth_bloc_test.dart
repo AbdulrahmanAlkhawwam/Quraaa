@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:quraaa/core/architecture/result.dart';
+import 'package:quraaa/core/errors/failures.dart';
+import 'package:quraaa/config/routes/route_names.dart';
 import 'package:quraaa/features/auth/data/datasources/auth_local_datasource.dart';
 import 'package:quraaa/features/auth/data/models/user_model.dart';
 import 'package:quraaa/features/auth/domain/entities/user.dart';
@@ -14,7 +16,7 @@ void main() {
   late MockLoginUseCase loginUseCase;
   late MockRegisterUseCase registerUseCase;
   late MockAuthLocalDataSource authJourney;
-  late MockUserLocalDataSource userCache;
+  late MockAuthSessionService authSessionService;
   late MockUserContextProvider userContext;
 
   setUpAll(() {
@@ -27,7 +29,7 @@ void main() {
     loginUseCase = MockLoginUseCase();
     registerUseCase = MockRegisterUseCase();
     authJourney = MockAuthLocalDataSource();
-    userCache = MockUserLocalDataSource();
+    authSessionService = MockAuthSessionService();
     userContext = MockUserContextProvider();
   });
 
@@ -36,7 +38,7 @@ void main() {
       loginUseCase: loginUseCase,
       registerUseCase: registerUseCase,
       authJourney: authJourney,
-      userCache: userCache,
+      authSessionService: authSessionService,
       userContext: userContext,
     );
   }
@@ -58,18 +60,11 @@ void main() {
 
   void stubAuthenticatedSideEffects() {
     when(
-      () => authJourney.markAuthenticatedSession(
-        accessToken: any(named: 'accessToken'),
-        refreshToken: any(named: 'refreshToken'),
-      ),
-    ).thenAnswer((_) async {});
-    when(() => userCache.saveUser(any())).thenAnswer((_) async {});
-    when(
-      () => userContext.setUser(
-        id: any(named: 'id'),
-        name: any(named: 'name'),
-        phone: any(named: 'phone'),
-        subscriptionStatus: any(named: 'subscriptionStatus'),
+      () => authSessionService.completeAuthenticatedSession(
+        any(),
+        fallbackId: any(named: 'fallbackId'),
+        fallbackName: any(named: 'fallbackName'),
+        fallbackPhone: any(named: 'fallbackPhone'),
       ),
     ).thenAnswer((_) async {});
   }
@@ -82,17 +77,12 @@ void main() {
     group('AuthLoginRequested', () {
       test('emits loading then success on success', () async {
         final user = createUser();
-        when(
-          () => loginUseCase(any()),
-        ).thenAnswer((_) async => Success(user));
+        when(() => loginUseCase(any())).thenAnswer((_) async => Success(user));
         stubAuthenticatedSideEffects();
 
         final bloc = createBloc();
         bloc.add(
-          AuthLoginRequested(
-            phoneNumber: phoneNumber,
-            password: password,
-          ),
+          AuthLoginRequested(phoneNumber: phoneNumber, password: password),
         );
 
         await expectLater(
@@ -104,34 +94,22 @@ void main() {
         );
 
         verify(
-          () => authJourney.markAuthenticatedSession(
-            accessToken: accessToken,
-            refreshToken: refreshToken,
-          ),
-        ).called(1);
-        verify(() => userCache.saveUser(any(that: isA<UserModel>()))).called(1);
-        verify(
-          () => userContext.setUser(
-            id: phoneNumber,
-            name: phoneNumber,
-            phone: phoneNumber,
-            subscriptionStatus: 'active',
+          () => authSessionService.completeAuthenticatedSession(
+            user,
+            fallbackId: phoneNumber,
+            fallbackName: phoneNumber,
+            fallbackPhone: phoneNumber,
           ),
         ).called(1);
       });
 
       test('emits loading then error on failure', () async {
         const failure = ResultFailure<User>('login failed');
-        when(
-          () => loginUseCase(any()),
-        ).thenAnswer((_) async => failure);
+        when(() => loginUseCase(any())).thenAnswer((_) async => failure);
 
         final bloc = createBloc();
         bloc.add(
-          AuthLoginRequested(
-            phoneNumber: phoneNumber,
-            password: password,
-          ),
+          AuthLoginRequested(phoneNumber: phoneNumber, password: password),
         );
 
         await expectLater(
@@ -150,56 +128,16 @@ void main() {
         when(
           () => registerUseCase(any()),
         ).thenAnswer((_) async => Success(user));
-        stubAuthenticatedSideEffects();
-
-        final bloc = createBloc();
-        bloc.add(
-          AuthRegisterRequested(
-            phoneNumber: phoneNumber,
-            password: password,
-          ),
-        );
-
-        await expectLater(
-          bloc.stream,
-          emitsInOrder(const <AuthState>[
-            AuthState(status: AuthStatus.loading),
-            AuthState(status: AuthStatus.success),
-          ]),
-        );
-
-        verify(
-          () => authJourney.markAuthenticatedSession(
-            accessToken: accessToken,
-            refreshToken: refreshToken,
-          ),
-        ).called(1);
-        verify(() => userCache.saveUser(any(that: isA<UserModel>()))).called(1);
-        verify(
-          () => userContext.setUser(
-            id: phoneNumber,
-            name: '',
-            phone: phoneNumber,
-            subscriptionStatus: 'active',
-          ),
-        ).called(1);
-      });
-
-      test('joins first and last name when provided', () async {
-        final user = createUser(firstName: 'First', lastName: 'Last');
         when(
-          () => registerUseCase(any()),
-        ).thenAnswer((_) async => Success(user));
-        stubAuthenticatedSideEffects();
+          () => authJourney.saveJourneyStage(
+            AuthJourneyStage.otpVerification,
+            previousStage: AuthJourneyStage.register,
+          ),
+        ).thenAnswer((_) async {});
 
         final bloc = createBloc();
         bloc.add(
-          AuthRegisterRequested(
-            firstName: 'First',
-            lastName: 'Last',
-            phoneNumber: phoneNumber,
-            password: password,
-          ),
+          AuthRegisterRequested(phoneNumber: phoneNumber, password: password),
         );
 
         await expectLater(
@@ -211,27 +149,28 @@ void main() {
         );
 
         verify(
-          () => userContext.setUser(
-            id: phoneNumber,
-            name: 'First Last',
-            phone: phoneNumber,
-            subscriptionStatus: 'active',
+          () => authJourney.saveJourneyStage(
+            AuthJourneyStage.otpVerification,
+            previousStage: AuthJourneyStage.register,
           ),
         ).called(1);
+        verifyNever(
+          () => authSessionService.completeAuthenticatedSession(
+            any(),
+            fallbackId: any(named: 'fallbackId'),
+            fallbackName: any(named: 'fallbackName'),
+            fallbackPhone: any(named: 'fallbackPhone'),
+          ),
+        );
       });
 
       test('emits loading then error on failure', () async {
         const failure = ResultFailure<User>('register failed');
-        when(
-          () => registerUseCase(any()),
-        ).thenAnswer((_) async => failure);
+        when(() => registerUseCase(any())).thenAnswer((_) async => failure);
 
         final bloc = createBloc();
         bloc.add(
-          AuthRegisterRequested(
-            phoneNumber: phoneNumber,
-            password: password,
-          ),
+          AuthRegisterRequested(phoneNumber: phoneNumber, password: password),
         );
 
         await expectLater(
@@ -241,6 +180,53 @@ void main() {
             AuthState(status: AuthStatus.error, error: 'register failed'),
           ]),
         );
+      });
+
+      test('navigates pending unverified registration to OTP', () async {
+        const OtpVerificationRequiredFailure pendingFailure =
+            OtpVerificationRequiredFailure(
+              message: 'Account is pending OTP verification.',
+            );
+        const ResultFailure<User> result = ResultFailure<User>(
+          'Account is pending OTP verification.',
+          cause: pendingFailure,
+        );
+        when(() => registerUseCase(any())).thenAnswer((_) async => result);
+        when(
+          () => authJourney.saveJourneyStage(
+            AuthJourneyStage.otpVerification,
+            previousStage: AuthJourneyStage.register,
+          ),
+        ).thenAnswer((_) async {});
+
+        final AuthBloc bloc = createBloc();
+        bloc.add(
+          const AuthRegisterRequested(
+            phoneNumber: phoneNumber,
+            password: password,
+          ),
+        );
+
+        await expectLater(
+          bloc.stream,
+          emitsInOrder(const <AuthState>[
+            AuthState(status: AuthStatus.loading),
+            AuthState(status: AuthStatus.success),
+            AuthState(
+              status: AuthStatus.success,
+              nextRoute: RouteNames.otpVerification,
+              routeExtra: phoneNumber,
+              navigationSerial: 1,
+            ),
+          ]),
+        );
+
+        verify(
+          () => authJourney.saveJourneyStage(
+            AuthJourneyStage.otpVerification,
+            previousStage: AuthJourneyStage.register,
+          ),
+        ).called(1);
       });
     });
 

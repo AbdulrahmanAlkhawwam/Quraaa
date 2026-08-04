@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
+import '../../../../config/routes/route_names.dart';
 import '../../../../core/connectivity/connectivity_ui_helper.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
@@ -37,7 +38,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     if (!isValid) return;
 
     final bool isOnline = await ensureOnline(context);
-    if (!isOnline) return;
+    if (!mounted || !isOnline) return;
 
     final PhoneNumber phoneNumber = _phoneNumber ?? PhoneNumber();
     final String normalizedPhone =
@@ -55,7 +56,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       return;
     }
 
-    if (state.status != AuthRecoveryStatus.navigate || state.nextRoute == null) {
+    if (state.status != AuthRecoveryStatus.navigate ||
+        state.nextRoute == null) {
       return;
     }
 
@@ -92,17 +94,19 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   Row(
                     children: [
                       IconButton(
-                        onPressed: () => context.back(),
+                        onPressed: () => context.goTo(RouteNames.login),
                         icon: Icon(
-                          context.isRTL ? Icons.arrow_forward_ios : Icons.arrow_back_ios,
-                          color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
+                          context.isRTL
+                              ? Icons.arrow_forward_ios
+                              : Icons.arrow_back_ios,
+                          color: context.isDark
+                              ? AppColors.primary300
+                              : AppColors.libraryGreen,
                         ),
                       ),
                       Expanded(
                         child: Text(
-                          LocalizationConstants
-                              .authForgotPasswordTitleKey
-                              .tr(),
+                          LocalizationConstants.authForgotPasswordTitleKey.tr(),
                           textAlign: TextAlign.center,
                           style: AppTextStyles.h3.copyWith(
                             color: AppColors.libraryGreen,
@@ -114,9 +118,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ),
                   const SizedBox(height: AppSpacing.spacing32),
                   Text(
-                    LocalizationConstants
-                        .authForgotPasswordDescriptionKey
-                        .tr(),
+                    LocalizationConstants.authForgotPasswordDescriptionKey.tr(),
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: context.appTextTertiary,
                     ),

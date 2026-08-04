@@ -6,12 +6,13 @@ class LocalizationConstants {
   static const String homeGreetingKey = 'home.greeting';
   static const String homeBestSellersKey = 'home.best_sellers';
   static const String homeRecommendedForYouKey = 'home.recommended_for_you';
+  static const String homeMostPopularKey = 'home.most_popular';
+  static const String homeBooksEmptyKey = 'home.books_empty';
+  static const String homeBooksLoadFailedKey = 'home.books_load_failed';
   static const String homeNoteKey = 'home.note';
   static const String homeSearchHintKey = 'home.search_hint';
-  static const String homeActionBrowseFilesKey =
-      'home.actions.browse_files';
-  static const String homeActionAskAssistantKey =
-      'home.actions.ask_assistant';
+  static const String homeActionBrowseFilesKey = 'home.actions.browse_files';
+  static const String homeActionAskAssistantKey = 'home.actions.ask_assistant';
   static const String homeBannerTitleKey = 'home.banner.title';
   static const String homeBannerSubtitleKey = 'home.banner.subtitle';
   static const String homeNotificationTitleKey = 'home.notification.title';
@@ -19,6 +20,8 @@ class LocalizationConstants {
   static const String homeNavLibrariesKey = 'home.nav.libraries';
   static const String homeNavUserBooksKey = 'home.nav.user_books';
   static const String homeNavAudioBookKey = 'home.nav.audio_book';
+  static const String homeNavAiKey = 'home.nav.ai';
+  static const String homeNavSettingsKey = 'home.nav.settings';
   static const String homeNavCartKey = 'home.nav.cart';
   static const String homeDrawerWelcomeKey = 'home.drawer.welcome';
   static const String homeDrawerUserKey = 'home.drawer.user';
@@ -173,8 +176,7 @@ class LocalizationConstants {
       'onboarding.errors.save_gender';
   static const String onboardingSaveCategoriesErrorKey =
       'onboarding.errors.save_categories';
-  static const String onboardingCompleteErrorKey =
-      'onboarding.errors.complete';
+  static const String onboardingCompleteErrorKey = 'onboarding.errors.complete';
   static const String onboardingInterestSpaceScienceKey =
       'onboarding.interests.space_science';
   static const String onboardingInterestGeographyKey =
@@ -307,7 +309,36 @@ class LocalizationConstants {
       'user_data.edit.multiline_hint';
   static const String profileMenuPersonalInfoKey =
       'profile.menu.my_personal_information';
+  static const String profilePersonalTitleKey = 'profile.personal_title';
   static const String profileMenuLocationsKey = 'profile.menu.my_locations';
+  static const String profileLocationsTitleKey = 'profile_location.title';
+  static const String profileLocationAddKey = 'profile_location.add';
+  static const String profileLocationNewKey = 'profile_location.new';
+  static const String profileLocationCurrentKey = 'profile_location.current';
+  static const String profileLocationEmptyKey = 'profile_location.empty';
+  static const String profileLocationUseCurrentKey =
+      'profile_location.use_current';
+  static const String profileLocationSavedKey = 'profile_location.saved';
+  static const String profileLocationDeleteKey = 'profile_location.delete';
+  static const String profileLocationDeleteTitleKey =
+      'profile_location.delete_title';
+  static const String profileLocationDeleteMessageKey =
+      'profile_location.delete_message';
+  static const String profileLocationServiceDisabledKey =
+      'profile_location.service_disabled';
+  static const String profileLocationPermissionDeniedKey =
+      'profile_location.permission_denied';
+  static const String profileLocationUnavailableKey =
+      'profile_location.unavailable';
+  static const String profileLocationDefaultNameKey =
+      'profile_location.default_name';
+  static const String profileLocationNameKey = 'profile_location.name';
+  static const String profileLocationNameHintKey = 'profile_location.name_hint';
+  static const String profileLocationSelectKey = 'profile_location.select';
+  static const String profileLocationSelectedKey = 'profile_location.selected';
+  static const String profileLocationNextKey = 'profile_location.next';
+  static const String profileLocationRequiredKey = 'profile_location.required';
+  static const String profileLocationMapTitleKey = 'profile_location.map_title';
   static const String profileMenuPaymentInfoKey =
       'profile.menu.payment_information';
   static const String profileMenuPersonalFilesKey =
@@ -321,6 +352,12 @@ class LocalizationConstants {
   static const String profileEditTitleKey = 'edit_profile.title';
   static const String profileEditPersonalDataKey = 'edit_profile.personal_data';
   static const String profileEditFullNameKey = 'edit_profile.full_name';
+  static const String profileEditFirstNameKey = 'edit_profile.first_name';
+  static const String profileEditLastNameKey = 'edit_profile.last_name';
+  static const String profileEditPhoneReadOnlyKey =
+      'edit_profile.phone_read_only';
+  static const String profileEditInterestsKey = 'edit_profile.interests';
+  static const String profileEditRequiredKey = 'edit_profile.required';
   static const String profileEditGenderKey = 'edit_profile.gender';
   static const String profileEditGenderMaleKey = 'edit_profile.gender_male';
   static const String profileEditGenderFemaleKey = 'edit_profile.gender_female';
@@ -423,6 +460,18 @@ class LocalizationConstants {
       'terms_privacy.footer.continue_part2';
 
   static const String retryKey = 'common.retry';
+  static const String explorerHistoryTitleKey = 'explorer_history.title';
+  static const String explorerHistoryEmptyKey = 'explorer_history.empty';
+  static const String explorerHistoryFileMissingKey =
+      'explorer_history.file_missing';
+  static const String explorerHistoryInternalStorageKey =
+      'explorer_history.internal_storage';
+  static const String explorerHistoryTodayKey = 'explorer_history.today';
+  static const String explorerHistoryYesterdayKey =
+      'explorer_history.yesterday';
+  static const String explorerHistoryLastWeekKey = 'explorer_history.last_week';
+  static const String explorerHistoryLastMonthKey =
+      'explorer_history.last_month';
   static const String explorerTitleKey = 'explorer.title';
   static const String explorerNoteTitleKey = 'explorer.note.title';
   static const String explorerNoteMessageKey = 'explorer.note.message';
@@ -490,6 +539,29 @@ class LocalizationConstants {
       'auth.reset_password.success';
   static const String authResetPasswordPasswordMismatchKey =
       'auth.reset_password.validation.password_mismatch';
+  static const String authChangePasswordTitleKey = 'auth.change_password.title';
+  static const String authChangePasswordDescriptionKey =
+      'auth.change_password.description';
+  static const String authChangePasswordOldPasswordLabelKey =
+      'auth.change_password.old_password_label';
+  static const String authChangePasswordOldPasswordHintKey =
+      'auth.change_password.old_password_hint';
+  static const String authChangePasswordNewPasswordLabelKey =
+      'auth.change_password.new_password_label';
+  static const String authChangePasswordNewPasswordHintKey =
+      'auth.change_password.new_password_hint';
+  static const String authChangePasswordConfirmPasswordLabelKey =
+      'auth.change_password.confirm_password_label';
+  static const String authChangePasswordConfirmPasswordHintKey =
+      'auth.change_password.confirm_password_hint';
+  static const String authChangePasswordButtonKey =
+      'auth.change_password.button';
+  static const String authChangePasswordSuccessKey =
+      'auth.change_password.success';
+  static const String authChangePasswordSamePasswordKey =
+      'auth.change_password.validation.same_password';
+  static const String authChangePasswordMismatchKey =
+      'auth.change_password.validation.password_mismatch';
   static const String authLocationTitleKey = 'auth.location.title';
   static const String authLocationAlwaysKey = 'auth.location.always';
   static const String authLocationMaybeLaterKey = 'auth.location.maybe_later';
@@ -516,7 +588,6 @@ class LocalizationConstants {
   static const String errorsNoInternetTitleKey = 'errors.no_internet.title';
   static const String errorsNoInternetMessageKey = 'errors.no_internet.message';
   static const String errorsUnknownMessageKey = 'errors.unknown.message';
-
 
   // Settings feature keys.
   static const String settingsTitleKey = 'settings.title';
@@ -547,8 +618,7 @@ class LocalizationConstants {
   static const String settingsLibraryMyBooksKey = 'settings.library.myBooks';
   static const String settingsLibraryDownloadsKey =
       'settings.library.downloads';
-  static const String settingsLibraryWishlistKey =
-      'settings.library.wishlist';
+  static const String settingsLibraryWishlistKey = 'settings.library.wishlist';
   static const String settingsLibraryCollectionsKey =
       'settings.library.collections';
 
@@ -579,7 +649,6 @@ class LocalizationConstants {
   static const String settingsAppearanceDeviceSystemKey =
       'settings.appearance.deviceSystem';
 
-
   static const String settingsNotificationNewUpdateKey =
       'settings.notification.newUpdate';
   static const String settingsNotificationAdsKey = 'settings.notification.ads';
@@ -595,12 +664,15 @@ class LocalizationConstants {
       'settings.notification.upgradeLevel';
 
   static const String settingsLoadFailureKey = 'settings.errors.load';
+  static const String settingsGuestLoginTitleKey = 'settings.guest_login.title';
+  static const String settingsGuestLoginMessageKey =
+      'settings.guest_login.message';
+  static const String settingsGuestLoginActionKey =
+      'settings.guest_login.action';
 
-  static const String settingsLanguageSpanishKey =
-      'settings.language.spanish';
+  static const String settingsLanguageSpanishKey = 'settings.language.spanish';
   static const String settingsLanguageFranceKey = 'settings.language.france';
-  static const String settingsLanguageGermanyKey =
-      'settings.language.germany';
+  static const String settingsLanguageGermanyKey = 'settings.language.germany';
 
   // Search
   static const String searchHintKey = 'search.hint';
@@ -632,6 +704,12 @@ class LocalizationConstants {
       'settings.account_type.plans.pro.title';
   static const String settingsAccountTypeProDescriptionKey =
       'settings.account_type.plans.pro.description';
+  static const String settingsAccountTypeLibraryTitleKey =
+      'settings.account_type.plans.library.title';
+  static const String settingsAccountTypeLibraryDescriptionKey =
+      'settings.account_type.plans.library.description';
+  static const String settingsAccountTypeLibraryActionKey =
+      'settings.account_type.plans.library.action';
 
   // Subscription plan details
   static const String subscriptionPlanFreeSubtitleKey =

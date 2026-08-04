@@ -3,13 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../../shared/shared.dart';
 import '../cubit/library_details_state.dart';
 
-/// A card that displays an author inside the library details screen.
+/// An author image card with the text overlay used in the design.
 class LibraryAuthorCard extends StatelessWidget {
-  const LibraryAuthorCard({
-    super.key,
-    required this.author,
-    this.onTap,
-  });
+  const LibraryAuthorCard({super.key, required this.author, this.onTap});
 
   final LibraryAuthorViewModel author;
   final VoidCallback? onTap;
@@ -17,50 +13,83 @@ class LibraryAuthorCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 140,
+      width: 182,
+      height: 190,
       child: GestureDetector(
         onTap: onTap,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Expanded(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(AppRadius.radius16),
-                child: Container(
-                  color: AppColors.primary100,
-                  child: author.imageUrl.isNotEmpty
-                      ? AppImage(
-                          author.imageUrl,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          errorWidget: _placeholder(),
-                        )
-                      : _placeholder(),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppRadius.radius10),
+          child: Stack(
+            fit: StackFit.expand,
+            children: <Widget>[
+              ColoredBox(
+                color: context.appSubtleSurface,
+                child: author.imageUrl.isNotEmpty
+                    ? AppImage(
+                        author.imageUrl,
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.cover,
+                        errorWidget: _placeholder(context),
+                      )
+                    : _placeholder(context),
+              ),
+              const DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: <Color>[
+                      Colors.transparent,
+                      Color(0x12000000),
+                      Color(0xD9000000),
+                    ],
+                    stops: <double>[0.42, 0.64, 1],
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: AppSpacing.spacing8),
-            Text(
-              author.name,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: context.appTextPrimary,
-                fontWeight: FontWeight.w600,
+              PositionedDirectional(
+                start: AppSpacing.spacing14,
+                end: AppSpacing.spacing10,
+                bottom: AppSpacing.spacing12,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      author.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: Colors.white,
+                      ),
+                    ),
+                    if (author.subtitle.isNotEmpty) ...<Widget>[
+                      const SizedBox(height: AppSpacing.spacing4),
+                      Text(
+                        author.subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.primary300,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _placeholder() {
-    return const Center(
+  Widget _placeholder(BuildContext context) {
+    return Center(
       child: Icon(
         Icons.person_outline,
-        color: AppColors.primary600,
-        size: 40,
+        color: context.isDark ? AppColors.primary300 : AppColors.primary600,
+        size: 48,
       ),
     );
   }

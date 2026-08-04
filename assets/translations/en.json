@@ -6,6 +6,9 @@
     "greeting": "Hi, {name}",
     "best_sellers": "Best Sellers",
     "recommended_for_you": "Recommended For you",
+    "most_popular": "Most Popular",
+    "books_empty": "No books are available yet.",
+    "books_load_failed": "We couldn't load these books.",
     "note": "Note",
     "search_hint": "History",
     "actions": {
@@ -24,6 +27,8 @@
       "libraries": "Libraries",
       "user_books": "User Books",
       "audio_book": "Audio Book",
+      "ai": "AI",
+      "settings": "Settings",
       "cart": "Cart"
     },
     "drawer": {
@@ -181,6 +186,22 @@
         "password_mismatch": "Passwords do not match."
       }
     },
+    "change_password": {
+      "title": "Change Password",
+      "description": "Enter your current password and choose a new password.",
+      "old_password_label": "Current Password",
+      "old_password_hint": "Enter your current password",
+      "new_password_label": "New Password",
+      "new_password_hint": "Enter your new password",
+      "confirm_password_label": "Confirm New Password",
+      "confirm_password_hint": "Re-enter your new password",
+      "button": "Update Password",
+      "success": "Password changed successfully.",
+      "validation": {
+        "same_password": "New password must be different from the current password.",
+        "password_mismatch": "Passwords do not match."
+      }
+    },
     "location": {
       "title": "Get Your Place",
       "description": "Can us Get your Location for make delivery service available",
@@ -319,6 +340,16 @@
       "operations": "Operations"
     }
   },
+  "explorer_history": {
+    "title": "Explorer History",
+    "empty": "No files have been opened yet.",
+    "file_missing": "This file is no longer available on your device.",
+    "internal_storage": "Internal Storage",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "last_week": "Last Week",
+    "last_month": "Last Month"
+  },
   "explorer": {
     "title": "Explorer",
     "note": {
@@ -399,6 +430,11 @@
         "pro": {
           "title": "Pro Account",
           "description": "This account is for one user with unlimited AI access."
+        },
+        "library": {
+          "title": "Library Account",
+          "description": "This account is for libraries. If you want to start with us, create your library now.",
+          "action": "Create Your Library"
         }
       }
     },
@@ -487,6 +523,11 @@
       "deviceSystem": "Device System (Recommended)"
     },
     "logout": "Log out",
+    "guest_login": {
+      "title": "Sign in required",
+      "message": "This option belongs to your personal account. Would you like to sign in now?",
+      "action": "Sign in"
+    },
     "errors": {
       "load": "Could not load settings tabs"
     },
@@ -530,6 +571,7 @@
     }
   },
   "profile": {
+    "personal_title": "Me",
     "menu": {
       "my_personal_information": "My Personal Information",
       "my_locations": "My Locations",
@@ -550,6 +592,11 @@
   },
   "edit_profile": {
     "title": "Edit Profile",
+    "first_name": "First name",
+    "last_name": "Last name",
+    "phone_read_only": "The phone number cannot be changed here.",
+    "interests": "Interests",
+    "required": "This field is required.",
     "personal_data": "Personal Data",
     "full_name": "Full Name",
     "gender": "Gender",
@@ -592,6 +639,22 @@
       "title": "Unauthorized",
       "message": "Your credentials are incorrect."
     },
+    "login_failed": {
+      "title": "Sign-in failed",
+      "message": "We could not sign you in. Check your details and try again."
+    },
+    "wrong_password": {
+      "title": "Incorrect password",
+      "message": "The password you entered is incorrect."
+    },
+    "invalid_verification_code": {
+      "title": "Invalid verification code",
+      "message": "The verification code is incorrect or has expired. Request a new code and try again."
+    },
+    "session_expired": {
+      "title": "Session expired",
+      "message": "Your session expired. Please sign in again."
+    },
     "forbidden": {
       "title": "Forbidden",
       "message": "You do not have permission to continue."
@@ -607,6 +670,14 @@
     "conflict": {
       "title": "Conflict",
       "message": "The requested action conflicts with existing data."
+    },
+    "too_many_requests": {
+      "title": "Too many attempts",
+      "message": "Please wait a moment before trying again."
+    },
+    "operation_failed": {
+      "title": "Operation failed",
+      "message": "The operation could not be completed. Please try again."
     },
     "payment_required": {
       "title": "Payment required",
@@ -754,6 +825,29 @@
       "mathematical": "Mathematical",
       "philosophy": "Philosophy"
     }
+  },
+  "profile_location": {
+    "title": "My Locations",
+    "add": "Add location",
+    "new": "New Location",
+    "current": "My current location",
+    "empty": "No location is saved yet.",
+    "use_current": "Use my current location",
+    "saved": "Your location was saved.",
+    "delete": "Delete",
+    "delete_title": "Delete location?",
+    "delete_message": "This will remove your saved location from your account.",
+    "service_disabled": "Location services are disabled.",
+    "permission_denied": "Location permission was denied.",
+    "default_name": "My Location",
+    "name": "Location Name",
+    "name_hint": "Enter the name of the location in your mind",
+    "select": "Add the location",
+    "selected": "Location selected",
+    "next": "Next",
+    "required": "Select a location on the map.",
+    "map_title": "Choose Location",
+    "unavailable": "Your current location could not be determined."
   },
   "assistant": {
     "greeting": "Hi, {name}",

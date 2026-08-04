@@ -9,6 +9,14 @@ final class HomeStarted extends HomeEvent {
   const HomeStarted();
 }
 
+final class HomeRecommendedBooksRequested extends HomeEvent {
+  const HomeRecommendedBooksRequested();
+}
+
+final class HomeMostPopularBooksRequested extends HomeEvent {
+  const HomeMostPopularBooksRequested();
+}
+
 final class HomePermissionsRequested extends HomeEvent {
   const HomePermissionsRequested();
 }

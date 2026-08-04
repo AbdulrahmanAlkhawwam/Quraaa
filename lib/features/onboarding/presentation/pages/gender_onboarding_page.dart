@@ -59,26 +59,17 @@ class _GenderOnboardingPageState extends State<GenderOnboardingPage> {
           }
         },
         child: BlocListener<OnboardingBloc, OnboardingState>(
-          listenWhen: (previous, current) =>
-              current.isCompleted && !previous.isCompleted,
+          listenWhen: (p, c) =>
+              p.errorMessage != c.errorMessage && c.errorMessage != null,
           listener: (context, state) {
-            if (state.isCompleted) {
-              context.goTo(RouteNames.register);
+            final msg = state.errorMessage;
+            if (msg != null) {
+              context.showErrorSnackBar(
+                message: Message(title: '', value: msg.tr()),
+              );
             }
           },
-          child: BlocListener<OnboardingBloc, OnboardingState>(
-            listenWhen: (p, c) =>
-                p.errorMessage != c.errorMessage && c.errorMessage != null,
-            listener: (context, state) {
-              final msg = state.errorMessage;
-              if (msg != null) {
-                context.showErrorSnackBar(
-                  message: Message(title: '', value: msg.tr()),
-                );
-              }
-            },
-            child: const _GenderOnboardingView(),
-          ),
+          child: const _GenderOnboardingView(),
         ),
       ),
     );
@@ -94,18 +85,19 @@ class _GenderOnboardingView extends StatelessWidget {
       body: Stack(
         children: [
           Positioned.fill(
-            child: AppImage(
-              AppImages.onboardingBackground,
-              fit: BoxFit.cover,
-            ),
+            child: AppImage(AppImages.onboardingBackground, fit: BoxFit.cover),
           ),
           Positioned.fill(
             child: DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: <Color>[
-                    AppColors.libraryGreen.withAlpha(AppColors.overlayLightAlpha),
-                    AppColors.libraryGreen.withAlpha(AppColors.overlayMediumAlpha),
+                    AppColors.libraryGreen.withAlpha(
+                      AppColors.overlayLightAlpha,
+                    ),
+                    AppColors.libraryGreen.withAlpha(
+                      AppColors.overlayMediumAlpha,
+                    ),
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
@@ -138,32 +130,6 @@ class _GenderOnboardingView extends StatelessWidget {
                     title: Text(
                       LocalizationConstants.onboardingGenderTitleKey.tr(),
                     ),
-                    actions: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.spacing24,
-                        ),
-                        child: TextButton(
-                          onPressed: () {
-                            unawaited(
-                              context
-                                  .read<AuthJourneyCubit>()
-                                  .moveFromOnboardingToRegister(),
-                            );
-                            context.read<OnboardingBloc>().add(
-                              const OnboardingSkipRequested(),
-                            );
-                          },
-                          style: TextButton.styleFrom(
-                            foregroundColor: AppColors.primary50,
-                          ),
-                          child: Text(
-                            LocalizationConstants.onboardingSkipKey.tr(),
-                            style: AppTextStyles.bodyMedium,
-                          ),
-                        ),
-                      ),
-                    ],
                   ),
                   Expanded(
                     child: Container(
@@ -211,9 +177,7 @@ class _GenderOnboardingView extends StatelessWidget {
                                                   ),
                                       ),
                                     ),
-                                    const SizedBox(
-                                      width: AppSpacing.spacing16,
-                                    ),
+                                    const SizedBox(width: AppSpacing.spacing16),
                                     Expanded(
                                       child: _GenderCard(
                                         gender: GenderSelection.girl,
@@ -257,7 +221,8 @@ class _GenderOnboardingView extends StatelessWidget {
                                             )
                                       : null,
                                   child: Text(
-                                    LocalizationConstants.onboardingNextKey.tr(),
+                                    LocalizationConstants.onboardingNextKey
+                                        .tr(),
                                   ),
                                 ),
                               );
@@ -290,13 +255,14 @@ class _GenderCard extends StatelessWidget {
   final bool selected;
   final VoidCallback? onTap;
 
-
   @override
   Widget build(BuildContext context) {
-    final Color backgroundColor =
-        selected ? context.appSubtleSurface : context.appCard;
-    final Color borderColor =
-        selected ? AppColors.primary300 : context.appBorder;
+    final Color backgroundColor = selected
+        ? context.appSubtleSurface
+        : context.appCard;
+    final Color borderColor = selected
+        ? AppColors.primary300
+        : context.appBorder;
 
     return Semantics(
       button: true,
@@ -335,4 +301,3 @@ class _GenderCard extends StatelessWidget {
     );
   }
 }
-

@@ -33,18 +33,19 @@ class OnboardingScaffold extends StatelessWidget {
       body: Stack(
         children: [
           Positioned.fill(
-            child: AppImage(
-              AppImages.onboardingBackground,
-              fit: BoxFit.cover,
-            ),
+            child: AppImage(AppImages.onboardingBackground, fit: BoxFit.cover),
           ),
           Positioned.fill(
             child: DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: <Color>[
-                    AppColors.libraryGreen.withAlpha(AppColors.overlayLightAlpha),
-                    AppColors.libraryGreen.withAlpha(AppColors.overlayMediumAlpha),
+                    AppColors.libraryGreen.withAlpha(
+                      AppColors.overlayLightAlpha,
+                    ),
+                    AppColors.libraryGreen.withAlpha(
+                      AppColors.overlayMediumAlpha,
+                    ),
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
@@ -101,27 +102,6 @@ class OnboardingScaffold extends StatelessWidget {
   }
 }
 
-class OnboardingSkipButton extends StatelessWidget {
-  const OnboardingSkipButton({super.key, required this.onPressed});
-
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-      child: TextButton(
-        onPressed: onPressed,
-        style: TextButton.styleFrom(foregroundColor: AppColors.primary50),
-        child: Text(
-          LocalizationConstants.onboardingSkipKey.tr(),
-          style: AppTextStyles.bodyMedium,
-        ),
-      ),
-    );
-  }
-}
-
 class OnboardingBackButton extends StatelessWidget {
   const OnboardingBackButton({super.key, required this.onPressed});
 
@@ -132,7 +112,9 @@ class OnboardingBackButton extends StatelessWidget {
     return IconButton(
       onPressed: onPressed,
       icon: HugeIcon(
-        icon: context.isRTL ? HugeIcons.strokeRoundedArrowRight01 : HugeIcons.strokeRoundedArrowLeft01,
+        icon: context.isRTL
+            ? HugeIcons.strokeRoundedArrowRight01
+            : HugeIcons.strokeRoundedArrowLeft01,
         color: context.appTextPrimary,
         size: 22,
       ),

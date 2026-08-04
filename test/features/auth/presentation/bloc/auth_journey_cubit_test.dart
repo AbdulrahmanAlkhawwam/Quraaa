@@ -3,15 +3,14 @@ import 'package:quraaa/features/auth/data/datasources/auth_local_datasource.dart
 import 'package:quraaa/features/auth/presentation/bloc/auth_journey_cubit.dart';
 
 void main() {
-  test('moveFromInterestsToRegister saves current and previous stages',
-      () async {
+  test('moveFromInterestsToAge saves current and previous stages', () async {
     final _FakeAuthLocalDataSource authJourney = _FakeAuthLocalDataSource();
     final AuthJourneyCubit cubit = AuthJourneyCubit(authJourney: authJourney);
     addTearDown(cubit.close);
 
-    await cubit.moveFromInterestsToRegister();
+    await cubit.moveFromInterestsToAge();
 
-    expect(authJourney.currentStage, AuthJourneyStage.register);
+    expect(authJourney.currentStage, AuthJourneyStage.onboardingAge);
     expect(authJourney.previousStage, AuthJourneyStage.onboardingInterests);
   });
 

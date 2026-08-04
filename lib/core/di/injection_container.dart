@@ -6,6 +6,7 @@ import '../../features/auth/data/datasources/auth_local_datasource.dart';
 import '../../features/auth/data/datasources/user_local_datasource.dart';
 import '../../features/auth/data/datasources/auth_remote_datasource.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
+import '../../features/auth/data/services/auth_session_service.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/onboarding/data/datasources/onboarding_local_datasource.dart';
 import '../../features/onboarding/data/repositories/onboarding_repository_impl.dart';
@@ -22,10 +23,12 @@ import '../../features/auth/domain/use_cases/login_use_case.dart';
 import '../../features/auth/domain/use_cases/verify_otp_use_case.dart';
 import '../../features/auth/domain/use_cases/forgot_password_use_case.dart';
 import '../../features/auth/domain/use_cases/reset_password_use_case.dart';
+import '../../features/auth/domain/use_cases/change_password_use_case.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_journey_cubit.dart';
 import '../../features/auth/presentation/bloc/auth_permission_cubit.dart';
 import '../../features/auth/presentation/bloc/auth_recovery_cubit.dart';
+import '../../features/auth/presentation/bloc/change_password_cubit.dart';
 import '../../features/auth/presentation/bloc/auth_registration_cubit.dart';
 import '../../features/onboarding/presentation/bloc/onboarding_bloc.dart';
 import '../error_monitoring/app_bloc_observer.dart';
@@ -41,10 +44,14 @@ import '../../features/account/account.dart';
 import '../../features/profile/data/datasources/profile_local_data_source.dart';
 import '../../features/profile/data/datasources/profile_remote_data_source.dart';
 import '../../features/profile/data/repositories/profile_repository_impl.dart';
+import '../../features/profile/data/services/profile_bootstrap_service.dart';
 import '../../features/profile/domain/repositories/profile_repository.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../../features/profile/presentation/bloc/edit_profile_bloc.dart';
-import '../../features/home/presentation/bloc/home_bloc.dart';
+import '../../features/profile/presentation/cubit/profile_edit_cubit.dart';
+import '../../features/profile/presentation/cubit/profile_location_cubit.dart';
+import '../../features/profile/domain/entities/profile.dart';
+import '../../features/home/home.dart';
 import '../../features/libraries/data/datasources/libraries_remote_data_source.dart';
 import '../../features/libraries/data/repositories/libraries_repository_impl.dart';
 import '../../features/libraries/domain/repositories/libraries_repository.dart';
@@ -58,6 +65,7 @@ import '../../features/libraries/presentation/cubit/library_details_cubit.dart';
 import '../../config/env/env.dart';
 import '../network/auth_interceptor.dart';
 import '../network/connectivity_interceptor.dart';
+import '../network/language_interceptor.dart';
 import '../network/http_helper.dart';
 import '../services/app_diagnostics_service.dart';
 import '../connectivity/connectivity_service.dart';
@@ -69,10 +77,13 @@ import '../services/services.dart';
 import '../../features/local_explorer/data/datasources/local/local_explorer_platform_datasource.dart';
 import '../../features/local_explorer/data/datasources/local/local_file_system_datasource.dart';
 import '../../features/local_explorer/data/datasources/local/local_file_system_datasource_factory.dart';
+import '../../features/local_explorer/data/repositories/explorer_history_repository_impl.dart';
 import '../../features/local_explorer/data/repositories/local_file_repository_impl.dart';
+import '../../features/local_explorer/domain/repositories/explorer_history_repository.dart';
 import '../../features/local_explorer/domain/repositories/local_file_repository.dart';
 import '../../features/local_explorer/domain/use_cases/load_local_directory_use_case.dart';
 import '../../features/local_explorer/presentation/bloc/local_explorer_bloc.dart';
+import '../../features/local_explorer/presentation/cubit/explorer_history_cubit.dart';
 import '../../features/pdf_reader/data/datasources/local/pdf_render_datasource.dart';
 import '../../features/pdf_reader/data/datasources/local/pdf_note_datasource.dart';
 import '../../features/pdf_reader/data/repositories/pdf_reader_repository_impl.dart';
@@ -122,7 +133,6 @@ Future<void> configureDependencies() async {
 
   registerCoreDependencies();
   registerFeatureDependencies();
-  await initializeNotificationDependencies();
 }
 
 void registerCoreDependencies() {
@@ -138,6 +148,16 @@ void registerCoreDependencies() {
 
   sl.registerLazySingleton<UserLocalDataSource>(
     () => UserLocalDataSourceImpl(sl<StorageService>()),
+  );
+
+  sl.registerLazySingleton<AuthSessionService>(
+    () => AuthSessionService(
+      authLocalDataSource: sl<AuthLocalDataSource>(),
+      userLocalDataSource: sl<UserLocalDataSource>(),
+      userContextProvider: sl<UserContextProvider>(),
+      afterAuthentication: () =>
+          sl<ProfileBootstrapService>().refreshAfterLogin(),
+    ),
   );
 
   sl.registerLazySingleton<UserDataLocalDataSource>(
@@ -190,9 +210,13 @@ void registerCoreDependencies() {
   sl.registerLazySingleton<ConnectivityInterceptor>(
     () => ConnectivityInterceptor(sl<ConnectivityService>()),
   );
+  sl.registerLazySingleton<LanguageInterceptor>(
+    () => LanguageInterceptor(sl<StorageService>()),
+  );
   sl.registerLazySingleton<Dio>(
     () => HttpHelper.buildDio(<Interceptor>[
       sl<ConnectivityInterceptor>(),
+      sl<LanguageInterceptor>(),
       sl<AuthInterceptor>(),
       sl<DioLoggingInterceptor>(),
     ]),
@@ -334,12 +358,16 @@ void registerFeatureDependencies() {
     () => ResetPasswordUseCase(sl<AuthRepository>()),
   );
 
+  sl.registerFactory<ChangePasswordUseCase>(
+    () => ChangePasswordUseCase(sl<AuthRepository>()),
+  );
+
   sl.registerFactory<AuthBloc>(
     () => AuthBloc(
       loginUseCase: sl<LoginUseCase>(),
       registerUseCase: sl<RegisterUseCase>(),
       authJourney: sl<AuthLocalDataSource>(),
-      userCache: sl<UserLocalDataSource>(),
+      authSessionService: sl<AuthSessionService>(),
       userContext: sl<UserContextProvider>(),
     ),
   );
@@ -363,12 +391,17 @@ void registerFeatureDependencies() {
     ),
   );
 
+  sl.registerFactory<ChangePasswordCubit>(
+    () => ChangePasswordCubit(sl<ChangePasswordUseCase>()),
+  );
+
   sl.registerFactory<AuthRecoveryCubit>(
     () => AuthRecoveryCubit(
       forgotPasswordUseCase: sl<ForgotPasswordUseCase>(),
       resetPasswordUseCase: sl<ResetPasswordUseCase>(),
       verifyOtpUseCase: sl<VerifyOtpUseCase>(),
       authJourney: sl<AuthLocalDataSource>(),
+      authSessionService: sl<AuthSessionService>(),
     ),
   );
 
@@ -382,9 +415,18 @@ void registerFeatureDependencies() {
   );
 
   sl.registerLazySingleton<ProfileRepository>(
-    () => ProfileRepositoryImpl(sl<ProfileRemoteDataSource>()),
+    () => ProfileRepositoryImpl(
+      sl<ProfileRemoteDataSource>(),
+      sl<ProfileLocalDataSource>(),
+    ),
   );
 
+  sl.registerLazySingleton<ProfileBootstrapService>(
+    () => ProfileBootstrapService(
+      sl<ProfileRepository>(),
+      sl<UserContextProvider>(),
+    ),
+  );
   sl.registerFactory<ProfileBloc>(
     () => ProfileBloc(
       profileRepository: sl<ProfileRepository>(),
@@ -397,10 +439,25 @@ void registerFeatureDependencies() {
   );
 
   sl.registerFactory<EditProfileBloc>(EditProfileBloc.new);
+  sl.registerFactoryParam<ProfileEditCubit, Profile, void>(
+    (Profile profile, _) => ProfileEditCubit(
+      sl<ProfileRepository>(),
+      sl<UserContextProvider>(),
+      profile,
+    ),
+  );
+
+  sl.registerFactory<ProfileLocationCubit>(
+    () => ProfileLocationCubit(sl<ProfileRepository>()),
+  );
 
   // Account feature
   sl.registerLazySingleton<AccountRepository>(
-    () => AccountRepositoryImpl(sl<UserDataLocalDataSource>()),
+    () => AccountRepositoryImpl(
+      sl<UserDataLocalDataSource>(),
+      sl<AuthLocalDataSource>(),
+      sl<ProfileLocalDataSource>(),
+    ),
   );
 
   sl.registerFactory<LoadAccountUserSnapshotUseCase>(
@@ -408,11 +465,26 @@ void registerFeatureDependencies() {
   );
 
   // Home feature
+  sl.registerLazySingleton<HomeBooksRemoteDataSource>(
+    () => HomeBooksRemoteDataSourceImpl(sl<HttpHelper>()),
+  );
+  sl.registerLazySingleton<HomeBooksRepository>(
+    () => HomeBooksRepositoryImpl(sl<HomeBooksRemoteDataSource>()),
+  );
+  sl.registerFactory<GetRecommendedBooksUseCase>(
+    () => GetRecommendedBooksUseCase(sl<HomeBooksRepository>()),
+  );
+  sl.registerFactory<GetMostPopularBooksUseCase>(
+    () => GetMostPopularBooksUseCase(sl<HomeBooksRepository>()),
+  );
   sl.registerFactory<HomeBloc>(
     () => HomeBloc(
       loadUserSnapshot: sl<LoadAccountUserSnapshotUseCase>(),
+      getRecommendedBooks: sl<GetRecommendedBooksUseCase>(),
+      getMostPopularBooks: sl<GetMostPopularBooksUseCase>(),
       notificationService: sl<NotificationService>(),
       appPermissionService: sl<AppPermissionService>(),
+      authLocalDataSource: sl<AuthLocalDataSource>(),
     ),
   );
 
@@ -514,6 +586,15 @@ void registerFeatureDependencies() {
     );
   }
 
+  if (!sl.isRegistered<ExplorerHistoryRepository>()) {
+    sl.registerLazySingleton<ExplorerHistoryRepository>(
+      () => ExplorerHistoryRepositoryImpl(
+        storageService: sl<StorageService>(),
+        fileSystemDataSource: sl<LocalFileSystemDataSource>(),
+      ),
+    );
+  }
+
   if (!sl.isRegistered<LoadLocalDirectoryUseCase>()) {
     sl.registerLazySingleton<LoadLocalDirectoryUseCase>(
       () => LoadLocalDirectoryUseCase(sl()),
@@ -524,6 +605,10 @@ void registerFeatureDependencies() {
     sl.registerFactory<LocalExplorerBloc>(
       () => LocalExplorerBloc(loadDirectory: sl(), repository: sl()),
     );
+  }
+
+  if (!sl.isRegistered<ExplorerHistoryCubit>()) {
+    sl.registerFactory<ExplorerHistoryCubit>(() => ExplorerHistoryCubit(sl()));
   }
 
   if (!sl.isRegistered<PdfReaderBloc>()) {

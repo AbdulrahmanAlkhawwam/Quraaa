@@ -16,8 +16,8 @@ class AuthJourneyState {
 
 class AuthJourneyCubit extends Cubit<AuthJourneyState> {
   AuthJourneyCubit({required AuthLocalDataSource authJourney})
-      : _authJourney = authJourney,
-        super(const AuthJourneyState());
+    : _authJourney = authJourney,
+      super(const AuthJourneyState());
 
   final AuthLocalDataSource _authJourney;
 
@@ -40,13 +40,6 @@ class AuthJourneyCubit extends Cubit<AuthJourneyState> {
     );
   }
 
-  Future<void> moveFromOnboardingToRegister() {
-    return _saveStage(
-      AuthJourneyStage.register,
-      previousStage: AuthJourneyStage.onboarding,
-    );
-  }
-
   Future<void> moveFromAgeToOnboarding() {
     return _saveStage(
       AuthJourneyStage.onboarding,
@@ -54,23 +47,9 @@ class AuthJourneyCubit extends Cubit<AuthJourneyState> {
     );
   }
 
-  Future<void> moveFromAgeToRegister() {
-    return _saveStage(
-      AuthJourneyStage.register,
-      previousStage: AuthJourneyStage.onboardingAge,
-    );
-  }
-
   Future<void> moveFromInterestsToAge() {
     return _saveStage(
       AuthJourneyStage.onboardingAge,
-      previousStage: AuthJourneyStage.onboardingInterests,
-    );
-  }
-
-  Future<void> moveFromInterestsToRegister() {
-    return _saveStage(
-      AuthJourneyStage.register,
       previousStage: AuthJourneyStage.onboardingInterests,
     );
   }

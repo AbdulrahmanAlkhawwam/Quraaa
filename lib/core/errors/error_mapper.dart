@@ -9,6 +9,10 @@ class ErrorMapper {
   static AppException mapResponseToException(ErrorResponseModel response) {
     final String code =
         response.code ??
+        _codeFromStatus(
+          response.statusCode,
+          hasValidationErrors: response.errors.isNotEmpty,
+        ) ??
         (response.errors.isNotEmpty
             ? ErrorCodes.validationFailed
             : ErrorCodes.unknown);
@@ -17,7 +21,33 @@ class ErrorMapper {
       code,
       title: response.title,
       message: response.message,
+      statusCode: response.statusCode,
     );
+  }
+
+  static String? _codeFromStatus(
+    int? statusCode, {
+    required bool hasValidationErrors,
+  }) {
+    return switch (statusCode) {
+      400 =>
+        hasValidationErrors
+            ? ErrorCodes.validationFailed
+            : ErrorCodes.badRequest,
+      401 => ErrorCodes.unauthorized,
+      403 => ErrorCodes.forbidden,
+      404 => ErrorCodes.resourceNotFound,
+      405 => ErrorCodes.methodNotAllowed,
+      408 || 504 => ErrorCodes.timeout,
+      409 => ErrorCodes.conflict,
+      410 => ErrorCodes.gone,
+      412 => ErrorCodes.preconditionFailed,
+      422 => ErrorCodes.validationFailed,
+      429 => ErrorCodes.tooManyRequests,
+      500 => ErrorCodes.internalServerError,
+      502 || 503 => ErrorCodes.serviceUnavailable,
+      _ => null,
+    };
   }
 
   static AppException mapCodeToException(
@@ -42,9 +72,18 @@ class ErrorMapper {
         return BadRequestException(code: code!, message: message);
       case ErrorCodes.unauthorized:
       case ErrorCodes.wrongPasswordRetry:
-      case ErrorCodes.tokenExpired:
-      case ErrorCodes.loginFailed:
         return UnauthorizedException(code: code!, message: message);
+      case ErrorCodes.invalidVerificationCode:
+        return UnauthorizedException(
+          code: code!,
+          message: message ?? 'The verification code is invalid or expired.',
+        );
+      case ErrorCodes.tokenExpired:
+        return TokenExpiredException(message: message);
+      case ErrorCodes.loginFailed:
+        return LoginFailedException(message: message);
+      case ErrorCodes.otpVerificationRequired:
+        return OtpVerificationRequiredException(message: message);
       case ErrorCodes.forbidden:
         return ForbiddenException(message: message);
       case ErrorCodes.resourceNotFound:
@@ -199,6 +238,8 @@ class ErrorMapper {
         return FileAccessDeniedFailure(message: exception.message);
       case LoginFailedException():
         return LoginFailure(message: exception.message);
+      case OtpVerificationRequiredException():
+        return OtpVerificationRequiredFailure(message: exception.message);
       case TokenExpiredException():
         return TokenExpiredFailure(message: exception.message);
       case UserNotFoundException():

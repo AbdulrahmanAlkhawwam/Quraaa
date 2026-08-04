@@ -6,10 +6,9 @@ import 'package:meta/meta.dart';
 
 import '../../../../config/routes/route_names.dart';
 import '../../../../core/error_monitoring/user_context_provider.dart';
+import '../../../../core/errors/failures.dart';
 import '../../data/datasources/auth_local_datasource.dart';
-import '../../data/datasources/user_local_datasource.dart';
-import '../../data/models/user_model.dart';
-import '../../domain/entities/user.dart';
+import '../../data/services/auth_session_service.dart';
 import '../../domain/use_cases/login_use_case.dart';
 import '../../domain/use_cases/register_use_case.dart';
 
@@ -21,7 +20,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this._loginUseCase,
     required this._registerUseCase,
     required this._authJourney,
-    required this._userCache,
+    required this._authSessionService,
     required this._userContext,
   }) : super(const AuthState()) {
     on<AuthLoginScreenStarted>(_onLoginScreenStarted);
@@ -38,10 +37,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginUseCase _loginUseCase;
   final RegisterUseCase _registerUseCase;
   final AuthLocalDataSource _authJourney;
-  final UserLocalDataSource _userCache;
+  final AuthSessionService _authSessionService;
   final UserContextProvider _userContext;
 
-  static const String _subscriptionStatus = 'active';
   static const String _defaultPhoneIsoCode = 'SY';
 
   Future<void> _onLoginScreenStarted(
@@ -79,12 +77,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       ),
       (user) async {
         final phone = user.phoneNumber ?? event.phoneNumber;
-        await _onAuthenticated(
-          user,
-          id: phone,
-          name: user.fullName.isNotEmpty ? user.fullName : phone,
-          phone: phone,
-        );
+        try {
+          await _authSessionService.completeAuthenticatedSession(
+            user,
+            fallbackId: phone,
+            fallbackName: user.fullName.isNotEmpty ? user.fullName : phone,
+            fallbackPhone: phone,
+          );
+        } catch (error) {
+          emit(state.copyWith(status: AuthStatus.error, error: error));
+          return;
+        }
         emit(state.copyWith(status: AuthStatus.success));
         _emitNavigation(emit, await _resolvePostAuthRoute());
       },
@@ -109,31 +112,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         categoryIds: event.categoryIds,
       ),
     );
-    await response.fold(
-      (failure) async => emit(
+    await response.fold((failure) async {
+      if (failure.cause is OtpVerificationRequiredFailure) {
+        await _continueRegistrationWithOtp(emit, event.phoneNumber);
+        return;
+      }
+      emit(
         state.copyWith(
           status: AuthStatus.error,
           error: failure.cause ?? failure.message,
         ),
-      ),
-      (user) async {
-        await _onAuthenticated(
-          user,
-          id: event.phoneNumber ?? '',
-          name: [
-            event.firstName,
-            event.lastName,
-          ].whereType<String>().where((s) => s.isNotEmpty).join(' '),
-          phone: event.phoneNumber,
-        );
-        emit(state.copyWith(status: AuthStatus.success));
-        _emitNavigation(
-          emit,
-          RouteNames.otpVerification,
-          routeExtra: event.phoneNumber,
-        );
-      },
-    );
+      );
+    }, (_) => _continueRegistrationWithOtp(emit, event.phoneNumber));
   }
 
   Future<void> _onGuestRequested(
@@ -231,6 +221,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } catch (_) {}
   }
 
+  Future<void> _continueRegistrationWithOtp(
+    Emitter<AuthState> emit,
+    String? phoneNumber,
+  ) async {
+    try {
+      await _authJourney.saveJourneyStage(
+        AuthJourneyStage.otpVerification,
+        previousStage: AuthJourneyStage.register,
+      );
+    } catch (_) {}
+    emit(state.copyWith(status: AuthStatus.success));
+    _emitNavigation(emit, RouteNames.otpVerification, routeExtra: phoneNumber);
+  }
+
   Future<String> _resolvePostAuthRoute() async {
     return RouteNames.home;
   }
@@ -248,53 +252,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         clearRouteExtra: routeExtra == null,
         navigationSerial: state.navigationSerial + 1,
       ),
-    );
-  }
-
-  /// Persists the authenticated session, caches the user, and reports the
-  /// user context after a successful login or registration.
-  Future<void> _onAuthenticated(
-    User user, {
-    required String id,
-    required String name,
-    required String? phone,
-  }) async {
-    await _authJourney.markAuthenticatedSession(
-      accessToken: user.accessToken,
-      refreshToken: user.refreshToken,
-      accessTokenExpiration: user.accessTokenExpiration,
-    );
-    await _userCache.saveUser(_toModel(user));
-    await _userContext.setUser(
-      id: id,
-      name: name,
-      phone: phone,
-      subscriptionStatus: _subscriptionStatus,
-    );
-  }
-
-  /// Converts the domain entity returned by the use cases into a [UserModel]
-  /// so it can be cached by the local data source.
-  UserModel _toModel(User user) {
-    if (user is UserModel) {
-      return user;
-    }
-    return UserModel(
-      id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      phoneNumber: user.phoneNumber,
-      country: user.country,
-      password: user.password,
-      interests: user.interests,
-      birthday: user.birthday,
-      gender: user.gender,
-      location: user.location,
-      language: user.language,
-      deviceAndroidVersion: user.deviceAndroidVersion,
-      accessToken: user.accessToken,
-      refreshToken: user.refreshToken,
-      accessTokenExpiration: user.accessTokenExpiration,
     );
   }
 }

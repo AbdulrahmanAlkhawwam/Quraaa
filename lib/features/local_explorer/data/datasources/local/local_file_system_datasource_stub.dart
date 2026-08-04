@@ -24,6 +24,9 @@ class UnsupportedLocalFileSystemDataSource
   }
 
   @override
+  Future<bool> fileExists(String path) async => false;
+
+  @override
   List<LocalPathSegmentModel> buildBreadcrumbs(String path) {
     return <LocalPathSegmentModel>[
       LocalPathSegmentModel(label: path, path: path),

@@ -1,44 +1,23 @@
-import 'package:equatable/equatable.dart';
+import '../../domain/entities/profile.dart';
 
-/// Strongly typed model for the `/api/Profile/me` response.
-class ProfileModel extends Equatable {
+/// Data model for the `/profile/me` response and local cache payload.
+class ProfileModel extends Profile {
   const ProfileModel({
-    this.userId,
-    this.firstName,
-    this.lastName,
-    this.phoneNumber,
-    this.gender,
-    this.role,
-    this.dateOfBirth,
-    this.profileImageUrl,
-    this.interests,
-    this.lastLoginDate,
-    this.previousLoginDate,
-    this.creationTime,
-    this.lastModificationTime,
+    super.userId,
+    super.firstName,
+    super.lastName,
+    super.phoneNumber,
+    super.gender,
+    super.role,
+    super.dateOfBirth,
+    super.profileImageUrl,
+    super.interests,
+    super.location,
+    super.lastLoginDate,
+    super.previousLoginDate,
+    super.creationTime,
+    super.lastModificationTime,
   });
-
-  final String? userId;
-  final String? firstName;
-  final String? lastName;
-  final String? phoneNumber;
-  final int? gender;
-  final int? role;
-  final String? dateOfBirth;
-  final String? profileImageUrl;
-  final List<String>? interests;
-  final String? lastLoginDate;
-  final String? previousLoginDate;
-  final String? creationTime;
-  final String? lastModificationTime;
-
-  /// Returns the full name when both parts are available.
-  String get fullName {
-    if (firstName != null && lastName != null) {
-      return '$firstName $lastName';
-    }
-    return firstName ?? lastName ?? '';
-  }
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
     return ProfileModel(
@@ -46,11 +25,12 @@ class ProfileModel extends Equatable {
       firstName: json['firstName'] as String?,
       lastName: json['lastName'] as String?,
       phoneNumber: json['phoneNumber'] as String?,
-      gender: json['gender'] as int?,
-      role: json['role'] as int?,
+      gender: _asInt(json['gender']),
+      role: _asInt(json['role']),
       dateOfBirth: json['dateOfBirth'] as String?,
       profileImageUrl: json['profileImageUrl'] as String?,
-      interests: (json['interests'] as List<dynamic>?)?.cast<String>(),
+      interests: _parseInterests(json['interests']),
+      location: _parseLocation(json['location']),
       lastLoginDate: json['lastLoginDate'] as String?,
       previousLoginDate: json['previousLoginDate'] as String?,
       creationTime: json['creationTime'] as String?,
@@ -58,70 +38,99 @@ class ProfileModel extends Equatable {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return <String, dynamic>{
-      'userId': userId,
-      'firstName': firstName,
-      'lastName': lastName,
-      'phoneNumber': phoneNumber,
-      'gender': gender,
-      'role': role,
-      'dateOfBirth': dateOfBirth,
-      'profileImageUrl': profileImageUrl,
-      'interests': interests,
-      'lastLoginDate': lastLoginDate,
-      'previousLoginDate': previousLoginDate,
-      'creationTime': creationTime,
-      'lastModificationTime': lastModificationTime,
-    };
-  }
-
-  ProfileModel copyWith({
-    String? userId,
-    String? firstName,
-    String? lastName,
-    String? phoneNumber,
-    int? gender,
-    int? role,
-    String? dateOfBirth,
-    String? profileImageUrl,
-    List<String>? interests,
-    String? lastLoginDate,
-    String? previousLoginDate,
-    String? creationTime,
-    String? lastModificationTime,
-  }) {
+  factory ProfileModel.fromEntity(Profile profile) {
     return ProfileModel(
-      userId: userId ?? this.userId,
-      firstName: firstName ?? this.firstName,
-      lastName: lastName ?? this.lastName,
-      phoneNumber: phoneNumber ?? this.phoneNumber,
-      gender: gender ?? this.gender,
-      role: role ?? this.role,
-      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
-      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
-      interests: interests ?? this.interests,
-      lastLoginDate: lastLoginDate ?? this.lastLoginDate,
-      previousLoginDate: previousLoginDate ?? this.previousLoginDate,
-      creationTime: creationTime ?? this.creationTime,
-      lastModificationTime: lastModificationTime ?? this.lastModificationTime,
+      userId: profile.userId,
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      phoneNumber: profile.phoneNumber,
+      gender: profile.gender,
+      role: profile.role,
+      dateOfBirth: profile.dateOfBirth,
+      profileImageUrl: profile.profileImageUrl,
+      interests: profile.interests,
+      location: profile.location,
+      lastLoginDate: profile.lastLoginDate,
+      previousLoginDate: profile.previousLoginDate,
+      creationTime: profile.creationTime,
+      lastModificationTime: profile.lastModificationTime,
     );
   }
 
-  @override
-  List<Object?> get props => <Object?>[
-        userId,
-        firstName,
-        lastName,
-        phoneNumber,
-        gender,
-        role,
-        dateOfBirth,
-        profileImageUrl,
-        interests,
-        lastLoginDate,
-        previousLoginDate,
-        creationTime,
-        lastModificationTime,
-      ];
+  Map<String, dynamic> toJson() => <String, dynamic>{
+    'userId': userId,
+    'firstName': firstName,
+    'lastName': lastName,
+    'phoneNumber': phoneNumber,
+    'gender': gender,
+    'role': role,
+    'dateOfBirth': dateOfBirth,
+    'profileImageUrl': profileImageUrl,
+    'interests': interests
+        .map(
+          (ProfileInterest interest) => <String, dynamic>{
+            'id': interest.id,
+            'nameAr': interest.nameAr,
+            'nameEn': interest.nameEn,
+          },
+        )
+        .toList(growable: false),
+    'location': location == null
+        ? null
+        : <String, dynamic>{
+            'latitude': location!.latitude,
+            'longitude': location!.longitude,
+            'label': location!.label,
+          },
+    'lastLoginDate': lastLoginDate,
+    'previousLoginDate': previousLoginDate,
+    'creationTime': creationTime,
+    'lastModificationTime': lastModificationTime,
+  };
+
+  static List<ProfileInterest> _parseInterests(Object? raw) {
+    if (raw is! List<dynamic>) {
+      return const <ProfileInterest>[];
+    }
+    return raw
+        .map((dynamic item) {
+          if (item is Map<String, dynamic>) {
+            return ProfileInterest(
+              id: item['id']?.toString() ?? '',
+              nameAr: item['nameAr']?.toString() ?? '',
+              nameEn: item['nameEn']?.toString() ?? '',
+            );
+          }
+          return ProfileInterest(id: item.toString(), nameAr: '', nameEn: '');
+        })
+        .where((ProfileInterest item) => item.id.isNotEmpty)
+        .toList(growable: false);
+  }
+
+  static ProfileLocation? _parseLocation(Object? raw) {
+    if (raw is! Map<String, dynamic>) {
+      return null;
+    }
+    final double? latitude = _asDouble(raw['latitude']);
+    final double? longitude = _asDouble(raw['longitude']);
+    if (latitude == null || longitude == null) {
+      return null;
+    }
+    return ProfileLocation(
+      latitude: latitude,
+      longitude: longitude,
+      label: raw['label']?.toString(),
+    );
+  }
+
+  static int? _asInt(Object? value) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '');
+  }
+
+  static double? _asDouble(Object? value) {
+    if (value is num) return value.toDouble();
+    return double.tryParse(value?.toString() ?? '');
+  }
 }

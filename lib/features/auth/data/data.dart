@@ -5,3 +5,4 @@ export './models/user_model.dart';
 export './mappers/auth_mapper.dart';
 export './mappers/user_mapper.dart';
 export './repositories/auth_repository_impl.dart';
+export './services/auth_session_service.dart';

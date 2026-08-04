@@ -10,7 +10,8 @@ import 'package:hugeicons/hugeicons.dart';
 import '../../../../config/routes/route_names.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/localization/supported_locales.dart';
-import '../../../../shared/shared.dart' hide NotificationBottomSheet, LanguageBottomSheet;
+import '../../../../shared/shared.dart'
+    hide NotificationBottomSheet, LanguageBottomSheet;
 import '../../domain/entities/appearance_option.dart';
 import '../../domain/entities/language_option.dart';
 import '../../domain/entities/settings_section.dart';
@@ -26,7 +27,9 @@ import 'settings_section_list.dart';
 import 'settings_tab_bar.dart';
 
 class SettingsView extends StatefulWidget {
-  const SettingsView({super.key});
+  const SettingsView({required this.isGuest, super.key});
+
+  final bool isGuest;
 
   @override
   State<SettingsView> createState() => _SettingsViewState();
@@ -77,9 +80,30 @@ class _SettingsViewState extends State<SettingsView> {
     SettingsLoaded state,
     SettingsSection section,
   ) {
+    if (_requiresAuthenticatedAccount(state.activeTab, section)) {
+      unawaited(_showGuestLoginDialog(context));
+      return;
+    }
+
     if (section.action == SettingsSectionAction.navigate) {
+      if (section.id == 'my_personal_information') {
+        context.pushTo(RouteNames.settingsPersonalInformation);
+        return;
+      }
+      if (section.id == 'my_locations') {
+        context.pushTo(RouteNames.settingsLocations);
+        return;
+      }
+      if (section.id == 'my_personal_files') {
+        context.pushTo(RouteNames.settingsPersonalFiles);
+        return;
+      }
       if (section.id == 'account_type') {
         context.push(RouteNames.settingsAccountType);
+        return;
+      }
+      if (section.id == 'change_password') {
+        context.pushTo(RouteNames.settingsChangePassword);
         return;
       }
 
@@ -104,6 +128,46 @@ class _SettingsViewState extends State<SettingsView> {
     }
   }
 
+  bool _requiresAuthenticatedAccount(SettingsTab tab, SettingsSection section) {
+    if (!widget.isGuest) {
+      return false;
+    }
+    return tab.id != 'settings' || section.id == 'security_manage';
+  }
+
+  bool _isProtectedGuestTab(SettingsTab tab) {
+    return widget.isGuest && tab.id != 'settings';
+  }
+
+  Future<void> _showGuestLoginDialog(BuildContext context) async {
+    final bool? shouldLogin = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text(LocalizationConstants.settingsGuestLoginTitleKey.tr()),
+          content: Text(
+            LocalizationConstants.settingsGuestLoginMessageKey.tr(),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(LocalizationConstants.commonCancelKey.tr()),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(
+                LocalizationConstants.settingsGuestLoginActionKey.tr(),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldLogin == true && context.mounted) {
+      context.goTo(RouteNames.login);
+    }
+  }
 
   void _showComingSoon(BuildContext context, String feature) {
     context.showSuccessSnackBar(
@@ -133,12 +197,12 @@ class _SettingsViewState extends State<SettingsView> {
           options: state.appearanceOptions,
           onSelected: (AppearanceOption option) {
             context.read<SettingsBloc>().add(
-                  SettingsAppearanceSelected(option.id),
-                );
+              SettingsAppearanceSelected(option.id),
+            );
             unawaited(
               context.read<AppThemeCubit>().setThemeMode(
-                    _themeModeFor(option.mode),
-                  ),
+                _themeModeFor(option.mode),
+              ),
             );
           },
         );
@@ -163,11 +227,8 @@ class _SettingsViewState extends State<SettingsView> {
           settings: state.notificationSettings,
           onToggle: (setting) {
             context.read<SettingsBloc>().add(
-                  SettingsNotificationToggled(
-                    id: setting.id,
-                    value: setting.value,
-                  ),
-                );
+              SettingsNotificationToggled(id: setting.id, value: setting.value),
+            );
           },
         );
       },
@@ -191,8 +252,8 @@ class _SettingsViewState extends State<SettingsView> {
           options: state.languageOptions,
           onSelected: (LanguageOption option) {
             context.read<SettingsBloc>().add(
-                  SettingsLanguageSelected(option.id),
-                );
+              SettingsLanguageSelected(option.id),
+            );
             unawaited(_setLocale(context, option.languageCode));
           },
         );
@@ -233,11 +294,7 @@ class _SettingsViewState extends State<SettingsView> {
 
         if (searchable.contains(query)) {
           results.add(
-            _SettingsSearchResult(
-              tab: tab,
-              label: label,
-              tabLabel: tabLabel,
-            ),
+            _SettingsSearchResult(tab: tab, label: label, tabLabel: tabLabel),
           );
         }
       }
@@ -252,6 +309,10 @@ class _SettingsViewState extends State<SettingsView> {
   ) {
     _clearSearch();
     _searchFocusNode.unfocus();
+    if (_isProtectedGuestTab(result.tab)) {
+      unawaited(_showGuestLoginDialog(context));
+      return;
+    }
     context.read<SettingsBloc>().add(SettingsTabChanged(result.tab));
   }
 
@@ -259,10 +320,26 @@ class _SettingsViewState extends State<SettingsView> {
   Widget build(BuildContext context) {
     return BlocConsumer<SettingsBloc, SettingsState>(
       listenWhen: (SettingsState previous, SettingsState current) =>
-          current is SettingsLogoutSuccess,
+          current is SettingsLogoutSuccess ||
+          (widget.isGuest &&
+              previous is! SettingsLoaded &&
+              current is SettingsLoaded),
       listener: (BuildContext context, SettingsState state) {
         if (state is SettingsLogoutSuccess) {
           context.goTo(RouteNames.auth);
+          return;
+        }
+
+        if (widget.isGuest && state is SettingsLoaded) {
+          final SettingsTab generalSettingsTab = state.tabs.firstWhere(
+            (SettingsTab tab) => tab.id == 'settings',
+            orElse: () => state.activeTab,
+          );
+          if (generalSettingsTab != state.activeTab) {
+            context.read<SettingsBloc>().add(
+              SettingsTabChanged(generalSettingsTab),
+            );
+          }
         }
       },
       builder: (BuildContext context, SettingsState state) {
@@ -288,19 +365,23 @@ class _SettingsViewState extends State<SettingsView> {
           return const Scaffold(body: SizedBox.shrink());
         }
 
-        final double searchOpacity =
-            ((state.scrollOffset - 100) / 80).clamp(0, 1);
+        final double searchOpacity = ((state.scrollOffset - 100) / 80).clamp(
+          0,
+          1,
+        );
 
         return AnnotatedRegion<SystemUiOverlayStyle>(
           value: SystemUiOverlayStyle(
             statusBarColor: palette.header,
-            statusBarIconBrightness:
-                palette.isDark ? Brightness.light : Brightness.dark,
+            statusBarIconBrightness: palette.isDark
+                ? Brightness.light
+                : Brightness.dark,
             systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarDividerColor: Colors.transparent,
+            systemNavigationBarDividerColor: Colors.transparent,
             systemNavigationBarContrastEnforced: false,
-        systemNavigationBarIconBrightness:
-                palette.isDark ? Brightness.light : Brightness.dark,
+            systemNavigationBarIconBrightness: palette.isDark
+                ? Brightness.light
+                : Brightness.dark,
           ),
           child: Scaffold(
             backgroundColor: palette.background,
@@ -308,8 +389,8 @@ class _SettingsViewState extends State<SettingsView> {
               onNotification: (ScrollNotification notification) {
                 if (notification is ScrollUpdateNotification) {
                   context.read<SettingsBloc>().add(
-                        SettingsScrolled(notification.metrics.pixels),
-                      );
+                    SettingsScrolled(notification.metrics.pixels),
+                  );
                 }
                 return false;
               },
@@ -354,9 +435,13 @@ class _SettingsViewState extends State<SettingsView> {
                       activeTab: state.activeTab,
                       onTabChanged: (SettingsTab tab) {
                         _resetSearchVisibility(context);
+                        if (_isProtectedGuestTab(tab)) {
+                          unawaited(_showGuestLoginDialog(context));
+                          return;
+                        }
                         context.read<SettingsBloc>().add(
-                              SettingsTabChanged(tab),
-                            );
+                          SettingsTabChanged(tab),
+                        );
                       },
                     ),
                   ),
@@ -367,9 +452,13 @@ class _SettingsViewState extends State<SettingsView> {
                       _onSectionTap(context, state, section);
                     },
                     onLogoutTap: () {
+                      if (widget.isGuest) {
+                        unawaited(_showGuestLoginDialog(context));
+                        return;
+                      }
                       context.read<SettingsBloc>().add(
-                            const SettingsLogoutRequested(),
-                          );
+                        const SettingsLogoutRequested(),
+                      );
                     },
                   ),
                 ],
@@ -462,9 +551,7 @@ class _SettingsSearchResultsDropdown extends StatelessWidget {
                                 result.label,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge
+                                style: Theme.of(context).textTheme.bodyLarge
                                     ?.copyWith(
                                       color: palette.text,
                                       fontWeight: FontWeight.w600,
@@ -475,9 +562,7 @@ class _SettingsSearchResultsDropdown extends StatelessWidget {
                                 result.tabLabel,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelMedium
+                                style: Theme.of(context).textTheme.labelMedium
                                     ?.copyWith(
                                       color: palette.inactiveIcon,
                                       fontWeight: FontWeight.w600,
