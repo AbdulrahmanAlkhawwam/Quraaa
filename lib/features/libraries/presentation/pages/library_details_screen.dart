@@ -5,11 +5,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../../../config/routes/route_names.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import '../../domain/entities/library_entity.dart';
 import '../cubit/library_details_cubit.dart';
 import '../cubit/library_details_state.dart';
+import '../models/library_details_navigation_data.dart';
 import '../widgets/library_author_card.dart';
 import '../widgets/library_book_card.dart';
 import '../widgets/library_info_header.dart';
@@ -172,8 +174,22 @@ class _LibraryDetailsViewState extends State<_LibraryDetailsView> {
                         separatorBuilder: (_, _) =>
                             const SizedBox(width: AppSpacing.spacing12),
                         itemBuilder: (BuildContext context, int index) {
+                          final author = state.authors[index];
+                          final works = state.books
+                              .where((book) => book.author == author.name)
+                              .toList(growable: false);
                           return LibraryAuthorCard(
-                            author: state.authors[index],
+                            author: author,
+                            onTap: () => context.pushTo(
+                              RouteNames.authorDetailsPath(author.name),
+                              extra: AuthorDetailsNavigationData(
+                                author: author,
+                                works: works,
+                                description: widget.library?.description ?? '',
+                                rating: widget.library?.rating ?? 0,
+                                reviewCount: widget.library?.reviewCount ?? 0,
+                              ),
+                            ),
                           );
                         },
                       ),
@@ -211,8 +227,16 @@ class _LibraryDetailsViewState extends State<_LibraryDetailsView> {
                         separatorBuilder: (_, _) =>
                             const SizedBox(width: AppSpacing.spacing8),
                         itemBuilder: (BuildContext context, int index) {
+                          final book = state.books[index];
                           return LibraryDetailsBookCard(
-                            book: state.books[index],
+                            book: book,
+                            onTap: () => context.pushTo(
+                              RouteNames.bookDetailsPath(
+                                book.bookId,
+                                book.listingId,
+                              ),
+                              extra: BookDetailsNavigationData(book: book),
+                            ),
                           );
                         },
                       ),

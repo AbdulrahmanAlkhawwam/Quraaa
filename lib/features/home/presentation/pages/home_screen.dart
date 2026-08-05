@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../config/routes/route_names.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
+import '../../../libraries/libraries.dart';
+import '../../domain/entities/home_book_entity.dart';
 import '../bloc/home_bloc.dart';
 import '../widgets/home_app_bar.dart';
 import '../widgets/home_banner.dart';
@@ -153,6 +155,30 @@ class _HomeScreenState extends State<HomeScreen> {
 class _HomeFeed extends StatelessWidget {
   const _HomeFeed();
 
+  void _openBookDetails(BuildContext context, HomeBookEntity book) {
+    final LibraryBookEntity detailsBook = LibraryBookEntity(
+      listingId: '',
+      price: '',
+      stock: '',
+      condition: 0,
+      bookId: book.bookId,
+      title: book.title,
+      author: book.author,
+      description: book.description,
+      coverImageUrl: book.coverImageUrl,
+      language: book.language,
+      isbn: book.isbn,
+      categoryId: book.categoryId,
+      categoryNameAr: '',
+      categoryNameEn: '',
+    );
+
+    context.pushTo(
+      RouteNames.bookDetailsPath(book.bookId),
+      extra: BookDetailsNavigationData(book: detailsBook),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final HomeState state = context.watch<HomeBloc>().state;
@@ -209,6 +235,8 @@ class _HomeFeed extends StatelessWidget {
                   onRetry: () => context.read<HomeBloc>().add(
                     const HomeRecommendedBooksRequested(),
                   ),
+                  onBookTap: (HomeBookEntity book) =>
+                      _openBookDetails(context, book),
                 ),
               ),
               const SliverToBoxAdapter(
@@ -226,6 +254,8 @@ class _HomeFeed extends StatelessWidget {
                 onRetry: () => context.read<HomeBloc>().add(
                   const HomeMostPopularBooksRequested(),
                 ),
+                onBookTap: (HomeBookEntity book) =>
+                    _openBookDetails(context, book),
               ),
             ),
             const SliverToBoxAdapter(child: SizedBox(height: 128)),

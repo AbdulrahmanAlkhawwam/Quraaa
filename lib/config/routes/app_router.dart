@@ -20,6 +20,9 @@ import '../../features/home/presentation/pages/stores_screen.dart';
 import '../../features/libraries/domain/entities/library_entity.dart';
 import '../../features/libraries/presentation/pages/libraries_screen.dart';
 import '../../features/libraries/presentation/pages/library_details_screen.dart';
+import '../../features/libraries/presentation/pages/author_details_screen.dart';
+import '../../features/libraries/presentation/pages/book_details_screen.dart';
+import '../../features/libraries/presentation/models/library_details_navigation_data.dart';
 import '../../features/libraries/presentation/cubit/library_details_cubit.dart';
 import '../../features/home/presentation/pages/user_books_screen.dart';
 import '../../features/onboarding/presentation/pages/age_onboarding_page.dart';
@@ -148,6 +151,28 @@ GoRouter buildAppRouter({
           return BlocProvider<LibraryDetailsCubit>(
             create: (_) => sl<LibraryDetailsCubit>(param1: libraryId),
             child: LibraryDetailsScreen(library: library),
+          );
+        },
+      ),
+      GoRoute(
+        name: RouteNames.authorDetails,
+        path: RouteNames.authorDetails,
+        builder: (context, state) {
+          return AuthorDetailsScreen(
+            authorName: Uri.decodeComponent(
+              state.pathParameters['authorName'] ?? '',
+            ),
+            data: state.extra as AuthorDetailsNavigationData?,
+          );
+        },
+      ),
+      GoRoute(
+        name: RouteNames.bookDetails,
+        path: RouteNames.bookDetails,
+        builder: (context, state) {
+          return BookDetailsScreen(
+            bookId: Uri.decodeComponent(state.pathParameters['bookId'] ?? ''),
+            data: state.extra as BookDetailsNavigationData?,
           );
         },
       ),
@@ -393,7 +418,9 @@ bool _isKnownRoute(String location) {
 
   // Library details uses a path parameter, so the actual location looks like
   // /libraries/{id} rather than the declared /libraries/:libraryId route.
-  if (location.startsWith('${RouteNames.libraries}/')) {
+  if (location.startsWith('${RouteNames.libraries}/') ||
+      location.startsWith('/authors/') ||
+      location.startsWith('/books/')) {
     return true;
   }
 

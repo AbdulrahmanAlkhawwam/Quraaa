@@ -31,6 +31,9 @@
       "settings": "Settings",
       "cart": "Cart"
     },
+    "profile_menu": {
+      "sell_book": "Sell book"
+    },
     "drawer": {
       "welcome": "Welcome",
       "user": "Quraaa User",
@@ -69,6 +72,24 @@
     "reviewers": "reviewers",
     "authors": "Authors",
     "recently_added": "Recently added",
+    "author": {
+      "writer": "Writer",
+      "works": "His works"
+    },
+    "book": {
+      "buy": "Buy",
+      "purchase_title": "Buy Book",
+      "checkout": "Checkout",
+      "buy_directly": "Buy that Directly",
+      "publisher": "Publisher",
+      "writer": "Writer",
+      "language": "Language"
+    },
+    "reviews": {
+      "title": "Last Reviews",
+      "preview_comment": "I was hesitant to try this at first, but Iâ€™m so glad I did - it exceeded all of my expectations.",
+      "preview_user": "Mohammad ker"
+    },
     "tabs": {
       "general": "General",
       "profile": "Profile",
@@ -307,6 +328,11 @@
       "full_name": "Full name",
       "birth_date": "Birth date",
       "country": "Country",
+      "countries": {
+        "syria": "Syria",
+        "uae": "United Arab Emirates",
+        "usa": "United States"
+      },
       "phone": "Phone number",
       "gender": {
         "male": "Male",
@@ -799,6 +825,31 @@
     "delivery": "Delivery",
     "discount": "Discount",
     "total": "Total",
+    "title": "Cart",
+    "checkout": "Checkout",
+    "payment": {
+      "used_cards": "Used Cards",
+      "add_method": "Add Payment Method",
+      "next": "Next",
+      "card_country": "United States"
+    },
+    "add_card": {
+      "title": "Add Card",
+      "card_info": "Card Info",
+      "card_number": "Card Number",
+      "expiry": "Exp Date",
+      "cvc": "CVC",
+      "country_region": "Country and Region",
+      "country": "Country",
+      "countries": {
+        "syria": "Syria",
+        "uae": "United Arab Emirates",
+        "usa": "United States"
+      },
+      "zip_code": "Zip code",
+      "zip_hint": "Postal code",
+      "submit": "Add Payment Method"
+    },
     "nav": {
       "home": "Home",
       "stores": "stores",

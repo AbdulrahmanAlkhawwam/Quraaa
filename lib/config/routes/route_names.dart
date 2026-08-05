@@ -5,6 +5,18 @@ abstract class RouteNames {
   static const String stores = '/stores';
   static const String libraries = '/libraries';
   static const String libraryDetails = '/libraries/:libraryId';
+  static const String authorDetails = '/authors/:authorName';
+  static const String bookDetails = '/books/:bookId';
+
+  static String authorDetailsPath(String authorName) {
+    return '/authors/${Uri.encodeComponent(authorName)}';
+  }
+
+  static String bookDetailsPath(String bookId, [String fallbackId = 'book']) {
+    final String id = bookId.trim().isNotEmpty ? bookId : fallbackId;
+    return '/books/${Uri.encodeComponent(id)}';
+  }
+
   static const String userBooks = '/user-books';
   static const String audioBooks = '/audio-books';
   static const String cart = '/cart';

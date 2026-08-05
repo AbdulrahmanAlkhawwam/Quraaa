@@ -23,6 +23,8 @@ class LocalizationConstants {
   static const String homeNavAiKey = 'home.nav.ai';
   static const String homeNavSettingsKey = 'home.nav.settings';
   static const String homeNavCartKey = 'home.nav.cart';
+  static const String homeProfileMenuSellBookKey =
+      'home.profile_menu.sell_book';
   static const String homeDrawerWelcomeKey = 'home.drawer.welcome';
   static const String homeDrawerUserKey = 'home.drawer.user';
   static const String homeDrawerProfileKey = 'home.drawer.profile';
@@ -81,6 +83,23 @@ class LocalizationConstants {
       'library_details.tabs.branches';
   static const String libraryDetailsTabBooksKey = 'library_details.tabs.books';
   static const String libraryDetailsTabAudioKey = 'library_details.tabs.audio';
+  static const String libraryAuthorWriterKey = 'library_details.author.writer';
+  static const String libraryAuthorWorksKey = 'library_details.author.works';
+  static const String libraryBookBuyKey = 'library_details.book.buy';
+  static const String libraryBookPurchaseTitleKey =
+      'library_details.book.purchase_title';
+  static const String libraryBookCheckoutKey = 'library_details.book.checkout';
+  static const String libraryBookBuyDirectlyKey =
+      'library_details.book.buy_directly';
+  static const String libraryBookPublisherKey =
+      'library_details.book.publisher';
+  static const String libraryBookWriterKey = 'library_details.book.writer';
+  static const String libraryBookLanguageKey = 'library_details.book.language';
+  static const String libraryReviewsTitleKey = 'library_details.reviews.title';
+  static const String libraryReviewsPreviewCommentKey =
+      'library_details.reviews.preview_comment';
+  static const String libraryReviewsPreviewUserKey =
+      'library_details.reviews.preview_user';
   static const String commonOkKey = 'common.ok';
   static const String commonCancelKey = 'common.cancel';
   static const String commonRetryKey = 'common.retry';
@@ -747,6 +766,27 @@ class LocalizationConstants {
   static const String cartDiscountKey = 'cart.discount';
   static const String cartTotalKey = 'cart.total';
   static const String cartRemoveKey = 'cart.remove';
+  static const String cartTitleKey = 'cart.title';
+  static const String cartCheckoutKey = 'cart.checkout';
+  static const String cartPaymentUsedCardsKey = 'cart.payment.used_cards';
+  static const String cartPaymentAddMethodKey = 'cart.payment.add_method';
+  static const String cartPaymentNextKey = 'cart.payment.next';
+  static const String cartPaymentCardCountryKey = 'cart.payment.card_country';
+  static const String cartAddCardTitleKey = 'cart.add_card.title';
+  static const String cartAddCardInfoKey = 'cart.add_card.card_info';
+  static const String cartAddCardNumberKey = 'cart.add_card.card_number';
+  static const String cartAddCardExpiryKey = 'cart.add_card.expiry';
+  static const String cartAddCardCvcKey = 'cart.add_card.cvc';
+  static const String cartAddCardCountryRegionKey =
+      'cart.add_card.country_region';
+  static const String cartAddCardCountryKey = 'cart.add_card.country';
+  static const String cartAddCardCountrySyriaKey =
+      'cart.add_card.countries.syria';
+  static const String cartAddCardCountryUaeKey = 'cart.add_card.countries.uae';
+  static const String cartAddCardCountryUsaKey = 'cart.add_card.countries.usa';
+  static const String cartAddCardZipCodeKey = 'cart.add_card.zip_code';
+  static const String cartAddCardZipHintKey = 'cart.add_card.zip_hint';
+  static const String cartAddCardSubmitKey = 'cart.add_card.submit';
   static const String cartNavHomeKey = 'cart.nav.home';
   static const String cartNavStoresKey = 'cart.nav.stores';
   static const String cartNavLibrariesKey = 'cart.nav.libraries';
