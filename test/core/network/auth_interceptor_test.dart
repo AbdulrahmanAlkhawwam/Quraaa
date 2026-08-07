@@ -10,6 +10,9 @@ import 'package:quraaa/features/auth/data/datasources/auth_local_datasource.dart
 class _MockAuthLocalDataSource extends Mock implements AuthLocalDataSource {}
 
 class _RecordingAdapter implements HttpClientAdapter {
+  _RecordingAdapter({this.statusCode = 200});
+
+  final int statusCode;
   final List<RequestOptions> requests = <RequestOptions>[];
 
   @override
@@ -21,7 +24,7 @@ class _RecordingAdapter implements HttpClientAdapter {
     requests.add(options);
     return ResponseBody.fromString(
       '{"ok":true}',
-      200,
+      statusCode,
       headers: <String, List<String>>{
         Headers.contentTypeHeader: <String>['application/json'],
       },
@@ -59,6 +62,8 @@ void main() {
       const List<String> publicPaths = <String>[
         ApiEndpoints.login,
         ApiEndpoints.register,
+        ApiEndpoints.registerVerify,
+        ApiEndpoints.sendOtp,
         ApiEndpoints.verifyOtp,
         ApiEndpoints.forgotPassword,
         ApiEndpoints.forgotPasswordVerify,
@@ -89,6 +94,37 @@ void main() {
         'Bearer access-token',
       );
       verify(() => authLocalDataSource.getAccessToken()).called(1);
+    });
+
+    test('notifies when an authenticated protected request returns 401', () async {
+      when(
+        () => authLocalDataSource.getAccessToken(),
+      ).thenAnswer((_) async => 'expired-token');
+      when(
+        () => authLocalDataSource.isAuthenticatedSession(),
+      ).thenAnswer((_) async => true);
+      var expiryNotifications = 0;
+
+      dio.close(force: true);
+      adapter = _RecordingAdapter(statusCode: 401);
+      dio = Dio(BaseOptions(baseUrl: baseUrl))
+        ..interceptors.add(
+          AuthInterceptor(
+            authLocalDataSource,
+            baseUrl: baseUrl,
+            onSessionExpired: () async {
+              expiryNotifications++;
+            },
+          ),
+        )
+        ..httpClientAdapter = adapter;
+
+      await expectLater(
+        dio.get<dynamic>(ApiEndpoints.recommendedBooks),
+        throwsA(isA<DioException>()),
+      );
+
+      expect(expiryNotifications, 1);
     });
   });
 }

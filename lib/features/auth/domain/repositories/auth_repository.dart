@@ -19,10 +19,14 @@ abstract class AuthRepository {
 
   Future<Result<User>> refreshToken({required String refreshToken});
 
+  Future<Result<bool>> logout();
+
   Future<Result<User>> verifyOtp({
     required String phoneNumber,
     required String code,
   });
+
+  Future<Result<bool>> sendOtp({required String phoneNumber});
 
   Future<Result<bool>> forgotPassword({required String phoneNumber});
 

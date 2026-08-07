@@ -1,4 +1,5 @@
 import '../../../../core/architecture/result.dart';
+import '../entities/cart_item.dart';
 import '../entities/cart_summary.dart';
 
 abstract class CartRepository {
@@ -6,13 +7,18 @@ abstract class CartRepository {
 
   Future<Result<CartSummary>> getCart();
 
+  Future<Result<CartSummary>> clearCart();
+
+  Future<Result<CartSummary>> addItem({
+    required String listingId,
+    required int quantity,
+    CartItem? metadata,
+  });
+
   Future<Result<CartSummary>> updateQuantity({
-    required String itemId,
+    required String listingId,
     required int quantity,
   });
 
-  Future<Result<CartSummary>> removeItem(String itemId);
-
-  Future<Result<CartSummary>> applyCoupon(String code);
+  Future<Result<CartSummary>> removeItem(String listingId);
 }
-

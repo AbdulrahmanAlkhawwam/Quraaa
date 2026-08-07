@@ -5,6 +5,10 @@ import 'package:dio/dio.dart';
 import '../../features/auth/data/datasources/auth_local_datasource.dart';
 import '../constants/api_endpoints.dart';
 
+/// Called after an authenticated backend request proves that the session is no
+/// longer accepted by the server.
+typedef SessionExpiredCallback = Future<void> Function();
+
 /// {@template auth_interceptor}
 /// Dio interceptor that automatically attaches the stored access token to
 /// outgoing requests that target the app's backend.
@@ -17,16 +21,24 @@ import '../constants/api_endpoints.dart';
 /// preventing accidental leakage to third-party URLs.
 /// {@endtemplate}
 class AuthInterceptor extends Interceptor {
-  AuthInterceptor(this._authLocalDataSource, {required String baseUrl})
-    : _backendUri = Uri.parse(baseUrl);
+  AuthInterceptor(
+    this._authLocalDataSource, {
+    required String baseUrl,
+    SessionExpiredCallback? onSessionExpired,
+  }) : _backendUri = Uri.parse(baseUrl),
+       _onSessionExpired = onSessionExpired;
 
   final AuthLocalDataSource _authLocalDataSource;
+  final SessionExpiredCallback? _onSessionExpired;
   final Uri _backendUri;
+  bool _handlingExpiredSession = false;
 
   static const String _bearerPrefix = 'Bearer';
   static const Set<String> _publicAuthPaths = <String>{
     ApiEndpoints.login,
     ApiEndpoints.register,
+    ApiEndpoints.registerVerify,
+    ApiEndpoints.sendOtp,
     ApiEndpoints.verifyOtp,
     ApiEndpoints.forgotPassword,
     ApiEndpoints.forgotPasswordVerify,
@@ -71,5 +83,38 @@ class AuthInterceptor extends Interceptor {
     }
 
     handler.next(options);
+  }
+
+  @override
+  Future<void> onError(
+    DioException error,
+    ErrorInterceptorHandler handler,
+  ) async {
+    final RequestOptions options = error.requestOptions;
+    final bool isExpiredSessionResponse =
+        error.response?.statusCode == HttpStatus.unauthorized &&
+        _isBackendRequest(options.uri) &&
+        !_isPublicAuthRequest(options);
+
+    if (!isExpiredSessionResponse || _handlingExpiredSession) {
+      handler.next(error);
+      return;
+    }
+
+    final bool wasAuthenticated =
+        await _authLocalDataSource.isAuthenticatedSession();
+    if (!wasAuthenticated) {
+      handler.next(error);
+      return;
+    }
+
+    _handlingExpiredSession = true;
+    try {
+      await _onSessionExpired?.call();
+    } finally {
+      _handlingExpiredSession = false;
+    }
+
+    handler.next(error);
   }
 }

@@ -10,6 +10,7 @@ import '../config/routes/app_router.dart';
 import '../core/di/injection_container.dart';
 import '../core/error_monitoring/navigation_tracker.dart';
 import '../core/localization/localization_constants.dart';
+import '../core/network/session_expiry_controller.dart';
 import '../shared/theme/app_theme_cubit.dart';
 import '../features/profile/presentation/bloc/profile_bloc.dart';
 import '../shared/theme/app_theme.dart';
@@ -26,6 +27,7 @@ class _QuraaaAppState extends State<QuraaaApp> {
 
   late final GoRouter _router = buildAppRouter(
     navigatorKey: _navigatorKey,
+    sessionExpiryController: sl<SessionExpiryController>(),
     observers: <NavigatorObserver>[
       sl<NavigationTracker>().observer,
     ],

@@ -12,6 +12,7 @@ import '../../features/home/presentation/pages/home_screen.dart';
 import '../../features/home/presentation/bloc/home_bloc.dart';
 import '../../features/home/presentation/pages/audio_books_screen.dart';
 import '../../features/cart/presentation/pages/cart_screen.dart';
+import '../../features/favorites/presentation/pages/favorite_books_screen.dart';
 import '../../features/book_assistant/book_assistant.dart';
 import '../../features/auth/presentation/pages/landing_page.dart';
 import '../../features/auth/presentation/pages/login_screen.dart';
@@ -36,6 +37,7 @@ import '../../features/profile/presentation/pages/profile_locations_screen.dart'
 import '../../features/subscription/presentation/pages/account_type_screen.dart';
 import '../../features/search/search.dart';
 import '../../core/di/injection_container.dart';
+import '../../core/network/session_expiry_controller.dart';
 import '../../features/splash/presentation/pages/splash_screen.dart';
 import '../../features/local_explorer/presentation/pages/explorer_history_screen.dart';
 import '../../features/local_explorer/presentation/pages/local_explorer_page.dart';
@@ -48,13 +50,19 @@ import 'route_resolver.dart';
 GoRouter buildAppRouter({
   List<NavigatorObserver> observers = const <NavigatorObserver>[],
   GlobalKey<NavigatorState>? navigatorKey,
+  required SessionExpiryController sessionExpiryController,
 }) {
   return GoRouter(
     navigatorKey: navigatorKey,
     initialLocation: RouteNames.splash,
     observers: observers,
+    refreshListenable: sessionExpiryController,
     redirect: (context, state) async {
       final String location = state.matchedLocation;
+
+      if (sessionExpiryController.consumeSessionExpired()) {
+        return location == RouteNames.login ? null : RouteNames.login;
+      }
 
       if (location == RouteNames.routeBridge) {
         return resolveBridgeRoute(state.uri.queryParameters['route']) ??
@@ -202,6 +210,11 @@ GoRouter buildAppRouter({
           tabIndex: 4,
           child: const CartScreen(),
         ),
+      ),
+      GoRoute(
+        name: RouteNames.favorites,
+        path: RouteNames.favorites,
+        builder: (context, state) => const FavoriteBooksScreen(),
       ),
       GoRoute(
         name: RouteNames.bookAssistant,
@@ -389,6 +402,7 @@ bool _isKnownRoute(String location) {
     RouteNames.userBooks,
     RouteNames.audioBooks,
     RouteNames.cart,
+    RouteNames.favorites,
     RouteNames.bookAssistant,
     RouteNames.search,
     RouteNames.settings,

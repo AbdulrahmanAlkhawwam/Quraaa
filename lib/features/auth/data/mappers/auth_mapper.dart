@@ -18,7 +18,7 @@ class AuthMapper {
       'password': ?password,
       'gender': ?gender,
       'dateOfBirth': ?dateOfBirth,
-      'Interests': ?categoryIds,
+      'interests': ?categoryIds,
     };
   }
 
@@ -29,11 +29,15 @@ class AuthMapper {
     return <String, Object?>{'phoneNumber': phoneNumber, 'password': password};
   }
 
-  static Map<String, Object?> verifyOtpToJson({
+  static Map<String, Object?> verifyRegisterOtpToJson({
     required String phoneNumber,
     required String code,
   }) {
-    return <String, Object?>{'phoneNumber': phoneNumber, 'code': code};
+    return <String, Object?>{'phoneNumber': phoneNumber, 'otpCode': code};
+  }
+
+  static Map<String, Object?> sendOtpToJson({required String phoneNumber}) {
+    return <String, Object?>{'phoneNumber': phoneNumber};
   }
 
   static Map<String, Object?> forgotPasswordToJson({

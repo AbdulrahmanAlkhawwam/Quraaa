@@ -70,6 +70,14 @@ class DioLoggingInterceptor extends Interceptor {
     final String requestBody = truncateBody(
       encodeSanitizedBody(err.requestOptions.data),
     );
+    final String requestHeaders = truncateBody(
+      encodeSanitizedBody(err.requestOptions.headers),
+      maxLength: 800,
+    );
+    final String responseHeaders = truncateBody(
+      encodeSanitizedBody(err.response?.headers.map),
+      maxLength: 800,
+    );
     final String responseBody = truncateBody(
       encodeSanitizedBody(err.response?.data),
     );
@@ -82,9 +90,9 @@ class DioLoggingInterceptor extends Interceptor {
       source: 'dio',
       data: <String, Object?>{
         'statusCode': err.response?.statusCode,
-        'requestHeaders': encodeSanitizedBody(err.requestOptions.headers),
+        'requestHeaders': requestHeaders,
         'requestBody': requestBody,
-        'responseHeaders': encodeSanitizedBody(err.response?.headers.map),
+        'responseHeaders': responseHeaders,
         'responseBody': responseBody,
       },
     );
@@ -99,7 +107,9 @@ class DioLoggingInterceptor extends Interceptor {
         apiUrl: err.requestOptions.uri.toString(),
         apiStatusCode: err.response?.statusCode,
         apiDuration: duration,
+        apiRequestHeaders: requestHeaders,
         apiRequestBody: requestBody,
+        apiResponseHeaders: responseHeaders,
         apiResponseBody: responseBody,
       ),
     );

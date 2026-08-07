@@ -14,7 +14,7 @@ class UpdateCartItemQuantityUseCase
   @override
   Future<Result<CartSummary>> call(UpdateCartItemQuantityParams params) {
     return _repository.updateQuantity(
-      itemId: params.itemId,
+      listingId: params.itemId,
       quantity: params.quantity,
     );
   }
@@ -32,4 +32,3 @@ class UpdateCartItemQuantityParams extends Equatable {
   @override
   List<Object?> get props => <Object?>[itemId, quantity];
 }
-

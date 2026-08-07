@@ -26,10 +26,12 @@ class CartItemTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double scale = context.compactFeatureScale;
-    final Color titleColor =
-        context.isDark ? AppColors.primary300 : AppColors.libraryGreen;
-    final Color subtitleColor =
-        context.isDark ? AppColors.primary400 : AppColors.forestGreen;
+    final Color titleColor = context.isDark
+        ? AppColors.primary300
+        : AppColors.libraryGreen;
+    final Color subtitleColor = context.isDark
+        ? AppColors.primary400
+        : AppColors.forestGreen;
 
     return Column(
       children: <Widget>[
@@ -47,7 +49,9 @@ class CartItemTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        item.title,
+                        item.title.isEmpty
+                            ? LocalizationConstants.cartItemFallbackKey.tr()
+                            : item.title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppTextStyles.bodyLarge.copyWith(
@@ -125,11 +129,7 @@ class CartItemTile extends StatelessWidget {
           ),
         ),
         if (showDivider)
-          Divider(
-            height: 1,
-            thickness: 1,
-            color: context.appBorder,
-          ),
+          Divider(height: 1, thickness: 1, color: context.appBorder),
       ],
     );
   }
@@ -201,7 +201,9 @@ class _QuantityControl extends StatelessWidget {
             '$quantity',
             textAlign: TextAlign.center,
             style: AppTextStyles.bodyLarge.copyWith(
-              color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
+              color: context.isDark
+                  ? AppColors.primary300
+                  : AppColors.libraryGreen,
               fontSize: 18 * scale,
               fontWeight: FontWeight.w500,
             ),
@@ -235,7 +237,9 @@ class _QuantityButton extends StatelessWidget {
       onTap: onTap,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: context.isDark ? AppColors.primary800 : const Color(0xFFB7E3A6),
+          color: context.isDark
+              ? AppColors.primary800
+              : const Color(0xFFB7E3A6),
           shape: BoxShape.circle,
         ),
         child: SizedBox(
@@ -253,4 +257,3 @@ class _QuantityButton extends StatelessWidget {
     );
   }
 }
-

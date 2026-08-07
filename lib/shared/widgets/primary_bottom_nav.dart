@@ -47,7 +47,7 @@ class HomeBottomNav extends StatelessWidget {
         height: 74,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         decoration: BoxDecoration(
-          color: context.appCard,
+          color: AppColors.primary600,
           borderRadius: BorderRadius.circular(AppRadius.radius40),
           boxShadow: <BoxShadow>[
             BoxShadow(
@@ -151,9 +151,7 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color activeColor = context.isDark
-        ? AppColors.primary300
-        : AppColors.primary600;
+    const Color activeColor = AppColors.primary600;
 
     return Semantics(
       button: true,
@@ -166,9 +164,7 @@ class _NavItem extends StatelessWidget {
           duration: const Duration(milliseconds: 220),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
-            color: isActive
-                ? activeColor.withValues(alpha: context.isDark ? 0.18 : 0.12)
-                : Colors.transparent,
+            color: isActive ? AppColors.card : Colors.transparent,
             borderRadius: BorderRadius.circular(AppRadius.radius32),
           ),
           child: Row(
@@ -176,7 +172,7 @@ class _NavItem extends StatelessWidget {
             children: <Widget>[
               HugeIcon(
                 icon: isActive ? activeIcon : icon,
-                color: isActive ? activeColor : context.appTextSecondary,
+                color: isActive ? activeColor : Colors.white,
                 size: 24,
               ),
               AnimatedSwitcher(

@@ -10,6 +10,7 @@ import '../../data/services/auth_session_service.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/use_cases/forgot_password_use_case.dart';
 import '../../domain/use_cases/reset_password_use_case.dart';
+import '../../domain/use_cases/send_otp_use_case.dart';
 import '../../domain/use_cases/verify_otp_use_case.dart';
 
 enum AuthRecoveryStatus { initial, loading, success, failure, navigate }
@@ -74,11 +75,13 @@ class AuthRecoveryCubit extends Cubit<AuthRecoveryState> {
     required ForgotPasswordUseCase forgotPasswordUseCase,
     required ResetPasswordUseCase resetPasswordUseCase,
     required VerifyOtpUseCase verifyOtpUseCase,
+    required SendOtpUseCase sendOtpUseCase,
     required AuthLocalDataSource authJourney,
     required AuthSessionService authSessionService,
   }) : _forgotPasswordUseCase = forgotPasswordUseCase,
        _resetPasswordUseCase = resetPasswordUseCase,
        _verifyOtpUseCase = verifyOtpUseCase,
+       _sendOtpUseCase = sendOtpUseCase,
        _authJourney = authJourney,
        _authSessionService = authSessionService,
        super(const AuthRecoveryState());
@@ -86,6 +89,7 @@ class AuthRecoveryCubit extends Cubit<AuthRecoveryState> {
   final ForgotPasswordUseCase _forgotPasswordUseCase;
   final ResetPasswordUseCase _resetPasswordUseCase;
   final VerifyOtpUseCase _verifyOtpUseCase;
+  final SendOtpUseCase _sendOtpUseCase;
   final AuthLocalDataSource _authJourney;
   final AuthSessionService _authSessionService;
   Timer? _resendTimer;
@@ -211,6 +215,30 @@ class AuthRecoveryCubit extends Cubit<AuthRecoveryState> {
     final String provided = routePhoneNumber?.trim() ?? '';
     if (provided.isNotEmpty) return provided;
     return (await _authJourney.getLastPhoneNumber())?.trim() ?? '';
+  }
+
+  Future<void> resendOtp({required String phoneNumber}) async {
+    if (state.isLoading || !state.canResendOtp || phoneNumber.trim().isEmpty) {
+      return;
+    }
+    emit(
+      state.copyWith(
+        status: AuthRecoveryStatus.loading,
+        success: AuthRecoverySuccess.none,
+        error: null,
+      ),
+    );
+    final Result<bool> result = await _sendOtpUseCase(phoneNumber.trim());
+    result.fold(_emitFailure, (_) {
+      emit(
+        state.copyWith(
+          status: AuthRecoveryStatus.success,
+          success: AuthRecoverySuccess.none,
+          error: null,
+        ),
+      );
+      startOtpResendCountdown();
+    });
   }
 
   void startOtpResendCountdown({int seconds = 60}) {
