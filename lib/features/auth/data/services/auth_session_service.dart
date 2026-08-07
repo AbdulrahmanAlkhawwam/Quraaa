@@ -74,6 +74,31 @@ class AuthSessionService {
     }
   }
 
+  /// Persists rotated tokens after a successful refresh operation.
+  Future<String?> refreshAuthenticatedSession(
+    User user, {
+    required String previousRefreshToken,
+  }) async {
+    final String? accessToken = _nonEmpty(user.accessToken);
+    if (accessToken == null) {
+      return null;
+    }
+
+    final String refreshToken =
+        _nonEmpty(user.refreshToken) ?? previousRefreshToken;
+    await _userLocalDataSource.updateTokens(
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      accessTokenExpiration: user.accessTokenExpiration,
+    );
+    await _authLocalDataSource.markAuthenticatedSession(
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      accessTokenExpiration: user.accessTokenExpiration,
+    );
+    return accessToken;
+  }
+
   Future<void> _rollbackPartialSession() async {
     try {
       await _userLocalDataSource.clearUser();

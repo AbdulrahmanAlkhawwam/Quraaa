@@ -829,6 +829,8 @@
     "applied": "Applied",
     "apply": "Apply",
     "empty": "Your cart is empty.",
+    "empty_title": "Ready to Fill Your Library!",
+    "empty_description": "Your cart is waiting for its first book. Discover inspiring stories, valuable knowledge, and timeless classics to add to your collection.",
     "clear": "Clear cart",
     "item_fallback": "Book",
     "subtotal": "Sub Total",

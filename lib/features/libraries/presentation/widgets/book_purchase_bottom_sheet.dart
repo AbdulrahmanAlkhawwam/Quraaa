@@ -7,6 +7,7 @@ import '../../../../core/architecture/result.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
+import '../../../auth/auth.dart';
 import '../../../cart/cart.dart';
 import '../../domain/entities/library_book_entity.dart';
 
@@ -18,7 +19,39 @@ class BookPurchaseBottomSheet extends StatelessWidget {
   static Future<void> show(
     BuildContext context, {
     required LibraryBookEntity? book,
-  }) {
+  }) async {
+    final bool isAuthenticated =
+        await sl<AuthLocalDataSource>().isAuthenticatedSession();
+    if (!context.mounted) return;
+
+    if (!isAuthenticated) {
+      final bool? shouldLogin = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext dialogContext) => AlertDialog(
+          title: Text(LocalizationConstants.settingsGuestLoginTitleKey.tr()),
+          content: Text(
+            LocalizationConstants.settingsGuestLoginMessageKey.tr(),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(LocalizationConstants.commonCancelKey.tr()),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(
+                LocalizationConstants.settingsGuestLoginActionKey.tr(),
+              ),
+            ),
+          ],
+        ),
+      );
+      if (shouldLogin == true && context.mounted) {
+        context.goTo(RouteNames.login);
+      }
+      return;
+    }
+
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,

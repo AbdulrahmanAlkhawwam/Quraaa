@@ -769,6 +769,8 @@ class LocalizationConstants {
   static const String cartAppliedKey = 'cart.applied';
   static const String cartApplyKey = 'cart.apply';
   static const String cartEmptyKey = 'cart.empty';
+  static const String cartEmptyTitleKey = 'cart.empty_title';
+  static const String cartEmptyDescriptionKey = 'cart.empty_description';
   static const String cartClearKey = 'cart.clear';
   static const String cartItemFallbackKey = 'cart.item_fallback';
   static const String cartSubtotalKey = 'cart.subtotal';

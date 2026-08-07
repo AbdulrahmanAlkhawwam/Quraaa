@@ -1,4 +1,7 @@
+import '../../core/connectivity/connection_status.dart';
+import '../../core/connectivity/connectivity_service.dart';
 import '../../core/di/injection_container.dart';
+import '../../core/error_monitoring/user_context_provider.dart';
 import '../../core/utils/validators.dart';
 import '../../features/auth/data/datasources/auth_local_datasource.dart'
     show AuthLocalDataSource, AuthJourneyStage, AuthSessionMode;
@@ -17,6 +20,27 @@ Future<String> resolveStartupRoute() async {
 
   if (sessionMode == AuthSessionMode.guest ||
       sessionMode == AuthSessionMode.authenticated) {
+    return RouteNames.home;
+  }
+
+  ConnectionStatus connectionStatus = ConnectionStatus.unknown;
+  try {
+    connectionStatus = await sl<ConnectivityService>().currentStatus();
+  } catch (_) {
+    // A connectivity lookup failure must not block normal startup routing.
+  }
+
+  if (connectionStatus == ConnectionStatus.disconnected) {
+    try {
+      await authJourney.markGuestSession();
+    } catch (_) {
+      // The user must still be able to enter the offline shell.
+    }
+    try {
+      await sl<UserContextProvider>().clearUser();
+    } catch (_) {
+      // Monitoring context cleanup is best effort.
+    }
     return RouteNames.home;
   }
 

@@ -220,6 +220,26 @@ void registerCoreDependencies() {
     () => AuthInterceptor(
       sl<AuthLocalDataSource>(),
       baseUrl: Env.apiBaseUrl,
+      onRefreshSession: () async {
+        final String? refreshToken =
+            await sl<AuthLocalDataSource>().getRefreshToken();
+        if (refreshToken == null || refreshToken.isEmpty) {
+          return null;
+        }
+
+        final result = await sl<AuthRepository>().refreshToken(
+          refreshToken: refreshToken,
+        );
+        return result.fold<Future<String?>>(
+          (_) async => null,
+          (user) => sl<AuthSessionService>().refreshAuthenticatedSession(
+            user,
+            previousRefreshToken: refreshToken,
+          ),
+        );
+      },
+      onRetryRequest: (RequestOptions options) =>
+          sl<Dio>().fetch<dynamic>(options),
       onSessionExpired: () async {
         await sl<AuthSessionService>().expireAuthenticatedSession();
         sl<SessionExpiryController>().notifySessionExpired();

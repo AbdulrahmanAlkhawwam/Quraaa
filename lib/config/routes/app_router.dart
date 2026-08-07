@@ -17,6 +17,7 @@ import '../../features/book_assistant/book_assistant.dart';
 import '../../features/auth/presentation/pages/landing_page.dart';
 import '../../features/auth/presentation/pages/login_screen.dart';
 import '../../features/auth/presentation/pages/register_screen.dart';
+import '../../features/auth/data/datasources/auth_local_datasource.dart';
 import '../../features/home/presentation/pages/stores_screen.dart';
 import '../../features/libraries/domain/entities/library_entity.dart';
 import '../../features/libraries/presentation/pages/libraries_screen.dart';
@@ -62,6 +63,18 @@ GoRouter buildAppRouter({
 
       if (sessionExpiryController.consumeSessionExpired()) {
         return location == RouteNames.login ? null : RouteNames.login;
+      }
+
+      if (location == RouteNames.cart) {
+        try {
+          final bool isAuthenticated =
+              await sl<AuthLocalDataSource>().isAuthenticatedSession();
+          if (!isAuthenticated) {
+            return RouteNames.home;
+          }
+        } catch (_) {
+          return RouteNames.home;
+        }
       }
 
       if (location == RouteNames.routeBridge) {
@@ -359,36 +372,35 @@ Page<void> _buildSoftTransitionPage({
     transitionDuration: const Duration(milliseconds: 360),
     reverseTransitionDuration: const Duration(milliseconds: 280),
     child: child,
-    transitionsBuilder:
-        (
-          BuildContext context,
-          Animation<double> animation,
-          Animation<double> secondaryAnimation,
-          Widget child,
-        ) {
-          final Animation<double> curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeOutCubic,
-            reverseCurve: Curves.easeInCubic,
-          );
+    transitionsBuilder: (
+      BuildContext context,
+      Animation<double> animation,
+      Animation<double> secondaryAnimation,
+      Widget child,
+    ) {
+      final Animation<double> curvedAnimation = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+        reverseCurve: Curves.easeInCubic,
+      );
 
-          return FadeTransition(
-            opacity: curvedAnimation,
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: beginOffset,
-                end: Offset.zero,
-              ).animate(curvedAnimation),
-              child: ScaleTransition(
-                scale: Tween<double>(
-                  begin: 0.985,
-                  end: 1,
-                ).animate(curvedAnimation),
-                child: child,
-              ),
-            ),
-          );
-        },
+      return FadeTransition(
+        opacity: curvedAnimation,
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: beginOffset,
+            end: Offset.zero,
+          ).animate(curvedAnimation),
+          child: ScaleTransition(
+            scale: Tween<double>(
+              begin: 0.985,
+              end: 1,
+            ).animate(curvedAnimation),
+            child: child,
+          ),
+        ),
+      );
+    },
   );
 }
 

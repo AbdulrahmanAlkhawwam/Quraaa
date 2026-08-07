@@ -10,7 +10,7 @@ import '../../domain/entities/home_book_entity.dart';
 import '../bloc/home_bloc.dart';
 import '../widgets/home_app_bar.dart';
 import '../widgets/home_banner.dart';
-import '../widgets/home_bottom_nav.dart';
+
 import '../widgets/home_drawer.dart';
 import '../widgets/home_quick_actions.dart';
 import '../widgets/home_section.dart';
@@ -54,8 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _showNotificationSnackBar(BuildContext context, HomeState state) {
     context.showSuccessSnackBar(
       message: Message(
-        title:
-            state.notificationTitle ??
+        title: state.notificationTitle ??
             LocalizationConstants.homeNotificationTitleKey.tr(),
         value: state.notificationBody,
       ),
@@ -71,7 +70,9 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Scaffold(
         extendBody: true,
         extendBodyBehindAppBar: true,
-        drawer: const HomeDrawer(),
+        drawer: HomeDrawer(
+          isGuest: context.watch<HomeBloc>().state.isGuest,
+        ),
         appBar: _buildAppBar(),
         body: Stack(
           children: <Widget>[
@@ -98,6 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
       firstName: homeState.firstName,
       profileImage: homeState.profileImage,
       profileImageIsFile: true,
+      isGuest: homeState.isGuest,
     );
   }
 
@@ -123,17 +125,16 @@ class _HomeScreenState extends State<HomeScreen> {
         final int currentIndex = (child.key as ValueKey<int>).value;
         final int direction = currentIndex > _previousIndex ? 1 : -1;
         return SlideTransition(
-          position:
-              Tween<Offset>(
-                begin: Offset(direction * 0.10, 0),
-                end: Offset.zero,
-              ).animate(
-                CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOutCubic,
-                  reverseCurve: Curves.easeInCubic,
-                ),
-              ),
+          position: Tween<Offset>(
+            begin: Offset(direction * 0.10, 0),
+            end: Offset.zero,
+          ).animate(
+            CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+              reverseCurve: Curves.easeInCubic,
+            ),
+          ),
           child: FadeTransition(
             opacity: animation,
             child: ScaleTransition(
@@ -230,11 +231,11 @@ class _HomeFeed extends StatelessWidget {
                   books: state.recommendedBooks,
                   isLoading:
                       state.recommendedStatus == HomeBooksStatus.initial ||
-                      state.recommendedStatus == HomeBooksStatus.loading,
+                          state.recommendedStatus == HomeBooksStatus.loading,
                   errorMessage: state.recommendedErrorMessage,
                   onRetry: () => context.read<HomeBloc>().add(
-                    const HomeRecommendedBooksRequested(),
-                  ),
+                        const HomeRecommendedBooksRequested(),
+                      ),
                   onBookTap: (HomeBookEntity book) =>
                       _openBookDetails(context, book),
                 ),
@@ -247,13 +248,12 @@ class _HomeFeed extends StatelessWidget {
               child: HomeSection(
                 title: LocalizationConstants.homeMostPopularKey.tr(),
                 books: state.mostPopularBooks,
-                isLoading:
-                    state.mostPopularStatus == HomeBooksStatus.initial ||
+                isLoading: state.mostPopularStatus == HomeBooksStatus.initial ||
                     state.mostPopularStatus == HomeBooksStatus.loading,
                 errorMessage: state.mostPopularErrorMessage,
                 onRetry: () => context.read<HomeBloc>().add(
-                  const HomeMostPopularBooksRequested(),
-                ),
+                      const HomeMostPopularBooksRequested(),
+                    ),
                 onBookTap: (HomeBookEntity book) =>
                     _openBookDetails(context, book),
               ),

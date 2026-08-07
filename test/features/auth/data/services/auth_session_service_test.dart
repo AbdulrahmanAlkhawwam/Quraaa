@@ -71,6 +71,47 @@ void main() {
     },
   );
 
+  test('persists rotated tokens after a successful refresh', () async {
+    final DateTime expiration = DateTime.utc(2026, 8, 7, 12);
+    when(
+      () => userLocalDataSource.updateTokens(
+        accessToken: 'new-access',
+        refreshToken: 'new-refresh',
+        accessTokenExpiration: expiration,
+      ),
+    ).thenAnswer((_) async {});
+    when(
+      () => authLocalDataSource.markAuthenticatedSession(
+        accessToken: 'new-access',
+        refreshToken: 'new-refresh',
+        accessTokenExpiration: expiration,
+      ),
+    ).thenAnswer((_) async {});
+
+    final String? accessToken = await service.refreshAuthenticatedSession(
+      UserModel(
+        accessToken: 'new-access',
+        refreshToken: 'new-refresh',
+        accessTokenExpiration: expiration,
+      ),
+      previousRefreshToken: 'old-refresh',
+    );
+
+    expect(accessToken, 'new-access');
+    verifyInOrder(<void Function()>[
+      () => userLocalDataSource.updateTokens(
+        accessToken: 'new-access',
+        refreshToken: 'new-refresh',
+        accessTokenExpiration: expiration,
+      ),
+      () => authLocalDataSource.markAuthenticatedSession(
+        accessToken: 'new-access',
+        refreshToken: 'new-refresh',
+        accessTokenExpiration: expiration,
+      ),
+    ]);
+  });
+
   test('rolls back local state when session finalization fails', () async {
     when(
       () => userLocalDataSource.saveUser(any()),

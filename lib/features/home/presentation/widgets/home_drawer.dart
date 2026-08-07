@@ -19,7 +19,9 @@ import '../../../auth/auth.dart';
 
 /// Side drawer for additional navigation from the home screen.
 class HomeDrawer extends StatelessWidget {
-  const HomeDrawer({super.key});
+  const HomeDrawer({required this.isGuest, super.key});
+
+  final bool isGuest;
 
   @override
   Widget build(BuildContext context) {
@@ -134,14 +136,15 @@ class HomeDrawer extends StatelessWidget {
                   context.goTo(RouteNames.audioBooks);
                 },
               ),
-              _DrawerItem(
-                icon: HugeIcons.strokeRoundedShoppingCart01,
-                label: LocalizationConstants.homeNavCartKey.tr(),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  context.goTo(RouteNames.cart);
-                },
-              ),
+              if (!isGuest)
+                _DrawerItem(
+                  icon: HugeIcons.strokeRoundedShoppingCart01,
+                  label: LocalizationConstants.homeNavCartKey.tr(),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    context.goTo(RouteNames.cart);
+                  },
+                ),
               const SizedBox(height: AppSpacing.spacing16),
               const Divider(height: 1),
               const SizedBox(height: AppSpacing.spacing16),
@@ -225,8 +228,7 @@ class _DrawerItem extends StatelessWidget {
         contentPadding: EdgeInsets.zero,
         leading: HugeIcon(
           icon: icon,
-          color:
-              iconColor ??
+          color: iconColor ??
               (context.isDark ? AppColors.primary300 : AppColors.primary600),
           size: 22,
         ),

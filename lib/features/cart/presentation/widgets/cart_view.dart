@@ -111,6 +111,8 @@ class CartView extends StatelessWidget {
                   return const SizedBox.shrink();
                 }
 
+                final bool isEmpty = state.summary.items.isEmpty;
+
                 return LayoutBuilder(
                   builder: (BuildContext context, BoxConstraints constraints) {
                     final double horizontal = (constraints.maxWidth * 0.05)
@@ -127,8 +129,8 @@ class CartView extends StatelessWidget {
                         children: <Widget>[
                           _CartPageHeader(
                             onBack: context.back,
-                            onClear:
-                                state.summary.items.isEmpty || state.isUpdating
+                            showClearAction: !isEmpty,
+                            onClear: state.isUpdating
                                 ? null
                                 : () => context.read<CartBloc>().add(
                                     const CartCleared(),
@@ -136,16 +138,8 @@ class CartView extends StatelessWidget {
                           ),
                           const SizedBox(height: AppSpacing.spacing16),
                           Expanded(
-                            child: state.summary.items.isEmpty
-                                ? Center(
-                                    child: Text(
-                                      LocalizationConstants.cartEmptyKey.tr(),
-                                      textAlign: TextAlign.center,
-                                      style: AppTextStyles.bodyMedium.copyWith(
-                                        color: context.appTextSecondary,
-                                      ),
-                                    ),
-                                  )
+                            child: isEmpty
+                                ? const _EmptyCartContent()
                                 : ListView.builder(
                                     padding: EdgeInsets.zero,
                                     physics: const BouncingScrollPhysics(),
@@ -174,47 +168,47 @@ class CartView extends StatelessWidget {
                                         },
                                   ),
                           ),
-                          const SizedBox(height: AppSpacing.spacing12),
-                          CartTotalsCard(summary: state.summary),
-                          const SizedBox(height: AppSpacing.spacing16),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 52,
-                            child: FilledButton(
-                              onPressed:
-                                  state.summary.items.isEmpty ||
-                                      checkoutState is CheckoutLoading
-                                  ? null
-                                  : () => _openPaymentFlow(
-                                      context,
-                                      state.summary,
+                          if (!isEmpty) ...<Widget>[
+                            const SizedBox(height: AppSpacing.spacing12),
+                            CartTotalsCard(summary: state.summary),
+                            const SizedBox(height: AppSpacing.spacing16),
+                            SizedBox(
+                              width: double.infinity,
+                              height: 52,
+                              child: FilledButton(
+                                onPressed: checkoutState is CheckoutLoading
+                                    ? null
+                                    : () => _openPaymentFlow(
+                                        context,
+                                        state.summary,
+                                      ),
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: AppColors.primary600,
+                                  foregroundColor: AppColors.card,
+                                  disabledBackgroundColor: context.appBorder,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      AppRadius.radius28,
                                     ),
-                              style: FilledButton.styleFrom(
-                                backgroundColor: AppColors.primary600,
-                                foregroundColor: AppColors.card,
-                                disabledBackgroundColor: context.appBorder,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                    AppRadius.radius28,
                                   ),
                                 ),
-                              ),
-                              child: checkoutState is CheckoutLoading
-                                  ? const SizedBox(
-                                      width: 22,
-                                      height: 22,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2.5,
-                                        color: AppColors.card,
+                                child: checkoutState is CheckoutLoading
+                                    ? const SizedBox(
+                                        width: 22,
+                                        height: 22,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2.5,
+                                          color: AppColors.card,
+                                        ),
+                                      )
+                                    : Text(
+                                        LocalizationConstants.cartCheckoutKey
+                                            .tr(),
+                                        style: AppTextStyles.buttonMedium,
                                       ),
-                                    )
-                                  : Text(
-                                      LocalizationConstants.cartCheckoutKey
-                                          .tr(),
-                                      style: AppTextStyles.buttonMedium,
-                                    ),
+                              ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                     );
@@ -229,10 +223,77 @@ class CartView extends StatelessWidget {
   }
 }
 
+class _EmptyCartContent extends StatelessWidget {
+  const _EmptyCartContent();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Transform.translate(
+        offset: const Offset(0, 28),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.spacing12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Container(
+                width: 96,
+                height: 96,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: <BoxShadow>[
+                    BoxShadow(
+                      color: AppColors.leafGreen.withValues(alpha: 0.18),
+                      blurRadius: 36,
+                      spreadRadius: -4,
+                    ),
+                  ],
+                ),
+                child: const HugeIcon(
+                  icon: HugeIcons.strokeRoundedShoppingCart01,
+                  color: AppColors.leafGreen,
+                  size: 76,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.spacing24),
+              Text(
+                LocalizationConstants.cartEmptyTitleKey.tr(),
+                textAlign: TextAlign.center,
+                style: AppTextStyles.h4.copyWith(
+                  color: context.appTextPrimary,
+                  fontSize: 26,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.spacing16),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 430),
+                child: Text(
+                  LocalizationConstants.cartEmptyDescriptionKey.tr(),
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.bodyLarge.copyWith(
+                    color: context.appTextTertiary,
+                    height: 1.35,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _CartPageHeader extends StatelessWidget {
-  const _CartPageHeader({required this.onBack, required this.onClear});
+  const _CartPageHeader({
+    required this.onBack,
+    required this.showClearAction,
+    required this.onClear,
+  });
 
   final VoidCallback onBack;
+  final bool showClearAction;
   final VoidCallback? onClear;
 
   @override
@@ -264,18 +325,19 @@ class _CartPageHeader extends StatelessWidget {
               ),
             ),
           ),
-          IconButton(
-            tooltip: LocalizationConstants.cartClearKey.tr(),
-            onPressed: onClear,
-            visualDensity: VisualDensity.compact,
-            icon: HugeIcon(
-              icon: HugeIcons.strokeRoundedDelete02,
-              color: onClear == null
-                  ? context.appTextTertiary
-                  : AppColors.error500,
-              size: 22,
+          if (showClearAction)
+            IconButton(
+              tooltip: LocalizationConstants.cartClearKey.tr(),
+              onPressed: onClear,
+              visualDensity: VisualDensity.compact,
+              icon: HugeIcon(
+                icon: HugeIcons.strokeRoundedDelete02,
+                color: onClear == null
+                    ? context.appTextTertiary
+                    : AppColors.error500,
+                size: 22,
+              ),
             ),
-          ),
         ],
       ),
     );

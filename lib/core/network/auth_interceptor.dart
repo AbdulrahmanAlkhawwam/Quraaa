@@ -9,9 +9,17 @@ import '../constants/api_endpoints.dart';
 /// longer accepted by the server.
 typedef SessionExpiredCallback = Future<void> Function();
 
+/// Refreshes the session and returns the new access token on success.
+typedef RefreshSessionCallback = Future<String?> Function();
+
+/// Repeats a request after the access token has been refreshed.
+typedef RetryRequestCallback = Future<Response<dynamic>> Function(
+  RequestOptions options,
+);
+
 /// {@template auth_interceptor}
-/// Dio interceptor that automatically attaches the stored access token to
-/// outgoing requests that target the app's backend.
+/// Attaches the stored access token, refreshes an expired session once, and
+/// retries the failed backend request with the new token.
 ///
 /// The token is read from [AuthLocalDataSource] on every request so refreshed
 /// tokens are picked up without recreating the [Dio] instance.
@@ -25,15 +33,24 @@ class AuthInterceptor extends Interceptor {
     this._authLocalDataSource, {
     required String baseUrl,
     SessionExpiredCallback? onSessionExpired,
+    RefreshSessionCallback? onRefreshSession,
+    RetryRequestCallback? onRetryRequest,
   }) : _backendUri = Uri.parse(baseUrl),
-       _onSessionExpired = onSessionExpired;
+       _onSessionExpired = onSessionExpired,
+       _onRefreshSession = onRefreshSession,
+       _onRetryRequest = onRetryRequest;
 
   final AuthLocalDataSource _authLocalDataSource;
   final SessionExpiredCallback? _onSessionExpired;
+  final RefreshSessionCallback? _onRefreshSession;
+  final RetryRequestCallback? _onRetryRequest;
   final Uri _backendUri;
+
+  Future<String?>? _refreshInFlight;
   bool _handlingExpiredSession = false;
 
   static const String _bearerPrefix = 'Bearer';
+  static const String _retryAttemptedKey = 'auth_retry_attempted';
   static const Set<String> _publicAuthPaths = <String>{
     ApiEndpoints.login,
     ApiEndpoints.register,
@@ -101,6 +118,12 @@ class AuthInterceptor extends Interceptor {
       return;
     }
 
+    // A retried request is never refreshed again, which prevents a 401 loop.
+    if (options.extra[_retryAttemptedKey] == true) {
+      handler.next(error);
+      return;
+    }
+
     final bool wasAuthenticated =
         await _authLocalDataSource.isAuthenticatedSession();
     if (!wasAuthenticated) {
@@ -108,13 +131,86 @@ class AuthInterceptor extends Interceptor {
       return;
     }
 
+    final String? latestAccessToken =
+        await _authLocalDataSource.getAccessToken();
+    final String failedAuthorization =
+        options.headers[HttpHeaders.authorizationHeader]?.toString() ?? '';
+
+    // Another failed request may already have refreshed the token. Reuse that
+    // token instead of starting a second refresh request.
+    String? accessToken;
+    if (latestAccessToken != null &&
+        latestAccessToken.isNotEmpty &&
+        failedAuthorization != '$_bearerPrefix $latestAccessToken') {
+      accessToken = latestAccessToken;
+    } else {
+      accessToken = await _refreshAccessToken();
+    }
+
+    DioException failureToForward = error;
+    final RetryRequestCallback? retryRequest = _onRetryRequest;
+    if (accessToken != null &&
+        accessToken.isNotEmpty &&
+        retryRequest != null) {
+      options.headers[HttpHeaders.authorizationHeader] =
+          '$_bearerPrefix $accessToken';
+      options.extra[_retryAttemptedKey] = true;
+
+      try {
+        final Response<dynamic> response = await retryRequest(options);
+        handler.resolve(response);
+        return;
+      } on DioException catch (retryError) {
+        failureToForward = retryError;
+        if (retryError.response?.statusCode != HttpStatus.unauthorized) {
+          handler.next(retryError);
+          return;
+        }
+      } catch (retryError) {
+        handler.next(
+          DioException(
+            requestOptions: options,
+            type: DioExceptionType.unknown,
+            error: retryError,
+          ),
+        );
+        return;
+      }
+    }
+
+    await _expireSession();
+    handler.next(failureToForward);
+  }
+
+  Future<String?> _refreshAccessToken() async {
+    final Future<String?> refresh =
+        _refreshInFlight ??= _runRefreshSafely();
+    try {
+      return await refresh;
+    } finally {
+      if (identical(_refreshInFlight, refresh)) {
+        _refreshInFlight = null;
+      }
+    }
+  }
+
+  Future<String?> _runRefreshSafely() async {
+    try {
+      return await _onRefreshSession?.call();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _expireSession() async {
+    if (_handlingExpiredSession) {
+      return;
+    }
     _handlingExpiredSession = true;
     try {
       await _onSessionExpired?.call();
     } finally {
       _handlingExpiredSession = false;
     }
-
-    handler.next(error);
   }
 }

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../config/routes/route_names.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/error_monitoring/user_context_provider.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 
@@ -14,23 +16,26 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.firstName = '',
     this.profileImage,
     this.profileImageIsFile = true,
+    this.isGuest,
   });
 
   final String firstName;
   final String? profileImage;
   final bool profileImageIsFile;
+  final bool? isGuest;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
   @override
   Widget build(BuildContext context) {
+    final bool guest = isGuest ??
+        sl<UserContextProvider>().snapshot.subscriptionStatus != 'active';
     final String resolvedFirstName = firstName.trim().isEmpty
         ? LocalizationConstants.appNameKey.tr()
         : firstName.trim();
-    final Color headerTextColor = context.isDark
-        ? AppColors.primary300
-        : AppColors.libraryGreen;
+    final Color headerTextColor =
+        context.isDark ? AppColors.primary300 : AppColors.libraryGreen;
 
     return AppBar(
       backgroundColor: Colors.transparent,
@@ -63,28 +68,28 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                 _onMenuSelected(context, action),
             itemBuilder: (BuildContext context) =>
                 <PopupMenuEntry<_HomeProfileMenuAction>>[
-                  _menuItem(
-                    context,
-                    value: _HomeProfileMenuAction.profile,
-                    label: LocalizationConstants.homeDrawerProfileKey.tr(),
-                    icon: HugeIcons.strokeRoundedUser,
-                  ),
-                  _menuItem(
-                    context,
-                    value: _HomeProfileMenuAction.cart,
-                    label: LocalizationConstants.homeNavCartKey.tr(),
-                    icon: HugeIcons.strokeRoundedShoppingCart01,
-                    showNotificationDot: true,
-                  ),
-                  _menuItem(
-                    context,
-                    value: _HomeProfileMenuAction.sellBook,
-                    label: LocalizationConstants.homeProfileMenuSellBookKey
-                        .tr(),
-                    icon: HugeIcons.strokeRoundedStore01,
-                    showAddBadge: true,
-                  ),
-                ],
+              _menuItem(
+                context,
+                value: _HomeProfileMenuAction.profile,
+                label: LocalizationConstants.homeDrawerProfileKey.tr(),
+                icon: HugeIcons.strokeRoundedUser,
+              ),
+              if (!guest)
+                _menuItem(
+                  context,
+                  value: _HomeProfileMenuAction.cart,
+                  label: LocalizationConstants.homeNavCartKey.tr(),
+                  icon: HugeIcons.strokeRoundedShoppingCart01,
+                  showNotificationDot: true,
+                ),
+              _menuItem(
+                context,
+                value: _HomeProfileMenuAction.sellBook,
+                label: LocalizationConstants.homeProfileMenuSellBookKey.tr(),
+                icon: HugeIcons.strokeRoundedStore01,
+                showAddBadge: true,
+              ),
+            ],
             child: _ProfileAvatar(
               profileImage: profileImage,
               profileImageIsFile: profileImageIsFile,
@@ -157,9 +162,8 @@ class _ProfileAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool hasImage = profileImage?.trim().isNotEmpty ?? false;
-    final Color avatarColor = context.isDark
-        ? AppColors.primary300
-        : AppColors.primary600;
+    final Color avatarColor =
+        context.isDark ? AppColors.primary300 : AppColors.primary600;
 
     return Stack(
       clipBehavior: Clip.none,
@@ -222,9 +226,8 @@ class _MenuIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color color = context.isDark
-        ? AppColors.primary300
-        : AppColors.libraryGreen;
+    final Color color =
+        context.isDark ? AppColors.primary300 : AppColors.libraryGreen;
 
     return SizedBox(
       width: 28,
