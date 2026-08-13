@@ -10,6 +10,8 @@ class AppImages {
   static const String subscriptionBanner = '${AppAssets.images}/subscription_banner.png';
 
   static const String onboardingBackground = '${AppAssets.images}/onboarding.jpg';
+  static const String quraaaWordmark =
+      '${AppAssets.images}/branding/quraaa_wordmark.svg';
 
   static const String boyImage = '${AppAssets.illustrations}/boy.svg';
   static const String girlImage = '${AppAssets.illustrations}/girl.svg';

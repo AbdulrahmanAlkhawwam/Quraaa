@@ -49,10 +49,7 @@ class AppearanceBottomSheet extends StatelessWidget {
 }
 
 class _AppearanceOptionCard extends StatelessWidget {
-  const _AppearanceOptionCard({
-    required this.option,
-    required this.onTap,
-  });
+  const _AppearanceOptionCard({required this.option, required this.onTap});
 
   final AppearanceOption option;
   final VoidCallback onTap;
@@ -82,9 +79,9 @@ class _AppearanceOptionCard extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: option.selected ? palette.text : palette.active,
-                    fontWeight: FontWeight.w600,
-                  ),
+                color: option.selected ? palette.text : palette.active,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: 14),
             _AppearancePreview(mode: option.mode),
@@ -104,43 +101,44 @@ class _AppearancePreview extends StatelessWidget {
   Widget build(BuildContext context) {
     final SettingsPalette palette = SettingsPalette.of(context);
     final Color lightLine = palette.isDark ? palette.sheet : Colors.white;
-    final Color greenLine =
-        palette.isDark ? palette.accent : const Color(0xFF3F7F2D);
+    final Color greenLine = palette.isDark
+        ? palette.accent
+        : const Color(0xFF3F7F2D);
 
     final List<Color> lines = switch (mode) {
       AppearanceMode.light => <Color>[
-          lightLine,
-          lightLine,
-          lightLine,
-          lightLine,
-          lightLine,
-          lightLine,
-          lightLine,
-          lightLine,
-          lightLine,
-        ],
+        lightLine,
+        lightLine,
+        lightLine,
+        lightLine,
+        lightLine,
+        lightLine,
+        lightLine,
+        lightLine,
+        lightLine,
+      ],
       AppearanceMode.dark => <Color>[
-          greenLine,
-          greenLine,
-          greenLine,
-          greenLine,
-          greenLine,
-          greenLine,
-          greenLine,
-          greenLine,
-          greenLine,
-        ],
+        greenLine,
+        greenLine,
+        greenLine,
+        greenLine,
+        greenLine,
+        greenLine,
+        greenLine,
+        greenLine,
+        greenLine,
+      ],
       AppearanceMode.system => <Color>[
-          greenLine,
-          lightLine,
-          greenLine,
-          lightLine,
-          greenLine,
-          lightLine,
-          lightLine,
-          greenLine,
-          greenLine,
-        ],
+        greenLine,
+        lightLine,
+        greenLine,
+        lightLine,
+        greenLine,
+        lightLine,
+        lightLine,
+        greenLine,
+        greenLine,
+      ],
     };
 
     return Column(
@@ -156,10 +154,7 @@ class _AppearancePreview extends StatelessWidget {
 }
 
 class _PreviewRow extends StatelessWidget {
-  const _PreviewRow({
-    required this.colors,
-    required this.flexes,
-  });
+  const _PreviewRow({required this.colors, required this.flexes});
 
   final List<Color> colors;
   final List<int> flexes;
@@ -177,7 +172,7 @@ class _PreviewRow extends StatelessWidget {
             child: DecoratedBox(
               decoration: BoxDecoration(
                 color: colors[index],
-                borderRadius: BorderRadius.circular(2),
+                borderRadius: BorderRadius.circular(100),
               ),
               child: const SizedBox(height: 12),
             ),

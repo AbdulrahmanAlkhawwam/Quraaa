@@ -54,19 +54,17 @@ class AuthTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return AppTextField(
+      controller: controller,
+      hintText: hintText,
+      textInputAction: textInputAction,
+      obscureText: obscureText,
+      suffixIcon: suffixIcon,
+      onSubmitted: onSubmitted,
+      validator: validator,
+      textCapitalization: textCapitalization,
+      autovalidateMode: autovalidateMode,
       height: AppDimensions.onboardingInputHeight,
-      child: TextFormField(
-        controller: controller,
-        textInputAction: textInputAction,
-        obscureText: obscureText,
-        textCapitalization: textCapitalization,
-        style: AppTextStyles.bodyLarge.copyWith(color: context.appTextPrimary),
-        validator: validator,
-        onFieldSubmitted: onSubmitted,
-        autovalidateMode: autovalidateMode,
-        decoration: InputDecoration(hintText: hintText, suffixIcon: suffixIcon),
-      ),
     );
   }
 }
