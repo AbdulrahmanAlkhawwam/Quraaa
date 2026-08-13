@@ -24,25 +24,50 @@ class AssistantAnswerCard extends StatelessWidget {
         border: Border.all(color: context.appBorder),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Text(
-            response.question,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: context.appTextPrimary,
-              fontSize: 16 * scale,
-              fontWeight: FontWeight.w700,
-              height: 1.2,
+          Container(
+            padding: EdgeInsets.all(8 * scale),
+            decoration: BoxDecoration(
+              color: AppColors.primary50,
+              borderRadius: BorderRadius.circular(8 * scale),
+            ),
+            child: Row(
+              children: <Widget>[
+                Container(
+                  width: 72 * scale,
+                  height: 96 * scale,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4 * scale),
+                    image: const DecorationImage(
+                      image: NetworkImage('https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=220&q=80'),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 16 * scale),
+                Expanded(
+                  child: Text(
+                    'Global English\nCoursebook 10',
+                    style: AppTextStyles.h3.copyWith(
+                      color: AppColors.primary900,
+                      fontSize: 22 * scale,
+                      height: 1.1,
+                    ),
+                  ),
+                ),
+                Icon(Icons.bookmark_border, color: AppColors.primary900, size: 16 * scale),
+              ],
             ),
           ),
           SizedBox(height: 8 * scale),
           Text(
             response.answer,
+            textAlign: TextAlign.end,
+            textDirection: TextDirection.rtl,
             style: AppTextStyles.bodySmall.copyWith(
-              color: context.appTextSecondary,
+              color: AppColors.primary900,
               fontSize: 14 * scale,
               height: 1.35,
             ),

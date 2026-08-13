@@ -1,7 +1,5 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../config/env/env.dart';
 import '../../../../core/di/injection_container.dart';
@@ -10,9 +8,14 @@ import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 
 class AssistantHeader extends StatelessWidget {
-  const AssistantHeader({required this.scale, super.key});
+  const AssistantHeader({
+    required this.scale,
+    required this.onMenuPressed,
+    super.key,
+  });
 
   final double scale;
+  final VoidCallback onMenuPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -26,40 +29,23 @@ class AssistantHeader extends StatelessWidget {
         : storedName.split(RegExp(r'\s+')).first;
 
     return SizedBox(
-      height: 46 * scale,
+      height: 64 * scale,
       child: Row(
         children: <Widget>[
-          DecoratedBox(
-            decoration: const BoxDecoration(
-              color: AppColors.primary100,
-              shape: BoxShape.circle,
+          IconButton(
+            onPressed: onMenuPressed,
+            padding: EdgeInsets.zero,
+            constraints: BoxConstraints.tightFor(
+              width: 32 * scale,
+              height: 32 * scale,
             ),
-            child: ClipOval(
-              child: SizedBox(
-                width: 42 * scale,
-                height: 42 * scale,
-                child: CachedNetworkImage(
-                  imageUrl:
-                      'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=160&q=80',
-                  fit: BoxFit.cover,
-                  placeholder: (BuildContext context, String url) {
-                    return const ColoredBox(color: AppColors.primary100);
-                  },
-                  errorWidget:
-                      (BuildContext context, String url, Object error) {
-                        return Center(
-                          child: HugeIcon(
-                            icon: HugeIcons.strokeRoundedUser,
-                            color: AppColors.primary600,
-                            size: 21 * scale,
-                          ),
-                        );
-                      },
-                ),
-              ),
+            icon: Icon(
+              Icons.menu,
+              color: AppColors.primary900,
+              size: 24 * scale,
             ),
           ),
-          SizedBox(width: 26 * scale),
+          SizedBox(width: 24 * scale),
           Expanded(
             child: Text(
               LocalizationConstants.assistantGreetingKey.tr(
@@ -69,11 +55,16 @@ class AssistantHeader extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: AppTextStyles.h3.copyWith(
                 color: titleColor,
-                fontSize: 27 * scale,
-                fontWeight: FontWeight.w500,
+                fontSize: 22 * scale,
+                fontWeight: FontWeight.w400,
                 height: 1,
               ),
             ),
+          ),
+          Icon(
+            Icons.notifications_none,
+            color: AppColors.primary900,
+            size: 24 * scale,
           ),
         ],
       ),
