@@ -15,6 +15,7 @@ import '../../../../shared/widgets/onboarding_progress_indicator.dart';
 import '../../../auth/auth.dart';
 import '../../domain/entities/gender_selection.dart';
 import '../bloc/onboarding_bloc.dart';
+import '../widgets/gender_card.dart';
 
 class GenderOnboardingPage extends StatefulWidget {
   const GenderOnboardingPage({super.key});
@@ -48,7 +49,6 @@ class _GenderOnboardingPageState extends State<GenderOnboardingPage> {
         BlocProvider<AuthJourneyCubit>.value(value: _journeyCubit),
       ],
       child: BlocListener<OnboardingBloc, OnboardingState>(
-        listenWhen: (previous, current) => current.navigationTarget != null,
         listener: (context, state) {
           final String? target = state.navigationTarget;
           if (target != null) {
@@ -57,20 +57,15 @@ class _GenderOnboardingPageState extends State<GenderOnboardingPage> {
             );
             context.goTo(target);
           }
+
+          final String? message = state.errorMessage;
+          if (message != null) {
+            context.showErrorSnackBar(
+              message: Message(title: '', value: message.tr()),
+            );
+          }
         },
-        child: BlocListener<OnboardingBloc, OnboardingState>(
-          listenWhen: (p, c) =>
-              p.errorMessage != c.errorMessage && c.errorMessage != null,
-          listener: (context, state) {
-            final msg = state.errorMessage;
-            if (msg != null) {
-              context.showErrorSnackBar(
-                message: Message(title: '', value: msg.tr()),
-              );
-            }
-          },
-          child: const _GenderOnboardingView(),
-        ),
+        child: const _GenderOnboardingView(),
       ),
     );
   }
@@ -124,11 +119,14 @@ class _GenderOnboardingView extends StatelessWidget {
                         icon: context.isRTL
                             ? HugeIcons.strokeRoundedArrowRight01
                             : HugeIcons.strokeRoundedArrowLeft01,
-                        color: AppColors.card,
+                        color: context.colors.onPrimaryFixed,
                       ),
                     ),
                     title: Text(
                       LocalizationConstants.onboardingGenderTitleKey.tr(),
+                      style: AppTextStyles.titleLarge.copyWith(
+                        color: context.colors.onPrimaryFixed,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -158,7 +156,7 @@ class _GenderOnboardingView extends StatelessWidget {
                                 child: Row(
                                   children: [
                                     Expanded(
-                                      child: _GenderCard(
+                                      child: GenderCard(
                                         gender: GenderSelection.boy,
                                         label: LocalizationConstants
                                             .onboardingBoyKey
@@ -179,7 +177,7 @@ class _GenderOnboardingView extends StatelessWidget {
                                     ),
                                     const SizedBox(width: AppSpacing.spacing16),
                                     Expanded(
-                                      child: _GenderCard(
+                                      child: GenderCard(
                                         gender: GenderSelection.girl,
                                         label: LocalizationConstants
                                             .onboardingGirlKey
@@ -237,66 +235,6 @@ class _GenderOnboardingView extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _GenderCard extends StatelessWidget {
-  const _GenderCard({
-    required this.gender,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final GenderSelection gender;
-  final String label;
-  final bool selected;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final Color backgroundColor = selected
-        ? context.appSubtleSurface
-        : context.appCard;
-    final Color borderColor = selected
-        ? AppColors.primary300
-        : context.appBorder;
-
-    return Semantics(
-      button: true,
-      selected: selected,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.radius32),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.all(AppSpacing.spacing20),
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: BorderRadius.circular(AppRadius.radius32),
-            border: Border.all(color: borderColor),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              AppImage(
-                gender == GenderSelection.boy
-                    ? AppImages.boyImage
-                    : AppImages.girlImage,
-                height: AppDimensions.onboardingAvatarSize,
-              ),
-              const SizedBox(height: AppSpacing.spacing20),
-              Text(
-                label,
-                style: AppTextStyles.titleLarge.copyWith(
-                  color: context.appTextPrimary,
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
