@@ -56,6 +56,9 @@ class BookAssistantRepositoryImpl extends BookAssistantRepository {
     required String question,
     required List<AssistantBook> books,
   }) async {
+    // Temporary mock endpoint: keep the same latency users will experience
+    // while the backend endpoint is being completed.
+    await Future<void>.delayed(const Duration(seconds: 2));
     final String trimmedQuestion = question.trim();
     final bool useArabic = _containsArabic(trimmedQuestion);
     final String normalizedQuestion = trimmedQuestion.isEmpty

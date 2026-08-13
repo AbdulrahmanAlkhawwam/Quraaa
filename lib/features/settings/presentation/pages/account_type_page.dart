@@ -21,13 +21,15 @@ class AccountTypePage extends StatelessWidget {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: palette.background,
-        statusBarIconBrightness:
-            palette.isDark ? Brightness.light : Brightness.dark,
+        statusBarIconBrightness: palette.isDark
+            ? Brightness.light
+            : Brightness.dark,
         systemNavigationBarColor: Colors.transparent,
         systemNavigationBarDividerColor: Colors.transparent,
         systemNavigationBarContrastEnforced: false,
-        systemNavigationBarIconBrightness:
-            palette.isDark ? Brightness.light : Brightness.dark,
+        systemNavigationBarIconBrightness: palette.isDark
+            ? Brightness.light
+            : Brightness.dark,
       ),
       child: Scaffold(
         backgroundColor: palette.background,
@@ -39,8 +41,7 @@ class AccountTypePage extends StatelessWidget {
               const SizedBox(height: 20),
               AccountTypeCard(
                 minHeight: 108,
-                title: LocalizationConstants
-                    .settingsAccountTypePersonalTitleKey
+                title: LocalizationConstants.settingsAccountTypePersonalTitleKey
                     .tr(),
                 description: LocalizationConstants
                     .settingsAccountTypePersonalDescriptionKey
@@ -52,8 +53,8 @@ class AccountTypePage extends StatelessWidget {
                 badgeColor: palette.accent,
                 badgeTextColor: palette.onAccent,
               ),
-              const SizedBox(height: 26),
-              AccountTypeCard(
+              /*const SizedBox(height: 26),*/
+              /*AccountTypeCard(
                 minHeight: 108,
                 title: LocalizationConstants
                     .settingsAccountTypeFamilyTitleKey
@@ -61,8 +62,8 @@ class AccountTypePage extends StatelessWidget {
                 description: LocalizationConstants
                     .settingsAccountTypeFamilyDescriptionKey
                     .tr(),
-              ),
-              const SizedBox(height: 26),
+              ),*/
+              /*const SizedBox(height: 26),
               AccountTypeCard(
                 minHeight: 90,
                 title: LocalizationConstants.settingsAccountTypeProTitleKey
@@ -77,7 +78,7 @@ class AccountTypePage extends StatelessWidget {
                   colors: <Color>[Color(0xFF168068), Color(0xFF5A204F)],
                 ),
                 badgeTextColor: Colors.white,
-              ),
+              ),*/
               const SizedBox(height: 26),
               AccountTypeCard(
                 minHeight: 170,
@@ -99,8 +100,9 @@ class AccountTypePage extends StatelessWidget {
   }
 
   void _showLibraryComingSoon(BuildContext context) {
-    final String feature =
-        LocalizationConstants.settingsAccountTypeLibraryTitleKey.tr();
+    final String feature = LocalizationConstants
+        .settingsAccountTypeLibraryTitleKey
+        .tr();
     context.showSuccessSnackBar(
       message: Message(
         title: LocalizationConstants.profileComingSoonTitleKey.tr(),
@@ -182,8 +184,7 @@ class _CreateLibraryButton extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Text(
-                LocalizationConstants.settingsAccountTypeLibraryActionKey
-                    .tr(),
+                LocalizationConstants.settingsAccountTypeLibraryActionKey.tr(),
                 style: AppTextStyles.buttonMedium.copyWith(
                   color: Colors.white,
                   fontSize: 19,
