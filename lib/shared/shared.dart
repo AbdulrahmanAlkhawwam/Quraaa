@@ -20,3 +20,4 @@ export 'widgets/theme_bottom_sheet.dart';
 export 'widgets/notification_bottom_sheet.dart';
 export 'widgets/app_image.dart';
 export 'widgets/primary_bottom_nav.dart';
+export 'widgets/app_text_field.dart';

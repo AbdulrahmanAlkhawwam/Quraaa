@@ -1,6 +1,5 @@
 ﻿import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
@@ -22,17 +21,16 @@ class AssistantComposer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: BoxConstraints(minHeight: 92 * scale),
+      constraints: BoxConstraints(minHeight: 100 * scale),
       padding: EdgeInsetsDirectional.fromSTEB(
-        14 * scale,
+        16 * scale,
         12 * scale,
-        14 * scale,
+        16 * scale,
         10 * scale,
       ),
       decoration: BoxDecoration(
-        color: context.appCard,
-        borderRadius: BorderRadius.circular(8 * scale),
-        border: Border.all(color: context.appBorder),
+        color: AppColors.primary50,
+        borderRadius: BorderRadius.circular(16 * scale),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -47,8 +45,8 @@ class AssistantComposer extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: Center(
-                child: HugeIcon(
-                  icon: HugeIcons.strokeRoundedMic01,
+                child: Icon(
+                  Icons.send_rounded,
                   color: AppColors.card,
                   size: 19 * scale,
                 ),
@@ -63,7 +61,7 @@ class AssistantComposer extends StatelessWidget {
               children: <Widget>[
                 TextField(
                   controller: controller,
-                  textAlign: TextAlign.start,
+                    textAlign: TextAlign.end,
                   minLines: 1,
                   maxLines: 2,
                   textInputAction: TextInputAction.send,
@@ -75,9 +73,9 @@ class AssistantComposer extends StatelessWidget {
                   ),
                   decoration: InputDecoration(
                     isCollapsed: true,
-                    hintText: LocalizationConstants.assistantComposerHintKey.tr(),
+                    hintText: 'اكتب “/” لربط مكتبة ما ....',
                     hintStyle: AppTextStyles.bodySmall.copyWith(
-                      color: context.appTextTertiary.withValues(alpha: 0.72),
+                      color: AppColors.primary900.withValues(alpha: 0.4),
                       fontSize: 14 * scale,
                       height: 1.2,
                     ),
@@ -91,7 +89,7 @@ class AssistantComposer extends StatelessWidget {
                 ),
                 SizedBox(height: 10 * scale),
                 Align(
-                  alignment: AlignmentDirectional.centerStart,
+                  alignment: AlignmentDirectional.centerEnd,
                   child: InkWell(
                     onTap: onPickBooks,
                     borderRadius: BorderRadius.circular(20 * scale),
@@ -102,15 +100,15 @@ class AssistantComposer extends StatelessWidget {
                         vertical: 6 * scale,
                       ),
                       decoration: BoxDecoration(
-                        color: context.appSurface,
+                      color: AppColors.card,
                         borderRadius: BorderRadius.circular(20 * scale),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
-                          HugeIcon(
-                            icon: HugeIcons.strokeRoundedAdd01,
-                            color: AppColors.primary600,
+                          Icon(
+                            Icons.bookmark_add_outlined,
+                            color: AppColors.primary300,
                             size: 18 * scale,
                           ),
                           SizedBox(width: 6 * scale),
@@ -120,9 +118,7 @@ class AssistantComposer extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: AppTextStyles.caption.copyWith(
-                                color: context.isDark
-                                    ? AppColors.primary300
-                                    : AppColors.primary600,
+                                color: AppColors.primary300,
                                 fontSize: 13 * scale,
                                 height: 1.1,
                               ),

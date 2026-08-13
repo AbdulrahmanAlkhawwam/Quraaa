@@ -97,8 +97,11 @@ import '../../features/pdf_reader/domain/use_cases/save_pdf_text_note_use_case.d
 import '../../features/pdf_reader/domain/use_cases/share_pdf_text_use_case.dart';
 import '../../features/pdf_reader/presentation/bloc/pdf_reader_bloc.dart';
 import '../../features/cart/data/repositories/cart_repository_impl.dart';
+import '../../features/cart/data/datasources/cart_remote_data_source.dart';
 import '../../features/cart/domain/repositories/cart_repository.dart';
 import '../../features/cart/domain/use_cases/apply_cart_coupon_use_case.dart';
+import '../../features/cart/domain/use_cases/add_cart_item_use_case.dart';
+import '../../features/cart/domain/use_cases/clear_cart_use_case.dart';
 import '../../features/cart/domain/use_cases/get_cart_use_case.dart';
 import '../../features/cart/domain/use_cases/remove_cart_item_use_case.dart';
 import '../../features/cart/domain/use_cases/update_cart_item_quantity_use_case.dart';
@@ -123,6 +126,7 @@ import '../../features/settings/domain/use_cases/update_appearance_option_use_ca
 import '../../features/settings/domain/use_cases/update_language_option_use_case.dart';
 import '../../features/settings/domain/use_cases/update_notification_setting_use_case.dart';
 import '../../features/settings/presentation/bloc/settings_bloc.dart';
+import '../../features/books/books.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -465,6 +469,15 @@ void registerFeatureDependencies() {
   );
 
   // Home feature
+  sl.registerLazySingleton<BooksMockRemoteDataSource>(
+    BooksMockRemoteDataSourceImpl.new,
+  );
+  sl.registerLazySingleton<BooksRepository>(
+    () => BooksRepositoryImpl(sl<BooksMockRemoteDataSource>()),
+  );
+  sl.registerFactory<GetBooksUseCase>(() => GetBooksUseCase(sl<BooksRepository>()));
+  sl.registerFactory<BooksBloc>(() => BooksBloc(getBooks: sl<GetBooksUseCase>()));
+
   sl.registerLazySingleton<HomeBooksRemoteDataSource>(
     () => HomeBooksRemoteDataSourceImpl(sl<HttpHelper>()),
   );
@@ -623,11 +636,26 @@ void registerFeatureDependencies() {
   }
 
   if (!sl.isRegistered<CartRepository>()) {
-    sl.registerLazySingleton<CartRepository>(CartRepositoryImpl.new);
+    sl.registerLazySingleton<CartRemoteDataSource>(
+      () => CartRemoteDataSourceImpl(sl<HttpHelper>()),
+    );
+    sl.registerLazySingleton<CartRepository>(
+      () => CartRepositoryImpl(sl<CartRemoteDataSource>()),
+    );
   }
 
   if (!sl.isRegistered<GetCartUseCase>()) {
     sl.registerLazySingleton<GetCartUseCase>(() => GetCartUseCase(sl()));
+  }
+
+  if (!sl.isRegistered<AddCartItemUseCase>()) {
+    sl.registerLazySingleton<AddCartItemUseCase>(
+      () => AddCartItemUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<ClearCartUseCase>()) {
+    sl.registerLazySingleton<ClearCartUseCase>(() => ClearCartUseCase(sl()));
   }
 
   if (!sl.isRegistered<UpdateCartItemQuantityUseCase>()) {

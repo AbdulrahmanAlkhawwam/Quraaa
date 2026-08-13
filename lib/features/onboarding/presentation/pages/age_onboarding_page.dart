@@ -98,11 +98,6 @@ class _AgeOnboardingView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<OnboardingBloc, OnboardingState>(
       builder: (context, state) {
-        final DateTime now = DateTime.now();
-        final DateTime initialDate = state.hasBirthDate
-            ? DateTime(state.birthYear!, state.birthMonth!, state.birthDay!)
-            : now.subtract(const Duration(days: 365 * 18));
-
         final String? dateError = _validateDate(state);
 
         return OnboardingScaffold(
@@ -121,9 +116,9 @@ class _AgeOnboardingView extends StatelessWidget {
             children: [
               Expanded(
                 child: _DateWheelPicker(
-                  initialYear: initialDate.year,
-                  initialMonth: initialDate.month,
-                  initialDay: initialDate.day,
+                  initialYear: DateTime.now().year,
+                  initialMonth: DateTime.now().month,
+                  initialDay: DateTime.now().day,
                   onChanged: (date) {
                     context.read<OnboardingBloc>().add(
                       OnboardingAgeYearChanged(date.year),
@@ -361,7 +356,6 @@ class _WheelColumn extends StatelessWidget {
     return Stack(
       alignment: Alignment.center,
       children: [
-        // Selected item highlight
         Container(
           height: itemHeight + 12,
           margin: const EdgeInsets.symmetric(horizontal: 4),

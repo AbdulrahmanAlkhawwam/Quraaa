@@ -32,7 +32,7 @@ void main() {
 
       expect(
         style.minimumSize!.resolve({}),
-        const Size(double.infinity, AppSpacing.spacing48),
+        const Size(0, AppSpacing.spacing48),
       );
       expect(
         style.padding!.resolve({}),

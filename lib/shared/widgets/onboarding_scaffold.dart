@@ -60,7 +60,12 @@ class OnboardingScaffold extends StatelessWidget {
                 children: [
                   AppBar(
                     leading: leading,
-                    title: Text(title),
+                    title: Text(
+                      title,
+                      style: AppTextStyles.titleLarge.copyWith(
+                        color: context.colors.onPrimaryFixed,
+                      ),
+                    ),
                     actions: actions,
                   ),
                   Expanded(
@@ -115,7 +120,7 @@ class OnboardingBackButton extends StatelessWidget {
         icon: context.isRTL
             ? HugeIcons.strokeRoundedArrowRight01
             : HugeIcons.strokeRoundedArrowLeft01,
-        color: context.appTextPrimary,
+        color: context.colors.onPrimaryFixed,
         size: 22,
       ),
     );

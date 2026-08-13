@@ -26,9 +26,7 @@ class _QuraaaAppState extends State<QuraaaApp> {
 
   late final GoRouter _router = buildAppRouter(
     navigatorKey: _navigatorKey,
-    observers: <NavigatorObserver>[
-      sl<NavigationTracker>().observer,
-    ],
+    observers: <NavigatorObserver>[sl<NavigationTracker>().observer],
   );
 
   @override
@@ -69,6 +67,7 @@ class _QuraaaAppState extends State<QuraaaApp> {
             debugShowCheckedModeBanner: false,
             theme: AppTheme.light(),
             darkTheme: AppTheme.dark(),
+            // themeMode: ThemeMode.dark,
             themeMode: themeMode,
             routerConfig: _router,
             localizationsDelegates: context.localizationDelegates,
@@ -77,8 +76,8 @@ class _QuraaaAppState extends State<QuraaaApp> {
             builder: (BuildContext context, Widget? child) {
               final Brightness iconBrightness =
                   Theme.of(context).brightness == Brightness.dark
-                      ? Brightness.light
-                      : Brightness.dark;
+                  ? Brightness.light
+                  : Brightness.dark;
 
               return AnnotatedRegion<SystemUiOverlayStyle>(
                 value: SystemUiOverlayStyle(

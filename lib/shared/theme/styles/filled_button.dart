@@ -20,7 +20,7 @@ FilledButtonThemeData filledButtonTheme(ColorScheme colors) {
         return colors.onPrimary;
       }),
       minimumSize: WidgetStateProperty.all(
-        Size(double.infinity, AppSpacing.spacing48),
+        const Size(0, AppSpacing.spacing48),
       ),
       padding: WidgetStateProperty.all(
         const EdgeInsets.symmetric(

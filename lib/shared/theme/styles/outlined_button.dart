@@ -10,7 +10,7 @@ OutlinedButtonThemeData outlinedButtonTheme(ColorScheme colors) {
       foregroundColor: colors.onSurface,
       backgroundColor: colors.surface,
       disabledForegroundColor: colors.onSurface.withAlpha(97),
-      minimumSize: Size(double.infinity, AppSpacing.spacing48),
+      minimumSize: const Size(0, AppSpacing.spacing48),
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.spacing16,
         vertical: AppSpacing.spacing12,
