@@ -4,7 +4,11 @@ import 'package:quraaa/features/onboarding/onboarding.dart';
 
 void main() {
   const List<Category> categories = <Category>[
-    Category(id: 'fiction', nameAr: 'روايات', nameEn: 'Fiction'),
+    Category(
+      id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      nameAr: 'روايات',
+      nameEn: 'Fiction',
+    ),
   ];
 
   test('registration requires completed gender age and interests', () {
@@ -16,7 +20,7 @@ void main() {
       birthMonth: 5,
       birthDay: 10,
       categories: categories,
-      selectedCategoryIds: <String>['fiction'],
+      selectedCategoryIds: <String>['3fa85f64-5717-4562-b3fc-2c963f66afa6'],
     );
 
     expect(valid.hasRequiredOnboardingData, isTrue);
@@ -41,7 +45,7 @@ void main() {
         birthMonth: 5,
         birthDay: 10,
         categories: categories,
-        selectedCategoryIds: <String>['fiction'],
+        selectedCategoryIds: <String>['3fa85f64-5717-4562-b3fc-2c963f66afa6'],
       ).hasRequiredOnboardingData,
       isFalse,
     );
@@ -51,7 +55,7 @@ void main() {
         onboardingCompleted: true,
         selectedGender: GenderSelection.boy,
         categories: categories,
-        selectedCategoryIds: <String>['fiction'],
+        selectedCategoryIds: <String>['3fa85f64-5717-4562-b3fc-2c963f66afa6'],
       ).hasRequiredOnboardingData,
       isFalse,
     );

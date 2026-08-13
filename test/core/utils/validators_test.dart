@@ -167,10 +167,7 @@ void main() {
   group('Validators.nameMaxLength', () {
     test('returns false when value exceeds max length', () {
       expect(Validators.nameMaxLength('a' * 51), isFalse);
-      expect(
-        Validators.nameMaxLength('abc', maxLength: 2),
-        isFalse,
-      );
+      expect(Validators.nameMaxLength('abc', maxLength: 2), isFalse);
     });
 
     test('returns true when value length is within limit', () {
@@ -371,8 +368,13 @@ void main() {
       );
     });
 
-    test('dateOfBirthAgeInRange returns true for age exactly at boundaries', () {
+    test('dateOfBirthAgeInRange applies the exact date boundaries', () {
       final DateTime now = DateTime.now();
+      final DateTime justInsideMaximum = DateTime(
+        now.year - 100,
+        now.month,
+        now.day + 1,
+      );
       expect(
         Validators.dateOfBirthAgeInRange(
           year: now.year - 5,
@@ -386,6 +388,14 @@ void main() {
           year: now.year - 100,
           month: now.month,
           day: now.day,
+        ),
+        isFalse,
+      );
+      expect(
+        Validators.dateOfBirthAgeInRange(
+          year: justInsideMaximum.year,
+          month: justInsideMaximum.month,
+          day: justInsideMaximum.day,
         ),
         isTrue,
       );
@@ -472,7 +482,10 @@ void main() {
   });
 
   group('Validators.interests', () {
-    const List<String> validIds = <String>['uuid-1', 'uuid-2'];
+    const String firstId = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
+    const String secondId = '550e8400-e29b-41d4-a716-446655440000';
+    const String unknownId = '11111111-1111-1111-1111-111111111111';
+    const List<String> validIds = <String>[firstId, secondId];
 
     test('interestsNotEmpty returns false for null or empty list', () {
       expect(Validators.interestsNotEmpty(null), isFalse);
@@ -480,13 +493,13 @@ void main() {
     });
 
     test('interestsNotEmpty returns true for non-empty list', () {
-      expect(Validators.interestsNotEmpty(<String>['uuid-1']), isTrue);
+      expect(Validators.interestsNotEmpty(<String>[firstId]), isTrue);
     });
 
     test('interestsExist returns false when list contains invalid ids', () {
       expect(
         Validators.interestsExist(
-          categoryIds: <String>['uuid-1', 'unknown'],
+          categoryIds: <String>[firstId, unknownId],
           validCategoryIds: validIds,
         ),
         isFalse,
@@ -531,7 +544,7 @@ void main() {
       const String invalidError = 'Interests invalid.';
       expect(
         Validators.validateInterests(
-          categoryIds: <String>['uuid-1', 'unknown'],
+          categoryIds: <String>[firstId, unknownId],
           validCategoryIds: validIds,
           emptyError: emptyError,
           invalidError: invalidError,

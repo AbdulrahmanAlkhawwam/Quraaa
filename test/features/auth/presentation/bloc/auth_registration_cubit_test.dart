@@ -24,8 +24,13 @@ void main() {
       expect(cubit.state.birthMonth, 5);
       expect(cubit.state.birthDay, 10);
       expect(cubit.state.selectedGender, GenderSelection.boy);
-      expect(cubit.state.selectedCategoryIds, <String>['fiction']);
-      expect(cubit.state.validCategoryIds, <String>['fiction', 'science']);
+      expect(cubit.state.selectedCategoryIds, <String>[
+        '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      ]);
+      expect(cubit.state.validCategoryIds, <String>[
+        '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+        '550e8400-e29b-41d4-a716-446655440000',
+      ]);
     },
   );
 
@@ -55,7 +60,7 @@ class _FakeOnboardingRepository implements OnboardingRepository {
     return const OnboardingDraft(
       completed: true,
       selectedGender: GenderSelection.boy,
-      selectedCategoryIds: <String>['fiction'],
+      selectedCategoryIds: <String>['3fa85f64-5717-4562-b3fc-2c963f66afa6'],
       birthYear: 2000,
       birthMonth: 5,
       birthDay: 10,
@@ -65,8 +70,16 @@ class _FakeOnboardingRepository implements OnboardingRepository {
   @override
   Future<List<Category>> getCategories() async {
     return const <Category>[
-      Category(id: 'fiction', nameAr: 'Fiction', nameEn: 'Fiction'),
-      Category(id: 'science', nameAr: 'Science', nameEn: 'Science'),
+      Category(
+        id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+        nameAr: 'Fiction',
+        nameEn: 'Fiction',
+      ),
+      Category(
+        id: '550e8400-e29b-41d4-a716-446655440000',
+        nameAr: 'Science',
+        nameEn: 'Science',
+      ),
     ];
   }
 

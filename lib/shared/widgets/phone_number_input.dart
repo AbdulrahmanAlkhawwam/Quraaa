@@ -11,7 +11,7 @@ class PhoneNumberInput extends StatelessWidget {
     super.key,
     this.controller,
     this.initialValue,
-    this.countries = const <String>['SY'],
+    this.countries,
     this.onInputChanged,
     this.onInputValidated,
     this.validator,
@@ -24,7 +24,7 @@ class PhoneNumberInput extends StatelessWidget {
 
   final TextEditingController? controller;
   final PhoneNumber? initialValue;
-  final List<String> countries;
+  final List<String>? countries;
   final ValueChanged<PhoneNumber>? onInputChanged;
   final ValueChanged<bool>? onInputValidated;
   final String? Function(String?)? validator;
@@ -75,8 +75,9 @@ class PhoneNumberInput extends StatelessWidget {
         ),
         autoValidateMode: autoValidateMode ?? AutovalidateMode.disabled,
         autofillHints: const <String>[AutofillHints.telephoneNumber],
-        onFieldSubmitted:
-            onFieldSubmitted != null ? (String _) => onFieldSubmitted!() : null,
+        onFieldSubmitted: onFieldSubmitted != null
+            ? (String _) => onFieldSubmitted!()
+            : null,
       ),
     );
   }
