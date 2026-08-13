@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/localization/localization_constants.dart';
@@ -78,6 +79,9 @@ class CartView extends StatelessWidget {
 
                 return LayoutBuilder(
                   builder: (BuildContext context, BoxConstraints constraints) {
+                    final bool hasUnavailableItem = state.summary.items.any(
+                      (CartItem item) => !item.isAvailable,
+                    );
                     final double horizontal = (constraints.maxWidth * 0.05)
                         .clamp(18.0, 24.0);
 
@@ -94,15 +98,7 @@ class CartView extends StatelessWidget {
                           const SizedBox(height: AppSpacing.spacing16),
                           Expanded(
                             child: state.summary.items.isEmpty
-                                ? Center(
-                                    child: Text(
-                                      LocalizationConstants.cartEmptyKey.tr(),
-                                      textAlign: TextAlign.center,
-                                      style: AppTextStyles.bodyMedium.copyWith(
-                                        color: context.appTextSecondary,
-                                      ),
-                                    ),
-                                  )
+                                ? const _EmptyCartState()
                                 : ListView.builder(
                                     padding: EdgeInsets.zero,
                                     physics: const BouncingScrollPhysics(),
@@ -131,35 +127,37 @@ class CartView extends StatelessWidget {
                                         },
                                   ),
                           ),
-                          const SizedBox(height: AppSpacing.spacing12),
-                          CartTotalsCard(summary: state.summary),
-                          const SizedBox(height: AppSpacing.spacing16),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 52,
-                            child: FilledButton(
-                              onPressed: state.summary.items.isEmpty
-                                  ? null
-                                  : () => _openPaymentFlow(
-                                      context,
-                                      state.summary,
+                          if (state.summary.items.isNotEmpty) ...<Widget>[
+                            const SizedBox(height: AppSpacing.spacing12),
+                            CartTotalsCard(summary: state.summary),
+                            const SizedBox(height: AppSpacing.spacing16),
+                            SizedBox(
+                              width: double.infinity,
+                              height: 52,
+                              child: FilledButton(
+                                onPressed: hasUnavailableItem
+                                    ? null
+                                    : () => _openPaymentFlow(
+                                        context,
+                                        state.summary,
+                                      ),
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: AppColors.primary600,
+                                  foregroundColor: AppColors.card,
+                                  disabledBackgroundColor: context.appBorder,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      AppRadius.radius28,
                                     ),
-                              style: FilledButton.styleFrom(
-                                backgroundColor: AppColors.primary600,
-                                foregroundColor: AppColors.card,
-                                disabledBackgroundColor: context.appBorder,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                    AppRadius.radius28,
                                   ),
                                 ),
-                              ),
-                              child: Text(
-                                LocalizationConstants.cartCheckoutKey.tr(),
-                                style: AppTextStyles.buttonMedium,
+                                child: Text(
+                                  LocalizationConstants.cartCheckoutKey.tr(),
+                                  style: AppTextStyles.buttonMedium,
+                                ),
                               ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                     );
@@ -168,6 +166,51 @@ class CartView extends StatelessWidget {
               },
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyCartState extends StatelessWidget {
+  const _EmptyCartState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.spacing8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            SvgPicture.asset(
+              'assets/illustrations/empty_cart.svg',
+              width: 90.643,
+              height: 120,
+              semanticsLabel: LocalizationConstants.cartEmptyKey.tr(),
+            ),
+            const SizedBox(height: AppSpacing.spacing24),
+            Text(
+              LocalizationConstants.cartEmptyTitleKey.tr(),
+              textAlign: TextAlign.center,
+              style: AppTextStyles.titleLarge.copyWith(
+                color: context.appTextPrimary,
+                fontSize: 22,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.spacing16),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 334),
+              child: Text(
+                LocalizationConstants.cartEmptyDescriptionKey.tr(),
+                textAlign: TextAlign.center,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: context.appTextPrimary.withValues(alpha: 0.48),
+                  height: 1.35,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

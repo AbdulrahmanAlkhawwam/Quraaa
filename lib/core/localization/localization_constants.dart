@@ -760,6 +760,8 @@ class LocalizationConstants {
   static const String cartAppliedKey = 'cart.applied';
   static const String cartApplyKey = 'cart.apply';
   static const String cartEmptyKey = 'cart.empty';
+  static const String cartEmptyTitleKey = 'cart.empty_title';
+  static const String cartEmptyDescriptionKey = 'cart.empty_description';
   static const String cartSubtotalKey = 'cart.subtotal';
   static const String cartFatKey = 'cart.fat';
   static const String cartDeliveryKey = 'cart.delivery';
@@ -768,6 +770,13 @@ class LocalizationConstants {
   static const String cartRemoveKey = 'cart.remove';
   static const String cartTitleKey = 'cart.title';
   static const String cartCheckoutKey = 'cart.checkout';
+  static const String cartPurchaseKey = 'cart.purchase';
+  static const String cartExpandPurchaseKey = 'cart.expand_purchase';
+  static const String cartCollapsePurchaseKey = 'cart.collapse_purchase';
+  static const String cartWarningKey = 'cart.warning';
+  static const String cartPriceChangedKey = 'cart.price_changed';
+  static const String cartErrorKey = 'cart.error';
+  static const String cartUnavailableKey = 'cart.unavailable';
   static const String cartPaymentUsedCardsKey = 'cart.payment.used_cards';
   static const String cartPaymentAddMethodKey = 'cart.payment.add_method';
   static const String cartPaymentNextKey = 'cart.payment.next';

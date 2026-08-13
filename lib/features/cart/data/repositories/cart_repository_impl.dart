@@ -1,119 +1,92 @@
-import '../../../../config/env/env.dart';
 import '../../../../core/architecture/result.dart';
+import '../../../../core/errors/error_mapper.dart';
+import '../../../../core/errors/failures.dart';
 import '../../domain/entities/cart_item.dart';
 import '../../domain/entities/cart_summary.dart';
 import '../../domain/repositories/cart_repository.dart';
+import '../datasources/cart_remote_data_source.dart';
+import '../models/cart_response_model.dart';
 
 class CartRepositoryImpl extends CartRepository {
-  CartRepositoryImpl() : _summary = _buildInitialSummary();
+  const CartRepositoryImpl(this._remoteDataSource);
 
-  CartSummary _summary;
-
-  static const String _avatarUrl = 'https://i.pravatar.cc/96?img=12';
-  static const String _bookImageUrl =
-      'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=240&q=80';
-  static const double _delivery = 7.5;
-  static const double _discountPercent = 15;
-  static const double _fatPercent = 3;
-  static const double _fixedCouponDiscount = 0.84;
-  static const double _unitPrice = 6.3333333333;
-
-  static CartSummary _buildInitialSummary() {
-    return _summaryFromItems(
-      items: List<CartItem>.generate(
-        3,
-        (int index) => CartItem(
-          id: 'emar-${index + 1}',
-          title: 'Emar English book',
-          subtitle: 'syrian republic arabic gov',
-          fileSize: '3.5 KB',
-          imageUrl: _bookImageUrl,
-          unitPrice: _unitPrice,
-          quantity: 2,
-        ),
-        growable: false,
-      ),
-      couponCode: '58241',
-      couponApplied: true,
-    );
-  }
-
-  static CartSummary _summaryFromItems({
-    required List<CartItem> items,
-    required String couponCode,
-    required bool couponApplied,
-  }) {
-    final double subtotal = items.fold<double>(
-      0,
-      (double value, CartItem item) => value + item.lineTotal,
-    );
-    final double total =
-        subtotal +
-        _delivery +
-        (subtotal * _fatPercent / 100) -
-        (couponApplied ? _fixedCouponDiscount : 0);
-
-    return CartSummary(
-      userName: Env.appName,
-      avatarUrl: _avatarUrl,
-      items: List<CartItem>.unmodifiable(items),
-      couponCode: couponCode,
-      couponApplied: couponApplied,
-      subtotal: subtotal,
-      fatPercent: _fatPercent,
-      delivery: _delivery,
-      discountPercent: _discountPercent,
-      total: total,
-    );
-  }
-
-  CartSummary _recalculate(List<CartItem> items) {
-    return _summaryFromItems(
-      items: items,
-      couponCode: _summary.couponCode,
-      couponApplied: _summary.couponApplied,
-    );
-  }
+  final CartRemoteDataSource _remoteDataSource;
 
   @override
-  Future<Result<CartSummary>> getCart() async {
-    return Success<CartSummary>(_summary);
-  }
+  Future<Result<CartSummary>> getCart() => _execute(_remoteDataSource.getCart);
+
+  @override
+  Future<Result<CartSummary>> addItem({
+    required String listingId,
+    required int quantity,
+  }) => _execute(
+    () => _remoteDataSource.addItem(listingId: listingId, quantity: quantity),
+  );
 
   @override
   Future<Result<CartSummary>> updateQuantity({
     required String itemId,
     required int quantity,
-  }) async {
-    final int nextQuantity = quantity.clamp(1, 99).toInt();
-    final List<CartItem> updated = _summary.items
-        .map((CartItem item) {
-          return item.id == itemId
-              ? item.copyWith(quantity: nextQuantity)
-              : item;
-        })
-        .toList(growable: false);
-    _summary = _recalculate(updated);
-    return Success<CartSummary>(_summary);
-  }
+  }) => _execute(
+    () => _remoteDataSource.updateQuantity(
+      listingId: itemId,
+      quantity: quantity,
+    ),
+  );
 
   @override
-  Future<Result<CartSummary>> removeItem(String itemId) async {
-    final List<CartItem> updated = _summary.items
-        .where((CartItem item) => item.id != itemId)
-        .toList(growable: false);
-    _summary = _recalculate(updated);
-    return Success<CartSummary>(_summary);
-  }
+  Future<Result<CartSummary>> removeItem(String itemId) =>
+      _execute(() => _remoteDataSource.removeItem(itemId));
 
   @override
-  Future<Result<CartSummary>> applyCoupon(String code) async {
-    final String normalized = code.trim().isEmpty ? _summary.couponCode : code;
-    _summary = _summaryFromItems(
-      items: _summary.items,
-      couponCode: normalized,
-      couponApplied: true,
+  Future<Result<CartSummary>> clearCart() => _execute(
+    _remoteDataSource.clearCart,
+  );
+
+  @override
+  Future<Result<CartSummary>> applyCoupon(String code) => getCart();
+
+  Future<Result<CartSummary>> _execute(
+    Future<CartResponseModel> Function() operation,
+  ) async {
+    try {
+      return Success<CartSummary>(_toSummary(await operation()));
+    } catch (error) {
+      final Failure failure = ErrorMapper.map(error);
+      return ResultFailure<CartSummary>(failure.message, cause: failure);
+    }
+  }
+
+  CartSummary _toSummary(CartResponseModel response) {
+    final List<CartItem> items = response.items
+        .where((CartResponseItemModel item) => item.listingId.isNotEmpty)
+        .map(
+          (CartResponseItemModel item) => CartItem(
+            id: item.listingId,
+            title: 'Listing ${item.listingId}',
+            subtitle: '',
+            fileSize: '',
+            imageUrl: '',
+            unitPrice: item.unitPrice,
+            quantity: item.quantity,
+            status: item.quantity == 0
+                ? CartItemStatus.unavailable
+                : CartItemStatus.available,
+          ),
+        )
+        .toList(growable: false);
+
+    return CartSummary(
+      userName: '',
+      avatarUrl: '',
+      items: items,
+      couponCode: '',
+      couponApplied: false,
+      subtotal: response.totalAmount,
+      fatPercent: 0,
+      delivery: 0,
+      discountPercent: 0,
+      total: response.totalAmount,
     );
-    return Success<CartSummary>(_summary);
   }
 }

@@ -18,6 +18,9 @@ abstract class ApiEndpoints {
   static const String libraries = '/libraries';
   static const String recommendedBooks = '/books/recommended';
   static const String mostPopularBooks = '/books/most-popular';
+  static const String cartMe = '/cart/me';
+  static const String cartItems = '/cart/items';
 
   static String libraryBooks(String libraryId) => '/libraries/$libraryId/books';
+  static String cartItem(String listingId) => '/cart/items/$listingId';
 }
