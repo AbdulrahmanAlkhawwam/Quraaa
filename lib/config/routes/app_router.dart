@@ -27,6 +27,7 @@ import '../../features/libraries/presentation/pages/book_details_screen.dart';
 import '../../features/libraries/presentation/models/library_details_navigation_data.dart';
 import '../../features/libraries/presentation/cubit/library_details_cubit.dart';
 import '../../features/home/presentation/pages/user_books_screen.dart';
+import '../../features/sell_book/presentation/pages/sell_book_screen.dart';
 import '../../features/onboarding/presentation/pages/age_onboarding_page.dart';
 import '../../features/onboarding/presentation/pages/gender_onboarding_page.dart';
 import '../../features/onboarding/presentation/pages/interests_onboarding_page.dart';
@@ -205,6 +206,11 @@ GoRouter buildAppRouter({
           tabIndex: 2,
           child: const UserBooksScreen(),
         ),
+      ),
+      GoRoute(
+        name: RouteNames.sellBook,
+        path: RouteNames.sellBook,
+        builder: (context, state) => const SellBookScreen(),
       ),
       GoRoute(
         name: RouteNames.audioBooks,
@@ -412,6 +418,7 @@ bool _isKnownRoute(String location) {
     RouteNames.stores,
     RouteNames.libraries,
     RouteNames.userBooks,
+    RouteNames.sellBook,
     RouteNames.audioBooks,
     RouteNames.cart,
     RouteNames.favorites,

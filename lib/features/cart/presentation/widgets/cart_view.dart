@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -115,6 +116,9 @@ class CartView extends StatelessWidget {
 
                 return LayoutBuilder(
                   builder: (BuildContext context, BoxConstraints constraints) {
+                    final bool hasUnavailableItem = state.summary.items.any(
+                      (CartItem item) => !item.isAvailable,
+                    );
                     final double horizontal = (constraints.maxWidth * 0.05)
                         .clamp(18.0, 24.0);
 
@@ -176,7 +180,7 @@ class CartView extends StatelessWidget {
                               width: double.infinity,
                               height: 52,
                               child: FilledButton(
-                                onPressed: checkoutState is CheckoutLoading
+                                onPressed: hasUnavailableItem
                                     ? null
                                     : () => _openPaymentFlow(
                                         context,

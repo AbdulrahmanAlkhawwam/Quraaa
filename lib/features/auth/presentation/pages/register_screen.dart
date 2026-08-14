@@ -338,19 +338,6 @@ class _RegisterViewState extends State<_RegisterView> {
                           controller: _phoneController,
                           initialValue:
                               _initialPhoneNumber ?? PhoneNumber(isoCode: 'SY'),
-                          countries: const <String>[
-                            'AE',
-                            'BH',
-                            'EG',
-                            'IQ',
-                            'JO',
-                            'KW',
-                            'LB',
-                            'OM',
-                            'QA',
-                            'SA',
-                            'SY',
-                          ],
                           onInputChanged: (PhoneNumber value) {
                             _phoneNumber = value;
                           },
@@ -613,11 +600,11 @@ class _OnboardingValidationSummary extends StatelessWidget {
       );
     }
 
-    final List<String> errors = <String>[
-      ?dateOfBirthError,
-      ?genderError,
-      ?interestsError,
-    ];
+    final List<String> errors = <String?>[
+      dateOfBirthError,
+      genderError,
+      interestsError,
+    ].whereType<String>().toList(growable: false);
 
     if (errors.isEmpty) return const SizedBox.shrink();
 

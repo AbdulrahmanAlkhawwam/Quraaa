@@ -131,7 +131,17 @@ class OnboardingState extends Equatable {
 
   bool get hasCategory => selectedCategoryIds.isNotEmpty;
 
-  bool get canContinueCategory => hasCategory && !isLoading && !isCompleted;
+  List<String> get validCategoryIds => categories
+      .map((Category category) => category.id)
+      .toList(growable: false);
+
+  bool get canContinueCategory =>
+      Validators.interestsExist(
+        categoryIds: selectedCategoryIds,
+        validCategoryIds: validCategoryIds,
+      ) &&
+      !isLoading &&
+      !isCompleted;
 
   OnboardingState copyWith({
     Object? birthYear = _unset,
@@ -229,6 +239,14 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
       final List<Category> categories = await _loadCategoriesUseCase(
         const NoParams(),
       );
+      final Set<String> validCategoryIds = categories
+          .map((Category category) => category.id)
+          .where(Validators.interestIdIsGuid)
+          .toSet();
+      final List<String> selectedCategoryIds =
+          (draft.selectedCategoryIds ?? const <String>[])
+              .where(validCategoryIds.contains)
+              .toList(growable: false);
       emit(
         OnboardingState(
           birthYear: draft.birthYear,
@@ -236,7 +254,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
           birthDay: draft.birthDay,
           selectedGender: draft.selectedGender,
           categories: categories,
-          selectedCategoryIds: draft.selectedCategoryIds ?? const <String>[],
+          selectedCategoryIds: selectedCategoryIds,
           isLoading: false,
           isCompleted: false,
         ),
@@ -381,6 +399,9 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
 
     emit(state.copyWith(isLoading: true, errorMessage: null));
     try {
+      await _saveCategoryIdUseCase(
+        SaveCategoryIdParams(state.selectedCategoryIds),
+      );
       await _completeOnboardingUseCase(const NoParams());
       emit(
         state.copyWith(

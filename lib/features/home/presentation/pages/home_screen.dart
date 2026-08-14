@@ -68,6 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
           previous.notificationSerial != current.notificationSerial,
       listener: _showNotificationSnackBar,
       child: Scaffold(
+        backgroundColor: context.isDark? null : Colors.white,
         extendBody: true,
         extendBodyBehindAppBar: true,
         drawer: HomeDrawer(
@@ -211,7 +212,7 @@ class _HomeFeed extends StatelessWidget {
             const SliverToBoxAdapter(
               child: SizedBox(height: AppSpacing.spacing14),
             ),
-            const SliverToBoxAdapter(child: HomeQuickActions()),
+            /*const SliverToBoxAdapter(child: HomeQuickActions()),
             const SliverToBoxAdapter(
               child: SizedBox(height: AppSpacing.spacing24),
             ),
@@ -223,7 +224,7 @@ class _HomeFeed extends StatelessWidget {
             ),
             const SliverToBoxAdapter(
               child: SizedBox(height: AppSpacing.spacing32),
-            ),
+            ),*/
             if (!state.isGuest) ...<Widget>[
               SliverToBoxAdapter(
                 child: HomeSection(

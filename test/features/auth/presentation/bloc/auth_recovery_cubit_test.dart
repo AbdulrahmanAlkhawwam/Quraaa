@@ -177,6 +177,14 @@ class _FakeAuthRepository implements AuthRepository {
   }) async {
     return const ResultFailure<User>('not used in recovery tests');
   }
+
+  @override
+  Future<Result<bool>> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    return const ResultFailure<bool>('not used in recovery tests');
+  }
 }
 
 class _FakeAuthLocalDataSource implements AuthLocalDataSource {

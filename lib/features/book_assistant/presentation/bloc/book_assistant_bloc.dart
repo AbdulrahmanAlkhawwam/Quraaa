@@ -50,24 +50,30 @@ final class BookAssistantLoaded extends BookAssistantState {
     required this.books,
     this.selectedBooks = const <AssistantBook>[],
     this.response,
+    this.pendingQuestion,
     this.isAnswering = false,
   });
 
   final List<AssistantBook> books;
   final List<AssistantBook> selectedBooks;
   final AssistantResponse? response;
+  final String? pendingQuestion;
   final bool isAnswering;
 
   BookAssistantLoaded copyWith({
     List<AssistantBook>? books,
     List<AssistantBook>? selectedBooks,
     AssistantResponse? response,
+    String? pendingQuestion,
+    bool clearPendingQuestion = false,
     bool? isAnswering,
   }) {
     return BookAssistantLoaded(
       books: books ?? this.books,
       selectedBooks: selectedBooks ?? this.selectedBooks,
       response: response ?? this.response,
+      pendingQuestion:
+          clearPendingQuestion ? null : pendingQuestion ?? this.pendingQuestion,
       isAnswering: isAnswering ?? this.isAnswering,
     );
   }
@@ -150,7 +156,17 @@ class BookAssistantBloc extends Bloc<BookAssistantEvent, BookAssistantState> {
       return;
     }
 
-    emit(current.copyWith(isAnswering: true));
+    final String trimmedQuestion = question.trim();
+    if (trimmedQuestion.isEmpty) {
+      return;
+    }
+
+    emit(
+      current.copyWith(
+        isAnswering: true,
+        pendingQuestion: trimmedQuestion,
+      ),
+    );
     final Result<AssistantResponse> result = await _askAssistant(
       AskBookAssistantParams(
         question: question,
@@ -160,7 +176,13 @@ class BookAssistantBloc extends Bloc<BookAssistantEvent, BookAssistantState> {
 
     switch (result) {
       case Success<AssistantResponse>(value: final AssistantResponse response):
-        emit(current.copyWith(response: response, isAnswering: false));
+        emit(
+          current.copyWith(
+            response: response,
+            clearPendingQuestion: true,
+            isAnswering: false,
+          ),
+        );
       case ResultFailure<AssistantResponse>(message: final String message):
         emit(BookAssistantFailure(message));
     }

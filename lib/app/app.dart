@@ -71,6 +71,7 @@ class _QuraaaAppState extends State<QuraaaApp> {
             debugShowCheckedModeBanner: false,
             theme: AppTheme.light(),
             darkTheme: AppTheme.dark(),
+            // themeMode: ThemeMode.dark,
             themeMode: themeMode,
             routerConfig: _router,
             localizationsDelegates: context.localizationDelegates,
@@ -79,8 +80,8 @@ class _QuraaaAppState extends State<QuraaaApp> {
             builder: (BuildContext context, Widget? child) {
               final Brightness iconBrightness =
                   Theme.of(context).brightness == Brightness.dark
-                      ? Brightness.light
-                      : Brightness.dark;
+                  ? Brightness.light
+                  : Brightness.dark;
 
               return AnnotatedRegion<SystemUiOverlayStyle>(
                 value: SystemUiOverlayStyle(

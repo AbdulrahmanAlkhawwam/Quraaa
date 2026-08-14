@@ -841,6 +841,13 @@
     "title": "Cart",
     "checkout": "Checkout",
     "checkout_open_failed": "Could not open the secure payment page.",
+    "purchase": "Purchase",
+    "expand_purchase": "Show purchase details",
+    "collapse_purchase": "Hide purchase details",
+    "warning": "Warning",
+    "price_changed": "The price was changed by the library.",
+    "error": "Error",
+    "unavailable": "This product is currently unavailable because its quantity is zero.",
     "payment": {
       "used_cards": "Used Cards",
       "add_method": "Add Payment Method",

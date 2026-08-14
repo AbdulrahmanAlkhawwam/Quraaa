@@ -16,13 +16,12 @@ abstract class CartRemoteDataSource {
     required String listingId,
     required int quantity,
   });
-
   Future<CartResponseModel> updateQuantity({
     required String listingId,
     required int quantity,
   });
-
   Future<CartResponseModel> removeItem(String listingId);
+  Future<CartResponseModel> clearCart();
 }
 
 class CartRemoteDataSourceImpl implements CartRemoteDataSource {
@@ -97,7 +96,13 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
         ),
       );
     }
-
-    return UnknownException(message: error.message ?? 'Unable to update cart.');
+    return switch (error.type) {
+      DioExceptionType.connectionTimeout ||
+      DioExceptionType.sendTimeout ||
+      DioExceptionType.receiveTimeout => const TimeoutException(),
+      DioExceptionType.connectionError ||
+      DioExceptionType.badCertificate => const NetworkException(),
+      _ => UnknownException(message: fallbackMessage),
+    };
   }
 }

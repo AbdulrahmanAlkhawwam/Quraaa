@@ -31,4 +31,5 @@ abstract class ApiEndpoints {
   static String favoriteBook(String bookId) => '/favorite-books/$bookId';
 
   static String libraryBooks(String libraryId) => '/libraries/$libraryId/books';
+  static String cartItem(String listingId) => '/cart/items/$listingId';
 }

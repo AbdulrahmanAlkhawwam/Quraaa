@@ -18,6 +18,7 @@ abstract class RouteNames {
   }
 
   static const String userBooks = '/user-books';
+  static const String sellBook = '/sell-book';
   static const String audioBooks = '/audio-books';
   static const String cart = '/cart';
   static const String favorites = '/favorites';

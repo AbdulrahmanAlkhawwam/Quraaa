@@ -111,7 +111,7 @@ class CartRepositoryImpl implements CartRepository {
       items: items,
       couponCode: '',
       couponApplied: false,
-      subtotal: subtotal,
+      subtotal: response.totalAmount,
       fatPercent: 0,
       delivery: 0,
       discountPercent: 0,

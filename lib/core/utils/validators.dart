@@ -1,14 +1,15 @@
 import '../../features/onboarding/domain/entities/gender_selection.dart';
 
 class Validators {
-  static bool requiredField(String? value) => value != null && value.trim().isNotEmpty;
+  static bool requiredField(String? value) =>
+      value != null && value.trim().isNotEmpty;
 
   //region Name
 
   static bool nameNotEmpty(String? value) => requiredField(value);
 
   static bool nameMaxLength(String? value, {int maxLength = 50}) =>
-      value != null && value.length <= maxLength;
+      value != null && value.trim().length <= maxLength;
 
   static String? validateName(
     String? value, {
@@ -25,9 +26,11 @@ class Validators {
 
   //region Phone
 
-  static bool phoneNotEmpty(String? value) => value != null && value.isNotEmpty;
+  static bool phoneNotEmpty(String? value) =>
+      value != null && value.trim().isNotEmpty;
 
-  static bool phoneStartsWithPlus(String? value) => value != null && value.startsWith('+');
+  static bool phoneStartsWithPlus(String? value) =>
+      value != null && value.startsWith('+');
 
   static String? validatePhone(
     String? value, {
@@ -44,7 +47,8 @@ class Validators {
 
   //region Password
 
-  static bool passwordNotEmpty(String? value) => phoneNotEmpty(value);
+  static bool passwordNotEmpty(String? value) =>
+      value != null && value.isNotEmpty;
 
   static bool passwordMinLength(String? value, {int minLength = 6}) =>
       value != null && value.length >= minLength;
@@ -73,8 +77,7 @@ class Validators {
     required int? year,
     required int? month,
     required int? day,
-  }) =>
-      year != null && month != null && day != null;
+  }) => year != null && month != null && day != null;
 
   static bool dateOfBirthValid({
     required int? year,
@@ -114,12 +117,24 @@ class Validators {
 
     final DateTime birthDate = DateTime(year!, month!, day!);
     final DateTime now = DateTime.now();
-    int age = now.year - birthDate.year;
-    final bool hasHadBirthdayThisYear = now.month > birthDate.month ||
-        (now.month == birthDate.month && now.day >= birthDate.day);
-    if (!hasHadBirthdayThisYear) age--;
+    final DateTime latestAllowedDate = _yearsBefore(now, minAge);
+    final DateTime earliestExclusiveDate = _yearsBefore(now, maxAge);
 
-    return age >= minAge && age <= maxAge;
+    return !birthDate.isAfter(latestAllowedDate) &&
+        birthDate.isAfter(earliestExclusiveDate);
+  }
+
+  static DateTime _yearsBefore(DateTime date, int years) {
+    final int targetYear = date.year - years;
+    final int lastDayOfTargetMonth = DateTime(
+      targetYear,
+      date.month + 1,
+      0,
+    ).day;
+    final int targetDay = date.day <= lastDayOfTargetMonth
+        ? date.day
+        : lastDayOfTargetMonth;
+    return DateTime(targetYear, date.month, targetDay);
   }
 
   static String? validateDateOfBirth({
@@ -173,12 +188,20 @@ class Validators {
   static bool interestsNotEmpty(List<String>? categoryIds) =>
       categoryIds != null && categoryIds.isNotEmpty;
 
+  static bool interestIdIsGuid(String id) {
+    return RegExp(
+      r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
+    ).hasMatch(id.trim());
+  }
+
   static bool interestsExist({
     required List<String>? categoryIds,
     required List<String> validCategoryIds,
   }) {
     if (!interestsNotEmpty(categoryIds)) return false;
-    return categoryIds!.every((String id) => validCategoryIds.contains(id));
+    return categoryIds!.every(
+      (String id) => interestIdIsGuid(id) && validCategoryIds.contains(id),
+    );
   }
 
   static String? validateInterests({

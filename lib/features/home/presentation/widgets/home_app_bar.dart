@@ -140,12 +140,8 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
         context.pushTo(RouteNames.cart);
         return;
       case _HomeProfileMenuAction.sellBook:
-        context.showSuccessSnackBar(
-          message: Message(
-            title: LocalizationConstants.homeProfileMenuSellBookKey.tr(),
-            value: LocalizationConstants.homeFeatureUnderDevelopmentKey.tr(),
-          ),
-        );
+        context.pushTo(RouteNames.sellBook);
+        return;
     }
   }
 }

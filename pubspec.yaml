@@ -60,6 +60,7 @@ dependencies:
   shimmer: ^3.0.0
   flutter_svg: ^2.2.1
   url_launcher: ^6.3.2
+  image_picker: ^1.2.3
 
   # Firebase & notifications (migrated from quraa_otp)
 
@@ -108,6 +109,8 @@ flutter:
     - assets/fonts/
     - assets/icons/
     - assets/images/
+    - assets/images/branding/
+    - assets/images/books/
     - assets/illustrations/
     - assets/animations/
     - assets/lottie/

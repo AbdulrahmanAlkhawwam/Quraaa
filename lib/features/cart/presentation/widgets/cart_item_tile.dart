@@ -35,9 +35,11 @@ class CartItemTile extends StatelessWidget {
 
     return Column(
       children: <Widget>[
-        SizedBox(
-          height: 116 * scale,
-          child: Row(
+        Opacity(
+          opacity: isUnavailable ? 0.4 : 1,
+          child: SizedBox(
+            height: 116 * scale,
+            child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               _BookCover(imageUrl: item.imageUrl, scale: scale),
@@ -119,6 +121,7 @@ class CartItemTile extends StatelessWidget {
                         quantity: item.quantity,
                         onIncrease: onIncrease,
                         onDecrease: onDecrease,
+                        isDisabled: isUnavailable,
                         scale: scale,
                       ),
                     ),
@@ -126,8 +129,25 @@ class CartItemTile extends StatelessWidget {
                 ),
               ),
             ],
+            ),
           ),
         ),
+        if (item.status == CartItemStatus.priceChanged)
+          _CartStatusBanner(
+            title: LocalizationConstants.cartWarningKey.tr(),
+            message: LocalizationConstants.cartPriceChangedKey.tr(),
+            background: const Color(0xFFF9F5EC),
+            border: const Color(0xFFECE6C6),
+            scale: scale,
+          ),
+        if (isUnavailable)
+          _CartStatusBanner(
+            title: LocalizationConstants.cartErrorKey.tr(),
+            message: LocalizationConstants.cartUnavailableKey.tr(),
+            background: const Color(0xFFF9ECEC),
+            border: const Color(0xFFECC6C6),
+            scale: scale,
+          ),
         if (showDivider)
           Divider(height: 1, thickness: 1, color: context.appBorder),
       ],
@@ -177,12 +197,14 @@ class _QuantityControl extends StatelessWidget {
     required this.quantity,
     required this.onIncrease,
     required this.onDecrease,
+    required this.isDisabled,
     required this.scale,
   });
 
   final int quantity;
   final VoidCallback onIncrease;
   final VoidCallback onDecrease;
+  final bool isDisabled;
   final double scale;
 
   @override
@@ -192,7 +214,7 @@ class _QuantityControl extends StatelessWidget {
       children: <Widget>[
         _QuantityButton(
           icon: HugeIcons.strokeRoundedMinusSign,
-          onTap: onDecrease,
+          onTap: isDisabled ? null : onDecrease,
           scale: scale,
         ),
         SizedBox(
@@ -211,7 +233,7 @@ class _QuantityControl extends StatelessWidget {
         ),
         _QuantityButton(
           icon: HugeIcons.strokeRoundedPlusSign,
-          onTap: onIncrease,
+          onTap: isDisabled ? null : onIncrease,
           scale: scale,
         ),
       ],
@@ -227,7 +249,7 @@ class _QuantityButton extends StatelessWidget {
   });
 
   final List<List<dynamic>> icon;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final double scale;
 
   @override
@@ -237,7 +259,9 @@ class _QuantityButton extends StatelessWidget {
       onTap: onTap,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: context.isDark
+          color: onTap == null
+              ? context.appBorder
+              : context.isDark
               ? AppColors.primary800
               : const Color(0xFFB7E3A6),
           shape: BoxShape.circle,
@@ -257,3 +281,60 @@ class _QuantityButton extends StatelessWidget {
     );
   }
 }
+
+class _CartStatusBanner extends StatelessWidget {
+  const _CartStatusBanner({
+    required this.title,
+    required this.message,
+    required this.background,
+    required this.border,
+    required this.scale,
+  });
+
+  final String title;
+  final String message;
+  final Color background;
+  final Color border;
+  final double scale;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      liveRegion: true,
+      child: Container(
+        width: double.infinity,
+        margin: EdgeInsets.only(bottom: 12 * scale),
+        padding: EdgeInsets.symmetric(
+          horizontal: 16 * scale,
+          vertical: 8 * scale,
+        ),
+        decoration: BoxDecoration(
+          color: background,
+          border: Border.all(color: border),
+          borderRadius: BorderRadius.circular(8 * scale),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              title,
+              style: AppTextStyles.titleMedium.copyWith(
+                color: context.appTextPrimary,
+                fontSize: 14 * scale,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              message,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: context.appTextSecondary,
+                fontSize: 14 * scale,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+

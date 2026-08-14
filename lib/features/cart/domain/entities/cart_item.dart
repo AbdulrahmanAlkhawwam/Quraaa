@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+enum CartItemStatus { available, priceChanged, unavailable }
+
 class CartItem extends Equatable {
   const CartItem({
     required this.id,
@@ -9,6 +11,7 @@ class CartItem extends Equatable {
     required this.imageUrl,
     required this.unitPrice,
     required this.quantity,
+    this.status = CartItemStatus.available,
   });
 
   final String id;
@@ -18,6 +21,9 @@ class CartItem extends Equatable {
   final String imageUrl;
   final double unitPrice;
   final int quantity;
+  final CartItemStatus status;
+
+  bool get isAvailable => status != CartItemStatus.unavailable;
 
   double get lineTotal => unitPrice * quantity;
 
@@ -29,6 +35,7 @@ class CartItem extends Equatable {
     String? imageUrl,
     double? unitPrice,
     int? quantity,
+    CartItemStatus? status,
   }) {
     return CartItem(
       id: id ?? this.id,
@@ -38,6 +45,7 @@ class CartItem extends Equatable {
       imageUrl: imageUrl ?? this.imageUrl,
       unitPrice: unitPrice ?? this.unitPrice,
       quantity: quantity ?? this.quantity,
+      status: status ?? this.status,
     );
   }
 
@@ -50,6 +58,7 @@ class CartItem extends Equatable {
         imageUrl,
         unitPrice,
         quantity,
+        status,
       ];
 }
 

@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quraaa/features/onboarding/domain/entities/gender_selection.dart';
+import 'package:quraaa/features/onboarding/domain/entities/category.dart';
 import 'package:quraaa/features/onboarding/presentation/bloc/onboarding_bloc.dart';
 
 void main() {
@@ -14,7 +15,14 @@ void main() {
       birthYear: 2000,
       birthMonth: 5,
       birthDay: 10,
-      selectedCategoryIds: <String>['fiction'],
+      categories: <Category>[
+        Category(
+          id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+          nameAr: 'روايات',
+          nameEn: 'Fiction',
+        ),
+      ],
+      selectedCategoryIds: <String>['3fa85f64-5717-4562-b3fc-2c963f66afa6'],
     );
     expect(completedValues.canContinueGender, isTrue);
     expect(completedValues.canContinueAge, isTrue);
@@ -39,7 +47,7 @@ void main() {
       birthYear: 2000,
       birthMonth: 5,
       birthDay: 10,
-      selectedCategoryIds: <String>['fiction'],
+      selectedCategoryIds: <String>['3fa85f64-5717-4562-b3fc-2c963f66afa6'],
       isCompleted: true,
     );
 
