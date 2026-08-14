@@ -13,7 +13,7 @@ class ApplyCartCouponUseCase
 
   @override
   Future<Result<CartSummary>> call(ApplyCartCouponParams params) {
-    return _repository.applyCoupon(params.code);
+    return _repository.getCart();
   }
 }
 
@@ -25,4 +25,3 @@ class ApplyCartCouponParams extends Equatable {
   @override
   List<Object?> get props => <Object?>[code];
 }
-

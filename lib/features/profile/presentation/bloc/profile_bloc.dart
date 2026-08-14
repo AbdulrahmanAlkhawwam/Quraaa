@@ -149,6 +149,19 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     required AppException error,
     required String refreshToken,
   }) async {
+    // The global auth interceptor already attempted a refresh. If it cleared
+    // the session, do not send a second refresh request with the old token.
+    if (!await authLocalDataSource.isAuthenticatedSession()) {
+      emit(
+        state.copyWith(
+          loading: false,
+          error: UnauthorizedFailure(message: error.message),
+          requiresLogin: true,
+        ),
+      );
+      return;
+    }
+
     try {
       final result = await authRepository.refreshToken(
         refreshToken: refreshToken,

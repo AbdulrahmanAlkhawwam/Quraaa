@@ -26,10 +26,14 @@ abstract class AuthRemoteDataSource {
 
   Future<Map<String, Object?>> refreshToken({required String refreshToken});
 
+  Future<void> logout({String? refreshToken});
+
   Future<Map<String, Object?>> verifyOtp({
     required String phoneNumber,
     required String code,
   });
+
+  Future<void> sendOtp({required String phoneNumber});
 
   Future<void> forgotPassword({required String phoneNumber});
 
@@ -108,7 +112,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         return data.cast<String, Object?>();
       }
 
-      throw const UnknownException(message: 'Invalid register response.');
+      // Registration succeeds without a response body. Tokens are returned
+      // later by /auth/register/verify.
+      return const <String, Object?>{};
     } on DioException catch (error) {
       final AppException mapped = _mapDioException(
         error,
@@ -147,14 +153,29 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
+  Future<void> logout({String? refreshToken}) async {
+    try {
+      await _httpHelper.post(
+        ApiEndpoints.logout,
+        data: <String, Object?>{'refreshToken': refreshToken},
+      );
+    } on DioException catch (error) {
+      throw _mapDioException(error, 'Unable to logout.');
+    }
+  }
+
+  @override
   Future<Map<String, Object?>> verifyOtp({
     required String phoneNumber,
     required String code,
   }) async {
     try {
       final Response<dynamic> response = await _httpHelper.post(
-        ApiEndpoints.verifyOtp,
-        data: AuthMapper.verifyOtpToJson(phoneNumber: phoneNumber, code: code),
+        ApiEndpoints.registerVerify,
+        data: AuthMapper.verifyRegisterOtpToJson(
+          phoneNumber: phoneNumber,
+          code: code,
+        ),
       );
 
       final dynamic data = response.data;
@@ -171,6 +192,18 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'Unable to verify OTP.',
         unauthorizedFallbackCode: ErrorCodes.invalidVerificationCode,
       );
+    }
+  }
+
+  @override
+  Future<void> sendOtp({required String phoneNumber}) async {
+    try {
+      await _httpHelper.post(
+        ApiEndpoints.sendOtp,
+        data: AuthMapper.sendOtpToJson(phoneNumber: phoneNumber),
+      );
+    } on DioException catch (error) {
+      throw _mapDioException(error, 'Unable to resend OTP.');
     }
   }
 

@@ -14,15 +14,18 @@ class AuthSessionService {
     required UserLocalDataSource userLocalDataSource,
     required UserContextProvider userContextProvider,
     Future<void> Function()? afterAuthentication,
+    Future<void> Function()? afterSessionExpired,
   }) : _authLocalDataSource = authLocalDataSource,
        _userLocalDataSource = userLocalDataSource,
        _userContextProvider = userContextProvider,
-       _afterAuthentication = afterAuthentication;
+       _afterAuthentication = afterAuthentication,
+       _afterSessionExpired = afterSessionExpired;
 
   final AuthLocalDataSource _authLocalDataSource;
   final UserLocalDataSource _userLocalDataSource;
   final UserContextProvider _userContextProvider;
   final Future<void> Function()? _afterAuthentication;
+  final Future<void> Function()? _afterSessionExpired;
 
   Future<void> completeAuthenticatedSession(
     User user, {
@@ -59,6 +62,41 @@ class AuthSessionService {
       await _rollbackPartialSession();
       rethrow;
     }
+  }
+
+  /// Clears only authenticated-user data after the backend rejects a session.
+  Future<void> expireAuthenticatedSession() async {
+    await _rollbackPartialSession();
+    try {
+      await _afterSessionExpired?.call();
+    } catch (_) {
+      // A secondary cache must not prevent routing back to authentication.
+    }
+  }
+
+  /// Persists rotated tokens after a successful refresh operation.
+  Future<String?> refreshAuthenticatedSession(
+    User user, {
+    required String previousRefreshToken,
+  }) async {
+    final String? accessToken = _nonEmpty(user.accessToken);
+    if (accessToken == null) {
+      return null;
+    }
+
+    final String refreshToken =
+        _nonEmpty(user.refreshToken) ?? previousRefreshToken;
+    await _userLocalDataSource.updateTokens(
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      accessTokenExpiration: user.accessTokenExpiration,
+    );
+    await _authLocalDataSource.markAuthenticatedSession(
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      accessTokenExpiration: user.accessTokenExpiration,
+    );
+    return accessToken;
   }
 
   Future<void> _rollbackPartialSession() async {

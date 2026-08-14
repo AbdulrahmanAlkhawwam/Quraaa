@@ -12,10 +12,12 @@ import '../../features/home/presentation/pages/home_screen.dart';
 import '../../features/home/presentation/bloc/home_bloc.dart';
 import '../../features/home/presentation/pages/audio_books_screen.dart';
 import '../../features/cart/presentation/pages/cart_screen.dart';
+import '../../features/favorites/presentation/pages/favorite_books_screen.dart';
 import '../../features/book_assistant/book_assistant.dart';
 import '../../features/auth/presentation/pages/landing_page.dart';
 import '../../features/auth/presentation/pages/login_screen.dart';
 import '../../features/auth/presentation/pages/register_screen.dart';
+import '../../features/auth/data/datasources/auth_local_datasource.dart';
 import '../../features/home/presentation/pages/stores_screen.dart';
 import '../../features/libraries/domain/entities/library_entity.dart';
 import '../../features/libraries/presentation/pages/libraries_screen.dart';
@@ -37,6 +39,7 @@ import '../../features/profile/presentation/pages/profile_locations_screen.dart'
 import '../../features/subscription/presentation/pages/account_type_screen.dart';
 import '../../features/search/search.dart';
 import '../../core/di/injection_container.dart';
+import '../../core/network/session_expiry_controller.dart';
 import '../../features/splash/presentation/pages/splash_screen.dart';
 import '../../features/local_explorer/presentation/pages/explorer_history_screen.dart';
 import '../../features/local_explorer/presentation/pages/local_explorer_page.dart';
@@ -49,13 +52,31 @@ import 'route_resolver.dart';
 GoRouter buildAppRouter({
   List<NavigatorObserver> observers = const <NavigatorObserver>[],
   GlobalKey<NavigatorState>? navigatorKey,
+  required SessionExpiryController sessionExpiryController,
 }) {
   return GoRouter(
     navigatorKey: navigatorKey,
     initialLocation: RouteNames.splash,
     observers: observers,
+    refreshListenable: sessionExpiryController,
     redirect: (context, state) async {
       final String location = state.matchedLocation;
+
+      if (sessionExpiryController.consumeSessionExpired()) {
+        return location == RouteNames.login ? null : RouteNames.login;
+      }
+
+      if (location == RouteNames.cart) {
+        try {
+          final bool isAuthenticated =
+              await sl<AuthLocalDataSource>().isAuthenticatedSession();
+          if (!isAuthenticated) {
+            return RouteNames.home;
+          }
+        } catch (_) {
+          return RouteNames.home;
+        }
+      }
 
       if (location == RouteNames.routeBridge) {
         return resolveBridgeRoute(state.uri.queryParameters['route']) ??
@@ -210,6 +231,11 @@ GoRouter buildAppRouter({
         ),
       ),
       GoRoute(
+        name: RouteNames.favorites,
+        path: RouteNames.favorites,
+        builder: (context, state) => const FavoriteBooksScreen(),
+      ),
+      GoRoute(
         name: RouteNames.bookAssistant,
         path: RouteNames.bookAssistant,
         pageBuilder: (context, state) => _buildTabTransitionPage(
@@ -352,36 +378,35 @@ Page<void> _buildSoftTransitionPage({
     transitionDuration: const Duration(milliseconds: 360),
     reverseTransitionDuration: const Duration(milliseconds: 280),
     child: child,
-    transitionsBuilder:
-        (
-          BuildContext context,
-          Animation<double> animation,
-          Animation<double> secondaryAnimation,
-          Widget child,
-        ) {
-          final Animation<double> curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeOutCubic,
-            reverseCurve: Curves.easeInCubic,
-          );
+    transitionsBuilder: (
+      BuildContext context,
+      Animation<double> animation,
+      Animation<double> secondaryAnimation,
+      Widget child,
+    ) {
+      final Animation<double> curvedAnimation = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+        reverseCurve: Curves.easeInCubic,
+      );
 
-          return FadeTransition(
-            opacity: curvedAnimation,
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: beginOffset,
-                end: Offset.zero,
-              ).animate(curvedAnimation),
-              child: ScaleTransition(
-                scale: Tween<double>(
-                  begin: 0.985,
-                  end: 1,
-                ).animate(curvedAnimation),
-                child: child,
-              ),
-            ),
-          );
-        },
+      return FadeTransition(
+        opacity: curvedAnimation,
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: beginOffset,
+            end: Offset.zero,
+          ).animate(curvedAnimation),
+          child: ScaleTransition(
+            scale: Tween<double>(
+              begin: 0.985,
+              end: 1,
+            ).animate(curvedAnimation),
+            child: child,
+          ),
+        ),
+      );
+    },
   );
 }
 
@@ -396,6 +421,7 @@ bool _isKnownRoute(String location) {
     RouteNames.sellBook,
     RouteNames.audioBooks,
     RouteNames.cart,
+    RouteNames.favorites,
     RouteNames.bookAssistant,
     RouteNames.search,
     RouteNames.settings,

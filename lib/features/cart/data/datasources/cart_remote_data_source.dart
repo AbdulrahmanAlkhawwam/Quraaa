@@ -7,8 +7,11 @@ import '../../../../core/errors/exceptions.dart';
 import '../../../../core/network/http_helper.dart';
 import '../models/cart_response_model.dart';
 
-abstract interface class CartRemoteDataSource {
+abstract class CartRemoteDataSource {
   Future<CartResponseModel> getCart();
+
+  Future<CartResponseModel> clearCart();
+
   Future<CartResponseModel> addItem({
     required String listingId,
     required int quantity,
@@ -27,67 +30,64 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
   final HttpHelper _httpHelper;
 
   @override
-  Future<CartResponseModel> getCart() => _request(
-    () => _httpHelper.get(ApiEndpoints.cartMe),
-    'Unable to load your cart.',
-  );
+  Future<CartResponseModel> getCart() =>
+      _request(() => _httpHelper.get(ApiEndpoints.cart));
+
+  @override
+  Future<CartResponseModel> clearCart() =>
+      _request(() => _httpHelper.delete(ApiEndpoints.cart));
 
   @override
   Future<CartResponseModel> addItem({
     required String listingId,
     required int quantity,
-  }) => _request(
-    () => _httpHelper.post(
-      ApiEndpoints.cartItems,
-      data: <String, Object?>{'listingId': listingId, 'quantity': quantity},
-    ),
-    'Unable to add this item to your cart.',
-  );
+  }) {
+    return _request(
+      () => _httpHelper.post(
+        ApiEndpoints.cartItems,
+        data: <String, Object?>{'listingId': listingId, 'quantity': quantity},
+      ),
+    );
+  }
 
   @override
   Future<CartResponseModel> updateQuantity({
     required String listingId,
     required int quantity,
-  }) => _request(
-    () => _httpHelper.put(
-      ApiEndpoints.cartItem(listingId),
-      data: <String, Object?>{'quantity': quantity},
-    ),
-    'Unable to update the item quantity.',
-  );
+  }) {
+    return _request(
+      () => _httpHelper.put(
+        ApiEndpoints.cartItem(listingId),
+        data: <String, Object?>{'quantity': quantity},
+      ),
+    );
+  }
 
   @override
-  Future<CartResponseModel> removeItem(String listingId) => _request(
-    () => _httpHelper.delete(ApiEndpoints.cartItem(listingId)),
-    'Unable to remove this item from your cart.',
-  );
-
-  @override
-  Future<CartResponseModel> clearCart() => _request(
-    () => _httpHelper.delete(ApiEndpoints.cartMe),
-    'Unable to clear your cart.',
-  );
+  Future<CartResponseModel> removeItem(String listingId) {
+    return _request(() => _httpHelper.delete(ApiEndpoints.cartItem(listingId)));
+  }
 
   Future<CartResponseModel> _request(
     Future<Response<dynamic>> Function() request,
-    String fallbackMessage,
   ) async {
     try {
       final Response<dynamic> response = await request();
-      if (response.data is Map) {
-        return CartResponseModel.fromJson(
-          Map<String, dynamic>.from(response.data as Map),
-        );
+      final Object? data = response.data;
+      if (data is Map) {
+        return CartResponseModel.fromJson(Map<String, dynamic>.from(data));
       }
       throw const UnknownException(message: 'Invalid cart response.');
     } on DioException catch (error) {
-      throw _mapDioException(error, fallbackMessage);
+      throw _mapDioException(error);
     }
   }
 
-  AppException _mapDioException(DioException error, String fallbackMessage) {
-    if (error.error case final AppException exception) return exception;
-    final dynamic payload = error.response?.data;
+  AppException _mapDioException(DioException error) {
+    final Object? underlying = error.error;
+    if (underlying is AppException) return underlying;
+
+    final Object? payload = error.response?.data;
     if (payload is Map) {
       return ErrorMapper.mapResponseToException(
         ErrorResponseModel.fromJson(

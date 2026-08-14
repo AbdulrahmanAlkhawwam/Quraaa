@@ -4,6 +4,7 @@ import '../../../../core/architecture/result.dart';
 import '../../../../core/architecture/use_case.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/services/storage_service.dart';
+import '../../../auth/auth.dart';
 import '../../domain/entities/appearance_option.dart';
 import '../../domain/entities/language_option.dart';
 import '../../domain/entities/notification_setting.dart';
@@ -162,21 +163,23 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     required UpdateAppearanceOptionUseCase updateAppearance,
     required UpdateNotificationSettingUseCase updateNotification,
     required UpdateLanguageOptionUseCase updateLanguage,
+    required LogoutUseCase logout,
     required StorageService storageService,
-  })  : _getTabs = getTabs,
-        _getProfileSections = getProfileSections,
-        _getSettingsSections = getSettingsSections,
-        _getLibrarySections = getLibrarySections,
-        _getBadgesSections = getBadgesSections,
-        _getActivitySections = getActivitySections,
-        _getAppearanceOptions = getAppearanceOptions,
-        _getNotificationSettings = getNotificationSettings,
-        _getLanguageOptions = getLanguageOptions,
-        _updateAppearance = updateAppearance,
-        _updateNotification = updateNotification,
-        _updateLanguage = updateLanguage,
-        _storageService = storageService,
-        super(const SettingsInitial()) {
+  }) : _getTabs = getTabs,
+       _getProfileSections = getProfileSections,
+       _getSettingsSections = getSettingsSections,
+       _getLibrarySections = getLibrarySections,
+       _getBadgesSections = getBadgesSections,
+       _getActivitySections = getActivitySections,
+       _getAppearanceOptions = getAppearanceOptions,
+       _getNotificationSettings = getNotificationSettings,
+       _getLanguageOptions = getLanguageOptions,
+       _updateAppearance = updateAppearance,
+       _updateNotification = updateNotification,
+       _updateLanguage = updateLanguage,
+       _logout = logout,
+       _storageService = storageService,
+       super(const SettingsInitial()) {
     on<SettingsStarted>(_onStarted);
     on<SettingsTabChanged>(_onTabChanged);
     on<SettingsScrolled>(_onScrolled);
@@ -198,6 +201,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   final UpdateAppearanceOptionUseCase _updateAppearance;
   final UpdateNotificationSettingUseCase _updateNotification;
   final UpdateLanguageOptionUseCase _updateLanguage;
+  final LogoutUseCase _logout;
   final StorageService _storageService;
 
   Future<void> _onStarted(
@@ -221,43 +225,45 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       ResultFailure<List<SettingsTab>>() => <SettingsTab>[],
     };
 
-    final List<SettingsSection> profileSections = switch (profileSectionsResult) {
-      Success<List<SettingsSection>>(value: final value) => value,
-      ResultFailure<List<SettingsSection>>() => <SettingsSection>[],
-    };
+    final List<SettingsSection> profileSections =
+        switch (profileSectionsResult) {
+          Success<List<SettingsSection>>(value: final value) => value,
+          ResultFailure<List<SettingsSection>>() => <SettingsSection>[],
+        };
 
-    final List<SettingsSection> settingsSections = switch (
-        settingsSectionsResult) {
-      Success<List<SettingsSection>>(value: final value) => value,
-      ResultFailure<List<SettingsSection>>() => <SettingsSection>[],
-    };
+    final List<SettingsSection> settingsSections =
+        switch (settingsSectionsResult) {
+          Success<List<SettingsSection>>(value: final value) => value,
+          ResultFailure<List<SettingsSection>>() => <SettingsSection>[],
+        };
 
-    final List<SettingsSection> librarySections = switch (librarySectionsResult) {
-      Success<List<SettingsSection>>(value: final value) => value,
-      ResultFailure<List<SettingsSection>>() => <SettingsSection>[],
-    };
+    final List<SettingsSection> librarySections =
+        switch (librarySectionsResult) {
+          Success<List<SettingsSection>>(value: final value) => value,
+          ResultFailure<List<SettingsSection>>() => <SettingsSection>[],
+        };
 
     final List<SettingsSection> badgesSections = switch (badgesSectionsResult) {
       Success<List<SettingsSection>>(value: final value) => value,
       ResultFailure<List<SettingsSection>>() => <SettingsSection>[],
     };
 
-    final List<SettingsSection> activitySections = switch (
-        activitySectionsResult) {
-      Success<List<SettingsSection>>(value: final value) => value,
-      ResultFailure<List<SettingsSection>>() => <SettingsSection>[],
-    };
+    final List<SettingsSection> activitySections =
+        switch (activitySectionsResult) {
+          Success<List<SettingsSection>>(value: final value) => value,
+          ResultFailure<List<SettingsSection>>() => <SettingsSection>[],
+        };
 
     final List<AppearanceOption> appearanceOptions = switch (appearanceResult) {
       Success<List<AppearanceOption>>(value: final value) => value,
       ResultFailure<List<AppearanceOption>>() => <AppearanceOption>[],
     };
 
-    final List<NotificationSetting> notificationSettings = switch (
-        notificationResult) {
-      Success<List<NotificationSetting>>(value: final value) => value,
-      ResultFailure<List<NotificationSetting>>() => <NotificationSetting>[],
-    };
+    final List<NotificationSetting> notificationSettings =
+        switch (notificationResult) {
+          Success<List<NotificationSetting>>(value: final value) => value,
+          ResultFailure<List<NotificationSetting>>() => <NotificationSetting>[],
+        };
 
     final List<LanguageOption> languageOptions = switch (languageResult) {
       Success<List<LanguageOption>>(value: final value) => value,
@@ -286,10 +292,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     );
   }
 
-  void _onTabChanged(
-    SettingsTabChanged event,
-    Emitter<SettingsState> emit,
-  ) {
+  void _onTabChanged(SettingsTabChanged event, Emitter<SettingsState> emit) {
     final SettingsState state = this.state;
     if (state is! SettingsLoaded) {
       return;
@@ -298,10 +301,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     emit(state.copyWith(activeTab: event.tab));
   }
 
-  void _onScrolled(
-    SettingsScrolled event,
-    Emitter<SettingsState> emit,
-  ) {
+  void _onScrolled(SettingsScrolled event, Emitter<SettingsState> emit) {
     final SettingsState state = this.state;
     if (state is! SettingsLoaded) {
       return;
@@ -341,10 +341,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     }
 
     final result = await _updateNotification(
-      UpdateNotificationSettingParams(
-        id: event.id,
-        value: event.value,
-      ),
+      UpdateNotificationSettingParams(id: event.id, value: event.value),
     );
 
     final List<NotificationSetting> settings = switch (result) {
@@ -380,6 +377,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     SettingsLogoutRequested event,
     Emitter<SettingsState> emit,
   ) async {
+    // Local cleanup must still happen when the remote token is expired.
+    await _logout(const NoParams());
     await _storageService.clearAll();
     emit(const SettingsLogoutSuccess());
   }

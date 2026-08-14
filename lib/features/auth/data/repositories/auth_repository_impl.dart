@@ -4,14 +4,16 @@ import '../../../../core/errors/error_mapper.dart';
 import '../../../../core/errors/failures.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
+import '../datasources/auth_local_datasource.dart';
 import '../datasources/auth_remote_datasource.dart';
 import '../mappers/auth_mapper.dart';
 
 class AuthRepositoryImpl extends BaseRepository<User>
     implements AuthRepository {
-  const AuthRepositoryImpl(this._remoteDataSource);
+  const AuthRepositoryImpl(this._remoteDataSource, this._localDataSource);
 
   final AuthRemoteDataSource _remoteDataSource;
+  final AuthLocalDataSource _localDataSource;
 
   @override
   Future<Result<User>> login({
@@ -68,6 +70,17 @@ class AuthRepositoryImpl extends BaseRepository<User>
   }
 
   @override
+  Future<Result<bool>> logout() async {
+    try {
+      final String? refreshToken = await _localDataSource.getRefreshToken();
+      await _remoteDataSource.logout(refreshToken: refreshToken);
+      return const Success<bool>(true);
+    } catch (error) {
+      return _mapError<bool>(error);
+    }
+  }
+
+  @override
   Future<Result<User>> verifyOtp({
     required String phoneNumber,
     required String code,
@@ -80,6 +93,16 @@ class AuthRepositoryImpl extends BaseRepository<User>
       return Success(AuthMapper.fromJson(response));
     } catch (error) {
       return _mapError(error);
+    }
+  }
+
+  @override
+  Future<Result<bool>> sendOtp({required String phoneNumber}) async {
+    try {
+      await _remoteDataSource.sendOtp(phoneNumber: phoneNumber);
+      return const Success<bool>(true);
+    } catch (error) {
+      return _mapError<bool>(error);
     }
   }
 

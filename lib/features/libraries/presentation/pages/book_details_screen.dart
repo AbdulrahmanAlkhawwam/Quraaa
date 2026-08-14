@@ -1,11 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../config/routes/route_names.dart';
 import '../../../../core/localization/localization_constants.dart';
+import '../../../../core/di/injection_container.dart';
 import '../../../../shared/shared.dart';
+import '../../../favorites/favorites.dart';
 import '../../domain/entities/library_book_entity.dart';
 import '../cubit/library_details_state.dart';
 import '../models/library_details_navigation_data.dart';
@@ -24,7 +27,19 @@ class BookDetailsScreen extends StatefulWidget {
 }
 
 class _BookDetailsScreenState extends State<BookDetailsScreen> {
-  bool _isFavorite = false;
+  late final FavoriteStatusCubit _favoriteStatusCubit;
+
+  @override
+  void initState() {
+    super.initState();
+    _favoriteStatusCubit = sl<FavoriteStatusCubit>()..load(widget.bookId);
+  }
+
+  @override
+  void dispose() {
+    _favoriteStatusCubit.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,10 +58,22 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                _BookHeader(
-                  isFavorite: _isFavorite,
-                  onBack: () => context.back(),
-                  onFavorite: () => setState(() => _isFavorite = !_isFavorite),
+                BlocConsumer<FavoriteStatusCubit, FavoriteStatusState>(
+                  bloc: _favoriteStatusCubit,
+                  listenWhen: (previous, current) =>
+                      current.error != null && current.error != previous.error,
+                  listener: (BuildContext context, FavoriteStatusState state) {
+                    context.showResolvedErrorSnackBar(state.error!);
+                  },
+                  builder: (BuildContext context, FavoriteStatusState state) {
+                    return _BookHeader(
+                      isFavorite: state.isFavorite,
+                      onBack: () => context.back(),
+                      onFavorite: state.isLoading
+                          ? null
+                          : () => _favoriteStatusCubit.toggle(widget.bookId),
+                    );
+                  },
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(
@@ -91,7 +118,7 @@ class _BookHeader extends StatelessWidget {
 
   final bool isFavorite;
   final VoidCallback onBack;
-  final VoidCallback onFavorite;
+  final VoidCallback? onFavorite;
 
   @override
   Widget build(BuildContext context) {
@@ -221,7 +248,8 @@ class _BookSummary extends StatelessWidget {
                 SizedBox(
                   height: 38,
                   child: FilledButton(
-                    onPressed: () => BookPurchaseBottomSheet.show(context),
+                    onPressed: () =>
+                        BookPurchaseBottomSheet.show(context, book: book),
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                         horizontal: AppSpacing.spacing20,

@@ -80,7 +80,9 @@
       "buy": "Buy",
       "purchase_title": "Buy Book",
       "checkout": "Checkout",
+    "checkout_open_failed": "Could not open the secure payment page.",
       "buy_directly": "Buy that Directly",
+      "listing_required": "This book has no purchasable listing yet.",
       "publisher": "Publisher",
       "writer": "Writer",
       "language": "Language"
@@ -424,7 +426,14 @@
   },
   "settings": {
     "title": "Settings",
-    "search": {
+    "favorites": {
+    "title": "Favorite Books",
+    "empty": "You have no favorite books yet.",
+    "retry": "Try again",
+    "remove": "Remove from favorites",
+    "book_fallback": "Book"
+  },
+  "search": {
       "title": "Search settings",
       "subtitle": "Find settings, books, and more",
       "empty": "No settings found."
@@ -822,6 +831,8 @@
     "empty": "Your cart is empty.",
     "empty_title": "Ready to Fill Your Library!",
     "empty_description": "Your cart is waiting for its first book. Discover inspiring stories, valuable knowledge, and timeless classics to add to your collection.",
+    "clear": "Clear cart",
+    "item_fallback": "Book",
     "subtotal": "Sub Total",
     "fat": "Fat",
     "delivery": "Delivery",
@@ -829,6 +840,7 @@
     "total": "Total",
     "title": "Cart",
     "checkout": "Checkout",
+    "checkout_open_failed": "Could not open the secure payment page.",
     "purchase": "Purchase",
     "expand_purchase": "Show purchase details",
     "collapse_purchase": "Hide purchase details",
@@ -867,6 +879,13 @@
       "cart": "cart"
     },
     "remove": "Remove"
+  },
+  "favorites": {
+    "title": "Favorite Books",
+    "empty": "You have no favorite books yet.",
+    "retry": "Try again",
+    "remove": "Remove from favorites",
+    "book_fallback": "Book"
   },
   "search": {
     "hint": "Search books, authors...",

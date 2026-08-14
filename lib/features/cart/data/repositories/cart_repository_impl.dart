@@ -7,76 +7,105 @@ import '../../domain/repositories/cart_repository.dart';
 import '../datasources/cart_remote_data_source.dart';
 import '../models/cart_response_model.dart';
 
-class CartRepositoryImpl extends CartRepository {
-  const CartRepositoryImpl(this._remoteDataSource);
+class CartRepositoryImpl implements CartRepository {
+  CartRepositoryImpl(this._remoteDataSource);
 
   final CartRemoteDataSource _remoteDataSource;
+  final Map<String, CartItem> _metadataByListingId = <String, CartItem>{};
 
   @override
-  Future<Result<CartSummary>> getCart() => _execute(_remoteDataSource.getCart);
+  Future<Result<CartSummary>> getCart() => _request(_remoteDataSource.getCart);
+
+  @override
+  Future<Result<CartSummary>> clearCart() =>
+      _request(_remoteDataSource.clearCart, clearMetadata: true);
 
   @override
   Future<Result<CartSummary>> addItem({
     required String listingId,
     required int quantity,
-  }) => _execute(
-    () => _remoteDataSource.addItem(listingId: listingId, quantity: quantity),
-  );
+    CartItem? metadata,
+  }) {
+    if (metadata != null) {
+      _metadataByListingId[listingId] = metadata;
+    }
+    return _request(
+      () => _remoteDataSource.addItem(listingId: listingId, quantity: quantity),
+    );
+  }
 
   @override
   Future<Result<CartSummary>> updateQuantity({
-    required String itemId,
+    required String listingId,
     required int quantity,
-  }) => _execute(
-    () => _remoteDataSource.updateQuantity(
-      listingId: itemId,
-      quantity: quantity,
-    ),
-  );
+  }) {
+    return _request(
+      () => _remoteDataSource.updateQuantity(
+        listingId: listingId,
+        quantity: quantity,
+      ),
+    );
+  }
 
   @override
-  Future<Result<CartSummary>> removeItem(String itemId) =>
-      _execute(() => _remoteDataSource.removeItem(itemId));
+  Future<Result<CartSummary>> removeItem(String listingId) async {
+    final Result<CartSummary> result = await _request(
+      () => _remoteDataSource.removeItem(listingId),
+    );
+    if (result is Success<CartSummary>) {
+      _metadataByListingId.remove(listingId);
+    }
+    return result;
+  }
 
-  @override
-  Future<Result<CartSummary>> clearCart() => _execute(
-    _remoteDataSource.clearCart,
-  );
-
-  @override
-  Future<Result<CartSummary>> applyCoupon(String code) => getCart();
-
-  Future<Result<CartSummary>> _execute(
-    Future<CartResponseModel> Function() operation,
-  ) async {
+  Future<Result<CartSummary>> _request(
+    Future<CartResponseModel> Function() request, {
+    bool clearMetadata = false,
+  }) async {
     try {
-      return Success<CartSummary>(_toSummary(await operation()));
+      final CartResponseModel response = await request();
+      if (clearMetadata) _metadataByListingId.clear();
+      return Success<CartSummary>(_toEntity(response));
     } catch (error) {
       final Failure failure = ErrorMapper.map(error);
       return ResultFailure<CartSummary>(failure.message, cause: failure);
     }
   }
 
-  CartSummary _toSummary(CartResponseModel response) {
+  CartSummary _toEntity(CartResponseModel response) {
     final List<CartItem> items = response.items
-        .where((CartResponseItemModel item) => item.listingId.isNotEmpty)
-        .map(
-          (CartResponseItemModel item) => CartItem(
-            id: item.listingId,
-            title: 'Listing ${item.listingId}',
-            subtitle: '',
-            fileSize: '',
-            imageUrl: '',
-            unitPrice: item.unitPrice,
-            quantity: item.quantity,
-            status: item.quantity == 0
-                ? CartItemStatus.unavailable
-                : CartItemStatus.available,
-          ),
-        )
+        .map((model) {
+          final CartItem? cached = _metadataByListingId[model.listingId];
+          final CartItem item = CartItem(
+            id: model.listingId,
+            title: model.title.isNotEmpty ? model.title : cached?.title ?? '',
+            subtitle: model.subtitle.isNotEmpty
+                ? model.subtitle
+                : cached?.subtitle ?? '',
+            fileSize: model.fileSize.isNotEmpty
+                ? model.fileSize
+                : cached?.fileSize ?? '',
+            imageUrl: model.coverImageUrl.isNotEmpty
+                ? model.coverImageUrl
+                : cached?.imageUrl ?? '',
+            unitPrice: model.unitPrice,
+            quantity: model.quantity,
+          );
+          _metadataByListingId[model.listingId] = item;
+          return item;
+        })
         .toList(growable: false);
 
+    final double subtotal = items.fold<double>(
+      0,
+      (double value, CartItem item) => value + item.lineTotal,
+    );
+
     return CartSummary(
+      cartId: response.cartId,
+      status: response.status,
+      stripeCheckoutSessionId: response.stripeCheckoutSessionId,
+      itemCount: response.itemCount,
       userName: '',
       avatarUrl: '',
       items: items,

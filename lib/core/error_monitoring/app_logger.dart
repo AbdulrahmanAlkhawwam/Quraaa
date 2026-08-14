@@ -49,7 +49,9 @@ abstract class AppLogger {
     String? apiUrl,
     int? apiStatusCode,
     Duration? apiDuration,
+    String? apiRequestHeaders,
     String? apiRequestBody,
+    String? apiResponseHeaders,
     String? apiResponseBody,
   });
 
@@ -62,7 +64,9 @@ abstract class AppLogger {
     String? apiUrl,
     int? apiStatusCode,
     Duration? apiDuration,
+    String? apiRequestHeaders,
     String? apiRequestBody,
+    String? apiResponseHeaders,
     String? apiResponseBody,
   });
 
@@ -207,7 +211,9 @@ class AppLoggerImpl implements AppLogger {
     String? apiUrl,
     int? apiStatusCode,
     Duration? apiDuration,
+    String? apiRequestHeaders,
     String? apiRequestBody,
+    String? apiResponseHeaders,
     String? apiResponseBody,
   }) async {
     await _record(
@@ -220,7 +226,9 @@ class AppLoggerImpl implements AppLogger {
       apiUrl: apiUrl,
       apiStatusCode: apiStatusCode,
       apiDuration: apiDuration,
+      apiRequestHeaders: apiRequestHeaders,
       apiRequestBody: apiRequestBody,
+      apiResponseHeaders: apiResponseHeaders,
       apiResponseBody: apiResponseBody,
     );
   }
@@ -235,7 +243,9 @@ class AppLoggerImpl implements AppLogger {
     String? apiUrl,
     int? apiStatusCode,
     Duration? apiDuration,
+    String? apiRequestHeaders,
     String? apiRequestBody,
+    String? apiResponseHeaders,
     String? apiResponseBody,
   }) async {
     await _record(
@@ -248,7 +258,9 @@ class AppLoggerImpl implements AppLogger {
       apiUrl: apiUrl,
       apiStatusCode: apiStatusCode,
       apiDuration: apiDuration,
+      apiRequestHeaders: apiRequestHeaders,
       apiRequestBody: apiRequestBody,
+      apiResponseHeaders: apiResponseHeaders,
       apiResponseBody: apiResponseBody,
     );
   }
@@ -320,7 +332,9 @@ class AppLoggerImpl implements AppLogger {
     String? apiUrl,
     int? apiStatusCode,
     Duration? apiDuration,
+    String? apiRequestHeaders,
     String? apiRequestBody,
+    String? apiResponseHeaders,
     String? apiResponseBody,
   }) async {
     final DeviceSnapshot device = _deviceInfoProvider.snapshot;
@@ -346,7 +360,9 @@ class AppLoggerImpl implements AppLogger {
       apiUrl: apiUrl,
       apiStatusCode: apiStatusCode,
       apiDuration: apiDuration,
+      apiRequestHeaders: apiRequestHeaders,
       apiRequestBody: apiRequestBody,
+      apiResponseHeaders: apiResponseHeaders,
       apiResponseBody: apiResponseBody,
       deviceModel: device.deviceModel,
       deviceManufacturer: device.manufacturer,

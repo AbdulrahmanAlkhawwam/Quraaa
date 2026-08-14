@@ -7,4 +7,3 @@ export 'use_cases/clear_cart_use_case.dart';
 export 'use_cases/get_cart_use_case.dart';
 export 'use_cases/remove_cart_item_use_case.dart';
 export 'use_cases/update_cart_item_quantity_use_case.dart';
-

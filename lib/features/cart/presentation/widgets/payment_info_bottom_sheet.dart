@@ -6,13 +6,18 @@ import '../../../../shared/shared.dart';
 import '../../domain/entities/cart_summary.dart';
 import 'cart_totals_card.dart';
 
+enum PaymentInfoAction { addPaymentMethod, checkout }
+
 class PaymentInfoBottomSheet extends StatefulWidget {
   const PaymentInfoBottomSheet({super.key, required this.summary});
 
   final CartSummary summary;
 
-  static Future<bool?> show(BuildContext context, CartSummary summary) {
-    return showModalBottomSheet<bool>(
+  static Future<PaymentInfoAction?> show(
+    BuildContext context,
+    CartSummary summary,
+  ) {
+    return showModalBottomSheet<PaymentInfoAction>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -82,7 +87,9 @@ class _PaymentInfoBottomSheetState extends State<PaymentInfoBottomSheet> {
                 width: double.infinity,
                 height: 50,
                 child: OutlinedButton.icon(
-                  onPressed: () => Navigator.of(context).pop(true),
+                  onPressed: () => Navigator.of(
+                    context,
+                  ).pop(PaymentInfoAction.addPaymentMethod),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: context.isDark
                         ? AppColors.primary300
@@ -106,7 +113,9 @@ class _PaymentInfoBottomSheetState extends State<PaymentInfoBottomSheet> {
                 child: FilledButton(
                   onPressed: _selectedCardIndex == null
                       ? null
-                      : () => Navigator.of(context).pop(false),
+                      : () => Navigator.of(
+                          context,
+                        ).pop(PaymentInfoAction.checkout),
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.primary600,
                     disabledBackgroundColor: context.isDark

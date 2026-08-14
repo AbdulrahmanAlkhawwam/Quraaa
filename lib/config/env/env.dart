@@ -16,6 +16,8 @@ abstract class Env {
   static const String _hostKey = 'HOST';
   static const String _baseUrlKey = 'BASEURL';
   static const String _latestVersionKey = 'LATEST_VERSION';
+  static const String _checkoutSuccessUrlKey = 'CHECKOUT_SUCCESS_URL';
+  static const String _checkoutCancelUrlKey = 'CHECKOUT_CANCEL_URL';
 
   static String get environment {
     const String value = String.fromEnvironment(_environmentKey);
@@ -23,8 +25,7 @@ abstract class Env {
     return kReleaseMode ? 'production' : 'development';
   }
 
-  static bool get isDev =>
-      environment == 'dev' || environment == 'development';
+  static bool get isDev => environment == 'dev' || environment == 'development';
 
   /// Backend host (with optional scheme and port).
   ///
@@ -65,9 +66,19 @@ abstract class Env {
     final String rawHost = host;
     final String normalizedHost =
         rawHost.startsWith('http://') || rawHost.startsWith('https://')
-            ? rawHost
-            : 'https://$rawHost';
+        ? rawHost
+        : 'https://$rawHost';
     return '$normalizedHost/$baseUrl';
+  }
+
+  static String get checkoutSuccessUrl {
+    const String value = String.fromEnvironment(_checkoutSuccessUrlKey);
+    return value.isNotEmpty ? value : 'https://quraa.dev/checkout/success';
+  }
+
+  static String get checkoutCancelUrl {
+    const String value = String.fromEnvironment(_checkoutCancelUrlKey);
+    return value.isNotEmpty ? value : 'https://quraa.dev/checkout/cancel';
   }
 
   static String? get latestVersion {

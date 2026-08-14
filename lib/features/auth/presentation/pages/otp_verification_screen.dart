@@ -103,6 +103,13 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     );
   }
 
+  Future<void> _resendOtp() async {
+    if (_phoneNumber.isEmpty || !_recoveryCubit.state.canResendOtp) return;
+    final bool isOnline = await ensureOnline(context);
+    if (!mounted || !isOnline) return;
+    await _recoveryCubit.resendOtp(phoneNumber: _phoneNumber);
+  }
+
   void _onNumberIsWrong() {
     context.goTo(RouteNames.register);
   }
@@ -248,9 +255,12 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                         child: SizedBox(
                           height: AppDimensions.onboardingButtonHeight,
                           child: FilledButton(
-                            // No resend endpoint exists in the current API
-                            // contract. Keep this disabled until it is wired.
-                            onPressed: null,
+                            onPressed:
+                                state.canResendOtp &&
+                                    !state.isLoading &&
+                                    _phoneNumber.isNotEmpty
+                                ? _resendOtp
+                                : null,
                             style: FilledButton.styleFrom(
                               backgroundColor: AppColors.leafGreen,
                               foregroundColor: AppColors.card,

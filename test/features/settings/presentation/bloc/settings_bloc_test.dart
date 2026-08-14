@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:quraaa/core/architecture/result.dart';
+import 'package:quraaa/features/auth/domain/domain.dart';
 import 'package:quraaa/features/settings/domain/entities/appearance_option.dart';
 import 'package:quraaa/features/settings/domain/entities/language_option.dart';
 import 'package:quraaa/features/settings/domain/entities/notification_setting.dart';
@@ -26,17 +27,26 @@ void main() {
   group('SettingsBloc', () {
     late MockSettingsRepository repository;
     late MockStorageService storageService;
+    late _MockAuthRepository authRepository;
     late SettingsBloc bloc;
 
     setUp(() {
       repository = MockSettingsRepository();
       storageService = MockStorageService();
+      authRepository = _MockAuthRepository();
+      when(
+        () => authRepository.logout(),
+      ).thenAnswer((_) async => const Success<bool>(true));
       when(() => storageService.clearAll()).thenAnswer((_) async => true);
 
       when(() => repository.getSettingsTabs()).thenAnswer(
         (_) async => const Success<List<SettingsTab>>(<SettingsTab>[
           SettingsTab(id: 'profile', labelKey: 'profile', iconKey: 'user'),
-          SettingsTab(id: 'settings', labelKey: 'settings', iconKey: 'settings'),
+          SettingsTab(
+            id: 'settings',
+            labelKey: 'settings',
+            iconKey: 'settings',
+          ),
         ]),
       );
       when(() => repository.getProfileSections()).thenAnswer(
@@ -55,10 +65,12 @@ void main() {
         (_) async => const Success<List<SettingsSection>>(<SettingsSection>[]),
       );
       when(() => repository.getAppearanceOptions()).thenAnswer(
-        (_) async => const Success<List<AppearanceOption>>(<AppearanceOption>[]),
+        (_) async =>
+            const Success<List<AppearanceOption>>(<AppearanceOption>[]),
       );
       when(() => repository.getNotificationSettings()).thenAnswer(
-        (_) async => const Success<List<NotificationSetting>>(<NotificationSetting>[]),
+        (_) async =>
+            const Success<List<NotificationSetting>>(<NotificationSetting>[]),
       );
       when(() => repository.getLanguageOptions()).thenAnswer(
         (_) async => const Success<List<LanguageOption>>(<LanguageOption>[]),
@@ -77,6 +89,7 @@ void main() {
         updateAppearance: UpdateAppearanceOptionUseCase(repository),
         updateNotification: UpdateNotificationSettingUseCase(repository),
         updateLanguage: UpdateLanguageOptionUseCase(repository),
+        logout: LogoutUseCase(authRepository),
         storageService: storageService,
       );
     });
@@ -90,10 +103,7 @@ void main() {
 
       await expectLater(
         bloc.stream,
-        emitsInOrder(<dynamic>[
-          isA<SettingsLoading>(),
-          isA<SettingsLoaded>(),
-        ]),
+        emitsInOrder(<dynamic>[isA<SettingsLoading>(), isA<SettingsLoaded>()]),
       );
 
       final SettingsLoaded state = bloc.state as SettingsLoaded;
@@ -122,16 +132,17 @@ void main() {
       );
     });
 
+    test(
+      'clears storage and emits logout success after logout requested',
+      () async {
+        bloc.add(const SettingsLogoutRequested());
 
-    test('clears storage and emits logout success after logout requested', () async {
-      bloc.add(const SettingsLogoutRequested());
+        await expectLater(bloc.stream, emits(isA<SettingsLogoutSuccess>()));
 
-      await expectLater(
-        bloc.stream,
-        emits(isA<SettingsLogoutSuccess>()),
-      );
-
-      verify(() => storageService.clearAll()).called(1);
-    });
+        verify(() => storageService.clearAll()).called(1);
+      },
+    );
   });
 }
+
+class _MockAuthRepository extends Mock implements AuthRepository {}

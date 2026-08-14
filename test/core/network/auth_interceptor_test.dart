@@ -10,7 +10,13 @@ import 'package:quraaa/features/auth/data/datasources/auth_local_datasource.dart
 class _MockAuthLocalDataSource extends Mock implements AuthLocalDataSource {}
 
 class _RecordingAdapter implements HttpClientAdapter {
+  _RecordingAdapter({this.statusCode = 200, List<int>? statusCodes})
+    : _statusCodes = statusCodes ?? const <int>[];
+
+  final int statusCode;
+  final List<int> _statusCodes;
   final List<RequestOptions> requests = <RequestOptions>[];
+  int _responseIndex = 0;
 
   @override
   Future<ResponseBody> fetch(
@@ -19,9 +25,12 @@ class _RecordingAdapter implements HttpClientAdapter {
     Future<void>? cancelFuture,
   ) async {
     requests.add(options);
+    final int responseStatusCode = _responseIndex < _statusCodes.length
+        ? _statusCodes[_responseIndex++]
+        : statusCode;
     return ResponseBody.fromString(
       '{"ok":true}',
-      200,
+      responseStatusCode,
       headers: <String, List<String>>{
         Headers.contentTypeHeader: <String>['application/json'],
       },
@@ -59,6 +68,8 @@ void main() {
       const List<String> publicPaths = <String>[
         ApiEndpoints.login,
         ApiEndpoints.register,
+        ApiEndpoints.registerVerify,
+        ApiEndpoints.sendOtp,
         ApiEndpoints.verifyOtp,
         ApiEndpoints.forgotPassword,
         ApiEndpoints.forgotPasswordVerify,
@@ -89,6 +100,81 @@ void main() {
         'Bearer access-token',
       );
       verify(() => authLocalDataSource.getAccessToken()).called(1);
+    });
+
+    test('refreshes the token and retries the protected request once', () async {
+      when(
+        () => authLocalDataSource.getAccessToken(),
+      ).thenAnswer((_) async => 'expired-token');
+      when(
+        () => authLocalDataSource.isAuthenticatedSession(),
+      ).thenAnswer((_) async => true);
+      var refreshCount = 0;
+      var expiryNotifications = 0;
+
+      dio.close(force: true);
+      adapter = _RecordingAdapter(statusCodes: <int>[401, 200]);
+      dio = Dio(BaseOptions(baseUrl: baseUrl))
+        ..interceptors.add(
+          AuthInterceptor(
+            authLocalDataSource,
+            baseUrl: baseUrl,
+            onRefreshSession: () async {
+              refreshCount++;
+              return 'fresh-token';
+            },
+            onRetryRequest: (RequestOptions options) =>
+                dio.fetch<dynamic>(options),
+            onSessionExpired: () async {
+              expiryNotifications++;
+            },
+          ),
+        )
+        ..httpClientAdapter = adapter;
+
+      final Response<dynamic> response =
+          await dio.get<dynamic>(ApiEndpoints.recommendedBooks);
+
+      expect(response.statusCode, 200);
+      expect(adapter.requests, hasLength(2));
+      expect(
+        adapter.requests.last.headers['authorization'],
+        'Bearer fresh-token',
+      );
+      expect(refreshCount, 1);
+      expect(expiryNotifications, 0);
+    });
+
+    test('notifies when refreshing an authenticated session fails', () async {
+      when(
+        () => authLocalDataSource.getAccessToken(),
+      ).thenAnswer((_) async => 'expired-token');
+      when(
+        () => authLocalDataSource.isAuthenticatedSession(),
+      ).thenAnswer((_) async => true);
+      var expiryNotifications = 0;
+
+      dio.close(force: true);
+      adapter = _RecordingAdapter(statusCode: 401);
+      dio = Dio(BaseOptions(baseUrl: baseUrl))
+        ..interceptors.add(
+          AuthInterceptor(
+            authLocalDataSource,
+            baseUrl: baseUrl,
+            onRefreshSession: () async => null,
+            onSessionExpired: () async {
+              expiryNotifications++;
+            },
+          ),
+        )
+        ..httpClientAdapter = adapter;
+
+      await expectLater(
+        dio.get<dynamic>(ApiEndpoints.recommendedBooks),
+        throwsA(isA<DioException>()),
+      );
+
+      expect(expiryNotifications, 1);
     });
   });
 }

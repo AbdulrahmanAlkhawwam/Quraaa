@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../config/routes/route_names.dart';
+import '../../../../core/architecture/use_case.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/services/storage_service.dart';
@@ -14,10 +15,13 @@ import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/app_spacing.dart';
 import '../../../../shared/theme/styles/text_styles.dart';
+import '../../../auth/auth.dart';
 
 /// Side drawer for additional navigation from the home screen.
 class HomeDrawer extends StatelessWidget {
-  const HomeDrawer({super.key});
+  const HomeDrawer({required this.isGuest, super.key});
+
+  final bool isGuest;
 
   @override
   Widget build(BuildContext context) {
@@ -97,10 +101,7 @@ class HomeDrawer extends StatelessWidget {
                 label: LocalizationConstants.homeDrawerBookmarksKey.tr(),
                 onTap: () {
                   Navigator.of(context).pop();
-                  _showComingSoon(
-                    context,
-                    LocalizationConstants.homeDrawerBookmarksKey.tr(),
-                  );
+                  context.goTo(RouteNames.favorites);
                 },
               ),
               _DrawerItem(
@@ -135,14 +136,15 @@ class HomeDrawer extends StatelessWidget {
                   context.goTo(RouteNames.audioBooks);
                 },
               ),
-              _DrawerItem(
-                icon: HugeIcons.strokeRoundedShoppingCart01,
-                label: LocalizationConstants.homeNavCartKey.tr(),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  context.goTo(RouteNames.cart);
-                },
-              ),
+              if (!isGuest)
+                _DrawerItem(
+                  icon: HugeIcons.strokeRoundedShoppingCart01,
+                  label: LocalizationConstants.homeNavCartKey.tr(),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    context.goTo(RouteNames.cart);
+                  },
+                ),
               const SizedBox(height: AppSpacing.spacing16),
               const Divider(height: 1),
               const SizedBox(height: AppSpacing.spacing16),
@@ -184,6 +186,7 @@ class HomeDrawer extends StatelessWidget {
   }
 
   Future<void> _logout(BuildContext context) async {
+    await sl<LogoutUseCase>()(const NoParams());
     await sl<StorageService>().clearAll();
     if (context.mounted) {
       context.goTo(RouteNames.auth);
@@ -225,7 +228,8 @@ class _DrawerItem extends StatelessWidget {
         contentPadding: EdgeInsets.zero,
         leading: HugeIcon(
           icon: icon,
-          color: iconColor ?? (context.isDark ? AppColors.primary300 : AppColors.primary600),
+          color: iconColor ??
+              (context.isDark ? AppColors.primary300 : AppColors.primary600),
           size: 22,
         ),
         title: Text(

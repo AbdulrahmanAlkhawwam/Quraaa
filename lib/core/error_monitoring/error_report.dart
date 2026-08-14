@@ -20,7 +20,9 @@ class ErrorReport {
     this.apiUrl,
     this.apiStatusCode,
     this.apiDuration,
+    this.apiRequestHeaders,
     this.apiRequestBody,
+    this.apiResponseHeaders,
     this.apiResponseBody,
     this.deviceModel,
     this.deviceManufacturer,
@@ -50,7 +52,9 @@ class ErrorReport {
   final String? apiUrl;
   final int? apiStatusCode;
   final Duration? apiDuration;
+  final String? apiRequestHeaders;
   final String? apiRequestBody;
+  final String? apiResponseHeaders;
   final String? apiResponseBody;
   final String? deviceModel;
   final String? deviceManufacturer;
@@ -99,7 +103,9 @@ class ErrorReport {
       ..writeln('URL: ${_display(apiUrl)}')
       ..writeln('Status Code: ${_display(apiStatusCode?.toString())}')
       ..writeln('Duration: ${_display(apiDuration == null ? null : '${apiDuration!.inMilliseconds}ms')}')
+      ..writeln('Request Headers: ${_display(apiRequestHeaders)}')
       ..writeln('Request Body: ${_display(apiRequestBody)}')
+      ..writeln('Response Headers: ${_display(apiResponseHeaders)}')
       ..writeln('Response Body: ${_display(apiResponseBody)}')
       ..writeln()
       ..writeln('📱 Device')
@@ -146,7 +152,9 @@ class ErrorReport {
       'apiUrl': apiUrl,
       'apiStatusCode': apiStatusCode,
       'apiDuration': apiDuration?.inMilliseconds,
+      'apiRequestHeaders': apiRequestHeaders,
       'apiRequestBody': apiRequestBody,
+      'apiResponseHeaders': apiResponseHeaders,
       'apiResponseBody': apiResponseBody,
       'deviceModel': deviceModel,
       'deviceManufacturer': deviceManufacturer,
@@ -183,7 +191,9 @@ class ErrorReport {
       apiDuration: json['apiDuration'] == null
           ? null
           : Duration(milliseconds: json['apiDuration']! as int),
+      apiRequestHeaders: json['apiRequestHeaders'] as String?,
       apiRequestBody: json['apiRequestBody'] as String?,
+      apiResponseHeaders: json['apiResponseHeaders'] as String?,
       apiResponseBody: json['apiResponseBody'] as String?,
       deviceModel: json['deviceModel'] as String?,
       deviceManufacturer: json['deviceManufacturer'] as String?,
@@ -215,7 +225,9 @@ class ErrorReport {
     String? apiUrl,
     int? apiStatusCode,
     Duration? apiDuration,
+    String? apiRequestHeaders,
     String? apiRequestBody,
+    String? apiResponseHeaders,
     String? apiResponseBody,
     String? deviceModel,
     String? deviceManufacturer,
@@ -245,7 +257,9 @@ class ErrorReport {
       apiUrl: apiUrl ?? this.apiUrl,
       apiStatusCode: apiStatusCode ?? this.apiStatusCode,
       apiDuration: apiDuration ?? this.apiDuration,
+      apiRequestHeaders: apiRequestHeaders ?? this.apiRequestHeaders,
       apiRequestBody: apiRequestBody ?? this.apiRequestBody,
+      apiResponseHeaders: apiResponseHeaders ?? this.apiResponseHeaders,
       apiResponseBody: apiResponseBody ?? this.apiResponseBody,
       deviceModel: deviceModel ?? this.deviceModel,
       deviceManufacturer: deviceManufacturer ?? this.deviceManufacturer,
@@ -367,6 +381,11 @@ String encodeSanitizedBody(Object? value) {
 bool _isSensitiveKey(String key) {
   final String normalized = key.replaceAll(RegExp(r'[\s_\-]'), '');
   return normalized.endsWith('password') ||
+      normalized.endsWith('token') ||
+      normalized.endsWith('authorization') ||
+      normalized.endsWith('cookie') ||
+      normalized.endsWith('secret') ||
+      normalized.endsWith('apikey') ||
       <String>{
         'password',
         'pass',

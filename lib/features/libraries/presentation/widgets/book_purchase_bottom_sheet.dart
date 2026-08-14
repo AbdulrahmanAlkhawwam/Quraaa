@@ -3,24 +3,95 @@ import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../config/routes/route_names.dart';
+import '../../../../core/architecture/result.dart';
+import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
+import '../../../auth/auth.dart';
+import '../../../cart/cart.dart';
+import '../../domain/entities/library_book_entity.dart';
 
 class BookPurchaseBottomSheet extends StatelessWidget {
   const BookPurchaseBottomSheet({super.key, required this.onCheckout});
 
   final VoidCallback onCheckout;
 
-  static Future<void> show(BuildContext context) {
+  static Future<void> show(
+    BuildContext context, {
+    required LibraryBookEntity? book,
+  }) async {
+    final bool isAuthenticated =
+        await sl<AuthLocalDataSource>().isAuthenticatedSession();
+    if (!context.mounted) return;
+
+    if (!isAuthenticated) {
+      final bool? shouldLogin = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext dialogContext) => AlertDialog(
+          title: Text(LocalizationConstants.settingsGuestLoginTitleKey.tr()),
+          content: Text(
+            LocalizationConstants.settingsGuestLoginMessageKey.tr(),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(LocalizationConstants.commonCancelKey.tr()),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(
+                LocalizationConstants.settingsGuestLoginActionKey.tr(),
+              ),
+            ),
+          ],
+        ),
+      );
+      if (shouldLogin == true && context.mounted) {
+        context.goTo(RouteNames.login);
+      }
+      return;
+    }
+
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black.withValues(alpha: 0.34),
       builder: (BuildContext sheetContext) => BookPurchaseBottomSheet(
-        onCheckout: () {
-          Navigator.of(sheetContext).pop();
-          context.pushTo(RouteNames.cart);
+        onCheckout: () async {
+          if (book == null || book.listingId.trim().isEmpty) {
+            Navigator.of(sheetContext).pop();
+            if (context.mounted) {
+              context.showResolvedErrorSnackBar(
+                LocalizationConstants.libraryBookListingRequiredKey.tr(),
+              );
+            }
+            return;
+          }
+
+          final Result<CartSummary> result = await sl<AddCartItemUseCase>()(
+            AddCartItemParams(
+              listingId: book.listingId,
+              metadata: CartItem(
+                id: book.listingId,
+                title: book.title,
+                subtitle: book.author,
+                fileSize: '',
+                imageUrl: book.coverImageUrl,
+                unitPrice: double.tryParse(book.price) ?? 0,
+                quantity: 1,
+              ),
+            ),
+          );
+          if (!context.mounted || !sheetContext.mounted) return;
+          switch (result) {
+            case Success<CartSummary>():
+              Navigator.of(sheetContext).pop();
+              context.pushTo(RouteNames.cart);
+            case ResultFailure<CartSummary>(message: final message):
+              Navigator.of(sheetContext).pop();
+              context.showResolvedErrorSnackBar(message);
+          }
         },
       ),
     );

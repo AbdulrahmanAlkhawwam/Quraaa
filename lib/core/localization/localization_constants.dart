@@ -91,6 +91,8 @@ class LocalizationConstants {
   static const String libraryBookCheckoutKey = 'library_details.book.checkout';
   static const String libraryBookBuyDirectlyKey =
       'library_details.book.buy_directly';
+  static const String libraryBookListingRequiredKey =
+      'library_details.book.listing_required';
   static const String libraryBookPublisherKey =
       'library_details.book.publisher';
   static const String libraryBookWriterKey = 'library_details.book.writer';
@@ -693,6 +695,13 @@ class LocalizationConstants {
   static const String settingsLanguageFranceKey = 'settings.language.france';
   static const String settingsLanguageGermanyKey = 'settings.language.germany';
 
+  // Favorites
+  static const String favoritesTitleKey = 'favorites.title';
+  static const String favoritesEmptyKey = 'favorites.empty';
+  static const String favoritesRetryKey = 'favorites.retry';
+  static const String favoritesRemoveKey = 'favorites.remove';
+  static const String favoritesBookFallbackKey = 'favorites.book_fallback';
+
   // Search
   static const String searchHintKey = 'search.hint';
   static const String searchTrendingKey = 'search.trending';
@@ -762,6 +771,8 @@ class LocalizationConstants {
   static const String cartEmptyKey = 'cart.empty';
   static const String cartEmptyTitleKey = 'cart.empty_title';
   static const String cartEmptyDescriptionKey = 'cart.empty_description';
+  static const String cartClearKey = 'cart.clear';
+  static const String cartItemFallbackKey = 'cart.item_fallback';
   static const String cartSubtotalKey = 'cart.subtotal';
   static const String cartFatKey = 'cart.fat';
   static const String cartDeliveryKey = 'cart.delivery';
@@ -770,6 +781,7 @@ class LocalizationConstants {
   static const String cartRemoveKey = 'cart.remove';
   static const String cartTitleKey = 'cart.title';
   static const String cartCheckoutKey = 'cart.checkout';
+  static const String cartCheckoutOpenFailedKey = 'cart.checkout_open_failed';
   static const String cartPurchaseKey = 'cart.purchase';
   static const String cartExpandPurchaseKey = 'cart.expand_purchase';
   static const String cartCollapsePurchaseKey = 'cart.collapse_purchase';

@@ -5,69 +5,83 @@ class CartResponseModel {
     required this.items,
     required this.totalAmount,
     required this.itemCount,
-    this.stripeCheckoutSessionId,
+    required this.stripeCheckoutSessionId,
   });
 
   final String cartId;
-  final int status;
-  final List<CartResponseItemModel> items;
+  final String status;
+  final List<CartItemResponseModel> items;
   final double totalAmount;
   final int itemCount;
   final String? stripeCheckoutSessionId;
 
   factory CartResponseModel.fromJson(Map<String, dynamic> json) {
-    final List<dynamic> rawItems = json['items'] is List
-        ? json['items'] as List<dynamic>
-        : const <dynamic>[];
+    final Object? rawItems = json['items'];
     return CartResponseModel(
       cartId: json['cartId']?.toString() ?? '',
-      status: _toInt(json['status']),
-      items: rawItems
-          .whereType<Map>()
-          .map(
-            (Map<dynamic, dynamic> item) => CartResponseItemModel.fromJson(
-              Map<String, dynamic>.from(item),
-            ),
-          )
-          .toList(growable: false),
-      totalAmount: _toDouble(json['totalAmount']),
-      itemCount: _toInt(json['itemCount']),
-      stripeCheckoutSessionId: _toNullableString(
-        json['stripeCheckoutSessionId'],
-      ),
+      status: json['status']?.toString() ?? '',
+      items: rawItems is List
+          ? rawItems
+                .whereType<Map>()
+                .map(
+                  (Map item) => CartItemResponseModel.fromJson(
+                    Map<String, dynamic>.from(item),
+                  ),
+                )
+                .toList(growable: false)
+          : const <CartItemResponseModel>[],
+      totalAmount: _asDouble(json['totalAmount']),
+      itemCount: _asInt(json['itemCount']),
+      stripeCheckoutSessionId: json['stripeCheckoutSessionId']?.toString(),
     );
   }
 }
 
-class CartResponseItemModel {
-  const CartResponseItemModel({
+class CartItemResponseModel {
+  const CartItemResponseModel({
     required this.listingId,
     required this.quantity,
     required this.unitPrice,
     required this.lineTotal,
+    this.title = '',
+    this.subtitle = '',
+    this.coverImageUrl = '',
+    this.fileSize = '',
   });
 
   final String listingId;
   final int quantity;
   final double unitPrice;
   final double lineTotal;
+  final String title;
+  final String subtitle;
+  final String coverImageUrl;
+  final String fileSize;
 
-  factory CartResponseItemModel.fromJson(Map<String, dynamic> json) {
-    return CartResponseItemModel(
+  factory CartItemResponseModel.fromJson(Map<String, dynamic> json) {
+    return CartItemResponseModel(
       listingId: json['listingId']?.toString() ?? '',
-      quantity: _toInt(json['quantity']),
-      unitPrice: _toDouble(json['unitPrice']),
-      lineTotal: _toDouble(json['lineTotal']),
+      quantity: _asInt(json['quantity']),
+      unitPrice: _asDouble(json['unitPrice']),
+      lineTotal: _asDouble(json['lineTotal']),
+      title: json['title']?.toString() ?? '',
+      subtitle:
+          (json['author'] ?? json['subtitle'] ?? json['publisher'])
+              ?.toString() ??
+          '',
+      coverImageUrl:
+          (json['coverImageUrl'] ?? json['imageUrl'])?.toString() ?? '',
+      fileSize: json['fileSize']?.toString() ?? '',
     );
   }
 }
 
-int _toInt(dynamic value) => int.tryParse(value?.toString() ?? '') ?? 0;
+double _asDouble(Object? value) {
+  if (value is num) return value.toDouble();
+  return double.tryParse(value?.toString() ?? '') ?? 0;
+}
 
-double _toDouble(dynamic value) =>
-    double.tryParse(value?.toString() ?? '') ?? 0;
-
-String? _toNullableString(dynamic value) {
-  final String text = value?.toString() ?? '';
-  return text.isEmpty ? null : text;
+int _asInt(Object? value) {
+  if (value is num) return value.toInt();
+  return int.tryParse(value?.toString() ?? '') ?? 0;
 }

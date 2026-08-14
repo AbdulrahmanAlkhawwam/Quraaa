@@ -23,7 +23,9 @@ import '../../features/auth/domain/use_cases/login_use_case.dart';
 import '../../features/auth/domain/use_cases/verify_otp_use_case.dart';
 import '../../features/auth/domain/use_cases/forgot_password_use_case.dart';
 import '../../features/auth/domain/use_cases/reset_password_use_case.dart';
+import '../../features/auth/domain/use_cases/send_otp_use_case.dart';
 import '../../features/auth/domain/use_cases/change_password_use_case.dart';
+import '../../features/auth/domain/use_cases/logout_use_case.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_journey_cubit.dart';
 import '../../features/auth/presentation/bloc/auth_permission_cubit.dart';
@@ -67,6 +69,7 @@ import '../network/auth_interceptor.dart';
 import '../network/connectivity_interceptor.dart';
 import '../network/language_interceptor.dart';
 import '../network/http_helper.dart';
+import '../network/session_expiry_controller.dart';
 import '../services/app_diagnostics_service.dart';
 import '../connectivity/connectivity_service.dart';
 import '../connectivity/connectivity_service_impl.dart';
@@ -96,6 +99,7 @@ import '../../features/pdf_reader/domain/use_cases/render_pdf_page_use_case.dart
 import '../../features/pdf_reader/domain/use_cases/save_pdf_text_note_use_case.dart';
 import '../../features/pdf_reader/domain/use_cases/share_pdf_text_use_case.dart';
 import '../../features/pdf_reader/presentation/bloc/pdf_reader_bloc.dart';
+import '../../features/cart/data/datasources/cart_remote_data_source.dart';
 import '../../features/cart/data/repositories/cart_repository_impl.dart';
 import '../../features/cart/data/datasources/cart_remote_data_source.dart';
 import '../../features/cart/domain/repositories/cart_repository.dart';
@@ -106,6 +110,8 @@ import '../../features/cart/domain/use_cases/get_cart_use_case.dart';
 import '../../features/cart/domain/use_cases/remove_cart_item_use_case.dart';
 import '../../features/cart/domain/use_cases/update_cart_item_quantity_use_case.dart';
 import '../../features/cart/presentation/bloc/cart_bloc.dart';
+import '../../features/favorites/favorites.dart';
+import '../../features/orders/orders.dart';
 import '../../features/book_assistant/data/repositories/book_assistant_repository_impl.dart';
 import '../../features/book_assistant/domain/repositories/book_assistant_repository.dart';
 import '../../features/book_assistant/domain/use_cases/ask_book_assistant_use_case.dart';
@@ -161,6 +167,8 @@ void registerCoreDependencies() {
       userContextProvider: sl<UserContextProvider>(),
       afterAuthentication: () =>
           sl<ProfileBootstrapService>().refreshAfterLogin(),
+      afterSessionExpired: () =>
+          sl<ProfileLocalDataSource>().clearCachedProfile(),
     ),
   );
 
@@ -208,8 +216,38 @@ void registerCoreDependencies() {
   sl.registerLazySingleton<DioLoggingInterceptor>(
     () => DioLoggingInterceptor(sl<AppLogger>()),
   );
+  sl.registerLazySingleton<SessionExpiryController>(
+    SessionExpiryController.new,
+  );
   sl.registerLazySingleton<AuthInterceptor>(
-    () => AuthInterceptor(sl<AuthLocalDataSource>(), baseUrl: Env.apiBaseUrl),
+    () => AuthInterceptor(
+      sl<AuthLocalDataSource>(),
+      baseUrl: Env.apiBaseUrl,
+      onRefreshSession: () async {
+        final String? refreshToken =
+            await sl<AuthLocalDataSource>().getRefreshToken();
+        if (refreshToken == null || refreshToken.isEmpty) {
+          return null;
+        }
+
+        final result = await sl<AuthRepository>().refreshToken(
+          refreshToken: refreshToken,
+        );
+        return result.fold<Future<String?>>(
+          (_) async => null,
+          (user) => sl<AuthSessionService>().refreshAuthenticatedSession(
+            user,
+            previousRefreshToken: refreshToken,
+          ),
+        );
+      },
+      onRetryRequest: (RequestOptions options) =>
+          sl<Dio>().fetch<dynamic>(options),
+      onSessionExpired: () async {
+        await sl<AuthSessionService>().expireAuthenticatedSession();
+        sl<SessionExpiryController>().notifySessionExpired();
+      },
+    ),
   );
   sl.registerLazySingleton<ConnectivityInterceptor>(
     () => ConnectivityInterceptor(sl<ConnectivityService>()),
@@ -312,8 +350,13 @@ void registerFeatureDependencies() {
   );
 
   sl.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(sl<AuthRemoteDataSource>()),
+    () => AuthRepositoryImpl(
+      sl<AuthRemoteDataSource>(),
+      sl<AuthLocalDataSource>(),
+    ),
   );
+
+  sl.registerFactory<LogoutUseCase>(() => LogoutUseCase(sl<AuthRepository>()));
 
   sl.registerFactory<LoadOnboardingStateUseCase>(
     () => LoadOnboardingStateUseCase(sl<OnboardingRepository>()),
@@ -352,6 +395,10 @@ void registerFeatureDependencies() {
 
   sl.registerFactory<VerifyOtpUseCase>(
     () => VerifyOtpUseCase(sl<AuthRepository>()),
+  );
+
+  sl.registerFactory<SendOtpUseCase>(
+    () => SendOtpUseCase(sl<AuthRepository>()),
   );
 
   sl.registerFactory<ForgotPasswordUseCase>(
@@ -404,6 +451,7 @@ void registerFeatureDependencies() {
       forgotPasswordUseCase: sl<ForgotPasswordUseCase>(),
       resetPasswordUseCase: sl<ResetPasswordUseCase>(),
       verifyOtpUseCase: sl<VerifyOtpUseCase>(),
+      sendOtpUseCase: sl<SendOtpUseCase>(),
       authJourney: sl<AuthLocalDataSource>(),
       authSessionService: sl<AuthSessionService>(),
     ),
@@ -635,6 +683,12 @@ void registerFeatureDependencies() {
     );
   }
 
+  if (!sl.isRegistered<CartRemoteDataSource>()) {
+    sl.registerLazySingleton<CartRemoteDataSource>(
+      () => CartRemoteDataSourceImpl(sl<HttpHelper>()),
+    );
+  }
+
   if (!sl.isRegistered<CartRepository>()) {
     sl.registerLazySingleton<CartRemoteDataSource>(
       () => CartRemoteDataSourceImpl(sl<HttpHelper>()),
@@ -670,10 +724,14 @@ void registerFeatureDependencies() {
     );
   }
 
-  if (!sl.isRegistered<ApplyCartCouponUseCase>()) {
-    sl.registerLazySingleton<ApplyCartCouponUseCase>(
-      () => ApplyCartCouponUseCase(sl()),
+  if (!sl.isRegistered<AddCartItemUseCase>()) {
+    sl.registerLazySingleton<AddCartItemUseCase>(
+      () => AddCartItemUseCase(sl()),
     );
+  }
+
+  if (!sl.isRegistered<ClearCartUseCase>()) {
+    sl.registerLazySingleton<ClearCartUseCase>(() => ClearCartUseCase(sl()));
   }
 
   if (!sl.isRegistered<CartBloc>()) {
@@ -682,10 +740,71 @@ void registerFeatureDependencies() {
         getCart: sl(),
         updateQuantity: sl(),
         removeItem: sl(),
-        applyCoupon: sl(),
+        clearCart: sl(),
       ),
     );
   }
+  if (!sl.isRegistered<OrdersRemoteDataSource>()) {
+    sl.registerLazySingleton<OrdersRemoteDataSource>(
+      () => OrdersRemoteDataSourceImpl(sl<HttpHelper>()),
+    );
+    sl.registerLazySingleton<OrdersRepository>(
+      () => OrdersRepositoryImpl(sl<OrdersRemoteDataSource>()),
+    );
+    sl.registerLazySingleton<CreateOrderUseCase>(
+      () => CreateOrderUseCase(sl<OrdersRepository>()),
+    );
+  }
+
+  if (!sl.isRegistered<CheckoutCubit>()) {
+    sl.registerFactory<CheckoutCubit>(
+      () => CheckoutCubit(
+        createOrder: sl<CreateOrderUseCase>(),
+        profileRepository: sl<ProfileRepository>(),
+      ),
+    );
+  }
+
+  if (!sl.isRegistered<FavoriteBooksRemoteDataSource>()) {
+    sl.registerLazySingleton<FavoriteBooksRemoteDataSource>(
+      () => FavoriteBooksRemoteDataSourceImpl(sl<HttpHelper>()),
+    );
+  }
+
+  if (!sl.isRegistered<FavoriteBooksRepository>()) {
+    sl.registerLazySingleton<FavoriteBooksRepository>(
+      () => FavoriteBooksRepositoryImpl(sl<FavoriteBooksRemoteDataSource>()),
+    );
+  }
+
+  if (!sl.isRegistered<GetFavoriteBooksUseCase>()) {
+    sl.registerLazySingleton<GetFavoriteBooksUseCase>(
+      () => GetFavoriteBooksUseCase(sl()),
+    );
+    sl.registerLazySingleton<AddFavoriteBookUseCase>(
+      () => AddFavoriteBookUseCase(sl()),
+    );
+    sl.registerLazySingleton<RemoveFavoriteBookUseCase>(
+      () => RemoveFavoriteBookUseCase(sl()),
+    );
+    sl.registerLazySingleton<IsFavoriteBookUseCase>(
+      () => IsFavoriteBookUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<FavoriteBooksCubit>()) {
+    sl.registerFactory<FavoriteBooksCubit>(
+      () => FavoriteBooksCubit(getFavorites: sl(), removeFavorite: sl()),
+    );
+    sl.registerFactory<FavoriteStatusCubit>(
+      () => FavoriteStatusCubit(
+        isFavoriteBook: sl(),
+        addFavorite: sl(),
+        removeFavorite: sl(),
+      ),
+    );
+  }
+
   if (!sl.isRegistered<BookAssistantRepository>()) {
     sl.registerLazySingleton<BookAssistantRepository>(
       BookAssistantRepositoryImpl.new,
@@ -803,6 +922,7 @@ void registerFeatureDependencies() {
         updateAppearance: sl(),
         updateNotification: sl(),
         updateLanguage: sl(),
+        logout: sl(),
         storageService: sl(),
       ),
     );

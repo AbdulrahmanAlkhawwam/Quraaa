@@ -101,6 +101,7 @@ AuthRecoveryCubit _createCubit(
     forgotPasswordUseCase: ForgotPasswordUseCase(repository),
     resetPasswordUseCase: ResetPasswordUseCase(repository),
     verifyOtpUseCase: VerifyOtpUseCase(repository),
+    sendOtpUseCase: SendOtpUseCase(repository),
     authJourney: authJourney,
     authSessionService: authSessionService,
   );
@@ -112,6 +113,20 @@ class _FakeAuthRepository implements AuthRepository {
   _FakeAuthRepository({this.resetPasswordResult = const Success<bool>(true)});
 
   final Result<bool> resetPasswordResult;
+
+  @override
+  Future<Result<bool>> sendOtp({required String phoneNumber}) async {
+    return const Success<bool>(true);
+  }
+
+  @override
+  Future<Result<bool>> logout() async => const Success<bool>(true);
+
+  @override
+  Future<Result<bool>> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async => const Success<bool>(true);
 
   @override
   Future<Result<bool>> forgotPassword({required String phoneNumber}) async {

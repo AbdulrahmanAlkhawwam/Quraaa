@@ -4,6 +4,10 @@ import 'cart_item.dart';
 
 class CartSummary extends Equatable {
   const CartSummary({
+    this.cartId = '',
+    this.status = '',
+    this.stripeCheckoutSessionId,
+    this.itemCount = 0,
     required this.userName,
     required this.avatarUrl,
     required this.items,
@@ -16,6 +20,10 @@ class CartSummary extends Equatable {
     required this.total,
   });
 
+  final String cartId;
+  final String status;
+  final String? stripeCheckoutSessionId;
+  final int itemCount;
   final String userName;
   final String avatarUrl;
   final List<CartItem> items;
@@ -28,6 +36,10 @@ class CartSummary extends Equatable {
   final double total;
 
   CartSummary copyWith({
+    String? cartId,
+    String? status,
+    String? stripeCheckoutSessionId,
+    int? itemCount,
     String? userName,
     String? avatarUrl,
     List<CartItem>? items,
@@ -40,6 +52,11 @@ class CartSummary extends Equatable {
     double? total,
   }) {
     return CartSummary(
+      cartId: cartId ?? this.cartId,
+      status: status ?? this.status,
+      stripeCheckoutSessionId:
+          stripeCheckoutSessionId ?? this.stripeCheckoutSessionId,
+      itemCount: itemCount ?? this.itemCount,
       userName: userName ?? this.userName,
       avatarUrl: avatarUrl ?? this.avatarUrl,
       items: items ?? this.items,
@@ -55,16 +72,19 @@ class CartSummary extends Equatable {
 
   @override
   List<Object?> get props => <Object?>[
-        userName,
-        avatarUrl,
-        items,
-        couponCode,
-        couponApplied,
-        subtotal,
-        fatPercent,
-        delivery,
-        discountPercent,
-        total,
-      ];
+    cartId,
+    status,
+    stripeCheckoutSessionId,
+    itemCount,
+    userName,
+    avatarUrl,
+    items,
+    couponCode,
+    couponApplied,
+    subtotal,
+    fatPercent,
+    delivery,
+    discountPercent,
+    total,
+  ];
 }
-

@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 
 import '../../../../core/architecture/result.dart';
 import '../../../../core/architecture/use_case.dart';
+import '../entities/cart_item.dart';
 import '../entities/cart_summary.dart';
 import '../repositories/cart_repository.dart';
 
@@ -12,19 +13,26 @@ class AddCartItemUseCase
   final CartRepository _repository;
 
   @override
-  Future<Result<CartSummary>> call(AddCartItemParams params) =>
-      _repository.addItem(
-        listingId: params.listingId,
-        quantity: params.quantity,
-      );
+  Future<Result<CartSummary>> call(AddCartItemParams params) {
+    return _repository.addItem(
+      listingId: params.listingId,
+      quantity: params.quantity,
+      metadata: params.metadata,
+    );
+  }
 }
 
 class AddCartItemParams extends Equatable {
-  const AddCartItemParams({required this.listingId, required this.quantity});
+  const AddCartItemParams({
+    required this.listingId,
+    this.quantity = 1,
+    this.metadata,
+  });
 
   final String listingId;
   final int quantity;
+  final CartItem? metadata;
 
   @override
-  List<Object?> get props => <Object?>[listingId, quantity];
+  List<Object?> get props => <Object?>[listingId, quantity, metadata];
 }
