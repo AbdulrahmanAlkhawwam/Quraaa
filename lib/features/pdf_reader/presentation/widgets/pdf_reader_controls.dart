@@ -158,7 +158,8 @@ class _TwoPageModeToggle extends StatelessWidget {
         Switch.adaptive(
           value: enabled,
           onChanged: onChanged,
-          activeThumbColor: context.isDark ? AppColors.primary300 : AppColors.secondary,
+          activeThumbColor:
+              context.isDark ? AppColors.primary300 : AppColors.secondary,
         ),
       ],
     );

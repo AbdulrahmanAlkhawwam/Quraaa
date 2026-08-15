@@ -1,4 +1,5 @@
-export 'data/datasources/books_mock_remote_data_source.dart';
+export 'data/datasources/books_remote_data_source.dart';
+export 'data/models/home_catalog_book_model.dart';
 export 'data/repositories/books_repository_impl.dart';
 export 'domain/entities/book.dart';
 export 'domain/repositories/books_repository.dart';

@@ -1,5 +1,6 @@
 export 'entities/pdf_text_layer.dart';
 export 'entities/pdf_text_note.dart';
+export 'entities/pdf_reader_local_state.dart';
 export 'repositories/pdf_reader_repository.dart';
 export 'use_cases/delete_pdf_text_note_use_case.dart';
 export 'use_cases/get_pdf_page_count_use_case.dart';

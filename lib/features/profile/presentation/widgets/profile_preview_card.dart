@@ -20,10 +20,10 @@ class ProfilePreviewCard extends StatelessWidget {
       height: AppDimensions.profilePreviewHeight,
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(AppRadius.radius20),
+        borderRadius: BorderRadius.circular(AppRadius.radius18),
       ),
       child: const ClipRRect(
-        borderRadius: BorderRadius.all(Radius.circular(AppRadius.radius20)),
+        borderRadius: BorderRadius.all(Radius.circular(AppRadius.radius18)),
         child: Align(
           alignment: Alignment.bottomCenter,
           child: ProfileAvatarIllustration(),

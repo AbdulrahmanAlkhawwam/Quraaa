@@ -51,25 +51,25 @@ class AuthRegistrationState extends Equatable {
 
   @override
   List<Object?> get props => <Object?>[
-    status,
-    onboardingCompleted,
-    birthYear,
-    birthMonth,
-    birthDay,
-    selectedGender,
-    categories,
-    selectedCategoryIds,
-    errorMessage,
-  ];
+        status,
+        onboardingCompleted,
+        birthYear,
+        birthMonth,
+        birthDay,
+        selectedGender,
+        categories,
+        selectedCategoryIds,
+        errorMessage,
+      ];
 }
 
 class AuthRegistrationCubit extends Cubit<AuthRegistrationState> {
   AuthRegistrationCubit({
     required LoadOnboardingStateUseCase loadOnboardingStateUseCase,
     required LoadCategoriesUseCase loadCategoriesUseCase,
-  }) : _loadOnboardingStateUseCase = loadOnboardingStateUseCase,
-       _loadCategoriesUseCase = loadCategoriesUseCase,
-       super(const AuthRegistrationState());
+  })  : _loadOnboardingStateUseCase = loadOnboardingStateUseCase,
+        _loadCategoriesUseCase = loadCategoriesUseCase,
+        super(const AuthRegistrationState());
 
   final LoadOnboardingStateUseCase _loadOnboardingStateUseCase;
   final LoadCategoriesUseCase _loadCategoriesUseCase;

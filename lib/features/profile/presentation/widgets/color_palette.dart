@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_dimensions.dart';
 import '../../../../shared/theme/app_radius.dart';
-import '../../../../shared/theme/app_spacing.dart';
 
 /// Two-row color palette for selecting the avatar background color.
 class ColorPalette extends StatelessWidget {
@@ -16,42 +15,54 @@ class ColorPalette extends StatelessWidget {
   final Color selectedColor;
   final ValueChanged<Color> onColorSelected;
 
-  static const double _horizontalSpacing = AppSpacing.spacing16;
-  static const double _verticalSpacing = AppSpacing.spacing14;
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        children: <Widget>[
+          _PaletteRow(
+            colors: AppColors.avatarBackgroundPalette.first,
+            selectedColor: selectedColor,
+            onColorSelected: onColorSelected,
+          ),
+          const SizedBox(height: 18),
+          _PaletteRow(
+            colors: AppColors.avatarBackgroundPalette.last,
+            selectedColor: selectedColor,
+            onColorSelected: onColorSelected,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PaletteRow extends StatelessWidget {
+  const _PaletteRow({
+    required this.colors,
+    required this.selectedColor,
+    required this.onColorSelected,
+  });
+
+  final List<Color> colors;
+  final Color selectedColor;
+  final ValueChanged<Color> onColorSelected;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: AppColors.avatarBackgroundPalette.map((List<Color> row) {
-        return Padding(
-          padding: const EdgeInsets.only(bottom: _verticalSpacing),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(children: _buildRow(row)),
-          ),
-        );
-      }).toList(),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: colors
+          .map(
+            (Color color) => _ColorSwatch(
+              color: color,
+              isSelected: color == selectedColor,
+              onTap: () => onColorSelected(color),
+            ),
+          )
+          .toList(growable: false),
     );
-  }
-
-  List<Widget> _buildRow(List<Color> row) {
-    final List<Widget> children = <Widget>[];
-
-    for (int index = 0; index < row.length; index++) {
-      if (index > 0) {
-        children.add(const SizedBox(width: _horizontalSpacing));
-      }
-
-      children.add(
-        _ColorSwatch(
-          color: row[index],
-          isSelected: row[index] == selectedColor,
-          onTap: () => onColorSelected(row[index]),
-        ),
-      );
-    }
-
-    return children;
   }
 }
 
@@ -68,23 +79,20 @@ class _ColorSwatch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeInOut,
-      width: AppDimensions.profileSwatchSize,
-      height: AppDimensions.profileSwatchSize,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(AppRadius.radius10),
-        border: isSelected
-            ? Border.all(color: AppColors.editProfileTitle, width: 2.5)
-            : null,
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(AppRadius.radius10),
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          width: AppDimensions.profileSwatchSize,
+          height: AppDimensions.profileSwatchSize,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(AppRadius.radius10),
+          ),
         ),
       ),
     );

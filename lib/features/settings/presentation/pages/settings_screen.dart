@@ -5,7 +5,10 @@ import '../../../../config/routes/route_names.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../shared/shared.dart';
 import '../../../auth/auth.dart';
+import '../../../home/presentation/widgets/home_app_bar.dart';
 import '../bloc/settings_bloc.dart';
+import '../cubit/library_registration_cubit.dart';
+import '../widgets/library_registration_listener.dart';
 import '../widgets/settings_view.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -42,9 +45,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         }
 
         final double navExtent = 94 + MediaQuery.paddingOf(context).bottom;
-        return Scaffold(
+        final Widget guestSettings = Scaffold(
           extendBody: true,
           backgroundColor: context.appBackground,
+          appBar: const HomeAppBar(isGuest: true),
           body: Stack(
             children: <Widget>[
               Positioned.fill(bottom: navExtent, child: settings),
@@ -64,6 +68,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ],
           ),
+        );
+        if (!sl.isRegistered<LibraryRegistrationCubit>()) {
+          return guestSettings;
+        }
+        return BlocProvider<LibraryRegistrationCubit>(
+          create: (_) => sl<LibraryRegistrationCubit>(),
+          child: LibraryRegistrationListener(child: guestSettings),
         );
       },
     );

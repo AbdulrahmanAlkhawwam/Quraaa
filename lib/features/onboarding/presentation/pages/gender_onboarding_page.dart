@@ -53,8 +53,8 @@ class _GenderOnboardingPageState extends State<GenderOnboardingPage> {
           final String? target = state.navigationTarget;
           if (target != null) {
             context.read<OnboardingBloc>().add(
-              const OnboardingNavigationCompleted(),
-            );
+                  const OnboardingNavigationCompleted(),
+                );
             context.goTo(target);
           }
 
@@ -161,18 +161,17 @@ class _GenderOnboardingView extends StatelessWidget {
                                         label: LocalizationConstants
                                             .onboardingBoyKey
                                             .tr(),
-                                        selected:
-                                            state.selectedGender ==
+                                        selected: state.selectedGender ==
                                             GenderSelection.boy,
                                         onTap: state.isLoading
                                             ? null
                                             : () => context
-                                                  .read<OnboardingBloc>()
-                                                  .add(
-                                                    const OnboardingGenderSelected(
-                                                      GenderSelection.boy,
-                                                    ),
+                                                .read<OnboardingBloc>()
+                                                .add(
+                                                  const OnboardingGenderSelected(
+                                                    GenderSelection.boy,
                                                   ),
+                                                ),
                                       ),
                                     ),
                                     const SizedBox(width: AppSpacing.spacing16),
@@ -182,18 +181,17 @@ class _GenderOnboardingView extends StatelessWidget {
                                         label: LocalizationConstants
                                             .onboardingGirlKey
                                             .tr(),
-                                        selected:
-                                            state.selectedGender ==
+                                        selected: state.selectedGender ==
                                             GenderSelection.girl,
                                         onTap: state.isLoading
                                             ? null
                                             : () => context
-                                                  .read<OnboardingBloc>()
-                                                  .add(
-                                                    const OnboardingGenderSelected(
-                                                      GenderSelection.girl,
-                                                    ),
+                                                .read<OnboardingBloc>()
+                                                .add(
+                                                  const OnboardingGenderSelected(
+                                                    GenderSelection.girl,
                                                   ),
+                                                ),
                                       ),
                                     ),
                                   ],
@@ -214,9 +212,9 @@ class _GenderOnboardingView extends StatelessWidget {
                                 child: FilledButton(
                                   onPressed: state.canContinueGender
                                       ? () =>
-                                            context.read<OnboardingBloc>().add(
-                                              const OnboardingNextRequested(),
-                                            )
+                                          context.read<OnboardingBloc>().add(
+                                                const OnboardingNextRequested(),
+                                              )
                                       : null,
                                   child: Text(
                                     LocalizationConstants.onboardingNextKey

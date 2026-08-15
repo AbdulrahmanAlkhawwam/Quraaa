@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 /// A book listing returned by `/Libraries/{libraryId}/books`.
 class LibraryBookEntity extends Equatable {
   const LibraryBookEntity({
+    this.purchaseId = '',
     required this.listingId,
     required this.price,
     required this.stock,
@@ -17,8 +18,13 @@ class LibraryBookEntity extends Equatable {
     required this.categoryId,
     required this.categoryNameAr,
     required this.categoryNameEn,
+    this.publisher = '',
+    this.version = '',
+    this.format = '',
+    this.previewImageUrls = const <String>[],
   });
 
+  final String purchaseId;
   final String listingId;
   final String price;
   final String stock;
@@ -33,9 +39,14 @@ class LibraryBookEntity extends Equatable {
   final String categoryId;
   final String categoryNameAr;
   final String categoryNameEn;
+  final String publisher;
+  final String version;
+  final String format;
+  final List<String> previewImageUrls;
 
   @override
   List<Object?> get props => <Object?>[
+        purchaseId,
         listingId,
         price,
         stock,
@@ -50,5 +61,9 @@ class LibraryBookEntity extends Equatable {
         categoryId,
         categoryNameAr,
         categoryNameEn,
+        publisher,
+        version,
+        format,
+        previewImageUrls,
       ];
 }

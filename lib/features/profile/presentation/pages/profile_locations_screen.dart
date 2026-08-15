@@ -46,7 +46,6 @@ class _ProfileLocationsView extends StatelessWidget {
         }
       },
       builder: (context, state) {
-        final ProfileLocation? location = state.profile?.location;
         return Scaffold(
           backgroundColor: context.appBackground,
           body: SafeArea(
@@ -55,58 +54,72 @@ class _ProfileLocationsView extends StatelessWidget {
                 _LocationsAppBar(
                   onAdd: state.saving
                       ? null
-                      : () => _openLocationForm(context, location),
+                      : () => _openLocationForm(context, null),
                 ),
+                if (state.saving) const LinearProgressIndicator(minHeight: 2),
                 Expanded(
                   child: state.loading
                       ? const Center(child: CircularProgressIndicator())
-                      : location == null
-                      ? _EmptyLocation(
-                          onAdd: () => _openLocationForm(context, null),
-                        )
-                      : ListView(
-                          padding: const EdgeInsetsDirectional.fromSTEB(
-                            20,
-                            4,
-                            20,
-                            28,
-                          ),
-                          children: <Widget>[
-                            Dismissible(
-                              key: ValueKey<String>(
-                                '${location.latitude}:${location.longitude}',
+                      : state.locations.isEmpty
+                          ? _EmptyLocation(
+                              onAdd: () => _openLocationForm(context, null),
+                            )
+                          : ListView.separated(
+                              padding: const EdgeInsetsDirectional.fromSTEB(
+                                20,
+                                4,
+                                20,
+                                28,
                               ),
-                              direction: DismissDirection.endToStart,
-                              confirmDismiss: (_) => _confirmDelete(context),
-                              onDismissed: (_) =>
-                                  context.read<ProfileLocationCubit>().delete(),
-                              background: Container(
-                                alignment: AlignmentDirectional.centerEnd,
-                                padding: const EdgeInsetsDirectional.only(
-                                  end: 24,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppColors.error500,
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                                child: const Icon(
-                                  Icons.delete_outline,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              child: _PrimaryLocationCard(
-                                location: location,
-                                saving: state.saving,
-                                onEdit: () =>
-                                    _openLocationForm(context, location),
-                              ),
+                              itemCount: state.locations.length,
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(height: 16),
+                              itemBuilder: (context, index) {
+                                final ProfileLocation location =
+                                    state.locations[index];
+                                return Dismissible(
+                                  key: ValueKey<String>(
+                                    location.id ??
+                                        '${location.latitude}:'
+                                            '${location.longitude}:$index',
+                                  ),
+                                  direction: DismissDirection.endToStart,
+                                  confirmDismiss: (_) async {
+                                    final bool confirmed =
+                                        await _confirmDelete(context);
+                                    if (confirmed && context.mounted) {
+                                      await context
+                                          .read<ProfileLocationCubit>()
+                                          .delete(location);
+                                    }
+                                    return false;
+                                  },
+                                  background: Container(
+                                    alignment: AlignmentDirectional.centerEnd,
+                                    padding: const EdgeInsetsDirectional.only(
+                                      end: 24,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.error500,
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                    child: const Icon(
+                                      Icons.delete_outline,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  child: _PrimaryLocationCard(
+                                    location: location,
+                                    onFavorite: () => context
+                                        .read<ProfileLocationCubit>()
+                                        .setDefault(location),
+                                    saving: state.saving,
+                                    onEdit: () =>
+                                        _openLocationForm(context, location),
+                                  ),
+                                );
+                              },
                             ),
-                            if (state.saving) ...<Widget>[
-                              const SizedBox(height: 18),
-                              const Center(child: CircularProgressIndicator()),
-                            ],
-                          ],
-                        ),
                 ),
               ],
             ),
@@ -122,15 +135,15 @@ class _ProfileLocationsView extends StatelessWidget {
   ) async {
     final ProfileLocation? selected =
         await showModalBottomSheet<ProfileLocation>(
-          context: context,
-          isScrollControlled: true,
-          useSafeArea: true,
-          backgroundColor: context.appCard,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-          ),
-          builder: (_) => _LocationFormSheet(initialLocation: location),
-        );
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: context.appCard,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (_) => _LocationFormSheet(initialLocation: location),
+    );
     if (selected != null && context.mounted) {
       await context.read<ProfileLocationCubit>().save(selected);
     }
@@ -167,9 +180,8 @@ class _LocationsAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color foreground = context.isDark
-        ? AppColors.primary300
-        : AppColors.libraryGreen;
+    final Color foreground =
+        context.isDark ? AppColors.primary300 : AppColors.libraryGreen;
     return SizedBox(
       height: 76,
       child: Padding(
@@ -251,18 +263,25 @@ class _PrimaryLocationCard extends StatelessWidget {
     required this.location,
     required this.saving,
     required this.onEdit,
+    required this.onFavorite,
   });
 
   final ProfileLocation location;
   final bool saving;
   final VoidCallback onEdit;
+  final VoidCallback onFavorite;
 
   @override
   Widget build(BuildContext context) {
     final LatLng point = LatLng(location.latitude, location.longitude);
-    final String label = location.label?.trim().isNotEmpty == true
-        ? location.label!.trim()
+    final String label = location.name?.trim().isNotEmpty == true
+        ? location.name!.trim()
         : LocalizationConstants.profileLocationDefaultNameKey.tr();
+    final String address = location.address?.trim() ?? '';
+    final String details = address.isNotEmpty
+        ? address
+        : '${location.latitude.toStringAsFixed(5)}, '
+            '${location.longitude.toStringAsFixed(5)}';
     return Container(
       decoration: BoxDecoration(
         color: context.appCard,
@@ -295,8 +314,7 @@ class _PrimaryLocationCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 3),
                       Text(
-                        '${location.latitude.toStringAsFixed(5)}, '
-                        '${location.longitude.toStringAsFixed(5)}',
+                        details,
                         style: AppTextStyles.bodySmall.copyWith(
                           color: context.appTextSecondary,
                         ),
@@ -311,10 +329,21 @@ class _PrimaryLocationCard extends StatelessWidget {
                       ? AppColors.primary300
                       : AppColors.libraryGreen,
                 ),
-                const Icon(
-                  Icons.star_rounded,
-                  color: Color(0xFFFFC800),
-                  size: 30,
+                IconButton(
+                  tooltip: location.isDefault
+                      ? LocalizationConstants.profileLocationFavoriteKey.tr()
+                      : LocalizationConstants.profileLocationSetFavoriteKey
+                          .tr(),
+                  onPressed: saving || location.isDefault ? null : onFavorite,
+                  icon: Icon(
+                    location.isDefault
+                        ? Icons.star_rounded
+                        : Icons.star_border_rounded,
+                    color: location.isDefault
+                        ? const Color(0xFFFFC800)
+                        : context.appTextSecondary,
+                    size: 30,
+                  ),
                 ),
               ],
             ),
@@ -336,7 +365,7 @@ class _LocationFormSheet extends StatefulWidget {
 
 class _LocationFormSheetState extends State<_LocationFormSheet> {
   late final TextEditingController _nameController = TextEditingController(
-    text: widget.initialLocation?.label,
+    text: widget.initialLocation?.name,
   );
   ProfileLocation? _selected;
   String? _nameError;
@@ -470,9 +499,14 @@ class _LocationFormSheetState extends State<_LocationFormSheet> {
     }
     Navigator.of(context).pop(
       ProfileLocation(
+        id: widget.initialLocation?.id,
+        name: label,
+        address: widget.initialLocation?.address,
         latitude: selected.latitude,
         longitude: selected.longitude,
-        label: label,
+        isDefault: widget.initialLocation?.isDefault ?? false,
+        creationTime: widget.initialLocation?.creationTime,
+        lastModificationTime: widget.initialLocation?.lastModificationTime,
       ),
     );
   }

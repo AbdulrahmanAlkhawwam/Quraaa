@@ -572,7 +572,9 @@ class _SettingsSearchResultsDropdown extends StatelessWidget {
                           ),
                         ),
                         HugeIcon(
-                          icon: HugeIcons.strokeRoundedArrowRight01,
+                          icon: context.isRTL
+                              ? HugeIcons.strokeRoundedArrowLeft01
+                              : HugeIcons.strokeRoundedArrowRight01,
                           color: palette.inactiveIcon,
                           size: 18,
                         ),

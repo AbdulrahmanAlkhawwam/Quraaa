@@ -6,13 +6,17 @@ import '../../domain/entities/assistant_book.dart';
 import '../../domain/entities/assistant_response.dart';
 import '../../domain/use_cases/ask_book_assistant_use_case.dart';
 import '../../domain/use_cases/get_assistant_books_use_case.dart';
+import '../../domain/use_cases/summarize_purchase_use_case.dart';
+import '../models/book_assistant_navigation_data.dart';
 
 sealed class BookAssistantEvent {
   const BookAssistantEvent();
 }
 
 final class BookAssistantStarted extends BookAssistantEvent {
-  const BookAssistantStarted();
+  const BookAssistantStarted([this.initialRequest]);
+
+  final BookAssistantNavigationData? initialRequest;
 }
 
 final class BookAssistantPromptSelected extends BookAssistantEvent {
@@ -52,6 +56,7 @@ final class BookAssistantLoaded extends BookAssistantState {
     this.response,
     this.pendingQuestion,
     this.isAnswering = false,
+    this.errorMessage,
   });
 
   final List<AssistantBook> books;
@@ -59,22 +64,27 @@ final class BookAssistantLoaded extends BookAssistantState {
   final AssistantResponse? response;
   final String? pendingQuestion;
   final bool isAnswering;
+  final String? errorMessage;
 
   BookAssistantLoaded copyWith({
     List<AssistantBook>? books,
     List<AssistantBook>? selectedBooks,
     AssistantResponse? response,
+    bool clearResponse = false,
     String? pendingQuestion,
     bool clearPendingQuestion = false,
     bool? isAnswering,
+    String? errorMessage,
+    bool clearError = false,
   }) {
     return BookAssistantLoaded(
       books: books ?? this.books,
       selectedBooks: selectedBooks ?? this.selectedBooks,
-      response: response ?? this.response,
+      response: clearResponse ? null : response ?? this.response,
       pendingQuestion:
           clearPendingQuestion ? null : pendingQuestion ?? this.pendingQuestion,
       isAnswering: isAnswering ?? this.isAnswering,
+      errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
     );
   }
 }
@@ -89,8 +99,10 @@ class BookAssistantBloc extends Bloc<BookAssistantEvent, BookAssistantState> {
   BookAssistantBloc({
     required GetAssistantBooksUseCase getBooks,
     required AskBookAssistantUseCase askAssistant,
+    required SummarizePurchaseUseCase summarizePurchase,
   })  : _getBooks = getBooks,
         _askAssistant = askAssistant,
+        _summarizePurchase = summarizePurchase,
         super(const BookAssistantInitial()) {
     on<BookAssistantStarted>(_onStarted);
     on<BookAssistantPromptSelected>(_onPromptSelected);
@@ -100,6 +112,7 @@ class BookAssistantBloc extends Bloc<BookAssistantEvent, BookAssistantState> {
 
   final GetAssistantBooksUseCase _getBooks;
   final AskBookAssistantUseCase _askAssistant;
+  final SummarizePurchaseUseCase _summarizePurchase;
 
   Future<void> _onStarted(
     BookAssistantStarted event,
@@ -108,9 +121,69 @@ class BookAssistantBloc extends Bloc<BookAssistantEvent, BookAssistantState> {
     emit(const BookAssistantLoading());
     switch (await _getBooks(const NoParams())) {
       case Success<List<AssistantBook>>(value: final List<AssistantBook> books):
-        emit(BookAssistantLoaded(books: books));
+        final BookAssistantNavigationData? request = event.initialRequest;
+        if (request == null) {
+          emit(BookAssistantLoaded(books: books));
+          return;
+        }
+
+        final List<AssistantBook> availableBooks = books.any(
+          (AssistantBook book) => book.id == request.book.id,
+        )
+            ? books
+            : <AssistantBook>[request.book, ...books];
+        final BookAssistantLoaded initialConversation = BookAssistantLoaded(
+          books: availableBooks,
+          selectedBooks: <AssistantBook>[request.book],
+          pendingQuestion: request.question,
+          isAnswering: true,
+        );
+        emit(initialConversation);
+        await _summarizeInitialRequest(request, initialConversation, emit);
       case ResultFailure<List<AssistantBook>>(message: final String message):
         emit(BookAssistantFailure(message));
+    }
+  }
+
+  Future<void> _summarizeInitialRequest(
+    BookAssistantNavigationData request,
+    BookAssistantLoaded conversation,
+    Emitter<BookAssistantState> emit,
+  ) async {
+    final String purchaseId = request.purchaseId.trim();
+    if (purchaseId.isEmpty) {
+      emit(
+        conversation.copyWith(
+          isAnswering: false,
+          errorMessage: 'The purchase identifier is unavailable.',
+        ),
+      );
+      return;
+    }
+
+    final Result<String> result = await _summarizePurchase(
+      SummarizePurchaseParams(purchaseId),
+    );
+    switch (result) {
+      case Success<String>(value: final String summary):
+        emit(
+          conversation.copyWith(
+            response: AssistantResponse(
+              question: request.question,
+              answer: summary,
+              books: <AssistantBook>[request.book],
+            ),
+            clearPendingQuestion: true,
+            isAnswering: false,
+          ),
+        );
+      case ResultFailure<String>(message: final String message):
+        emit(
+          conversation.copyWith(
+            isAnswering: false,
+            errorMessage: message,
+          ),
+        );
     }
   }
 
@@ -161,15 +234,17 @@ class BookAssistantBloc extends Bloc<BookAssistantEvent, BookAssistantState> {
       return;
     }
 
-    emit(
-      current.copyWith(
-        isAnswering: true,
-        pendingQuestion: trimmedQuestion,
-      ),
+    final BookAssistantLoaded answering = current.copyWith(
+      clearResponse: true,
+      clearError: true,
+      isAnswering: true,
+      pendingQuestion: trimmedQuestion,
     );
+    emit(answering);
+
     final Result<AssistantResponse> result = await _askAssistant(
       AskBookAssistantParams(
-        question: question,
+        question: trimmedQuestion,
         books: current.selectedBooks,
       ),
     );
@@ -177,14 +252,19 @@ class BookAssistantBloc extends Bloc<BookAssistantEvent, BookAssistantState> {
     switch (result) {
       case Success<AssistantResponse>(value: final AssistantResponse response):
         emit(
-          current.copyWith(
+          answering.copyWith(
             response: response,
             clearPendingQuestion: true,
             isAnswering: false,
           ),
         );
       case ResultFailure<AssistantResponse>(message: final String message):
-        emit(BookAssistantFailure(message));
+        emit(
+          answering.copyWith(
+            isAnswering: false,
+            errorMessage: message,
+          ),
+        );
     }
   }
 }

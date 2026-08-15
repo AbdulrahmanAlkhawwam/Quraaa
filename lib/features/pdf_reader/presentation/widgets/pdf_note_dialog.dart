@@ -36,7 +36,8 @@ class _PdfNoteDialogState extends State<PdfNoteDialog> {
     final bool hasSelectedText = widget.selectedText.trim().isNotEmpty;
 
     return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.spacing24),
+      insetPadding:
+          const EdgeInsets.symmetric(horizontal: AppSpacing.spacing24),
       backgroundColor: Colors.transparent,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 360),
@@ -81,7 +82,9 @@ class _PdfNoteDialogState extends State<PdfNoteDialog> {
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(AppRadius.radius8),
                       borderSide: BorderSide(
-                        color: context.isDark ? AppColors.primary300 : AppColors.secondary,
+                        color: context.isDark
+                            ? AppColors.primary300
+                            : AppColors.secondary,
                         width: 1.4,
                       ),
                     ),
@@ -100,7 +103,8 @@ class _PdfNoteDialogState extends State<PdfNoteDialog> {
                           foregroundColor: context.appTextPrimary,
                           side: BorderSide(color: context.appBorder),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(AppRadius.radius8),
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.radius8),
                           ),
                         ),
                         child: Text(
@@ -115,10 +119,13 @@ class _PdfNoteDialogState extends State<PdfNoteDialog> {
                           Navigator.of(context).pop(_controller.text.trim());
                         },
                         style: FilledButton.styleFrom(
-                          backgroundColor: context.isDark ? AppColors.primary300 : AppColors.secondary,
+                          backgroundColor: context.isDark
+                              ? AppColors.primary300
+                              : AppColors.secondary,
                           foregroundColor: AppColors.card,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(AppRadius.radius8),
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.radius8),
                           ),
                         ),
                         child: Text(
@@ -155,7 +162,8 @@ class _DialogHeader extends StatelessWidget {
             padding: EdgeInsets.all(AppSpacing.spacing8),
             child: HugeIcon(
               icon: HugeIcons.strokeRoundedStickyNote02,
-              color: context.isDark ? AppColors.primary300 : AppColors.secondary,
+              color:
+                  context.isDark ? AppColors.primary300 : AppColors.secondary,
               size: 22,
             ),
           ),

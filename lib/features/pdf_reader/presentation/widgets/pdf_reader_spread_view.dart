@@ -65,8 +65,8 @@ class PdfReaderSpreadView extends StatelessWidget {
             highlights: _highlightsFromNotes(pageNotes),
             notes: pageNotes,
             canGoPrevious: position == 0 && state.canGoPrevious,
-            canGoNext: position == visiblePageIndexes.length - 1 &&
-                state.canGoNext,
+            canGoNext:
+                position == visiblePageIndexes.length - 1 && state.canGoNext,
             onPreviousPageTurn: onPrevious,
             onNextPageTurn: onNext,
             onNoteRequested: ({

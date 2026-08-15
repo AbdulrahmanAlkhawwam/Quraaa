@@ -6,21 +6,21 @@ import '../../domain/repositories/profile_repository.dart';
 
 class ProfileLocationState extends Equatable {
   const ProfileLocationState({
-    this.profile,
+    this.locations = const <ProfileLocation>[],
     this.loading = false,
     this.saving = false,
     this.error,
     this.changeSerial = 0,
   });
 
-  final Profile? profile;
+  final List<ProfileLocation> locations;
   final bool loading;
   final bool saving;
   final Object? error;
   final int changeSerial;
 
   ProfileLocationState copyWith({
-    Profile? profile,
+    List<ProfileLocation>? locations,
     bool? loading,
     bool? saving,
     Object? error,
@@ -28,7 +28,7 @@ class ProfileLocationState extends Equatable {
     int? changeSerial,
   }) {
     return ProfileLocationState(
-      profile: profile ?? this.profile,
+      locations: locations ?? this.locations,
       loading: loading ?? this.loading,
       saving: saving ?? this.saving,
       error: clearError ? null : error ?? this.error,
@@ -38,12 +38,12 @@ class ProfileLocationState extends Equatable {
 
   @override
   List<Object?> get props => <Object?>[
-    profile,
-    loading,
-    saving,
-    error,
-    changeSerial,
-  ];
+        locations,
+        loading,
+        saving,
+        error,
+        changeSerial,
+      ];
 }
 
 class ProfileLocationCubit extends Cubit<ProfileLocationState> {
@@ -54,21 +54,65 @@ class ProfileLocationCubit extends Cubit<ProfileLocationState> {
   Future<void> load() async {
     emit(state.copyWith(loading: true, clearError: true));
     try {
-      final Profile? profile = await _repository.getCachedProfile();
-      emit(state.copyWith(profile: profile, loading: false, clearError: true));
+      final List<ProfileLocation> locations = await _repository.getLocations();
+      emit(
+        state.copyWith(
+          locations: locations,
+          loading: false,
+          clearError: true,
+        ),
+      );
     } catch (error) {
       emit(state.copyWith(loading: false, error: error));
     }
+  }
+
+  /// Changes the favorite location in memory only.
+  ///
+  /// This intentionally does not call the repository because favorite-location
+  /// persistence is not supported by the backend yet.
+  void setDefault(ProfileLocation location) {
+    if (state.saving || location.isDefault) return;
+
+    final List<ProfileLocation> locations = state.locations
+        .map(
+          (ProfileLocation current) => current.copyWith(
+            isDefault: _isSameLocation(current, location),
+          ),
+        )
+        .toList(growable: false);
+
+    emit(
+      state.copyWith(
+        locations: locations,
+        clearError: true,
+      ),
+    );
+  }
+
+  bool _isSameLocation(ProfileLocation first, ProfileLocation second) {
+    if (first.id != null && second.id != null) {
+      return first.id == second.id;
+    }
+    return identical(first, second) ||
+        (first.latitude == second.latitude &&
+            first.longitude == second.longitude &&
+            first.name == second.name);
   }
 
   Future<void> save(ProfileLocation location) async {
     if (state.saving) return;
     emit(state.copyWith(saving: true, clearError: true));
     try {
-      final Profile profile = await _repository.updateLocation(location);
+      final ProfileLocation effectiveLocation = location.id == null
+          ? location.copyWith(isDefault: state.locations.isEmpty)
+          : location;
+      final List<ProfileLocation> locations = await _repository.updateLocation(
+        effectiveLocation,
+      );
       emit(
         state.copyWith(
-          profile: profile,
+          locations: locations,
           saving: false,
           changeSerial: state.changeSerial + 1,
           clearError: true,
@@ -79,14 +123,16 @@ class ProfileLocationCubit extends Cubit<ProfileLocationState> {
     }
   }
 
-  Future<void> delete() async {
+  Future<void> delete(ProfileLocation location) async {
     if (state.saving) return;
     emit(state.copyWith(saving: true, clearError: true));
     try {
-      final Profile? profile = await _repository.deleteLocation();
+      final List<ProfileLocation> locations = await _repository.deleteLocation(
+        location,
+      );
       emit(
         state.copyWith(
-          profile: profile,
+          locations: locations,
           saving: false,
           changeSerial: state.changeSerial + 1,
           clearError: true,

@@ -27,16 +27,14 @@ class PdfPageNoteMarker extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final double left = ((anchor.xRatio.clamp(0.0, 1.0).toDouble() *
-                pageSize.width) -
-            12)
-        .clamp(2.0, pageSize.width - 26)
-        .toDouble();
-    final double top = ((anchor.yRatio.clamp(0.0, 1.0).toDouble() *
-                pageSize.height) -
-            24)
-        .clamp(2.0, pageSize.height - 28)
-        .toDouble();
+    final double left =
+        ((anchor.xRatio.clamp(0.0, 1.0).toDouble() * pageSize.width) - 12)
+            .clamp(2.0, pageSize.width - 26)
+            .toDouble();
+    final double top =
+        ((anchor.yRatio.clamp(0.0, 1.0).toDouble() * pageSize.height) - 24)
+            .clamp(2.0, pageSize.height - 28)
+            .toDouble();
 
     return Positioned(
       left: left,
@@ -61,7 +59,9 @@ class PdfPageNoteMarker extends StatelessWidget {
                   padding: EdgeInsets.all(4),
                   child: HugeIcon(
                     icon: HugeIcons.strokeRoundedStickyNote02,
-                    color: context.isDark ? AppColors.primary300 : AppColors.secondary,
+                    color: context.isDark
+                        ? AppColors.primary300
+                        : AppColors.secondary,
                     size: 16,
                   ),
                 ),

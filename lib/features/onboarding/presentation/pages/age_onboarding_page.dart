@@ -52,8 +52,8 @@ class _AgeOnboardingPageState extends State<AgeOnboardingPage> {
           final target = state.navigationTarget;
           if (target != null) {
             context.read<OnboardingBloc>().add(
-              const OnboardingNavigationCompleted(),
-            );
+                  const OnboardingNavigationCompleted(),
+                );
             context.goTo(target);
           }
         },
@@ -108,7 +108,6 @@ class _AgeOnboardingView extends StatelessWidget {
               if (context.mounted) context.goTo(RouteNames.onboarding);
             },
           ),
-
           activeIndex: 2,
           totalSteps: 3,
           content: Column(
@@ -121,14 +120,14 @@ class _AgeOnboardingView extends StatelessWidget {
                   initialDay: DateTime.now().day,
                   onChanged: (date) {
                     context.read<OnboardingBloc>().add(
-                      OnboardingAgeYearChanged(date.year),
-                    );
+                          OnboardingAgeYearChanged(date.year),
+                        );
                     context.read<OnboardingBloc>().add(
-                      OnboardingAgeMonthChanged(date.month),
-                    );
+                          OnboardingAgeMonthChanged(date.month),
+                        );
                     context.read<OnboardingBloc>().add(
-                      OnboardingAgeDayChanged(date.day),
-                    );
+                          OnboardingAgeDayChanged(date.day),
+                        );
                   },
                 ),
               ),
@@ -147,8 +146,8 @@ class _AgeOnboardingView extends StatelessWidget {
           bottomButton: OnboardingNextButton(
             onPressed: state.canContinueAge
                 ? () => context.read<OnboardingBloc>().add(
-                    const OnboardingAgeNextRequested(),
-                  )
+                      const OnboardingAgeNextRequested(),
+                    )
                 : null,
             isLoading: state.isLoading,
           ),

@@ -138,14 +138,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
   PinTheme _focusedPinTheme(BuildContext context) {
     return _defaultPinTheme(context).copyDecorationWith(
-      border: Border.all(color: AppColors.leafGreen, width: 2),
+      border: Border.all(color: context.colors.primary, width: 2),
     );
   }
 
   PinTheme _submittedPinTheme(BuildContext context) {
     return _defaultPinTheme(context).copyDecorationWith(
       color: context.appSubtleSurface,
-      border: Border.all(color: AppColors.leafGreen),
+      border: Border.all(color: context.colors.primary),
     );
   }
 
@@ -256,7 +256,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           icon: _obscurePassword
                               ? HugeIcons.strokeRoundedViewOff
                               : HugeIcons.strokeRoundedView,
-                          color: AppColors.primary300,
+                          color: context.colors.primary,
                           size: 20,
                         ),
                       ),
@@ -286,7 +286,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           icon: _obscureConfirmPassword
                               ? HugeIcons.strokeRoundedViewOff
                               : HugeIcons.strokeRoundedView,
-                          color: AppColors.primary300,
+                          color: context.colors.primary,
                           size: 20,
                         ),
                       ),
@@ -303,24 +303,24 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         child: FilledButton(
                           onPressed: state.isLoading ? null : _onSubmit,
                           style: FilledButton.styleFrom(
-                            backgroundColor: AppColors.leafGreen,
-                            foregroundColor: AppColors.card,
+                            backgroundColor: context.colors.primary,
+                            foregroundColor: context.colors.onPrimary,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(
                                 AppRadius.radius32,
                               ),
                             ),
                             textStyle: AppTextStyles.buttonMedium.copyWith(
-                              color: AppColors.card,
+                              color: context.colors.onPrimary,
                             ),
                           ),
                           child: state.isLoading
-                              ? const SizedBox(
+                              ? SizedBox(
                                   width: 20,
                                   height: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2.5,
-                                    color: AppColors.card,
+                                    color: context.colors.onPrimary,
                                   ),
                                 )
                               : Text(

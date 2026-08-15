@@ -24,32 +24,50 @@ Future<void> main() async {
 
   runZonedGuarded(
     () async {
-      WidgetsFlutterBinding.ensureInitialized();
-      await LocalizationService.ensureInitialized();
+      try {
+        WidgetsFlutterBinding.ensureInitialized();
+        await LocalizationService.ensureInitialized();
 
-      // Register the top-level background message handler before runApp.
-      FirebaseMessaging.onBackgroundMessage(firebaseBackgroundMessageHandler);
+        // Register the top-level background message handler before runApp.
+        FirebaseMessaging.onBackgroundMessage(firebaseBackgroundMessageHandler);
 
-      await configureDependencies();
+        await configureDependencies();
 
-      final StorageService storageService = sl<StorageService>();
-      final Locale startLocale = SupportedLocales.fromCode(
-        storageService.getString(AppStorageKeys.userLanguage),
-      );
+        final StorageService storageService = sl<StorageService>();
+        final Locale startLocale = SupportedLocales.fromCode(
+          storageService.getString(AppStorageKeys.userLanguage),
+        );
 
-      appLogger = sl<AppLogger>();
-      await appLogger!.initialize();
-      await _configureErrorHandlers(appLogger!);
+        appLogger = sl<AppLogger>();
+        await appLogger!.initialize();
+        await _configureErrorHandlers(appLogger!);
 
-      runApp(
-        LocalizationService.wrap(
-          startLocale: startLocale,
-          child: const QuraaaApp(),
-        ),
-      );
-      unawaited(_initializeOptionalServices(appLogger!));
+        runApp(
+          LocalizationService.wrap(
+            startLocale: startLocale,
+            child: const QuraaaApp(),
+          ),
+        );
+        unawaited(_initializeOptionalServices(appLogger!));
+      } catch (error, stackTrace) {
+        debugPrint('Quraaa startup failed: $error');
+        debugPrintStack(stackTrace: stackTrace);
+        if (appLogger != null) {
+          unawaited(
+            appLogger!.recordAsyncError(
+              error,
+              stackTrace,
+              source: 'startup',
+              fatal: true,
+            ),
+          );
+        }
+        runApp(_StartupFailureApp(error: error));
+      }
     },
     (Object error, StackTrace stackTrace) {
+      debugPrint('Unhandled Quraaa error: $error');
+      debugPrintStack(stackTrace: stackTrace);
       if (appLogger != null) {
         unawaited(
           appLogger!.recordAsyncError(
@@ -124,4 +142,62 @@ Future<void> _configureErrorHandlers(AppLogger appLogger) async {
     }
   });
   Isolate.current.addErrorListener(_isolateErrorPort!.sendPort);
+}
+
+class _StartupFailureApp extends StatelessWidget {
+  const _StartupFailureApp({required this.error});
+
+  final Object error;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        backgroundColor: const Color(0xFFF4FBEF),
+        body: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  const Icon(
+                    Icons.error_outline_rounded,
+                    size: 52,
+                    color: Color(0xFF4FAF32),
+                  ),
+                  const SizedBox(height: 18),
+                  const Text(
+                    'Unable to start the app',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF173D19),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Close the app and open it again. If the problem continues, send the launch log to support.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 15, color: Color(0xFF60705E)),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    error.runtimeType.toString(),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF899486),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

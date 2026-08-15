@@ -3,12 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../shared/shared.dart';
+import '../../../home/home.dart';
 import '../../domain/entities/assistant_book.dart';
 import '../bloc/book_assistant_bloc.dart';
 import 'assistant_answer_card.dart';
 import 'assistant_book_picker_sheet.dart';
 import 'assistant_composer.dart';
-import 'assistant_header.dart';
 import 'assistant_prompt_chips.dart';
 import 'assistant_selected_books.dart';
 import 'assistant_sparkle.dart';
@@ -53,6 +53,22 @@ class _BookAssistantViewState extends State<BookAssistantView> {
           key: _scaffoldKey,
           backgroundColor: background,
           endDrawer: const _AssistantHistoryDrawer(),
+          appBar: HomeAppBar(
+            isGuest: false,
+            extraActions: <Widget>[
+              IconButton(
+                key: const Key('assistant_history_button'),
+                tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+                onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
+                icon: Icon(
+                  Icons.history_rounded,
+                  color: context.isDark
+                      ? AppColors.primary300
+                      : AppColors.libraryGreen,
+                ),
+              ),
+            ],
+          ),
           body: BlocBuilder<BookAssistantBloc, BookAssistantState>(
             builder: (BuildContext context, BookAssistantState state) {
               if (state is BookAssistantLoading ||
@@ -99,11 +115,6 @@ class _BookAssistantViewState extends State<BookAssistantView> {
                       ),
                       child: Column(
                         children: <Widget>[
-                          AssistantHeader(
-                            scale: scale,
-                            onMenuPressed: () =>
-                                _scaffoldKey.currentState?.openEndDrawer(),
-                          ),
                           Expanded(
                             child: _AssistantMainContent(
                               state: state,
@@ -195,7 +206,9 @@ class _AssistantMainContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 180),
-      child: state.response == null && !state.isAnswering
+      child: state.response == null &&
+              state.pendingQuestion == null &&
+              !state.isAnswering
           ? _AssistantEmptyContent(
               scale: scale,
               onPromptSelected: onPromptSelected,
@@ -274,7 +287,27 @@ class _AssistantAnswerContent extends StatelessWidget {
             ),
           )
         else if (state.response != null)
-          AssistantAnswerCard(response: state.response!, scale: scale),
+          AssistantAnswerCard(response: state.response!, scale: scale)
+        else if (state.errorMessage != null)
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(14 * scale),
+            decoration: BoxDecoration(
+              color: AppColors.error500.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(12 * scale),
+              border: Border.all(
+                color: AppColors.error500.withValues(alpha: 0.3),
+              ),
+            ),
+            child: Text(
+              state.errorMessage!,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.error500,
+                fontSize: 13 * scale,
+              ),
+            ),
+          ),
         SizedBox(height: 12 * scale),
         Align(
           alignment: AlignmentDirectional.centerEnd,
@@ -369,15 +402,23 @@ class _AssistantHistoryDrawer extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text('History', style: AppTextStyles.h3.copyWith(color: AppColors.primary900, fontSize: 22, fontWeight: FontWeight.w400)),
+              Text('History',
+                  style: AppTextStyles.h3.copyWith(
+                      color: AppColors.primary900,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w400)),
               const SizedBox(height: 24),
               const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  _HistoryAction(icon: Icons.menu_book_outlined, label: 'Convert\nbook'),
-                  _HistoryAction(icon: Icons.search_outlined, label: 'Search\nbook'),
-                  _HistoryAction(icon: Icons.account_tree_outlined, label: 'Learn\nflow'),
-                  _HistoryAction(icon: Icons.translate_outlined, label: 'Translate\ntext'),
+                  _HistoryAction(
+                      icon: Icons.menu_book_outlined, label: 'Convert\nbook'),
+                  _HistoryAction(
+                      icon: Icons.search_outlined, label: 'Search\nbook'),
+                  _HistoryAction(
+                      icon: Icons.account_tree_outlined, label: 'Learn\nflow'),
+                  _HistoryAction(
+                      icon: Icons.translate_outlined, label: 'Translate\ntext'),
                 ],
               ),
               const SizedBox(height: 32),
@@ -387,7 +428,9 @@ class _AssistantHistoryDrawer extends StatelessWidget {
                 'Translate Global English Cour...',
               ]),
               const SizedBox(height: 16),
-              const _HistorySection(label: 'Yesterday', items: <String>['Review Ahmed Khaled writer']),
+              const _HistorySection(
+                  label: 'Yesterday',
+                  items: <String>['Review Ahmed Khaled writer']),
             ],
           ),
         ),
@@ -402,9 +445,16 @@ class _HistoryAction extends StatelessWidget {
   final String label;
   @override
   Widget build(BuildContext context) => Column(children: <Widget>[
-        Container(padding: const EdgeInsets.all(8), decoration: const BoxDecoration(color: AppColors.primary50, shape: BoxShape.circle), child: Icon(icon, size: 24, color: AppColors.primary900)),
+        Container(
+            padding: const EdgeInsets.all(8),
+            decoration: const BoxDecoration(
+                color: AppColors.primary50, shape: BoxShape.circle),
+            child: Icon(icon, size: 24, color: AppColors.primary900)),
         const SizedBox(height: 10),
-        Text(label, textAlign: TextAlign.center, style: AppTextStyles.caption.copyWith(color: AppColors.primary900, fontSize: 12)),
+        Text(label,
+            textAlign: TextAlign.center,
+            style: AppTextStyles.caption
+                .copyWith(color: AppColors.primary900, fontSize: 12)),
       ]);
 }
 
@@ -416,9 +466,15 @@ class _HistorySection extends StatelessWidget {
   Widget build(BuildContext context) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(label, style: AppTextStyles.caption.copyWith(color: AppColors.primary700, fontSize: 12)),
+          Text(label,
+              style: AppTextStyles.caption
+                  .copyWith(color: AppColors.primary700, fontSize: 12)),
           const SizedBox(height: 8),
-          ...items.map((String item) => Padding(padding: const EdgeInsets.only(bottom: 8), child: Text(item, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.primary900, fontSize: 16)))),
+          ...items.map((String item) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Text(item,
+                  style: AppTextStyles.bodyMedium
+                      .copyWith(color: AppColors.primary900, fontSize: 16)))),
         ],
       );
 }

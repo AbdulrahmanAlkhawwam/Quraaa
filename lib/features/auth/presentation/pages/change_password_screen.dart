@@ -41,9 +41,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     if (!await ensureOnline(context) || !context.mounted) return;
 
     await context.read<ChangePasswordCubit>().changePassword(
-      oldPassword: _oldPasswordController.text,
-      newPassword: _newPasswordController.text,
-    );
+          oldPassword: _oldPasswordController.text,
+          newPassword: _newPasswordController.text,
+        );
   }
 
   String? _validatePassword(String? value) {
@@ -88,7 +88,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         icon: obscure
             ? HugeIcons.strokeRoundedViewOff
             : HugeIcons.strokeRoundedView,
-        color: AppColors.primary300,
+        color: context.colors.primary,
         size: 20,
       ),
     );
@@ -117,163 +117,156 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       child: Builder(
         builder: (BuildContext context) =>
             BlocListener<ChangePasswordCubit, ChangePasswordState>(
-              listener: _onStateChanged,
-              child: AppLayout(
-                expandContent: true,
-                resizeToAvoidBottomInset: true,
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+          listener: _onStateChanged,
+          child: AppLayout(
+            expandContent: true,
+            resizeToAvoidBottomInset: true,
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
                       children: [
-                        Row(
-                          children: [
-                            IconButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              icon: Icon(
-                                context.isRTL
-                                    ? Icons.arrow_forward_ios
-                                    : Icons.arrow_back_ios,
-                                color: context.isDark
-                                    ? AppColors.primary300
-                                    : AppColors.libraryGreen,
-                              ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                LocalizationConstants.authChangePasswordTitleKey
-                                    .tr(),
-                                textAlign: TextAlign.center,
-                                style: AppTextStyles.h3.copyWith(
-                                  color: context.isDark
-                                      ? AppColors.primary300
-                                      : AppColors.libraryGreen,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: AppSpacing.spacing48),
-                          ],
-                        ),
-                        const SizedBox(height: AppSpacing.spacing32),
-                        Text(
-                          LocalizationConstants.authChangePasswordDescriptionKey
-                              .tr(),
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: context.appTextTertiary,
+                        IconButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          icon: Icon(
+                            context.isRTL
+                                ? Icons.arrow_forward_ios
+                                : Icons.arrow_back_ios,
+                            color: context.isDark
+                                ? AppColors.primary300
+                                : AppColors.libraryGreen,
                           ),
                         ),
-                        const SizedBox(height: AppSpacing.spacing24),
-                        AuthLabeledField(
-                          label: LocalizationConstants
-                              .authChangePasswordOldPasswordLabelKey
-                              .tr(),
-                          child: AuthTextField(
-                            controller: _oldPasswordController,
-                            hintText: LocalizationConstants
-                                .authChangePasswordOldPasswordHintKey
+                        Expanded(
+                          child: Text(
+                            LocalizationConstants.authChangePasswordTitleKey
                                 .tr(),
-                            obscureText: _obscureOldPassword,
-                            textInputAction: TextInputAction.next,
-                            suffixIcon: _visibilityButton(
-                              obscure: _obscureOldPassword,
-                              onPressed: () => setState(
-                                () =>
-                                    _obscureOldPassword = !_obscureOldPassword,
-                              ),
+                            textAlign: TextAlign.center,
+                            style: AppTextStyles.h3.copyWith(
+                              color: context.isDark
+                                  ? AppColors.primary300
+                                  : AppColors.libraryGreen,
                             ),
-                            validator: _validatePassword,
-                            autovalidateMode:
-                                AutovalidateMode.onUserInteraction,
                           ),
                         ),
-                        const SizedBox(height: AppSpacing.spacing20),
-                        AuthLabeledField(
-                          label: LocalizationConstants
-                              .authChangePasswordNewPasswordLabelKey
-                              .tr(),
-                          child: AuthTextField(
-                            controller: _newPasswordController,
-                            hintText: LocalizationConstants
-                                .authChangePasswordNewPasswordHintKey
-                                .tr(),
-                            obscureText: _obscureNewPassword,
-                            textInputAction: TextInputAction.next,
-                            suffixIcon: _visibilityButton(
-                              obscure: _obscureNewPassword,
-                              onPressed: () => setState(
-                                () =>
-                                    _obscureNewPassword = !_obscureNewPassword,
-                              ),
-                            ),
-                            validator: _validateNewPassword,
-                            autovalidateMode:
-                                AutovalidateMode.onUserInteraction,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.spacing20),
-                        AuthLabeledField(
-                          label: LocalizationConstants
-                              .authChangePasswordConfirmPasswordLabelKey
-                              .tr(),
-                          child: AuthTextField(
-                            controller: _confirmPasswordController,
-                            hintText: LocalizationConstants
-                                .authChangePasswordConfirmPasswordHintKey
-                                .tr(),
-                            obscureText: _obscureConfirmPassword,
-                            textInputAction: TextInputAction.done,
-                            suffixIcon: _visibilityButton(
-                              obscure: _obscureConfirmPassword,
-                              onPressed: () => setState(
-                                () => _obscureConfirmPassword =
-                                    !_obscureConfirmPassword,
-                              ),
-                            ),
-                            validator: _validateConfirmation,
-                            autovalidateMode:
-                                AutovalidateMode.onUserInteraction,
-                            onSubmitted: (_) => _submit(context),
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.spacing32),
-                        BlocBuilder<ChangePasswordCubit, ChangePasswordState>(
-                          builder:
-                              (
-                                BuildContext context,
-                                ChangePasswordState state,
-                              ) {
-                                return SizedBox(
-                                  height: AppDimensions.onboardingButtonHeight,
-                                  child: FilledButton(
-                                    onPressed: state.isLoading
-                                        ? null
-                                        : () => _submit(context),
-                                    child: state.isLoading
-                                        ? const SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2.5,
-                                              color: AppColors.card,
-                                            ),
-                                          )
-                                        : Text(
-                                            LocalizationConstants
-                                                .authChangePasswordButtonKey
-                                                .tr(),
-                                          ),
-                                  ),
-                                );
-                              },
-                        ),
+                        const SizedBox(width: AppSpacing.spacing48),
                       ],
                     ),
-                  ),
+                    const SizedBox(height: AppSpacing.spacing32),
+                    Text(
+                      LocalizationConstants.authChangePasswordDescriptionKey
+                          .tr(),
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: context.appTextTertiary,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.spacing24),
+                    AuthLabeledField(
+                      label: LocalizationConstants
+                          .authChangePasswordOldPasswordLabelKey
+                          .tr(),
+                      child: AuthTextField(
+                        controller: _oldPasswordController,
+                        hintText: LocalizationConstants
+                            .authChangePasswordOldPasswordHintKey
+                            .tr(),
+                        obscureText: _obscureOldPassword,
+                        textInputAction: TextInputAction.next,
+                        suffixIcon: _visibilityButton(
+                          obscure: _obscureOldPassword,
+                          onPressed: () => setState(
+                            () => _obscureOldPassword = !_obscureOldPassword,
+                          ),
+                        ),
+                        validator: _validatePassword,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.spacing20),
+                    AuthLabeledField(
+                      label: LocalizationConstants
+                          .authChangePasswordNewPasswordLabelKey
+                          .tr(),
+                      child: AuthTextField(
+                        controller: _newPasswordController,
+                        hintText: LocalizationConstants
+                            .authChangePasswordNewPasswordHintKey
+                            .tr(),
+                        obscureText: _obscureNewPassword,
+                        textInputAction: TextInputAction.next,
+                        suffixIcon: _visibilityButton(
+                          obscure: _obscureNewPassword,
+                          onPressed: () => setState(
+                            () => _obscureNewPassword = !_obscureNewPassword,
+                          ),
+                        ),
+                        validator: _validateNewPassword,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.spacing20),
+                    AuthLabeledField(
+                      label: LocalizationConstants
+                          .authChangePasswordConfirmPasswordLabelKey
+                          .tr(),
+                      child: AuthTextField(
+                        controller: _confirmPasswordController,
+                        hintText: LocalizationConstants
+                            .authChangePasswordConfirmPasswordHintKey
+                            .tr(),
+                        obscureText: _obscureConfirmPassword,
+                        textInputAction: TextInputAction.done,
+                        suffixIcon: _visibilityButton(
+                          obscure: _obscureConfirmPassword,
+                          onPressed: () => setState(
+                            () => _obscureConfirmPassword =
+                                !_obscureConfirmPassword,
+                          ),
+                        ),
+                        validator: _validateConfirmation,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        onSubmitted: (_) => _submit(context),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.spacing32),
+                    BlocBuilder<ChangePasswordCubit, ChangePasswordState>(
+                      builder: (
+                        BuildContext context,
+                        ChangePasswordState state,
+                      ) {
+                        return SizedBox(
+                          height: AppDimensions.onboardingButtonHeight,
+                          child: FilledButton(
+                            onPressed:
+                                state.isLoading ? null : () => _submit(context),
+                            child: state.isLoading
+                                ? SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.5,
+                                      color: context.colors.onPrimary,
+                                    ),
+                                  )
+                                : Text(
+                                    LocalizationConstants
+                                        .authChangePasswordButtonKey
+                                        .tr(),
+                                  ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ),
             ),
+          ),
+        ),
       ),
     );
   }

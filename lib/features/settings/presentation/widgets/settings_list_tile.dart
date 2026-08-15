@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../../../../shared/extensions/app_context.dart';
 import '../../domain/entities/settings_section.dart';
 import 'settings_palette.dart';
 
@@ -39,7 +40,9 @@ class SettingsListTile extends StatelessWidget {
                 ),
               ),
               HugeIcon(
-                icon: HugeIcons.strokeRoundedArrowRight01,
+                icon: context.isRTL
+                    ? HugeIcons.strokeRoundedArrowLeft01
+                    : HugeIcons.strokeRoundedArrowRight01,
                 color: palette.inactiveIcon,
                 size: 24,
               ),

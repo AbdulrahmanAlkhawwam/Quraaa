@@ -89,6 +89,7 @@ import '../../features/local_explorer/presentation/bloc/local_explorer_bloc.dart
 import '../../features/local_explorer/presentation/cubit/explorer_history_cubit.dart';
 import '../../features/pdf_reader/data/datasources/local/pdf_render_datasource.dart';
 import '../../features/pdf_reader/data/datasources/local/pdf_note_datasource.dart';
+import '../../features/pdf_reader/data/datasources/local/pdf_reader_local_state_datasource.dart';
 import '../../features/pdf_reader/data/repositories/pdf_reader_repository_impl.dart';
 import '../../features/pdf_reader/domain/repositories/pdf_reader_repository.dart';
 import '../../features/pdf_reader/domain/use_cases/delete_pdf_text_note_use_case.dart';
@@ -101,9 +102,7 @@ import '../../features/pdf_reader/domain/use_cases/share_pdf_text_use_case.dart'
 import '../../features/pdf_reader/presentation/bloc/pdf_reader_bloc.dart';
 import '../../features/cart/data/datasources/cart_remote_data_source.dart';
 import '../../features/cart/data/repositories/cart_repository_impl.dart';
-import '../../features/cart/data/datasources/cart_remote_data_source.dart';
 import '../../features/cart/domain/repositories/cart_repository.dart';
-import '../../features/cart/domain/use_cases/apply_cart_coupon_use_case.dart';
 import '../../features/cart/domain/use_cases/add_cart_item_use_case.dart';
 import '../../features/cart/domain/use_cases/clear_cart_use_case.dart';
 import '../../features/cart/domain/use_cases/get_cart_use_case.dart';
@@ -112,12 +111,17 @@ import '../../features/cart/domain/use_cases/update_cart_item_quantity_use_case.
 import '../../features/cart/presentation/bloc/cart_bloc.dart';
 import '../../features/favorites/favorites.dart';
 import '../../features/orders/orders.dart';
+import '../../features/book_assistant/data/datasources/book_assistant_remote_data_source.dart';
 import '../../features/book_assistant/data/repositories/book_assistant_repository_impl.dart';
 import '../../features/book_assistant/domain/repositories/book_assistant_repository.dart';
 import '../../features/book_assistant/domain/use_cases/ask_book_assistant_use_case.dart';
 import '../../features/book_assistant/domain/use_cases/get_assistant_books_use_case.dart';
+import '../../features/book_assistant/domain/use_cases/summarize_purchase_use_case.dart';
 import '../../features/book_assistant/presentation/bloc/book_assistant_bloc.dart';
+import '../../features/settings/data/datasources/library_registration_remote_data_source.dart';
+import '../../features/settings/data/repositories/library_registration_repository_impl.dart';
 import '../../features/settings/data/repositories/settings_repository_impl.dart';
+import '../../features/settings/domain/repositories/library_registration_repository.dart';
 import '../../features/settings/domain/repositories/settings_repository.dart';
 import '../../features/settings/domain/use_cases/get_activity_sections_use_case.dart';
 import '../../features/settings/domain/use_cases/get_appearance_options_use_case.dart';
@@ -128,10 +132,12 @@ import '../../features/settings/domain/use_cases/get_notification_settings_use_c
 import '../../features/settings/domain/use_cases/get_profile_sections_use_case.dart';
 import '../../features/settings/domain/use_cases/get_settings_sections_use_case.dart';
 import '../../features/settings/domain/use_cases/get_settings_tabs_use_case.dart';
+import '../../features/settings/domain/use_cases/request_library_registration_use_case.dart';
 import '../../features/settings/domain/use_cases/update_appearance_option_use_case.dart';
 import '../../features/settings/domain/use_cases/update_language_option_use_case.dart';
 import '../../features/settings/domain/use_cases/update_notification_setting_use_case.dart';
 import '../../features/settings/presentation/bloc/settings_bloc.dart';
+import '../../features/settings/presentation/cubit/library_registration_cubit.dart';
 import '../../features/books/books.dart';
 
 final GetIt sl = GetIt.instance;
@@ -326,6 +332,11 @@ void registerFeatureDependencies() {
     );
   }
 
+  if (!sl.isRegistered<PdfReaderLocalStateDataSource>()) {
+    sl.registerLazySingleton<PdfReaderLocalStateDataSource>(
+      () => StoredPdfReaderLocalStateDataSource(sl<StorageService>()),
+    );
+  }
   if (!sl.isRegistered<PdfNoteDataSource>()) {
     sl.registerLazySingleton<PdfNoteDataSource>(InMemoryPdfNoteDataSource.new);
   }
@@ -517,14 +528,18 @@ void registerFeatureDependencies() {
   );
 
   // Home feature
-  sl.registerLazySingleton<BooksMockRemoteDataSource>(
-    BooksMockRemoteDataSourceImpl.new,
+  sl.registerLazySingleton<BooksRemoteDataSource>(
+    () => BooksRemoteDataSourceImpl(sl<HttpHelper>()),
   );
   sl.registerLazySingleton<BooksRepository>(
-    () => BooksRepositoryImpl(sl<BooksMockRemoteDataSource>()),
+    () => BooksRepositoryImpl(sl<BooksRemoteDataSource>()),
   );
-  sl.registerFactory<GetBooksUseCase>(() => GetBooksUseCase(sl<BooksRepository>()));
-  sl.registerFactory<BooksBloc>(() => BooksBloc(getBooks: sl<GetBooksUseCase>()));
+  sl.registerFactory<GetBooksUseCase>(
+    () => GetBooksUseCase(sl<BooksRepository>()),
+  );
+  sl.registerFactory<BooksBloc>(
+    () => BooksBloc(getBooks: sl<GetBooksUseCase>()),
+  );
 
   sl.registerLazySingleton<HomeBooksRemoteDataSource>(
     () => HomeBooksRemoteDataSourceImpl(sl<HttpHelper>()),
@@ -690,9 +705,6 @@ void registerFeatureDependencies() {
   }
 
   if (!sl.isRegistered<CartRepository>()) {
-    sl.registerLazySingleton<CartRemoteDataSource>(
-      () => CartRemoteDataSourceImpl(sl<HttpHelper>()),
-    );
     sl.registerLazySingleton<CartRepository>(
       () => CartRepositoryImpl(sl<CartRemoteDataSource>()),
     );
@@ -722,16 +734,6 @@ void registerFeatureDependencies() {
     sl.registerLazySingleton<RemoveCartItemUseCase>(
       () => RemoveCartItemUseCase(sl()),
     );
-  }
-
-  if (!sl.isRegistered<AddCartItemUseCase>()) {
-    sl.registerLazySingleton<AddCartItemUseCase>(
-      () => AddCartItemUseCase(sl()),
-    );
-  }
-
-  if (!sl.isRegistered<ClearCartUseCase>()) {
-    sl.registerLazySingleton<ClearCartUseCase>(() => ClearCartUseCase(sl()));
   }
 
   if (!sl.isRegistered<CartBloc>()) {
@@ -805,9 +807,15 @@ void registerFeatureDependencies() {
     );
   }
 
+  if (!sl.isRegistered<BookAssistantRemoteDataSource>()) {
+    sl.registerLazySingleton<BookAssistantRemoteDataSource>(
+      () => BookAssistantRemoteDataSourceImpl(sl<HttpHelper>()),
+    );
+  }
+
   if (!sl.isRegistered<BookAssistantRepository>()) {
     sl.registerLazySingleton<BookAssistantRepository>(
-      BookAssistantRepositoryImpl.new,
+      () => BookAssistantRepositoryImpl(sl<BookAssistantRemoteDataSource>()),
     );
   }
 
@@ -823,9 +831,47 @@ void registerFeatureDependencies() {
     );
   }
 
+  if (!sl.isRegistered<SummarizePurchaseUseCase>()) {
+    sl.registerLazySingleton<SummarizePurchaseUseCase>(
+      () => SummarizePurchaseUseCase(sl()),
+    );
+  }
+
   if (!sl.isRegistered<BookAssistantBloc>()) {
     sl.registerFactory<BookAssistantBloc>(
-      () => BookAssistantBloc(getBooks: sl(), askAssistant: sl()),
+      () => BookAssistantBloc(
+        getBooks: sl(),
+        askAssistant: sl(),
+        summarizePurchase: sl(),
+      ),
+    );
+  }
+
+  if (!sl.isRegistered<LibraryRegistrationRemoteDataSource>()) {
+    sl.registerLazySingleton<LibraryRegistrationRemoteDataSource>(
+      () => LibraryRegistrationRemoteDataSourceImpl(sl<HttpHelper>()),
+    );
+  }
+
+  if (!sl.isRegistered<LibraryRegistrationRepository>()) {
+    sl.registerLazySingleton<LibraryRegistrationRepository>(
+      () => LibraryRegistrationRepositoryImpl(
+        sl<LibraryRegistrationRemoteDataSource>(),
+      ),
+    );
+  }
+
+  if (!sl.isRegistered<RequestLibraryRegistrationUseCase>()) {
+    sl.registerLazySingleton<RequestLibraryRegistrationUseCase>(
+      () => RequestLibraryRegistrationUseCase(
+        sl<LibraryRegistrationRepository>(),
+      ),
+    );
+  }
+
+  if (!sl.isRegistered<LibraryRegistrationCubit>()) {
+    sl.registerFactory<LibraryRegistrationCubit>(
+      () => LibraryRegistrationCubit(sl<RequestLibraryRegistrationUseCase>()),
     );
   }
 

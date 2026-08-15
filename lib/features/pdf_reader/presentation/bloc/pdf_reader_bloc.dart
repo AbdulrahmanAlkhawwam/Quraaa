@@ -91,8 +91,7 @@ final class PdfReaderReady extends PdfReaderState {
   final PdfReaderSpreadMode spreadMode;
   final Map<int, List<PdfTextNote>> notesByPage;
 
-  int get spreadSize =>
-      spreadMode == PdfReaderSpreadMode.twoPages ? 2 : 1;
+  int get spreadSize => spreadMode == PdfReaderSpreadMode.twoPages ? 2 : 1;
 
   bool get canGoPrevious => currentPageIndex > 0;
 
@@ -133,11 +132,15 @@ final class PdfReaderLoadFailure extends PdfReaderState {
 
 class PdfReaderBloc extends Bloc<PdfReaderEvent, PdfReaderState> {
   PdfReaderBloc({
-    required this._getPageCount,
-    required this._loadNotes,
-    required this._saveNote,
-    required this._deleteNote,
-  }) : super(const PdfReaderInitial()) {
+    required GetPdfPageCountUseCase getPageCount,
+    required LoadPdfTextNotesUseCase loadNotes,
+    required SavePdfTextNoteUseCase saveNote,
+    required DeletePdfTextNoteUseCase deleteNote,
+  })  : _getPageCount = getPageCount,
+        _loadNotes = loadNotes,
+        _saveNote = saveNote,
+        _deleteNote = deleteNote,
+        super(const PdfReaderInitial()) {
     on<PdfReaderStarted>(_onStarted);
     on<PdfReaderPageChanged>(_onPageChanged);
     on<PdfReaderPreviousPageRequested>(_onPreviousPageRequested);
@@ -367,8 +370,7 @@ class PdfReaderBloc extends Bloc<PdfReaderEvent, PdfReaderState> {
   }
 
   Map<int, List<PdfTextNote>> _groupNotesByPage(List<PdfTextNote> notes) {
-    final Map<int, List<PdfTextNote>> notesByPage =
-        <int, List<PdfTextNote>>{};
+    final Map<int, List<PdfTextNote>> notesByPage = <int, List<PdfTextNote>>{};
     for (final PdfTextNote note in notes) {
       notesByPage.putIfAbsent(note.pageIndex, () => <PdfTextNote>[]).add(note);
     }

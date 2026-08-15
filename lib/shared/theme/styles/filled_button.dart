@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../app_colors.dart';
 import '../app_radius.dart';
 import '../app_spacing.dart';
 import 'text_styles.dart';
@@ -9,7 +8,7 @@ FilledButtonThemeData filledButtonTheme(ColorScheme colors) {
     style: ButtonStyle(
       backgroundColor: WidgetStateProperty.resolveWith<Color?>((states) {
         if (states.contains(WidgetState.disabled)) {
-          return AppColors.surface;
+          return colors.surface;
         }
         return colors.primary;
       }),

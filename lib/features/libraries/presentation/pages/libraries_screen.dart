@@ -7,9 +7,9 @@ import '../../../../config/routes/route_names.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../features/home/presentation/widgets/home_app_bar.dart';
-import '../../../../features/home/presentation/widgets/home_bottom_nav.dart';
 import '../../../../shared/shared.dart';
 import '../../../../shared/widgets/animated_search_bar.dart';
+import '../../../settings/settings.dart';
 import '../../domain/entities/library_entity.dart';
 import '../cubit/libraries_cubit.dart';
 
@@ -19,9 +19,15 @@ class LibrariesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<LibrariesCubit>(
+    final Widget libraries = BlocProvider<LibrariesCubit>(
       create: (_) => sl<LibrariesCubit>()..loadUserSnapshot(),
       child: const _LibrariesView(),
+    );
+    if (!sl.isRegistered<LibraryRegistrationCubit>()) return libraries;
+
+    return BlocProvider<LibraryRegistrationCubit>(
+      create: (_) => sl<LibraryRegistrationCubit>(),
+      child: LibraryRegistrationListener(child: libraries),
     );
   }
 }
@@ -154,14 +160,12 @@ class _LibrariesPagedGrid extends StatelessWidget {
           return _LibraryCard(library: library);
         },
         firstPageErrorIndicatorBuilder: (_) => _ErrorIndicator(
-          message:
-              cubit.state.errorMessage ??
+          message: cubit.state.errorMessage ??
               LocalizationConstants.errorsNoInternetMessageKey.tr(),
           onRetry: cubit.state.pagingController.retryLastFailedRequest,
         ),
         newPageErrorIndicatorBuilder: (_) => _ErrorIndicator(
-          message:
-              cubit.state.errorMessage ??
+          message: cubit.state.errorMessage ??
               LocalizationConstants.errorsNoInternetMessageKey.tr(),
           onRetry: cubit.state.pagingController.retryLastFailedRequest,
         ),

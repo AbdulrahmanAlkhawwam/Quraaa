@@ -39,7 +39,8 @@ class PdfPageCounterBadge extends StatelessWidget {
         child: Text(
           '$page / $total',
           style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: context.isDark ? AppColors.primary300 : AppColors.secondary,
+                color:
+                    context.isDark ? AppColors.primary300 : AppColors.secondary,
                 fontWeight: FontWeight.w700,
               ),
         ),

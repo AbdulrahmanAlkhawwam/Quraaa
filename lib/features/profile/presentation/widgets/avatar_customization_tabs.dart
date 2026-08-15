@@ -5,7 +5,7 @@ import 'package:hugeicons/hugeicons.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 
-/// Customization panel that lets the user pick which avatar feature to edit.
+/// Avatar customization strip. Only the background option is enabled for now.
 class AvatarCustomizationTabs extends StatelessWidget {
   const AvatarCustomizationTabs({
     super.key,
@@ -16,100 +16,162 @@ class AvatarCustomizationTabs extends StatelessWidget {
   final int selectedTab;
   final ValueChanged<int> onTabSelected;
 
-  static const List<_TabConfig> _tabs = <_TabConfig>[
-    _TabConfig(
-      labelKey: LocalizationConstants.avatarTabBackgroundKey,
-      icon: HugeIcons.strokeRoundedPaintBrush02,
-    ),
-    _TabConfig(
-      labelKey: LocalizationConstants.avatarTabHairKey,
-      icon: HugeIcons.strokeRoundedUser,
-    ),
-    _TabConfig(
-      labelKey: LocalizationConstants.avatarTabBeardKey,
-      icon: HugeIcons.strokeRoundedUserAccount,
-    ),
-    _TabConfig(
-      labelKey: LocalizationConstants.avatarTabMustacheKey,
-      icon: HugeIcons.strokeRoundedUser,
-    ),
-    _TabConfig(
-      labelKey: LocalizationConstants.avatarTabClothingKey,
-      icon: HugeIcons.strokeRoundedShirt01,
-    ),
+  static const List<List<List<dynamic>>> _featureIcons = <List<List<dynamic>>>[
+    HugeIcons.strokeRoundedUser,
+    HugeIcons.strokeRoundedUserAccount,
+    HugeIcons.strokeRoundedUser,
+    HugeIcons.strokeRoundedShirt01,
   ];
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
-      height: AppDimensions.profileFieldHeight + AppSpacing.spacing26,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.spacing8,
-        vertical: AppSpacing.spacing10,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.avatarTabBackground,
-        borderRadius: BorderRadius.circular(AppRadius.radius18),
+      height: 56,
+      decoration: const BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: Color(0xFFE7ECE4)),
+        ),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: List<Widget>.generate(
-          _tabs.length,
-          (int index) => _buildTab(context, index),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTab(BuildContext context, int index) {
-    final _TabConfig tab = _tabs[index];
-    final bool isSelected = index == selectedTab;
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeInOut,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.spacing10,
-        vertical: AppSpacing.spacing8,
-      ),
-      decoration: BoxDecoration(
-        color: isSelected ? AppColors.avatarTabSelected : Colors.transparent,
-        borderRadius: BorderRadius.circular(AppRadius.radius12),
-      ),
-      child: InkWell(
-        onTap: () => onTabSelected(index),
-        borderRadius: BorderRadius.circular(AppRadius.radius12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            HugeIcon(
-              icon: tab.icon,
-              color: isSelected
-                  ? AppColors.editProfileSectionTitle
-                  : AppColors.editProfileHint,
-              size: 24,
-            ),
-            const SizedBox(height: AppSpacing.spacing6),
-            Text(
-              tab.labelKey.tr(),
-              style: AppTextStyles.bodySmall.copyWith(
-                fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
-                color: isSelected
-                    ? AppColors.editProfileSectionTitle
-                    : AppColors.editProfileHint,
+        children: <Widget>[
+          Expanded(
+            flex: 44,
+            child: Material(
+              color: AppColors.avatarTabSelected,
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(AppRadius.radius10),
+              ),
+              child: InkWell(
+                onTap: () => onTabSelected(0),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(AppRadius.radius10),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    const _BackgroundPatternIcon(),
+                    const SizedBox(width: AppSpacing.spacing12),
+                    Flexible(
+                      child: Text(
+                        LocalizationConstants.avatarTabBackgroundKey.tr(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.bodyLarge.copyWith(
+                          color: AppColors.primary600,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ],
-        ),
+          ),
+          for (int index = 0; index < _featureIcons.length; index++)
+            Expanded(
+              flex: 14,
+              child: IgnorePointer(
+                child: Center(
+                  child: index == 2
+                      ? const _MustacheIcon()
+                      : HugeIcon(
+                          icon: _featureIcons[index],
+                          color: AppColors.editProfileTitle,
+                          size: index == 3 ? 27 : 25,
+                        ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
 }
 
-class _TabConfig {
-  const _TabConfig({required this.labelKey, required this.icon});
+class _BackgroundPatternIcon extends StatelessWidget {
+  const _BackgroundPatternIcon();
 
-  final String labelKey;
-  final List<List<dynamic>> icon;
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: const Size.square(24),
+      painter: _BackgroundPatternPainter(),
+    );
+  }
+}
+
+class _BackgroundPatternPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final RRect bounds = RRect.fromRectAndRadius(
+      Offset.zero & size,
+      const Radius.circular(6),
+    );
+    canvas.drawRRect(
+      bounds,
+      Paint()
+        ..color = AppColors.primary50
+        ..style = PaintingStyle.fill,
+    );
+    canvas.save();
+    canvas.clipRRect(bounds);
+
+    final Paint stripe = Paint()
+      ..color = AppColors.primary600
+      ..strokeWidth = 1.5
+      ..style = PaintingStyle.stroke;
+    for (double start = -size.height; start < size.width; start += 5) {
+      canvas.drawLine(
+        Offset(start, size.height),
+        Offset(start + size.height, 0),
+        stripe,
+      );
+    }
+    canvas.restore();
+    canvas.drawRRect(
+      bounds,
+      Paint()
+        ..color = AppColors.primary600
+        ..strokeWidth = 1.3
+        ..style = PaintingStyle.stroke,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _MustacheIcon extends StatelessWidget {
+  const _MustacheIcon();
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: const Size(29, 20),
+      painter: _MustachePainter(),
+    );
+  }
+}
+
+class _MustachePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Paint paint = Paint()
+      ..color = AppColors.editProfileTitle
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.8
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final Path path = Path()
+      ..moveTo(size.width / 2, 9)
+      ..cubicTo(11, 4, 10, 13, 4, 12)
+      ..cubicTo(7, 19, 13, 18, size.width / 2, 12)
+      ..cubicTo(16, 18, 22, 19, 25, 12)
+      ..cubicTo(19, 13, 18, 4, size.width / 2, 9);
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

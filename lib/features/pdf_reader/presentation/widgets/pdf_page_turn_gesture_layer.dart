@@ -207,9 +207,8 @@ class _PageCurlPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final bool isLeft = side == PdfPageTurnSide.left;
-    final double curlWidth = (size.width * 0.5 * progress)
-        .clamp(18.0, size.width * 0.58)
-        .toDouble();
+    final double curlWidth =
+        (size.width * 0.5 * progress).clamp(18.0, size.width * 0.58).toDouble();
     final double clampedY = pressPosition.dy.clamp(28.0, size.height - 28);
     final bool turnsFromTop = clampedY < size.height / 2;
     final double cornerY = turnsFromTop ? 0 : size.height;

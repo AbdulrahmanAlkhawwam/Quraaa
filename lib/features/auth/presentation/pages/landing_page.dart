@@ -13,7 +13,7 @@ class LandingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
+    return BlocProvider<AuthBloc>(
       create: (_) => sl<AuthBloc>()..add(AuthStarted()),
       child: const _LandingPageView(),
     );
@@ -33,16 +33,14 @@ class _LandingPageView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+            children: <Widget>[
               FilledButton(
-                onPressed:
-                    state.status == AuthStatus.navigationLoading &&
+                onPressed: state.status == AuthStatus.navigationLoading &&
                         state.destination ==
                             AuthNavigationDestination.onboarding
                     ? null
                     : () => _goToOnboarding(context),
-                child:
-                    state.status == AuthStatus.navigationLoading &&
+                child: state.status == AuthStatus.navigationLoading &&
                         state.destination ==
                             AuthNavigationDestination.onboarding
                     ? const CircularProgressIndicator(strokeWidth: 2.5)
@@ -50,13 +48,11 @@ class _LandingPageView extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.spacing24),
               OutlinedButton(
-                onPressed:
-                    state.status == AuthStatus.navigationLoading &&
+                onPressed: state.status == AuthStatus.navigationLoading &&
                         state.destination == AuthNavigationDestination.login
                     ? null
                     : () => _goToLogin(context),
-                child:
-                    state.status == AuthStatus.navigationLoading &&
+                child: state.status == AuthStatus.navigationLoading &&
                         state.destination == AuthNavigationDestination.login
                     ? const CircularProgressIndicator(strokeWidth: 2.5)
                     : Text(

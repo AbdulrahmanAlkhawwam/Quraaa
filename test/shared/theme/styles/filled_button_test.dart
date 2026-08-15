@@ -58,11 +58,21 @@ void main() {
 
       expect(
         style.backgroundColor!.resolve(disabledStates),
-        AppColors.surface,
+        lightColors.surface,
       );
       expect(
         style.foregroundColor!.resolve(disabledStates),
         lightColors.onSurface.withAlpha(97),
+      );
+
+      final ButtonStyle darkStyle = filledButtonTheme(darkColors).style!;
+      expect(
+        darkStyle.backgroundColor!.resolve(disabledStates),
+        darkColors.surface,
+      );
+      expect(
+        darkStyle.foregroundColor!.resolve(disabledStates),
+        darkColors.onSurface.withAlpha(97),
       );
     });
   });

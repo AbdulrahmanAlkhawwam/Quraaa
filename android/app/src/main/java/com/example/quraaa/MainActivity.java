@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
@@ -39,6 +41,7 @@ public class MainActivity extends FlutterActivity {
     private static final int STORAGE_PERMISSION_REQUEST = 4207;
 
     private MethodChannel.Result pendingStorageResult;
+    private final ExecutorService pdfExecutor = Executors.newFixedThreadPool(2);
 
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
@@ -54,6 +57,12 @@ public class MainActivity extends FlutterActivity {
                 PDF_CHANNEL
         ).setMethodCallHandler(this::handlePdfCall);
     }
+    @Override
+    protected void onDestroy() {
+        pdfExecutor.shutdownNow();
+        super.onDestroy();
+    }
+
 
     private void handleExplorerCall(MethodCall call, MethodChannel.Result result) {
         switch (call.method) {
@@ -89,7 +98,7 @@ public class MainActivity extends FlutterActivity {
 
             switch (call.method) {
                 case "pageCount":
-                    result.success(pageCount(path));
+                    runPdfTask(result, () -> pageCount(path));
                     break;
                 case "renderPage":
                     Integer pageIndex = call.argument("pageIndex");
@@ -99,7 +108,7 @@ public class MainActivity extends FlutterActivity {
                         return;
                     }
 
-                    result.success(renderPage(path, pageIndex, width));
+                    runPdfTask(result, () -> renderPage(path, pageIndex, width));
                     break;
                 case "textLayer":
                     Integer textPageIndex = call.argument("pageIndex");
@@ -108,7 +117,7 @@ public class MainActivity extends FlutterActivity {
                         return;
                     }
 
-                    result.success(textLayer(path, textPageIndex));
+                    runPdfTask(result, () -> textLayer(path, textPageIndex));
                     break;
                 default:
                     result.notImplemented();
@@ -116,11 +125,39 @@ public class MainActivity extends FlutterActivity {
             }
         } catch (SecurityException error) {
             result.error("storage_denied", error.getMessage(), null);
-        } catch (IOException error) {
-            result.error("pdf_io_error", error.getMessage(), null);
         } catch (IllegalArgumentException error) {
             result.error("pdf_invalid", error.getMessage(), null);
         }
+    }
+    @FunctionalInterface
+    private interface PdfTask {
+        Object run() throws IOException;
+    }
+
+    private void runPdfTask(MethodChannel.Result result, PdfTask task) {
+        pdfExecutor.execute(() -> {
+            try {
+                Object value = task.run();
+                runOnUiThread(() -> result.success(value));
+            } catch (SecurityException error) {
+                completePdfError(result, "storage_denied", error);
+            } catch (IOException error) {
+                completePdfError(result, "pdf_io_error", error);
+            } catch (IllegalArgumentException error) {
+                completePdfError(result, "pdf_invalid", error);
+            }
+        });
+    }
+
+    private void completePdfError(
+            MethodChannel.Result result,
+            String code,
+            Exception error
+    ) {
+        String message = error.getMessage();
+        runOnUiThread(
+                () -> result.error(code, message, null)
+        );
     }
 
     private String defaultRootPath() {

@@ -23,8 +23,7 @@ extension PdfReaderResultFold<T> on PdfReaderResult<T> {
   }) {
     return switch (this) {
       PdfReaderSuccess<T>(value: final T value) => onSuccess(value),
-      PdfReaderFailure<T>(failure: final Failure failure) =>
-        onFailure(failure),
+      PdfReaderFailure<T>(failure: final Failure failure) => onFailure(failure),
     };
   }
 }

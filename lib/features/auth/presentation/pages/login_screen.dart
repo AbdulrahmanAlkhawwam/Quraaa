@@ -58,8 +58,8 @@ class _LoginViewState extends State<_LoginView> {
     final bool isValid = _formKey.currentState?.validate() ?? false;
     if (!isValid) {
       context.read<AuthBloc>().add(
-        const AuthActionTracked('Auth submit blocked'),
-      );
+            const AuthActionTracked('Auth submit blocked'),
+          );
       return;
     }
 
@@ -67,8 +67,8 @@ class _LoginViewState extends State<_LoginView> {
     if (!mounted) return;
     if (!isOnline) {
       context.read<AuthBloc>().add(
-        const AuthActionTracked('Auth submit offline'),
-      );
+            const AuthActionTracked('Auth submit offline'),
+          );
       return;
     }
 
@@ -77,18 +77,18 @@ class _LoginViewState extends State<_LoginView> {
         phoneNumber.phoneNumber?.trim() ?? _phoneController.text.trim();
 
     context.read<AuthBloc>().add(
-      const AuthActionTracked('Auth submit with data'),
-    );
+          const AuthActionTracked('Auth submit with data'),
+        );
 
     if (!mounted) return;
 
     context.read<AuthBloc>().add(
-      AuthLoginRequested(
-        phoneNumber: normalizedPhone,
-        password: _passwordController.text,
-        phoneIsoCode: _phoneNumber?.isoCode ?? 'SY',
-      ),
-    );
+          AuthLoginRequested(
+            phoneNumber: normalizedPhone,
+            password: _passwordController.text,
+            phoneIsoCode: _phoneNumber?.isoCode ?? 'SY',
+          ),
+        );
   }
 
   void _continueAsGuest() {
@@ -141,7 +141,9 @@ class _LoginViewState extends State<_LoginView> {
                     LocalizationConstants.authLoginTitleKey.tr(),
                     textAlign: TextAlign.start,
                     style: AppTextStyles.h2.copyWith(
-                      color: AppColors.libraryGreen,
+                      color: context.isDark
+                          ? AppColors.primary300
+                          : AppColors.libraryGreen,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.spacing32),
@@ -195,7 +197,7 @@ class _LoginViewState extends State<_LoginView> {
                           icon: _obscurePassword
                               ? HugeIcons.strokeRoundedViewOff
                               : HugeIcons.strokeRoundedView,
-                          color: AppColors.primary300,
+                          color: context.colors.primary,
                           size: 20,
                         ),
                       ),
@@ -216,16 +218,18 @@ class _LoginViewState extends State<_LoginView> {
                     child: TextButton(
                       onPressed: () {
                         context.read<AuthBloc>().add(
-                          const AuthActionTracked(
-                            'Auth forgot password button',
-                          ),
-                        );
+                              const AuthActionTracked(
+                                'Auth forgot password button',
+                              ),
+                            );
                         context.goTo(RouteNames.forgotPassword);
                       },
                       child: Text(
                         LocalizationConstants.authPasswordForgotKey.tr(),
                         style: AppTextStyles.bodyMedium.copyWith(
-                          color: AppColors.libraryGreen,
+                          color: context.isDark
+                              ? AppColors.primary300
+                              : AppColors.libraryGreen,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -241,19 +245,19 @@ class _LoginViewState extends State<_LoginView> {
                               ? null
                               : () {
                                   context.read<AuthBloc>().add(
-                                    const AuthActionTracked(
-                                      'Auth primary button',
-                                    ),
-                                  );
+                                        const AuthActionTracked(
+                                          'Auth primary button',
+                                        ),
+                                      );
                                   _continueAsUser();
                                 },
                           child: state.status == AuthStatus.loading
-                              ? const SizedBox(
+                              ? SizedBox(
                                   width: 20,
                                   height: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2.5,
-                                    color: AppColors.card,
+                                    color: context.colors.onPrimary,
                                   ),
                                 )
                               : Text(LocalizationConstants.authNextKey.tr()),
@@ -271,10 +275,10 @@ class _LoginViewState extends State<_LoginView> {
                               ? null
                               : () {
                                   context.read<AuthBloc>().add(
-                                    const AuthActionTracked(
-                                      'Auth secondary button',
-                                    ),
-                                  );
+                                        const AuthActionTracked(
+                                          'Auth secondary button',
+                                        ),
+                                      );
                                   _continueAsGuest();
                                 },
                           child: Text(
@@ -288,10 +292,10 @@ class _LoginViewState extends State<_LoginView> {
                   TextButton(
                     onPressed: () {
                       context.read<AuthBloc>().add(
-                        const AuthActionTracked(
-                          'Auth create new account button',
-                        ),
-                      );
+                            const AuthActionTracked(
+                              'Auth create new account button',
+                            ),
+                          );
                       context.goTo(RouteNames.onboarding);
                     },
                     child: Text(

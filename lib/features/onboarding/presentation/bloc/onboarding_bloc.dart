@@ -118,10 +118,10 @@ class OnboardingState extends Equatable {
       birthYear != null && birthMonth != null && birthDay != null;
 
   bool get isBirthDateValid => Validators.dateOfBirthAgeInRange(
-    year: birthYear,
-    month: birthMonth,
-    day: birthDay,
-  );
+        year: birthYear,
+        month: birthMonth,
+        day: birthDay,
+      );
 
   bool get canContinueAge => isBirthDateValid && !isLoading && !isCompleted;
 
@@ -156,12 +156,10 @@ class OnboardingState extends Equatable {
     Object? errorMessage = _unset,
   }) {
     return OnboardingState(
-      birthYear: identical(birthYear, _unset)
-          ? this.birthYear
-          : birthYear as int?,
-      birthMonth: identical(birthMonth, _unset)
-          ? this.birthMonth
-          : birthMonth as int?,
+      birthYear:
+          identical(birthYear, _unset) ? this.birthYear : birthYear as int?,
+      birthMonth:
+          identical(birthMonth, _unset) ? this.birthMonth : birthMonth as int?,
       birthDay: identical(birthDay, _unset) ? this.birthDay : birthDay as int?,
       selectedGender: identical(selectedGender, _unset)
           ? this.selectedGender
@@ -185,17 +183,17 @@ class OnboardingState extends Equatable {
 
   @override
   List<Object?> get props => <Object?>[
-    birthYear,
-    birthMonth,
-    birthDay,
-    selectedGender,
-    categories,
-    selectedCategoryIds,
-    isLoading,
-    isCompleted,
-    navigationTarget,
-    errorMessage,
-  ];
+        birthYear,
+        birthMonth,
+        birthDay,
+        selectedGender,
+        categories,
+        selectedCategoryIds,
+        isLoading,
+        isCompleted,
+        navigationTarget,
+        errorMessage,
+      ];
 }
 
 class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {

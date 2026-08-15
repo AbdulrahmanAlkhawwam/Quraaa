@@ -8,10 +8,11 @@ abstract class AppDimensions {
   static const double onboardingInputHeight = 72;
 
   // Profile / Avatar
-  static const double profilePreviewHeight = 220;
-  static const double profileFieldHeight = 64;
-  static const double profileSwatchSize = 44;
-  static const double avatarIllustrationHeight = 170;
+  static const double profilePreviewHeight = 250;
+  static const double profileFieldHeight = 55;
+  static const double profileSwatchSize = 37;
+  static const double avatarIllustrationWidth = 189;
+  static const double avatarIllustrationHeight = 186;
 
   // Auth / OTP
   static const double pinWidth = 48;

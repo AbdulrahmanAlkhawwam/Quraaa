@@ -112,9 +112,8 @@ class _PersonalInformationAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color foreground = context.isDark
-        ? AppColors.primary300
-        : AppColors.libraryGreen;
+    final Color foreground =
+        context.isDark ? AppColors.primary300 : AppColors.libraryGreen;
     return SizedBox(
       height: 72,
       child: Padding(
@@ -122,7 +121,7 @@ class _PersonalInformationAppBar extends StatelessWidget {
         child: Row(
           children: <Widget>[
             IconButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: context.back,
               icon: HugeIcon(
                 icon: context.isRTL
                     ? HugeIcons.strokeRoundedArrowRight01

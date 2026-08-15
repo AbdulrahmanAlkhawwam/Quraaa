@@ -60,9 +60,8 @@ class AuthRecoveryState {
       status: status ?? this.status,
       success: success ?? this.success,
       error: identical(error, _unset) ? this.error : error,
-      nextRoute: identical(nextRoute, _unset)
-          ? this.nextRoute
-          : nextRoute as String?,
+      nextRoute:
+          identical(nextRoute, _unset) ? this.nextRoute : nextRoute as String?,
       routeExtra: identical(routeExtra, _unset) ? this.routeExtra : routeExtra,
       navigationSerial: navigationSerial ?? this.navigationSerial,
       resendCountdown: resendCountdown ?? this.resendCountdown,
@@ -78,13 +77,13 @@ class AuthRecoveryCubit extends Cubit<AuthRecoveryState> {
     required SendOtpUseCase sendOtpUseCase,
     required AuthLocalDataSource authJourney,
     required AuthSessionService authSessionService,
-  }) : _forgotPasswordUseCase = forgotPasswordUseCase,
-       _resetPasswordUseCase = resetPasswordUseCase,
-       _verifyOtpUseCase = verifyOtpUseCase,
-       _sendOtpUseCase = sendOtpUseCase,
-       _authJourney = authJourney,
-       _authSessionService = authSessionService,
-       super(const AuthRecoveryState());
+  })  : _forgotPasswordUseCase = forgotPasswordUseCase,
+        _resetPasswordUseCase = resetPasswordUseCase,
+        _verifyOtpUseCase = verifyOtpUseCase,
+        _sendOtpUseCase = sendOtpUseCase,
+        _authJourney = authJourney,
+        _authSessionService = authSessionService,
+        super(const AuthRecoveryState());
 
   final ForgotPasswordUseCase _forgotPasswordUseCase;
   final ResetPasswordUseCase _resetPasswordUseCase;
