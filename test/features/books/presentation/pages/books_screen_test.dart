@@ -11,6 +11,7 @@ class _FakeBooksRepository implements BooksRepository {
   Future<List<Book>> getBooks({
     String query = '',
     BookFormat? format,
+    BookCatalogFilter catalogFilter = const BookCatalogFilter(),
   }) async {
     return const <Book>[
       Book(
@@ -61,7 +62,7 @@ void main() {
     expect(find.text('Global English Course Book 10'), findsOneWidget);
   });
 
-  testWidgets('opens the format filter bottom sheet', (
+  testWidgets('opens the catalog filter bottom sheet', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(const MaterialApp(home: BooksScreen()));
@@ -72,13 +73,8 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
 
-    expect(
-      find.byKey(const ValueKey<String>('books_filter_audio')),
-      findsOneWidget,
-    );
-    expect(
-      find.byKey(const ValueKey<String>('books_filter_used')),
-      findsOneWidget,
-    );
+    expect(find.byKey(const Key('books_filter_library')), findsOneWidget);
+    expect(find.byKey(const Key('books_filter_category')), findsOneWidget);
+    expect(find.byKey(const Key('books_filter_apply')), findsOneWidget);
   });
 }

@@ -60,9 +60,8 @@ class LibraryInfoHeader extends StatelessWidget {
           errorWidget: Center(
             child: HugeIcon(
               icon: HugeIcons.strokeRoundedStore04,
-              color: context.isDark
-                  ? AppColors.primary300
-                  : AppColors.primary600,
+              color:
+                  context.isDark ? AppColors.primary300 : AppColors.primary600,
               size: 72,
             ),
           ),
@@ -121,9 +120,8 @@ class _LibraryTabs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color activeColor = context.isDark
-        ? AppColors.primary300
-        : AppColors.primary600;
+    final Color activeColor =
+        context.isDark ? AppColors.primary300 : AppColors.primary600;
     final Color inactiveColor = context.isDark
         ? AppColors.settingsInactiveIconDark
         : AppColors.primary300;
@@ -133,9 +131,8 @@ class _LibraryTabs extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: context.isDark
-                ? AppColors.outlineDark
-                : AppColors.primary100,
+            color:
+                context.isDark ? AppColors.outlineDark : AppColors.primary100,
           ),
         ),
       ),

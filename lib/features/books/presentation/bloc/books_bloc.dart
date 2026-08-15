@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/entities/book.dart';
+import '../../domain/entities/book_catalog_filter.dart';
 import '../../domain/use_cases/get_books_use_case.dart';
 
 sealed class BooksEvent {
@@ -23,6 +24,12 @@ class BooksFilterChanged extends BooksEvent {
   final BookFormat? format;
 }
 
+class BooksCatalogFilterApplied extends BooksEvent {
+  const BooksCatalogFilterApplied(this.filter);
+
+  final BookCatalogFilter filter;
+}
+
 enum BooksStatus { initial, loading, success, failure }
 
 class BooksState {
@@ -32,6 +39,7 @@ class BooksState {
     this.books = const <Book>[],
     this.query = '',
     this.format,
+    this.catalogFilter = const BookCatalogFilter(),
     this.errorMessage,
   });
 
@@ -40,6 +48,7 @@ class BooksState {
   final List<Book> books;
   final String query;
   final BookFormat? format;
+  final BookCatalogFilter catalogFilter;
   final String? errorMessage;
 
   BooksState copyWith({
@@ -49,6 +58,7 @@ class BooksState {
     String? query,
     BookFormat? format,
     bool clearFormat = false,
+    BookCatalogFilter? catalogFilter,
     String? errorMessage,
     bool clearError = false,
   }) {
@@ -58,6 +68,7 @@ class BooksState {
       books: books ?? this.books,
       query: query ?? this.query,
       format: clearFormat ? null : format ?? this.format,
+      catalogFilter: catalogFilter ?? this.catalogFilter,
       errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
     );
   }
@@ -70,6 +81,7 @@ class BooksBloc extends Bloc<BooksEvent, BooksState> {
     on<BooksRequested>(_onRequested);
     on<BooksQueryChanged>(_onQueryChanged);
     on<BooksFilterChanged>(_onFilterChanged);
+    on<BooksCatalogFilterApplied>(_onCatalogFilterApplied);
   }
 
   final GetBooksUseCase _getBooks;
@@ -80,7 +92,9 @@ class BooksBloc extends Bloc<BooksEvent, BooksState> {
   ) async {
     emit(state.copyWith(status: BooksStatus.loading, clearError: true));
     try {
-      final List<Book> catalog = await _getBooks();
+      final List<Book> catalog = await _getBooks(
+        catalogFilter: state.catalogFilter,
+      );
       emit(
         state.copyWith(
           status: BooksStatus.success,
@@ -133,6 +147,40 @@ class BooksBloc extends Bloc<BooksEvent, BooksState> {
         ),
       ),
     );
+  }
+
+  Future<void> _onCatalogFilterApplied(
+    BooksCatalogFilterApplied event,
+    Emitter<BooksState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        status: BooksStatus.loading,
+        catalogFilter: event.filter,
+        clearError: true,
+      ),
+    );
+    try {
+      final List<Book> catalog = await _getBooks(catalogFilter: event.filter);
+      emit(
+        state.copyWith(
+          status: BooksStatus.success,
+          catalog: catalog,
+          books: _filter(
+            catalog,
+            query: state.query,
+            format: state.format,
+          ),
+        ),
+      );
+    } catch (error) {
+      emit(
+        state.copyWith(
+          status: BooksStatus.failure,
+          errorMessage: error.toString(),
+        ),
+      );
+    }
   }
 
   List<Book> _filter(

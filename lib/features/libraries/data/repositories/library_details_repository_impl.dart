@@ -2,6 +2,7 @@ import '../../../../core/architecture/base_repository.dart';
 import '../../../../core/architecture/result.dart';
 import '../../../../core/errors/error_mapper.dart';
 import '../../../../core/errors/failures.dart';
+import '../../domain/entities/library_book_entity.dart';
 import '../../domain/repositories/library_details_repository.dart';
 import '../datasources/library_details_remote_data_source.dart';
 
@@ -44,9 +45,23 @@ class LibraryDetailsRepositoryImpl extends BaseRepository<LibraryBooksPage>
         ),
       );
     } catch (error) {
-      final Failure failure = ErrorMapper.map(error);
-      return ResultFailure(failure.message, cause: failure);
+      return _failure<LibraryBooksPage>(error);
     }
+  }
+
+  @override
+  Future<Result<LibraryBookEntity>> getListingDetails(String listingId) async {
+    try {
+      final model = await _remoteDataSource.getListingDetails(listingId);
+      return Success<LibraryBookEntity>(model.toEntity());
+    } catch (error) {
+      return _failure<LibraryBookEntity>(error);
+    }
+  }
+
+  Result<T> _failure<T>(Object error) {
+    final Failure failure = ErrorMapper.map(error);
+    return ResultFailure<T>(failure.message, cause: failure);
   }
 
   @override
@@ -63,7 +78,5 @@ class LibraryDetailsRepositoryImpl extends BaseRepository<LibraryBooksPage>
   }
 
   @override
-  Future<LibraryBooksPage> sync() async {
-    return getCached();
-  }
+  Future<LibraryBooksPage> sync() async => getCached();
 }

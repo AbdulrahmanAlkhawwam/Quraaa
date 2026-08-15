@@ -26,6 +26,7 @@ import '../../features/libraries/presentation/pages/library_details_screen.dart'
 import '../../features/libraries/presentation/pages/author_details_screen.dart';
 import '../../features/libraries/presentation/pages/book_details_screen.dart';
 import '../../features/libraries/presentation/models/library_details_navigation_data.dart';
+import '../../features/libraries/presentation/cubit/book_details_cubit.dart';
 import '../../features/libraries/presentation/cubit/library_details_cubit.dart';
 import '../../features/home/presentation/pages/user_books_screen.dart';
 import '../../features/sell_book/presentation/pages/sell_book_screen.dart';
@@ -198,9 +199,18 @@ GoRouter buildAppRouter({
         name: RouteNames.bookDetails,
         path: RouteNames.bookDetails,
         builder: (context, state) {
-          return BookDetailsScreen(
-            bookId: Uri.decodeComponent(state.pathParameters['bookId'] ?? ''),
-            data: state.extra as BookDetailsNavigationData?,
+          final String bookId = Uri.decodeComponent(
+            state.pathParameters['bookId'] ?? '',
+          );
+          final BookDetailsNavigationData? data =
+              state.extra as BookDetailsNavigationData?;
+          final String listingId = data?.book.listingId.trim() ?? '';
+          final String detailsId = listingId.isNotEmpty ? listingId : bookId;
+
+          return BlocProvider<BookDetailsCubit>(
+            create: (_) => sl<BookDetailsCubit>()
+              ..load(detailsId: detailsId, fallbackBook: data?.book),
+            child: BookDetailsScreen(bookId: bookId, data: data),
           );
         },
       ),

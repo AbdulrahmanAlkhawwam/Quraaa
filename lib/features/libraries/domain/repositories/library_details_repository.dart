@@ -3,9 +3,8 @@ import 'package:equatable/equatable.dart';
 import '../../../../core/architecture/result.dart';
 import '../entities/library_book_entity.dart';
 
-/// Repository contract for a single library's book listings.
+/// Repository contract for library books and individual listing details.
 abstract class LibraryDetailsRepository {
-  /// Returns a page of books offered by the library identified by [libraryId].
   Future<Result<LibraryBooksPage>> getLibraryBooks({
     required String libraryId,
     required int pageNumber,
@@ -14,9 +13,10 @@ abstract class LibraryDetailsRepository {
     String? sortBy,
     bool? sortDescending,
   });
+
+  Future<Result<LibraryBookEntity>> getListingDetails(String listingId);
 }
 
-/// A single page of library book listings.
 class LibraryBooksPage extends Equatable {
   const LibraryBooksPage({
     required this.items,

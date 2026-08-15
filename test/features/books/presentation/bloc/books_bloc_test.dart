@@ -6,6 +6,7 @@ class _FakeBooksRepository implements BooksRepository {
   Future<List<Book>> getBooks({
     String query = '',
     BookFormat? format,
+    BookCatalogFilter catalogFilter = const BookCatalogFilter(),
   }) async {
     return const <Book>[
       Book(

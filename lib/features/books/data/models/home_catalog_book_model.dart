@@ -42,7 +42,11 @@ class HomeCatalogBookModel {
     final Map<String, dynamic> category =
         _asMap(book['category']) ?? const <String, dynamic>{};
     final String price = _asString(
-      json['price'] ?? json['unitPrice'] ?? book['price'],
+      json['startingPrice'] ??
+          json['price'] ??
+          json['unitPrice'] ??
+          book['startingPrice'] ??
+          book['price'],
     );
     final int? condition = _asInt(json['condition'] ?? book['condition']);
 
@@ -55,17 +59,24 @@ class HomeCatalogBookModel {
       ),
       title: _asString(book['title'] ?? json['title']),
       subtitle: _asString(book['subtitle'] ?? json['subtitle']),
-      author: _asString(book['author'] ?? json['author']),
+      author: _asString(
+        book['authorName'] ??
+            book['author'] ??
+            json['authorName'] ??
+            json['author'],
+      ),
       description: _asString(book['description'] ?? json['description']),
       price: price,
-      format: _parseFormat(
-        json['format'] ??
-            json['listingFormat'] ??
-            book['format'] ??
-            book['listingFormat'],
-        price: price,
-        condition: condition,
-      ),
+      format: json['isFree'] == true || book['isFree'] == true
+          ? BookFormat.free
+          : _parseFormat(
+              json['format'] ??
+                  json['listingFormat'] ??
+                  book['format'] ??
+                  book['listingFormat'],
+              price: price,
+              condition: condition,
+            ),
       coverImageUrl: _asString(
         book['coverImageUrl'] ??
             book['coverUrl'] ??
@@ -141,7 +152,7 @@ class HomeCatalogBookModel {
 
     final int? numericFormat = _asInt(raw);
     return switch (numericFormat) {
-      2 => BookFormat.audio,
+      2 => BookFormat.used,
       1 => BookFormat.ebook,
       _ => BookFormat.used,
     };

@@ -5,6 +5,7 @@ import '../../../../core/errors/error_mapper.dart';
 import '../../../../core/errors/error_response_model.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/network/http_helper.dart';
+import '../models/library_book_model.dart';
 import '../models/paginated_library_books_response_model.dart';
 
 abstract class LibraryDetailsRemoteDataSource {
@@ -16,6 +17,8 @@ abstract class LibraryDetailsRemoteDataSource {
     String? sortBy,
     bool? sortDescending,
   });
+
+  Future<LibraryBookModel> getListingDetails(String listingId);
 }
 
 class LibraryDetailsRemoteDataSourceImpl
@@ -41,7 +44,7 @@ class LibraryDetailsRemoteDataSourceImpl
           'PageSize': pageSize,
           if (searchTerm?.isNotEmpty ?? false) 'SearchTerm': searchTerm,
           if (sortBy?.isNotEmpty ?? false) 'SortBy': sortBy,
-          'SortDescending': ?sortDescending,
+          if (sortDescending != null) 'SortDescending': sortDescending,
         },
       );
 
@@ -52,11 +55,30 @@ class LibraryDetailsRemoteDataSourceImpl
 
       throw const UnknownException(message: 'Invalid library books response.');
     } on DioException catch (error) {
-      throw _mapDioException(error);
+      throw _mapDioException(error, 'Unable to load library books.');
     }
   }
 
-  AppException _mapDioException(DioException error) {
+  @override
+  Future<LibraryBookModel> getListingDetails(String listingId) async {
+    try {
+      final Response<dynamic> response = await _httpHelper.get(
+        ApiEndpoints.listingDetails(listingId),
+      );
+
+      final dynamic data = response.data;
+      if (data is Map<String, dynamic>) {
+        return LibraryBookModel.fromJson(data);
+      }
+
+      throw const UnknownException(
+          message: 'Invalid listing details response.');
+    } on DioException catch (error) {
+      throw _mapDioException(error, 'Unable to load listing details.');
+    }
+  }
+
+  AppException _mapDioException(DioException error, String fallbackMessage) {
     final Object? underlying = error.error;
     if (underlying is AppException) {
       return underlying;
@@ -70,7 +92,7 @@ class LibraryDetailsRemoteDataSourceImpl
     }
 
     return UnknownException(
-      message: error.message ?? 'Unable to load library books.',
+      message: error.message ?? fallbackMessage,
     );
   }
 }

@@ -63,6 +63,8 @@ import '../../features/libraries/data/datasources/library_details_remote_data_so
 import '../../features/libraries/data/repositories/library_details_repository_impl.dart';
 import '../../features/libraries/domain/repositories/library_details_repository.dart';
 import '../../features/libraries/domain/use_cases/get_library_books_use_case.dart';
+import '../../features/libraries/domain/use_cases/get_listing_details_use_case.dart';
+import '../../features/libraries/presentation/cubit/book_details_cubit.dart';
 import '../../features/libraries/presentation/cubit/library_details_cubit.dart';
 import '../../config/env/env.dart';
 import '../network/auth_interceptor.dart';
@@ -602,6 +604,14 @@ void registerFeatureDependencies() {
       libraryId: libraryId,
       getLibraryBooksUseCase: sl<GetLibraryBooksUseCase>(),
     ),
+  );
+
+  sl.registerFactory<GetListingDetailsUseCase>(
+    () => GetListingDetailsUseCase(sl<LibraryDetailsRepository>()),
+  );
+
+  sl.registerFactory<BookDetailsCubit>(
+    () => BookDetailsCubit(sl<GetListingDetailsUseCase>()),
   );
 
   if (!sl.isRegistered<PdfReaderRepository>()) {

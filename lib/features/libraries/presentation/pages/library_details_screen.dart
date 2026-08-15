@@ -31,9 +31,8 @@ class _LibraryDetailsScreenState extends State<LibraryDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Color foreground = context.isDark
-        ? AppColors.primary300
-        : AppColors.libraryGreen;
+    final Color foreground =
+        context.isDark ? AppColors.primary300 : AppColors.libraryGreen;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: context.isDark
@@ -153,8 +152,7 @@ class _LibraryDetailsViewState extends State<_LibraryDetailsView> {
                 else if (state.status == LibraryDetailsStatus.error &&
                     state.books.isEmpty)
                   _ErrorView(
-                    message:
-                        state.errorMessage ??
+                    message: state.errorMessage ??
                         LocalizationConstants.errorsUnknownMessageKey.tr(),
                     onRetry: () =>
                         context.read<LibraryDetailsCubit>().loadBooks(),
@@ -276,12 +274,10 @@ class _LibraryContentShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color baseColor = context.isDark
-        ? AppColors.outlineDark
-        : AppColors.primary100;
-    final Color highlightColor = context.isDark
-        ? AppColors.surfaceDark
-        : AppColors.primary50;
+    final Color baseColor =
+        context.isDark ? AppColors.outlineDark : AppColors.primary100;
+    final Color highlightColor =
+        context.isDark ? AppColors.surfaceDark : AppColors.primary50;
 
     return Shimmer.fromColors(
       baseColor: baseColor,

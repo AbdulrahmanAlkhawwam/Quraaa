@@ -72,6 +72,38 @@
     "search_hint": "Search",
     "filter_title": "Filter books",
     "clear_filter": "Clear filter",
+    "filter": {
+      "library": "Library",
+      "choose_library": "Choose the Library",
+      "category": "Category",
+      "choose_category": "Choose the Category",
+      "condition": "Book condition",
+      "format": "Book type",
+      "seller": "Seller",
+      "min_price": "Min Price",
+      "max_price": "Max Price",
+      "enter_number": "Enter Number",
+      "apply": "Apply Filter",
+      "options_failed": "Couldn't load libraries and categories.",
+      "invalid_price": "Enter a valid number.",
+      "non_negative_price": "Price cannot be less than zero.",
+      "min_exceeds_max": "Min price cannot exceed max price.",
+      "max_below_min": "Max price cannot be less than min price.",
+      "conditions": {
+        "new": "New",
+        "like_new": "Like New",
+        "good": "Good",
+        "acceptable": "Acceptable"
+      },
+      "listing_formats": {
+        "digital": "Digital",
+        "physical": "Physical"
+      },
+      "sellers": {
+        "library": "Library",
+        "user": "Normal User"
+      }
+    },
     "formats": {
       "sound_book": "Sound Book",
       "ebook": "E-book",

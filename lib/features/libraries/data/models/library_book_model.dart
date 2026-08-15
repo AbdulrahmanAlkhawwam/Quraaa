@@ -58,7 +58,7 @@ class LibraryBookModel {
       listingId: json['listingId'] as String? ?? '',
       price: json['price']?.toString() ?? '',
       stock: json['stock']?.toString() ?? '',
-      condition: json['condition'] as int? ?? 0,
+      condition: _conditionValue(json['condition']),
       bookId: bookJson['bookId'] as String? ?? '',
       title: bookJson['title'] as String? ?? '',
       author: bookJson['author'] as String? ?? '',
@@ -69,11 +69,37 @@ class LibraryBookModel {
       categoryId: categoryJson['id'] as String? ?? '',
       categoryNameAr: categoryJson['nameAr'] as String? ?? '',
       categoryNameEn: categoryJson['nameEn'] as String? ?? '',
-      publisher: bookJson['publisher'] as String? ?? '',
-      version: (bookJson['version'] ?? bookJson['edition'])?.toString() ?? '',
-      format: (bookJson['format'] ?? json['format'])?.toString() ?? '',
+      publisher: (bookJson['publisher'] ?? json['publisher'])?.toString() ?? '',
+      version: (json['version'] ?? bookJson['version'] ?? bookJson['edition'])
+              ?.toString() ??
+          '',
+      format: _formatValue(json['format'] ?? bookJson['format']),
       previewImageUrls: _stringList(previewImages),
     );
+  }
+
+  static int _conditionValue(Object? value) {
+    if (value is num) return value.toInt();
+
+    return switch (value?.toString().trim().toLowerCase()) {
+      'new' => 1,
+      'likenew' || 'like_new' || 'like new' => 2,
+      'good' => 3,
+      'acceptable' => 4,
+      final String raw => int.tryParse(raw) ?? 0,
+      _ => 0,
+    };
+  }
+
+  static String _formatValue(Object? value) {
+    if (value is num) {
+      return switch (value.toInt()) {
+        1 => 'Digital',
+        2 => 'Physical',
+        _ => value.toString(),
+      };
+    }
+    return value?.toString() ?? '';
   }
 
   static List<String> _stringList(Object? value) {

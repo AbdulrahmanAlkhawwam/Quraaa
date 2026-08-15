@@ -11,8 +11,10 @@ import '../../../home/home.dart';
 import '../../../libraries/libraries.dart';
 import '../../../settings/settings.dart';
 import '../../domain/entities/book.dart';
+import '../../domain/entities/book_catalog_filter.dart';
 import '../bloc/books_bloc.dart';
 import '../widgets/book_card.dart';
+import '../widgets/books_filter_sheet.dart';
 import '../widgets/books_search_bar.dart';
 
 class BooksScreen extends StatelessWidget {
@@ -80,19 +82,31 @@ class _BooksView extends StatelessWidget {
     );
   }
 
-  void _showFilterSheet(BuildContext context) {
+  Future<void> _showFilterSheet(BuildContext context) async {
     final BooksBloc bloc = context.read<BooksBloc>();
-    showModalBottomSheet<void>(
+    final BookCatalogFilter? filter =
+        await showModalBottomSheet<BookCatalogFilter>(
       context: context,
-      showDragHandle: true,
-      backgroundColor: context.appCard,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withValues(alpha: 0.38),
+      sheetAnimationStyle: const AnimationStyle(
+        curve: Curves.easeOutCubic,
+        reverseCurve: Curves.easeInCubic,
+        duration: Duration(milliseconds: 340),
+        reverseDuration: Duration(milliseconds: 280),
+      ),
       builder: (BuildContext sheetContext) {
         return BlocProvider<BooksBloc>.value(
           value: bloc,
-          child: const _BooksFilterSheet(),
+          child: BooksFilterSheet(initialFilter: bloc.state.catalogFilter),
         );
       },
     );
+    if (filter != null && context.mounted) {
+      bloc.add(BooksCatalogFilterApplied(filter));
+    }
   }
 }
 
@@ -271,69 +285,6 @@ class _CatalogMessage extends StatelessWidget {
               const SizedBox(height: AppSpacing.spacing12),
               TextButton(onPressed: onAction, child: Text(actionLabel!)),
             ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _BooksFilterSheet extends StatelessWidget {
-  const _BooksFilterSheet();
-
-  @override
-  Widget build(BuildContext context) {
-    final BookFormat? selected = context.watch<BooksBloc>().state.format;
-
-    return SafeArea(
-      top: false,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.sizeOf(context).height * 0.7,
-        ),
-        child: ListView(
-          shrinkWrap: true,
-          padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
-          children: <Widget>[
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: Text(
-                LocalizationConstants.booksCatalogFilterTitleKey.tr(),
-                style: AppTextStyles.titleLarge.copyWith(
-                  color: context.appTextPrimary,
-                ),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.spacing8),
-            ...BookFormat.values.map(
-              (BookFormat format) => ListTile(
-                key: ValueKey<String>('books_filter_${format.name}'),
-                title: Text(_formatLabel(format)),
-                leading: Icon(
-                  selected == format
-                      ? Icons.radio_button_checked
-                      : Icons.radio_button_unchecked,
-                  color: selected == format
-                      ? AppColors.primary600
-                      : context.appTextSecondary,
-                ),
-                onTap: () {
-                  context.read<BooksBloc>().add(BooksFilterChanged(format));
-                  Navigator.pop(context);
-                },
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                context.read<BooksBloc>().add(
-                      const BooksFilterChanged(null),
-                    );
-                Navigator.pop(context);
-              },
-              child: Text(
-                LocalizationConstants.booksCatalogClearFilterKey.tr(),
-              ),
-            ),
           ],
         ),
       ),

@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:isolate';
 import 'dart:ui';
-
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-
 import 'app/app.dart';
 import 'core/di/injection_container.dart';
 import 'core/constants/app_storage_keys.dart';

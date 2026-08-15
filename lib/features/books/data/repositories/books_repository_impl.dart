@@ -1,4 +1,5 @@
 import '../../domain/entities/book.dart';
+import '../../domain/entities/book_catalog_filter.dart';
 import '../../domain/repositories/books_repository.dart';
 import '../datasources/books_remote_data_source.dart';
 import '../models/home_catalog_book_model.dart';
@@ -12,8 +13,9 @@ class BooksRepositoryImpl implements BooksRepository {
   Future<List<Book>> getBooks({
     String query = '',
     BookFormat? format,
+    BookCatalogFilter catalogFilter = const BookCatalogFilter(),
   }) async {
-    final List<Book> books = await _loadCatalog();
+    final List<Book> books = await _loadCatalog(catalogFilter);
     final String normalizedQuery = query.trim().toLowerCase();
 
     return books.where((Book book) {
@@ -26,9 +28,9 @@ class BooksRepositoryImpl implements BooksRepository {
     }).toList(growable: false);
   }
 
-  Future<List<Book>> _loadCatalog() async {
+  Future<List<Book>> _loadCatalog(BookCatalogFilter filter) async {
     final List<HomeCatalogBookModel> models =
-        await _remoteDataSource.fetchHomeCatalog();
+        await _remoteDataSource.fetchHomeCatalog(filter: filter);
     return models
         .map((HomeCatalogBookModel model) => model.toEntity())
         .toList(growable: false);

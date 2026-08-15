@@ -5,10 +5,13 @@ import '../../../../core/errors/error_mapper.dart';
 import '../../../../core/errors/error_response_model.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/network/http_helper.dart';
+import '../../domain/entities/book_catalog_filter.dart';
 import '../models/home_catalog_book_model.dart';
 
 abstract interface class BooksRemoteDataSource {
-  Future<List<HomeCatalogBookModel>> fetchHomeCatalog();
+  Future<List<HomeCatalogBookModel>> fetchHomeCatalog({
+    BookCatalogFilter filter,
+  });
 }
 
 class BooksRemoteDataSourceImpl implements BooksRemoteDataSource {
@@ -17,10 +20,27 @@ class BooksRemoteDataSourceImpl implements BooksRemoteDataSource {
   final HttpHelper _httpHelper;
 
   @override
-  Future<List<HomeCatalogBookModel>> fetchHomeCatalog() async {
+  Future<List<HomeCatalogBookModel>> fetchHomeCatalog({
+    BookCatalogFilter filter = const BookCatalogFilter(),
+  }) async {
+    if (!filter.hasValidPriceRange) {
+      throw ArgumentError.value(filter, 'filter', 'Invalid price range.');
+    }
     try {
       final Response<dynamic> response = await _httpHelper.get(
         ApiEndpoints.homeCatalog,
+        queryParameters: <String, dynamic>{
+          if (filter.categoryId?.isNotEmpty ?? false)
+            'CategoryId': filter.categoryId,
+          if (filter.libraryId?.isNotEmpty ?? false)
+            'LibraryId': filter.libraryId,
+          if (filter.format != null) 'Format': filter.format!.apiValue,
+          if (filter.sellerType != null)
+            'SellerType': filter.sellerType!.apiValue,
+          if (filter.condition != null) 'Condition': filter.condition!.apiValue,
+          if (filter.minPrice != null) 'MinPrice': filter.minPrice,
+          if (filter.maxPrice != null) 'MaxPrice': filter.maxPrice,
+        },
       );
       final List<dynamic>? items = _extractItems(response.data);
       if (items == null) {

@@ -20,7 +20,8 @@ class PaginatedLibrariesResponseModel {
   final bool hasPreviousPage;
 
   factory PaginatedLibrariesResponseModel.fromJson(Map<String, dynamic> json) {
-    final List<dynamic> itemsJson = json['items'] as List<dynamic>? ?? <dynamic>[];
+    final List<dynamic> itemsJson =
+        json['items'] as List<dynamic>? ?? <dynamic>[];
 
     return PaginatedLibrariesResponseModel(
       items: itemsJson

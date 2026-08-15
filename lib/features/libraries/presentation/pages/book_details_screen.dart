@@ -11,6 +11,8 @@ import '../../../../shared/shared.dart';
 import '../../../book_assistant/book_assistant.dart';
 import '../../../favorites/favorites.dart';
 import '../../domain/entities/library_book_entity.dart';
+import '../cubit/book_details_cubit.dart';
+import '../cubit/book_details_state.dart';
 import '../cubit/library_details_state.dart';
 import '../models/library_details_navigation_data.dart';
 import '../models/library_review_view_model.dart';
@@ -44,8 +46,14 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final LibraryBookEntity? book = widget.data?.book;
+    final BookDetailsState detailsState =
+        context.watch<BookDetailsCubit>().state;
+    final LibraryBookEntity? book = detailsState.book ?? widget.data?.book;
     final String title = _bookTitle(book);
+
+    if (book == null && detailsState.status != BookDetailsStatus.success) {
+      return _buildLoadState(context, detailsState);
+    }
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
@@ -124,6 +132,76 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoadState(
+    BuildContext context,
+    BookDetailsState detailsState,
+  ) {
+    final bool isLoading = detailsState.status == BookDetailsStatus.initial ||
+        detailsState.status == BookDetailsStatus.loading;
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: context.appCard,
+        statusBarIconBrightness:
+            context.isDark ? Brightness.light : Brightness.dark,
+        systemNavigationBarColor: context.appCard,
+        systemNavigationBarIconBrightness:
+            context.isDark ? Brightness.light : Brightness.dark,
+      ),
+      child: Scaffold(
+        backgroundColor: context.appCard,
+        body: SafeArea(
+          child: Column(
+            children: <Widget>[
+              _BookHeader(
+                title: widget.bookId,
+                isFavorite: false,
+                onBack: () => context.back(),
+                onFavorite: null,
+              ),
+              Expanded(
+                child: Center(
+                  child: isLoading
+                      ? CircularProgressIndicator(
+                          color: context.isDark
+                              ? AppColors.primary300
+                              : AppColors.libraryGreen,
+                        )
+                      : Padding(
+                          padding: const EdgeInsets.all(AppSpacing.spacing24),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              Text(
+                                detailsState.errorMessage ??
+                                    LocalizationConstants
+                                        .errorsUnknownMessageKey
+                                        .tr(),
+                                textAlign: TextAlign.center,
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                  color: context.appTextSecondary,
+                                ),
+                              ),
+                              const SizedBox(height: AppSpacing.spacing16),
+                              FilledButton(
+                                onPressed: () =>
+                                    context.read<BookDetailsCubit>().retry(),
+                                child: Text(
+                                  LocalizationConstants.commonRetryKey.tr(),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -315,7 +393,9 @@ class _BookOverview extends StatelessWidget {
                     spacing: AppSpacing.spacing8,
                     runSpacing: AppSpacing.spacing4,
                     children: <Widget>[
-                      if (book == null || book!.condition == 0)
+                      if (book == null ||
+                          book!.condition == 0 ||
+                          book!.condition == 1)
                         _BookBadge(
                           label: LocalizationConstants.libraryBookNewKey.tr(),
                         ),
