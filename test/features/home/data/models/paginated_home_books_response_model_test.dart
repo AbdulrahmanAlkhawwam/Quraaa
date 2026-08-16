@@ -7,31 +7,32 @@ void main() {
         '-288309521794527709682421938838958739147789977246935422199417142093237378725';
     final PaginatedHomeBooksResponseModel model =
         PaginatedHomeBooksResponseModel.fromJson(<String, dynamic>{
-          'items': <Map<String, dynamic>>[
-            <String, dynamic>{
-              'bookId': 'book-id',
-              'title': 'Book title',
-              'author': 'Book author',
-              'description': 'Description',
-              'coverImageUrl': 'https://example.com/cover.jpg',
-              'categoryId': 'category-id',
-              'language': 'ar',
-              'isbn': '123',
-              'purchaseCount': '-0',
-              'ratingCount': 12,
-              'averageRating': hugeNumber,
-              'activeListingCount': hugeNumber,
-            },
-          ],
-          'pageNumber': hugeNumber,
-          'pageSize': '-0',
-          'totalCount': 1,
-          'totalPages': '0',
-          'hasNextPage': true,
-          'hasPreviousPage': 'false',
-        });
+      'items': <Map<String, dynamic>>[
+        <String, dynamic>{
+          'listingId': 'listing-id',
+          'title': 'Book title',
+          'author': 'Book author',
+          'description': 'Description',
+          'coverImageUrl': 'https://example.com/cover.jpg',
+          'categoryId': 'category-id',
+          'language': 'ar',
+          'isbn': '123',
+          'purchaseCount': '-0',
+          'ratingCount': 12,
+          'averageRating': hugeNumber,
+          'activeListingCount': hugeNumber,
+        },
+      ],
+      'pageNumber': hugeNumber,
+      'pageSize': '-0',
+      'totalCount': 1,
+      'totalPages': '0',
+      'hasNextPage': true,
+      'hasPreviousPage': 'false',
+    });
 
     expect(model.items, hasLength(1));
+    expect(model.items.single.listingId, 'listing-id');
     expect(model.items.single.title, 'Book title');
     expect(model.items.single.ratingCount, '12');
     expect(model.items.single.averageRating, hugeNumber);

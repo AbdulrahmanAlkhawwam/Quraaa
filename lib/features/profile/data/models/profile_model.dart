@@ -58,35 +58,40 @@ class ProfileModel extends Profile {
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'userId': userId,
-    'firstName': firstName,
-    'lastName': lastName,
-    'phoneNumber': phoneNumber,
-    'gender': gender,
-    'role': role,
-    'dateOfBirth': dateOfBirth,
-    'profileImageUrl': profileImageUrl,
-    'interests': interests
-        .map(
-          (ProfileInterest interest) => <String, dynamic>{
-            'id': interest.id,
-            'nameAr': interest.nameAr,
-            'nameEn': interest.nameEn,
-          },
-        )
-        .toList(growable: false),
-    'location': location == null
-        ? null
-        : <String, dynamic>{
-            'latitude': location!.latitude,
-            'longitude': location!.longitude,
-            'label': location!.label,
-          },
-    'lastLoginDate': lastLoginDate,
-    'previousLoginDate': previousLoginDate,
-    'creationTime': creationTime,
-    'lastModificationTime': lastModificationTime,
-  };
+        'userId': userId,
+        'firstName': firstName,
+        'lastName': lastName,
+        'phoneNumber': phoneNumber,
+        'gender': gender,
+        'role': role,
+        'dateOfBirth': dateOfBirth,
+        'profileImageUrl': profileImageUrl,
+        'interests': interests
+            .map(
+              (ProfileInterest interest) => <String, dynamic>{
+                'id': interest.id,
+                'nameAr': interest.nameAr,
+                'nameEn': interest.nameEn,
+              },
+            )
+            .toList(growable: false),
+        'location': location == null
+            ? null
+            : <String, dynamic>{
+                'id': location!.id,
+                'name': location!.name,
+                'address': location!.address,
+                'latitude': location!.latitude,
+                'longitude': location!.longitude,
+                'isDefault': location!.isDefault,
+                'creationTime': location!.creationTime,
+                'lastModificationTime': location!.lastModificationTime,
+              },
+        'lastLoginDate': lastLoginDate,
+        'previousLoginDate': previousLoginDate,
+        'creationTime': creationTime,
+        'lastModificationTime': lastModificationTime,
+      };
 
   static List<ProfileInterest> _parseInterests(Object? raw) {
     if (raw is! List<dynamic>) {
@@ -117,9 +122,14 @@ class ProfileModel extends Profile {
       return null;
     }
     return ProfileLocation(
+      id: raw['id']?.toString(),
+      name: (raw['name'] ?? raw['label'])?.toString(),
+      address: raw['address']?.toString(),
       latitude: latitude,
       longitude: longitude,
-      label: raw['label']?.toString(),
+      isDefault: raw['isDefault'] == true,
+      creationTime: raw['creationTime']?.toString(),
+      lastModificationTime: raw['lastModificationTime']?.toString(),
     );
   }
 

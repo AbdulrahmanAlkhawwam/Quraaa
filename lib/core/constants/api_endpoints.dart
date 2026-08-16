@@ -17,19 +17,28 @@ abstract class ApiEndpoints {
   static const String logout = '/auth/logout';
   static const String categories = '/categories';
   static const String profileMe = '/profile/me';
-  static const String profileLocation = '/profile/location';
+  static const String profileLocation = '/profile/locations';
   static const String libraries = '/libraries';
+  static const String libraryRegistration = '/libraries/register';
   static const String recommendedBooks = '/books/recommended';
   static const String mostPopularBooks = '/books/most-popular';
+  static const String homeCatalog = '/books/home-catalog';
   static const String cart = '/cart/me';
   static const String orders = '/orders';
   static const String cartItems = '/cart/items';
   static const String favoriteBooks = '/favorite-books';
+  static const String aiSummarize = '/ai/summarize';
+  static const String userPhysicalListings = '/listings/me/physical';
 
   static String cartItem(String listingId) => '/cart/items/$listingId';
+
+  static String profileLocationById(String locationId) =>
+      '$profileLocation/$locationId';
 
   static String favoriteBook(String bookId) => '/favorite-books/$bookId';
 
   static String libraryBooks(String libraryId) => '/libraries/$libraryId/books';
-  static String cartItem(String listingId) => '/cart/items/$listingId';
+
+  static String listingDetails(String listingId) =>
+      '/listings/$listingId/details';
 }

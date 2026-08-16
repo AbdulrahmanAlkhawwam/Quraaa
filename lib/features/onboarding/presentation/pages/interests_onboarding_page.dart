@@ -50,8 +50,8 @@ class _InterestsOnboardingPageState extends State<InterestsOnboardingPage> {
           final target = state.navigationTarget;
           if (target != null) {
             context.read<OnboardingBloc>().add(
-              const OnboardingNavigationCompleted(),
-            );
+                  const OnboardingNavigationCompleted(),
+                );
             context.goTo(target);
           }
         },
@@ -101,8 +101,8 @@ class _InterestsOnboardingView extends StatelessWidget {
 
   void _onNext(BuildContext context) {
     context.read<OnboardingBloc>().add(
-      const OnboardingInterestsNextRequested(),
-    );
+          const OnboardingInterestsNextRequested(),
+        );
   }
 
   @override
@@ -112,20 +112,19 @@ class _InterestsOnboardingView extends StatelessWidget {
         return OnboardingScaffold(
           title: LocalizationConstants.onboardingInterestsTitleKey.tr(),
           leading: OnboardingBackButton(onPressed: () => _goBack(context)),
-
           activeIndex: 3,
           totalSteps: 3,
           content: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: state.categories.isEmpty
                 ? state.isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : Center(
-                          child: Text(
-                            LocalizationConstants.onboardingInterestsEmptyKey
-                                .tr(),
-                          ),
-                        )
+                    ? const Center(child: CircularProgressIndicator())
+                    : Center(
+                        child: Text(
+                          LocalizationConstants.onboardingInterestsEmptyKey
+                              .tr(),
+                        ),
+                      )
                 : Wrap(
                     spacing: AppSpacing.spacing12,
                     runSpacing: AppSpacing.spacing12,
@@ -146,9 +145,8 @@ class _InterestsOnboardingView extends StatelessWidget {
                   ),
           ),
           bottomButton: OnboardingNextButton(
-            onPressed: state.canContinueCategory
-                ? () => _onNext(context)
-                : null,
+            onPressed:
+                state.canContinueCategory ? () => _onNext(context) : null,
             isLoading: state.isLoading,
           ),
         );
@@ -194,8 +192,8 @@ class _InterestChip extends StatelessWidget {
             style: AppTextStyles.bodyMedium.copyWith(
               color: selected
                   ? context.isDark
-                        ? AppColors.primary300
-                        : AppColors.primary700
+                      ? AppColors.primary300
+                      : AppColors.primary700
                   : context.appTextPrimary,
               fontWeight: FontWeight.w500,
             ),

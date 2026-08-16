@@ -205,19 +205,19 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               Expanded(
                 child: Center(
                   child: BlocBuilder<AuthRecoveryCubit, AuthRecoveryState>(
-                    buildWhen:
-                        (
-                          AuthRecoveryState previous,
-                          AuthRecoveryState current,
-                        ) => previous.status != current.status,
+                    buildWhen: (
+                      AuthRecoveryState previous,
+                      AuthRecoveryState current,
+                    ) =>
+                        previous.status != current.status,
                     builder: (BuildContext context, AuthRecoveryState state) {
                       return state.isLoading
-                          ? const SizedBox(
+                          ? SizedBox(
                               width: 32,
                               height: 32,
                               child: CircularProgressIndicator(
                                 strokeWidth: 3,
-                                color: AppColors.leafGreen,
+                                color: context.colors.primary,
                               ),
                             )
                           : const SizedBox.shrink();
@@ -238,10 +238,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                           child: OutlinedButton(
                             onPressed: _onNumberIsWrong,
                             style: OutlinedButton.styleFrom(
-                              side: const BorderSide(
-                                color: AppColors.primary200,
-                              ),
-                              foregroundColor: AppColors.libraryGreen,
+                              side: BorderSide(color: context.appBorder),
+                              foregroundColor: context.colors.primary,
                             ),
                             child: Text(
                               LocalizationConstants.authOtpNumberIsWrongKey
@@ -255,25 +253,24 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                         child: SizedBox(
                           height: AppDimensions.onboardingButtonHeight,
                           child: FilledButton(
-                            onPressed:
-                                state.canResendOtp &&
+                            onPressed: state.canResendOtp &&
                                     !state.isLoading &&
                                     _phoneNumber.isNotEmpty
                                 ? _resendOtp
                                 : null,
                             style: FilledButton.styleFrom(
-                              backgroundColor: AppColors.leafGreen,
-                              foregroundColor: AppColors.card,
+                              backgroundColor: context.colors.primary,
+                              foregroundColor: context.colors.onPrimary,
                             ),
                             child: Text(
                               state.resendCountdown > 0
                                   ? LocalizationConstants
-                                        .authOtpResendCountdownKey
-                                        .tr(
-                                          namedArgs: {
-                                            'count': '${state.resendCountdown}',
-                                          },
-                                        )
+                                      .authOtpResendCountdownKey
+                                      .tr(
+                                      namedArgs: {
+                                        'count': '${state.resendCountdown}',
+                                      },
+                                    )
                                   : LocalizationConstants.authOtpResendKey.tr(),
                             ),
                           ),

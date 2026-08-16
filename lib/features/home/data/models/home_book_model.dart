@@ -2,7 +2,7 @@ import '../../domain/entities/home_book_entity.dart';
 
 class HomeBookModel {
   const HomeBookModel({
-    required this.bookId,
+    required this.listingId,
     required this.title,
     required this.author,
     required this.description,
@@ -16,7 +16,7 @@ class HomeBookModel {
     required this.activeListingCount,
   });
 
-  final String bookId;
+  final String listingId;
   final String title;
   final String author;
   final String description;
@@ -31,7 +31,7 @@ class HomeBookModel {
 
   factory HomeBookModel.fromJson(Map<String, dynamic> json) {
     return HomeBookModel(
-      bookId: _asString(json['bookId']),
+      listingId: _asString(json['listingId']),
       title: _asString(json['title']),
       author: _asString(json['author']),
       description: _asString(json['description']),
@@ -48,7 +48,7 @@ class HomeBookModel {
 
   HomeBookEntity toEntity() {
     return HomeBookEntity(
-      bookId: bookId,
+      listingId: listingId,
       title: title,
       author: author,
       description: description,

@@ -26,12 +26,11 @@ class CartItemTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double scale = context.compactFeatureScale;
-    final Color titleColor = context.isDark
-        ? AppColors.primary300
-        : AppColors.libraryGreen;
-    final Color subtitleColor = context.isDark
-        ? AppColors.primary400
-        : AppColors.forestGreen;
+    final bool isUnavailable = !item.isAvailable;
+    final Color titleColor =
+        context.isDark ? AppColors.primary300 : AppColors.libraryGreen;
+    final Color subtitleColor =
+        context.isDark ? AppColors.primary400 : AppColors.forestGreen;
 
     return Column(
       children: <Widget>[
@@ -40,95 +39,95 @@ class CartItemTile extends StatelessWidget {
           child: SizedBox(
             height: 116 * scale,
             child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              _BookCover(imageUrl: item.imageUrl, scale: scale),
-              SizedBox(width: 14 * scale),
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(top: 2 * scale),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        item.title.isEmpty
-                            ? LocalizationConstants.cartItemFallbackKey.tr()
-                            : item.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.bodyLarge.copyWith(
-                          color: titleColor,
-                          fontSize: 21 * scale,
-                          fontWeight: FontWeight.w500,
-                          height: 1.12,
-                        ),
-                      ),
-                      SizedBox(height: 3 * scale),
-                      Text(
-                        item.subtitle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          color: subtitleColor,
-                          fontSize: 15 * scale,
-                          fontWeight: FontWeight.w700,
-                          height: 1.12,
-                        ),
-                      ),
-                      const Spacer(),
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 20 * scale),
-                        child: Text(
-                          item.fileSize,
-                          style: AppTextStyles.caption.copyWith(
-                            color: context.appTextTertiary,
-                            fontSize: 13 * scale,
-                            fontWeight: FontWeight.w700,
-                            height: 1,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                _BookCover(imageUrl: item.imageUrl, scale: scale),
+                SizedBox(width: 14 * scale),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 2 * scale),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          item.title.isEmpty
+                              ? LocalizationConstants.cartItemFallbackKey.tr()
+                              : item.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.bodyLarge.copyWith(
+                            color: titleColor,
+                            fontSize: 21 * scale,
+                            fontWeight: FontWeight.w500,
+                            height: 1.12,
                           ),
+                        ),
+                        SizedBox(height: 3 * scale),
+                        Text(
+                          item.subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: subtitleColor,
+                            fontSize: 15 * scale,
+                            fontWeight: FontWeight.w700,
+                            height: 1.12,
+                          ),
+                        ),
+                        const Spacer(),
+                        Padding(
+                          padding: EdgeInsets.only(bottom: 20 * scale),
+                          child: Text(
+                            item.fileSize,
+                            style: AppTextStyles.caption.copyWith(
+                              color: context.appTextTertiary,
+                              fontSize: 13 * scale,
+                              fontWeight: FontWeight.w700,
+                              height: 1,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(width: 8 * scale),
+                SizedBox(
+                  width: 105 * scale,
+                  height: 95 * scale,
+                  child: Stack(
+                    children: <Widget>[
+                      Align(
+                        alignment: AlignmentDirectional.topEnd,
+                        child: IconButton(
+                          tooltip: LocalizationConstants.cartRemoveKey.tr(),
+                          onPressed: onRemove,
+                          padding: EdgeInsets.zero,
+                          constraints: BoxConstraints.tightFor(
+                            width: 35 * scale,
+                            height: 35 * scale,
+                          ),
+                          icon: HugeIcon(
+                            icon: HugeIcons.strokeRoundedDelete02,
+                            color: const Color(0xFFFF303A),
+                            size: 28 * scale,
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: AlignmentDirectional.bottomEnd,
+                        child: _QuantityControl(
+                          quantity: item.quantity,
+                          onIncrease: onIncrease,
+                          onDecrease: onDecrease,
+                          isDisabled: isUnavailable,
+                          scale: scale,
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
-              SizedBox(width: 8 * scale),
-              SizedBox(
-                width: 105 * scale,
-                height: 95 * scale,
-                child: Stack(
-                  children: <Widget>[
-                    Align(
-                      alignment: AlignmentDirectional.topEnd,
-                      child: IconButton(
-                        tooltip: LocalizationConstants.cartRemoveKey.tr(),
-                        onPressed: onRemove,
-                        padding: EdgeInsets.zero,
-                        constraints: BoxConstraints.tightFor(
-                          width: 35 * scale,
-                          height: 35 * scale,
-                        ),
-                        icon: HugeIcon(
-                          icon: HugeIcons.strokeRoundedDelete02,
-                          color: const Color(0xFFFF303A),
-                          size: 28 * scale,
-                        ),
-                      ),
-                    ),
-                    Align(
-                      alignment: AlignmentDirectional.bottomEnd,
-                      child: _QuantityControl(
-                        quantity: item.quantity,
-                        onIncrease: onIncrease,
-                        onDecrease: onDecrease,
-                        isDisabled: isUnavailable,
-                        scale: scale,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+              ],
             ),
           ),
         ),
@@ -262,8 +261,8 @@ class _QuantityButton extends StatelessWidget {
           color: onTap == null
               ? context.appBorder
               : context.isDark
-              ? AppColors.primary800
-              : const Color(0xFFB7E3A6),
+                  ? AppColors.primary800
+                  : const Color(0xFFB7E3A6),
           shape: BoxShape.circle,
         ),
         child: SizedBox(
@@ -337,4 +336,3 @@ class _CartStatusBanner extends StatelessWidget {
     );
   }
 }
-

@@ -9,14 +9,15 @@ import '../../domain/entities/profile.dart';
 /// than inside the data model.
 extension ProfileModelUiExtension on Profile {
   /// Localized gender label based on the integer [gender] value.
-  String get localizedGenderLabel => localizedGenderLabelFromValue(gender);
+  String get localizedGenderLabel => localizedGenderLabelFromValue(
+        ProfileGenderValue.normalize(gender),
+      );
 }
 
 /// Maps the backend gender integer to a localized label.
 String localizedGenderLabelFromValue(int? gender) {
   return switch (gender) {
-    ProfileGenderValue.male =>
-      LocalizationConstants.userDataGenderMaleKey.tr(),
+    ProfileGenderValue.male => LocalizationConstants.userDataGenderMaleKey.tr(),
     ProfileGenderValue.female =>
       LocalizationConstants.userDataGenderFemaleKey.tr(),
     _ => '',

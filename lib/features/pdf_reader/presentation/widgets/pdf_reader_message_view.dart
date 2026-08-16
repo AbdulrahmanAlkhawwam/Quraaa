@@ -24,7 +24,11 @@ class PdfReaderMessageView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            HugeIcon(icon: icon, color: context.isDark ? AppColors.primary300 : AppColors.secondary, size: 56),
+            HugeIcon(
+                icon: icon,
+                color:
+                    context.isDark ? AppColors.primary300 : AppColors.secondary,
+                size: 56),
             const SizedBox(height: AppSpacing.spacing16),
             Text(
               message,

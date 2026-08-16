@@ -107,7 +107,7 @@ class FavoriteBooksScreen extends StatelessWidget {
 
   void _openBook(BuildContext context, FavoriteBook item) {
     final LibraryBookEntity book = LibraryBookEntity(
-      listingId: '',
+      listingId: item.listingId,
       price: '0',
       stock: '0',
       condition: 0,
@@ -123,7 +123,7 @@ class FavoriteBooksScreen extends StatelessWidget {
       categoryNameEn: '',
     );
     context.pushTo(
-      RouteNames.bookDetailsPath(item.bookId),
+      RouteNames.bookDetailsPath(item.listingId, item.bookId),
       extra: BookDetailsNavigationData(book: book),
     );
   }

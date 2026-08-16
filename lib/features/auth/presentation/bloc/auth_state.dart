@@ -48,7 +48,8 @@ class AuthState with EquatableMixin {
     int? phoneSerial,
     bool clearError = false,
     bool clearRouteExtra = false,
-  }) => AuthState(
+  }) =>
+      AuthState(
         status: status ?? this.status,
         error: clearError ? null : error ?? this.error,
         destination: destination ?? this.destination,

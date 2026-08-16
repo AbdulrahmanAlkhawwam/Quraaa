@@ -93,30 +93,33 @@ class _RegisterViewState extends State<_RegisterView> {
   }
 
   String? get _firstNameError => Validators.validateName(
-    _firstNameController.text,
-    emptyError: LocalizationConstants.authFirstNameRequiredErrorKey.tr(),
-    maxLengthError: LocalizationConstants.authFirstNameMaxLengthErrorKey.tr(),
-  );
+        _firstNameController.text,
+        emptyError: LocalizationConstants.authFirstNameRequiredErrorKey.tr(),
+        maxLengthError:
+            LocalizationConstants.authFirstNameMaxLengthErrorKey.tr(),
+      );
 
   String? get _lastNameError => Validators.validateName(
-    _lastNameController.text,
-    emptyError: LocalizationConstants.authLastNameRequiredErrorKey.tr(),
-    maxLengthError: LocalizationConstants.authLastNameMaxLengthErrorKey.tr(),
-  );
+        _lastNameController.text,
+        emptyError: LocalizationConstants.authLastNameRequiredErrorKey.tr(),
+        maxLengthError:
+            LocalizationConstants.authLastNameMaxLengthErrorKey.tr(),
+      );
 
   String? get _phoneError => Validators.validatePhone(
-    _phoneController.text,
-    emptyError: LocalizationConstants.authPhoneRequiredErrorKey.tr(),
-    formatError: LocalizationConstants.authPhoneFormatErrorKey.tr(),
-    isValid: _isPhoneFormatValid,
-  );
+        _phoneController.text,
+        emptyError: LocalizationConstants.authPhoneRequiredErrorKey.tr(),
+        formatError: LocalizationConstants.authPhoneFormatErrorKey.tr(),
+        isValid: _isPhoneFormatValid,
+      );
 
   String? get _passwordError => Validators.validatePassword(
-    _passwordController.text,
-    emptyError: LocalizationConstants.authPasswordRequiredErrorKey.tr(),
-    minLengthError: LocalizationConstants.authPasswordMinLengthErrorKey.tr(),
-    digitError: LocalizationConstants.authPasswordDigitErrorKey.tr(),
-  );
+        _passwordController.text,
+        emptyError: LocalizationConstants.authPasswordRequiredErrorKey.tr(),
+        minLengthError:
+            LocalizationConstants.authPasswordMinLengthErrorKey.tr(),
+        digitError: LocalizationConstants.authPasswordDigitErrorKey.tr(),
+      );
 
   bool get _hasAnyBirthDate =>
       _birthYear != null || _birthMonth != null || _birthDay != null;
@@ -132,16 +135,16 @@ class _RegisterViewState extends State<_RegisterView> {
   }
 
   String? get _genderError => Validators.validateGender(
-    _selectedGender,
-    invalidError: LocalizationConstants.authGenderInvalidErrorKey.tr(),
-  );
+        _selectedGender,
+        invalidError: LocalizationConstants.authGenderInvalidErrorKey.tr(),
+      );
 
   String? get _interestsError => Validators.validateInterests(
-    categoryIds: _selectedCategoryIds,
-    validCategoryIds: _validCategoryIds,
-    emptyError: LocalizationConstants.authInterestsEmptyErrorKey.tr(),
-    invalidError: LocalizationConstants.authInterestsInvalidErrorKey.tr(),
-  );
+        categoryIds: _selectedCategoryIds,
+        validCategoryIds: _validCategoryIds,
+        emptyError: LocalizationConstants.authInterestsEmptyErrorKey.tr(),
+        invalidError: LocalizationConstants.authInterestsInvalidErrorKey.tr(),
+      );
 
   bool get _canSubmit {
     if (_isLoadingOnboarding || !_isOnboardingCompleted) return false;
@@ -185,8 +188,8 @@ class _RegisterViewState extends State<_RegisterView> {
     final bool isFormValid = _formKey.currentState?.validate() ?? false;
     if (!isFormValid || !_canSubmit) {
       context.read<AuthBloc>().add(
-        const AuthActionTracked('Auth submit blocked'),
-      );
+            const AuthActionTracked('Auth submit blocked'),
+          );
       return;
     }
 
@@ -194,14 +197,14 @@ class _RegisterViewState extends State<_RegisterView> {
     if (!mounted) return;
     if (!isOnline) {
       context.read<AuthBloc>().add(
-        const AuthActionTracked('Auth submit offline'),
-      );
+            const AuthActionTracked('Auth submit offline'),
+          );
       return;
     }
 
     context.read<AuthBloc>().add(
-      const AuthActionTracked('Auth submit with data'),
-    );
+          const AuthActionTracked('Auth submit with data'),
+        );
 
     final String? formattedDateOfBirth = _hasAnyBirthDate
         ? '${_birthYear.toString().padLeft(4, '0')}-${_birthMonth.toString().padLeft(2, '0')}-${_birthDay.toString().padLeft(2, '0')}'
@@ -214,19 +217,20 @@ class _RegisterViewState extends State<_RegisterView> {
     if (!mounted) return;
 
     context.read<AuthBloc>().add(
-      AuthRegisterRequested(
-        firstName: _firstNameController.text.trim(),
-        lastName: _lastNameController.text.trim(),
-        phoneNumber: normalizedPhone,
-        phoneIsoCode: _phoneNumber?.isoCode ?? 'SY',
-        password: _passwordController.text,
-        gender: _selectedGender == null
-            ? null
-            : _genderToApiValue(_selectedGender!),
-        dateOfBirth: formattedDateOfBirth,
-        categoryIds: _selectedCategoryIds.isEmpty ? null : _selectedCategoryIds,
-      ),
-    );
+          AuthRegisterRequested(
+            firstName: _firstNameController.text.trim(),
+            lastName: _lastNameController.text.trim(),
+            phoneNumber: normalizedPhone,
+            phoneIsoCode: _phoneNumber?.isoCode ?? 'SY',
+            password: _passwordController.text,
+            gender: _selectedGender == null
+                ? null
+                : _genderToApiValue(_selectedGender!),
+            dateOfBirth: formattedDateOfBirth,
+            categoryIds:
+                _selectedCategoryIds.isEmpty ? null : _selectedCategoryIds,
+          ),
+        );
   }
 
   int _genderToApiValue(GenderSelection gender) {
@@ -284,7 +288,9 @@ class _RegisterViewState extends State<_RegisterView> {
                       LocalizationConstants.authRegisterTitleKey.tr(),
                       textAlign: TextAlign.start,
                       style: AppTextStyles.h2.copyWith(
-                        color: AppColors.libraryGreen,
+                        color: context.isDark
+                            ? AppColors.primary300
+                            : AppColors.libraryGreen,
                       ),
                     ),
                     const SizedBox(height: AppSpacing.spacing32),
@@ -292,8 +298,8 @@ class _RegisterViewState extends State<_RegisterView> {
                       label: LocalizationConstants.authFirstNameLabelKey.tr(),
                       child: AuthTextField(
                         controller: _firstNameController,
-                        hintText: LocalizationConstants.authFirstNameHintKey
-                            .tr(),
+                        hintText:
+                            LocalizationConstants.authFirstNameHintKey.tr(),
                         textInputAction: TextInputAction.next,
                         textCapitalization: TextCapitalization.words,
                         autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -313,8 +319,8 @@ class _RegisterViewState extends State<_RegisterView> {
                       label: LocalizationConstants.authLastNameLabelKey.tr(),
                       child: AuthTextField(
                         controller: _lastNameController,
-                        hintText: LocalizationConstants.authLastNameHintKey
-                            .tr(),
+                        hintText:
+                            LocalizationConstants.authLastNameHintKey.tr(),
                         textInputAction: TextInputAction.next,
                         textCapitalization: TextCapitalization.words,
                         autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -350,15 +356,15 @@ class _RegisterViewState extends State<_RegisterView> {
                           },
                           validator: (String? value) =>
                               Validators.validatePhone(
-                                value,
-                                emptyError: LocalizationConstants
-                                    .authPhoneRequiredErrorKey
-                                    .tr(),
-                                formatError: LocalizationConstants
-                                    .authPhoneFormatErrorKey
-                                    .tr(),
-                                isValid: _isPhoneFormatValid,
-                              ),
+                            value,
+                            emptyError: LocalizationConstants
+                                .authPhoneRequiredErrorKey
+                                .tr(),
+                            formatError: LocalizationConstants
+                                .authPhoneFormatErrorKey
+                                .tr(),
+                            isValid: _isPhoneFormatValid,
+                          ),
                           autoValidateMode: AutovalidateMode.onUserInteraction,
                           onFieldSubmitted: _submitRegistration,
                           hintText: LocalizationConstants.authPhoneHintKey.tr(),
@@ -370,8 +376,8 @@ class _RegisterViewState extends State<_RegisterView> {
                       label: LocalizationConstants.authPasswordLabelKey.tr(),
                       child: AuthTextField(
                         controller: _passwordController,
-                        hintText: LocalizationConstants.authPasswordHintKey
-                            .tr(),
+                        hintText:
+                            LocalizationConstants.authPasswordHintKey.tr(),
                         obscureText: _obscurePassword,
                         textInputAction: TextInputAction.done,
                         suffixIcon: IconButton(
@@ -384,23 +390,23 @@ class _RegisterViewState extends State<_RegisterView> {
                             icon: _obscurePassword
                                 ? HugeIcons.strokeRoundedViewOff
                                 : HugeIcons.strokeRoundedView,
-                            color: AppColors.primary300,
+                            color: context.colors.primary,
                             size: 20,
                           ),
                         ),
                         validator: (String? value) =>
                             Validators.validatePassword(
-                              value,
-                              emptyError: LocalizationConstants
-                                  .authPasswordRequiredErrorKey
-                                  .tr(),
-                              minLengthError: LocalizationConstants
-                                  .authPasswordMinLengthErrorKey
-                                  .tr(),
-                              digitError: LocalizationConstants
-                                  .authPasswordDigitErrorKey
-                                  .tr(),
-                            ),
+                          value,
+                          emptyError: LocalizationConstants
+                              .authPasswordRequiredErrorKey
+                              .tr(),
+                          minLengthError: LocalizationConstants
+                              .authPasswordMinLengthErrorKey
+                              .tr(),
+                          digitError: LocalizationConstants
+                              .authPasswordDigitErrorKey
+                              .tr(),
+                        ),
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                         onSubmitted: (_) => _submitRegistration(),
                       ),
@@ -420,25 +426,24 @@ class _RegisterViewState extends State<_RegisterView> {
                         return SizedBox(
                           height: AppDimensions.onboardingButtonHeight,
                           child: FilledButton(
-                            onPressed:
-                                state.status == AuthStatus.loading ||
+                            onPressed: state.status == AuthStatus.loading ||
                                     !_canSubmit
                                 ? null
                                 : () {
                                     context.read<AuthBloc>().add(
-                                      const AuthActionTracked(
-                                        'Auth primary button',
-                                      ),
-                                    );
+                                          const AuthActionTracked(
+                                            'Auth primary button',
+                                          ),
+                                        );
                                     _submitRegistration();
                                   },
                             child: state.status == AuthStatus.loading
-                                ? const SizedBox(
+                                ? SizedBox(
                                     width: 20,
                                     height: 20,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2.5,
-                                      color: AppColors.card,
+                                      color: context.colors.onPrimary,
                                     ),
                                   )
                                 : Text(LocalizationConstants.authNextKey.tr()),
@@ -456,10 +461,10 @@ class _RegisterViewState extends State<_RegisterView> {
                                 ? null
                                 : () {
                                     context.read<AuthBloc>().add(
-                                      const AuthActionTracked(
-                                        'Auth secondary button',
-                                      ),
-                                    );
+                                          const AuthActionTracked(
+                                            'Auth secondary button',
+                                          ),
+                                        );
                                     _continueAsGuest();
                                   },
                             child: Text(
@@ -473,10 +478,10 @@ class _RegisterViewState extends State<_RegisterView> {
                     TextButton(
                       onPressed: () {
                         context.read<AuthBloc>().add(
-                          const AuthActionTracked(
-                            'Auth already have account button',
-                          ),
-                        );
+                              const AuthActionTracked(
+                                'Auth already have account button',
+                              ),
+                            );
                         context.goTo(RouteNames.login);
                       },
                       child: Text(

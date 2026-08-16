@@ -73,33 +73,24 @@ class CartRepositoryImpl implements CartRepository {
   }
 
   CartSummary _toEntity(CartResponseModel response) {
-    final List<CartItem> items = response.items
-        .map((model) {
-          final CartItem? cached = _metadataByListingId[model.listingId];
-          final CartItem item = CartItem(
-            id: model.listingId,
-            title: model.title.isNotEmpty ? model.title : cached?.title ?? '',
-            subtitle: model.subtitle.isNotEmpty
-                ? model.subtitle
-                : cached?.subtitle ?? '',
-            fileSize: model.fileSize.isNotEmpty
-                ? model.fileSize
-                : cached?.fileSize ?? '',
-            imageUrl: model.coverImageUrl.isNotEmpty
-                ? model.coverImageUrl
-                : cached?.imageUrl ?? '',
-            unitPrice: model.unitPrice,
-            quantity: model.quantity,
-          );
-          _metadataByListingId[model.listingId] = item;
-          return item;
-        })
-        .toList(growable: false);
-
-    final double subtotal = items.fold<double>(
-      0,
-      (double value, CartItem item) => value + item.lineTotal,
-    );
+    final List<CartItem> items = response.items.map((model) {
+      final CartItem? cached = _metadataByListingId[model.listingId];
+      final CartItem item = CartItem(
+        id: model.listingId,
+        title: model.title.isNotEmpty ? model.title : cached?.title ?? '',
+        subtitle:
+            model.subtitle.isNotEmpty ? model.subtitle : cached?.subtitle ?? '',
+        fileSize:
+            model.fileSize.isNotEmpty ? model.fileSize : cached?.fileSize ?? '',
+        imageUrl: model.coverImageUrl.isNotEmpty
+            ? model.coverImageUrl
+            : cached?.imageUrl ?? '',
+        unitPrice: model.unitPrice,
+        quantity: model.quantity,
+      );
+      _metadataByListingId[model.listingId] = item;
+      return item;
+    }).toList(growable: false);
 
     return CartSummary(
       cartId: response.cartId,

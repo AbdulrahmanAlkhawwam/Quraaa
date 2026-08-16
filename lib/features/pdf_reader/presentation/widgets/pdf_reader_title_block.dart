@@ -24,7 +24,8 @@ class PdfReaderTitleBlock extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: context.isDark ? AppColors.primary300 : AppColors.secondary,
+                color:
+                    context.isDark ? AppColors.primary300 : AppColors.secondary,
                 fontWeight: FontWeight.w700,
               ),
         ),

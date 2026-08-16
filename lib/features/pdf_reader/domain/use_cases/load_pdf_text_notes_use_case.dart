@@ -9,8 +9,8 @@ class LoadPdfTextNotesParams {
   final String path;
 }
 
-class LoadPdfTextNotesUseCase
-    extends UseCase<PdfReaderResult<List<PdfTextNote>>, LoadPdfTextNotesParams> {
+class LoadPdfTextNotesUseCase extends UseCase<
+    PdfReaderResult<List<PdfTextNote>>, LoadPdfTextNotesParams> {
   const LoadPdfTextNotesUseCase(this._repository);
 
   final PdfReaderRepository _repository;

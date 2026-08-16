@@ -25,6 +25,22 @@ class LocalizationConstants {
   static const String homeNavCartKey = 'home.nav.cart';
   static const String homeProfileMenuSellBookKey =
       'home.profile_menu.sell_book';
+  static const String homeProfileMenuLibraryKey = 'home.profile_menu.library';
+  static const String booksCatalogGreetingKey = 'books_catalog.greeting';
+  static const String booksCatalogSearchHintKey = 'books_catalog.search_hint';
+  static const String booksCatalogFilterTitleKey = 'books_catalog.filter_title';
+  static const String booksCatalogClearFilterKey = 'books_catalog.clear_filter';
+  static const String booksCatalogSoundBookKey =
+      'books_catalog.formats.sound_book';
+  static const String booksCatalogEbookKey = 'books_catalog.formats.ebook';
+  static const String booksCatalogFreeBookKey =
+      'books_catalog.formats.free_book';
+  static const String booksCatalogUsedBookKey =
+      'books_catalog.formats.used_book';
+  static const String booksCatalogViewKey = 'books_catalog.view';
+  static const String booksCatalogEmptyKey = 'books_catalog.empty';
+  static const String booksCatalogLoadFailedKey = 'books_catalog.load_failed';
+  static const String booksCatalogRetryKey = 'books_catalog.retry';
   static const String homeDrawerWelcomeKey = 'home.drawer.welcome';
   static const String homeDrawerUserKey = 'home.drawer.user';
   static const String homeDrawerProfileKey = 'home.drawer.profile';
@@ -68,6 +84,8 @@ class LocalizationConstants {
       'assistant.prompts.summarize';
   static const String assistantPromptMainTitlesKey =
       'assistant.prompts.main_titles';
+  static const String assistantBookImportantPointsQuestionKey =
+      'assistant.conversation.book_important_points';
   static const String libraryDetailsTitleKey = 'library_details.title';
   static const String libraryDetailsDefaultDescriptionKey =
       'library_details.default_description';
@@ -86,6 +104,13 @@ class LocalizationConstants {
   static const String libraryAuthorWriterKey = 'library_details.author.writer';
   static const String libraryAuthorWorksKey = 'library_details.author.works';
   static const String libraryBookBuyKey = 'library_details.book.buy';
+  static const String libraryBookImportantPointsKey =
+      'library_details.book.important_points';
+  static const String libraryBookPreviewKey = 'library_details.book.preview';
+  static const String libraryBookNewKey = 'library_details.book.new';
+  static const String libraryBookEbookKey = 'library_details.book.ebook';
+  static const String libraryBookVersionKey = 'library_details.book.version';
+  static const String libraryBookPriceKey = 'library_details.book.price';
   static const String libraryBookPurchaseTitleKey =
       'library_details.book.purchase_title';
   static const String libraryBookCheckoutKey = 'library_details.book.checkout';
@@ -353,6 +378,9 @@ class LocalizationConstants {
       'profile_location.unavailable';
   static const String profileLocationDefaultNameKey =
       'profile_location.default_name';
+  static const String profileLocationFavoriteKey = 'profile_location.favorite';
+  static const String profileLocationSetFavoriteKey =
+      'profile_location.set_favorite';
   static const String profileLocationNameKey = 'profile_location.name';
   static const String profileLocationNameHintKey = 'profile_location.name_hint';
   static const String profileLocationSelectKey = 'profile_location.select';
@@ -514,6 +542,7 @@ class LocalizationConstants {
   static const String pdfReaderCopyKey = 'pdf_reader.copy';
   static const String pdfReaderShareKey = 'pdf_reader.share';
   static const String pdfReaderHighlightKey = 'pdf_reader.highlight';
+  static const String pdfReaderPenKey = 'pdf_reader.pen';
   static const String pdfReaderAddNoteKey = 'pdf_reader.add_note';
   static const String pdfReaderNoteTitleKey = 'pdf_reader.note_title';
   static const String pdfReaderPageNoteTitleKey = 'pdf_reader.page_note_title';
@@ -529,6 +558,27 @@ class LocalizationConstants {
   static const String pdfReaderHighlightedKey = 'pdf_reader.highlighted';
   static const String pdfReaderSelectionUnavailableKey =
       'pdf_reader.selection_unavailable';
+  static const String pdfReaderUndoKey = 'pdf_reader.undo';
+  static const String pdfReaderRedoKey = 'pdf_reader.redo';
+  static const String pdfReaderColorKey = 'pdf_reader.color';
+  static const String pdfReaderSaveAnnotationsKey =
+      'pdf_reader.save_annotations';
+  static const String pdfReaderInfoKey = 'pdf_reader.info';
+  static const String pdfReaderLayoutKey = 'pdf_reader.layout';
+  static const String pdfReaderEditKey = 'pdf_reader.edit';
+  static const String pdfReaderAnnotationsSavedKey =
+      'pdf_reader.annotations_saved';
+  static const String pdfReaderFileSizeKey = 'pdf_reader.file_size';
+  static const String pdfReaderProgressPagesKey = 'pdf_reader.progress_pages';
+  static const String pdfReaderStreakKey = 'pdf_reader.streak';
+  static const String pdfReaderPageNavigationKey = 'pdf_reader.page_navigation';
+  static const String pdfReaderHorizontalKey = 'pdf_reader.horizontal';
+  static const String pdfReaderVerticalKey = 'pdf_reader.vertical';
+  static const String pdfReaderPaginationStatusKey =
+      'pdf_reader.pagination_status';
+  static const String pdfReaderContinuousKey = 'pdf_reader.continuous';
+  static const String pdfReaderSplitKey = 'pdf_reader.split';
+  static const String pdfReaderResetChangesKey = 'pdf_reader.reset_changes';
   // Auth OTP / Permissions (additional keys)
   static const String authOtpTitleKey = 'auth.otp.title';
   static const String authOtpDescriptionKey = 'auth.otp.description';
@@ -738,6 +788,8 @@ class LocalizationConstants {
       'settings.account_type.plans.library.description';
   static const String settingsAccountTypeLibraryActionKey =
       'settings.account_type.plans.library.action';
+  static const String settingsAccountTypeLibraryOpenFailedKey =
+      'settings.account_type.plans.library.open_failed';
 
   // Subscription plan details
   static const String subscriptionPlanFreeSubtitleKey =

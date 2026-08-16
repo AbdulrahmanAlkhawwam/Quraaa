@@ -20,7 +20,8 @@ class AuthorDetailsNavigationData {
 
 /// UI data passed to the book details screen until its API is connected.
 class BookDetailsNavigationData {
-  const BookDetailsNavigationData({required this.book});
+  const BookDetailsNavigationData({required this.book, this.purchaseId});
 
   final LibraryBookEntity book;
+  final String? purchaseId;
 }

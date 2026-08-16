@@ -10,9 +10,10 @@ import '../datasources/local/pdf_render_datasource.dart';
 
 class PdfReaderRepositoryImpl implements PdfReaderRepository {
   const PdfReaderRepositoryImpl({
-    required this._renderDataSource,
-    required this._noteDataSource,
-  });
+    required PdfRenderDataSource renderDataSource,
+    required PdfNoteDataSource noteDataSource,
+  })  : _renderDataSource = renderDataSource,
+        _noteDataSource = noteDataSource;
 
   final PdfRenderDataSource _renderDataSource;
   final PdfNoteDataSource _noteDataSource;

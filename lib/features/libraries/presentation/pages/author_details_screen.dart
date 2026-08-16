@@ -266,7 +266,8 @@ class _AuthorWorks extends StatelessWidget {
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.spacing20),
         itemCount: works.length,
-        separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.spacing14),
+        separatorBuilder: (separatorContext, separatorIndex) =>
+            const SizedBox(width: AppSpacing.spacing14),
         itemBuilder: (BuildContext context, int index) {
           final LibraryBookEntity book = works[index];
           return SizedBox(

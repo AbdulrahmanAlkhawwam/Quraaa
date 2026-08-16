@@ -21,7 +21,6 @@ abstract class CartRemoteDataSource {
     required int quantity,
   });
   Future<CartResponseModel> removeItem(String listingId);
-  Future<CartResponseModel> clearCart();
 }
 
 class CartRemoteDataSourceImpl implements CartRemoteDataSource {
@@ -102,7 +101,7 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
       DioExceptionType.receiveTimeout => const TimeoutException(),
       DioExceptionType.connectionError ||
       DioExceptionType.badCertificate => const NetworkException(),
-      _ => UnknownException(message: fallbackMessage),
+      _ => UnknownException(message: error.message),
     };
   }
 }

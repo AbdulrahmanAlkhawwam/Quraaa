@@ -25,14 +25,15 @@
     "nav": {
       "home": "Home",
       "libraries": "Libraries",
-      "user_books": "User Books",
+      "user_books": "Books",
       "audio_book": "Audio Book",
       "ai": "AI",
       "settings": "Settings",
       "cart": "Cart"
     },
     "profile_menu": {
-      "sell_book": "Sell book"
+      "sell_book": "Sell book",
+      "library": "I'm a Library"
     },
     "drawer": {
       "welcome": "Welcome",
@@ -66,6 +67,54 @@
       }
     }
   },
+  "books_catalog": {
+    "greeting": "Hi, {name}",
+    "search_hint": "Search",
+    "filter_title": "Filter books",
+    "clear_filter": "Clear filter",
+    "filter": {
+      "library": "Library",
+      "choose_library": "Choose the Library",
+      "category": "Category",
+      "choose_category": "Choose the Category",
+      "condition": "Book condition",
+      "format": "Book type",
+      "seller": "Seller",
+      "min_price": "Min Price",
+      "max_price": "Max Price",
+      "enter_number": "Enter Number",
+      "apply": "Apply Filter",
+      "options_failed": "Couldn't load libraries and categories.",
+      "invalid_price": "Enter a valid number.",
+      "non_negative_price": "Price cannot be less than zero.",
+      "min_exceeds_max": "Min price cannot exceed max price.",
+      "max_below_min": "Max price cannot be less than min price.",
+      "conditions": {
+        "new": "New",
+        "like_new": "Like New",
+        "good": "Good",
+        "acceptable": "Acceptable"
+      },
+      "listing_formats": {
+        "digital": "Digital",
+        "physical": "Physical"
+      },
+      "sellers": {
+        "library": "Library",
+        "user": "Normal User"
+      }
+    },
+    "formats": {
+      "sound_book": "Sound Book",
+      "ebook": "E-book",
+      "free_book": "Free book",
+      "used_book": "Used Book"
+    },
+    "view": "view",
+    "empty": "No books match your search.",
+    "load_failed": "We couldn't load the book catalogue.",
+    "retry": "Try again"
+  },
   "library_details": {
     "title": "Library Details",
     "default_description": "A trusted destination offering a wide selection of books and reading essentials.",
@@ -77,7 +126,13 @@
       "works": "His works"
     },
     "book": {
-      "buy": "Buy",
+      "buy": "buy Book",
+      "important_points": "Get Important Points With AI",
+      "preview": "Preview of book",
+      "new": "New",
+      "ebook": "E-book",
+      "version": "Version",
+      "price": "Price",
       "purchase_title": "Buy Book",
       "checkout": "Checkout",
     "checkout_open_failed": "Could not open the secure payment page.",
@@ -89,7 +144,7 @@
     },
     "reviews": {
       "title": "Last Reviews",
-      "preview_comment": "I was hesitant to try this at first, but Iâ€™m so glad I did - it exceeded all of my expectations.",
+      "preview_comment": "I was Hesitant to try pagedone at first, but I\u2019m so glad i did - it\u2019s exceeded all of my expectations.",
       "preview_user": "Mohammad ker"
     },
     "tabs": {
@@ -410,6 +465,7 @@
     "copy": "Copy",
     "share": "Share",
     "highlight": "Highlight",
+    "pen": "Pen",
     "add_note": "Add note",
     "note_title": "Add note",
     "page_note_title": "Page note",
@@ -422,7 +478,25 @@
     "two_page_mode": "Two-page view",
     "copied": "Text copied",
     "highlighted": "Highlight added",
-    "selection_unavailable": "Text selection is not available for this page."
+    "selection_unavailable": "Text selection is not available for this page.",
+    "undo": "Undo",
+    "redo": "Redo",
+    "color": "Marker color",
+    "save_annotations": "Save annotations",
+    "info": "File information",
+    "layout": "Reading layout",
+    "edit": "Edit",
+    "annotations_saved": "Annotations saved",
+    "file_size": "size: {size}",
+    "progress_pages": "Page {current} of {total}",
+    "streak": "Streak",
+    "page_navigation": "Page navigation",
+    "horizontal": "Horizontal",
+    "vertical": "Vertical",
+    "pagination_status": "Pagination status",
+    "continuous": "Continuous",
+    "split": "Split",
+    "reset_changes": "Reset Changes"
   },
   "settings": {
     "title": "Settings",
@@ -469,7 +543,8 @@
         "library": {
           "title": "Library Account",
           "description": "This account is for libraries. If you want to start with us, create your library now.",
-          "action": "Create Your Library"
+          "action": "Create Your Library",
+          "open_failed": "Could not open the library registration page."
         }
       }
     },
@@ -926,7 +1001,9 @@
     "next": "Next",
     "required": "Select a location on the map.",
     "map_title": "Choose Location",
-    "unavailable": "Your current location could not be determined."
+    "unavailable": "Your current location could not be determined.",
+    "favorite": "Favorite location",
+    "set_favorite": "Set as favorite location"
   },
   "assistant": {
     "greeting": "Hi, {name}",
@@ -936,6 +1013,9 @@
     },
     "picker": {
       "title": "Add a book to the question"
+    },
+    "conversation": {
+      "book_important_points": "Important points from the book {book}"
     },
     "prompts": {
       "author_overview": "About the author",

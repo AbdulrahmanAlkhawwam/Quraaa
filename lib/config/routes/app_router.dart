@@ -12,6 +12,7 @@ import '../../features/home/presentation/pages/home_screen.dart';
 import '../../features/home/presentation/bloc/home_bloc.dart';
 import '../../features/home/presentation/pages/audio_books_screen.dart';
 import '../../features/cart/presentation/pages/cart_screen.dart';
+import '../../features/cart/presentation/bloc/cart_bloc.dart';
 import '../../features/favorites/presentation/pages/favorite_books_screen.dart';
 import '../../features/book_assistant/book_assistant.dart';
 import '../../features/auth/presentation/pages/landing_page.dart';
@@ -25,6 +26,7 @@ import '../../features/libraries/presentation/pages/library_details_screen.dart'
 import '../../features/libraries/presentation/pages/author_details_screen.dart';
 import '../../features/libraries/presentation/pages/book_details_screen.dart';
 import '../../features/libraries/presentation/models/library_details_navigation_data.dart';
+import '../../features/libraries/presentation/cubit/book_details_cubit.dart';
 import '../../features/libraries/presentation/cubit/library_details_cubit.dart';
 import '../../features/home/presentation/pages/user_books_screen.dart';
 import '../../features/sell_book/presentation/pages/sell_book_screen.dart';
@@ -44,7 +46,7 @@ import '../../features/splash/presentation/pages/splash_screen.dart';
 import '../../features/local_explorer/presentation/pages/explorer_history_screen.dart';
 import '../../features/local_explorer/presentation/pages/local_explorer_page.dart';
 import '../../features/pdf_reader/presentation/pages/pdf_reader_page.dart';
-import '../../shared/widgets/app_shell.dart';
+import '../../features/settings/presentation/cubit/library_registration_cubit.dart';
 import '../../features/settings/presentation/pages/account_type_page.dart';
 import 'route_names.dart';
 import 'route_resolver.dart';
@@ -138,9 +140,14 @@ GoRouter buildAppRouter({
         pageBuilder: (context, state) => _buildTabTransitionPage(
           state: state,
           tabIndex: 0,
-          child: BlocProvider<HomeBloc>(
-            create: (BuildContext context) =>
-                sl<HomeBloc>()..add(const HomeStarted()),
+          child: MultiBlocProvider(
+            providers: <BlocProvider<dynamic>>[
+              BlocProvider<HomeBloc>(
+                create: (BuildContext context) =>
+                    sl<HomeBloc>()..add(const HomeStarted()),
+              ),
+              BlocProvider<CartBloc>(create: (_) => sl<CartBloc>()),
+            ],
             child: const HomeScreen(),
           ),
         ),
@@ -192,9 +199,18 @@ GoRouter buildAppRouter({
         name: RouteNames.bookDetails,
         path: RouteNames.bookDetails,
         builder: (context, state) {
-          return BookDetailsScreen(
-            bookId: Uri.decodeComponent(state.pathParameters['bookId'] ?? ''),
-            data: state.extra as BookDetailsNavigationData?,
+          final String bookId = Uri.decodeComponent(
+            state.pathParameters['bookId'] ?? '',
+          );
+          final BookDetailsNavigationData? data =
+              state.extra as BookDetailsNavigationData?;
+          final String listingId = data?.book.listingId.trim() ?? '';
+          final String detailsId = listingId.isNotEmpty ? listingId : bookId;
+
+          return BlocProvider<BookDetailsCubit>(
+            create: (_) => sl<BookDetailsCubit>()
+              ..load(detailsId: detailsId, fallbackBook: data?.book),
+            child: BookDetailsScreen(bookId: bookId, data: data),
           );
         },
       ),
@@ -241,7 +257,9 @@ GoRouter buildAppRouter({
         pageBuilder: (context, state) => _buildTabTransitionPage(
           state: state,
           tabIndex: 3,
-          child: const BookAssistantScreen(),
+          child: BookAssistantScreen(
+            data: state.extra as BookAssistantNavigationData?,
+          ),
         ),
       ),
       GoRoute(
@@ -250,7 +268,7 @@ GoRouter buildAppRouter({
         builder: (context, state) => BlocProvider<ProfileBloc>(
           create: (BuildContext context) =>
               sl<ProfileBloc>()..add(const ProfileLoadRequested()),
-          child: const AppShell(),
+          child: const PersonalInformationScreen(),
         ),
       ),
       GoRoute(
@@ -344,7 +362,10 @@ GoRouter buildAppRouter({
       ),
       GoRoute(
         path: RouteNames.settingsAccountType,
-        builder: (context, state) => const AccountTypePage(),
+        builder: (context, state) => BlocProvider<LibraryRegistrationCubit>(
+          create: (_) => sl<LibraryRegistrationCubit>(),
+          child: const AccountTypePage(),
+        ),
       ),
     ],
   );

@@ -53,28 +53,51 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Future<Profile> updateLocation(ProfileLocation location) async {
-    await _remoteDataSource.updateLocation(location);
-    final Profile current = await _cachedOrRemote();
-    final ProfileModel updated = ProfileModel.fromEntity(
-      current.copyWith(location: location),
-    );
-    await _localDataSource.cacheProfile(updated);
-    return updated;
+  Future<List<ProfileLocation>> getLocations() async {
+    final List<ProfileLocation> locations =
+        await _remoteDataSource.getLocations();
+    await _cacheDefaultLocation(locations);
+    return locations;
   }
 
   @override
-  Future<Profile?> deleteLocation() async {
-    await _remoteDataSource.deleteLocation();
+  Future<List<ProfileLocation>> updateLocation(
+    ProfileLocation location,
+  ) async {
+    await _remoteDataSource.updateLocation(location);
+    return getLocations();
+  }
+
+  @override
+  Future<List<ProfileLocation>> deleteLocation(
+    ProfileLocation location,
+  ) async {
+    await _remoteDataSource.deleteLocation(location);
+    return getLocations();
+  }
+
+  Future<void> _cacheDefaultLocation(
+    List<ProfileLocation> locations,
+  ) async {
     final Profile? current = await _localDataSource.getCachedProfile();
     if (current == null) {
-      return null;
+      return;
     }
+    ProfileLocation? defaultLocation;
+    for (final ProfileLocation location in locations) {
+      if (location.isDefault) {
+        defaultLocation = location;
+        break;
+      }
+    }
+    defaultLocation ??= locations.isEmpty ? null : locations.first;
     final ProfileModel updated = ProfileModel.fromEntity(
-      current.copyWith(clearLocation: true),
+      current.copyWith(
+        location: defaultLocation,
+        clearLocation: defaultLocation == null,
+      ),
     );
     await _localDataSource.cacheProfile(updated);
-    return updated;
   }
 
   ProfileModel _mergeCachedLocationLabel(
@@ -88,8 +111,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
     final String cachedUserId = cachedProfile?.userId?.trim() ?? '';
     final bool sameUser =
         remoteUserId.isNotEmpty && remoteUserId == cachedUserId;
-    final bool sameLocation =
-        remoteLocation != null &&
+    final bool sameLocation = remoteLocation != null &&
         cachedLocation != null &&
         (remoteLocation.latitude - cachedLocation.latitude).abs() < 0.000001 &&
         (remoteLocation.longitude - cachedLocation.longitude).abs() < 0.000001;
@@ -99,16 +121,16 @@ class ProfileRepositoryImpl implements ProfileRepository {
     return ProfileModel.fromEntity(
       remoteProfile.copyWith(
         location: ProfileLocation(
+          id: remoteLocation.id,
           latitude: remoteLocation.latitude,
           longitude: remoteLocation.longitude,
-          label: label,
+          name: label,
+          address: remoteLocation.address,
+          isDefault: remoteLocation.isDefault,
+          creationTime: remoteLocation.creationTime,
+          lastModificationTime: remoteLocation.lastModificationTime,
         ),
       ),
     );
-  }
-
-  Future<Profile> _cachedOrRemote() async {
-    final Profile? cached = await _localDataSource.getCachedProfile();
-    return cached ?? getMyProfile();
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:quraaa/core/architecture/result.dart';
@@ -41,7 +43,7 @@ void main() {
     });
 
     tearDown(() async {
-      await cubit.close();
+      if (!cubit.isClosed) await cubit.close();
     });
 
     const LibraryEntity library = LibraryEntity(
@@ -167,6 +169,33 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 50));
 
       verifyNever(() => useCase(any()));
+    });
+
+    test('ignores a page response that completes after close', () async {
+      final Completer<Result<LibrariesPage>> completer =
+          Completer<Result<LibrariesPage>>();
+      when(() => useCase(any())).thenAnswer((_) => completer.future);
+
+      cubit.state.pagingController.notifyPageRequestListeners(1);
+      await Future<void>.delayed(Duration.zero);
+      await cubit.close();
+
+      completer.complete(
+        const Success<LibrariesPage>(
+          LibrariesPage(
+            items: <LibraryEntity>[library],
+            pageNumber: 1,
+            pageSize: 10,
+            totalCount: 1,
+            totalPages: 1,
+            hasNextPage: false,
+            hasPreviousPage: false,
+          ),
+        ),
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+
+      expect(cubit.isClosed, isTrue);
     });
   });
 }

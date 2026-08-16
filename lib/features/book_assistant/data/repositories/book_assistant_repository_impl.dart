@@ -1,18 +1,23 @@
 import '../../../../core/architecture/result.dart';
+import '../../../../core/errors/error_mapper.dart';
+import '../../../../core/errors/failures.dart';
 import '../../domain/entities/assistant_book.dart';
 import '../../domain/entities/assistant_response.dart';
 import '../../domain/repositories/book_assistant_repository.dart';
+import '../datasources/book_assistant_remote_data_source.dart';
+import '../models/book_summary_model.dart';
 
 class BookAssistantRepositoryImpl extends BookAssistantRepository {
-  const BookAssistantRepositoryImpl();
+  const BookAssistantRepositoryImpl(this._remoteDataSource);
+
+  final BookAssistantRemoteDataSource _remoteDataSource;
 
   static const String _defaultQuestionAr =
       '\u062F\u0644\u0646\u064A \u0639\u0644\u0649 \u0645\u0627 \u0623\u0631\u064A\u062F';
   static const String _defaultQuestionEn = 'Guide me to a book';
   static const String _generalLibraryHintAr =
       '\u0627\u0639\u062A\u0645\u0627\u062F\u0627 \u0639\u0644\u0649 \u0645\u0643\u062A\u0628\u062A\u0643 \u0627\u0644\u0639\u0627\u0645\u0629';
-  static const String _generalLibraryHintEn =
-      'Based on your general library';
+  static const String _generalLibraryHintEn = 'Based on your general library';
   static const String _selectedBooksPrefixAr =
       '\u0627\u0639\u062A\u0645\u0627\u062F\u0627 \u0639\u0644\u0649';
   static const String _selectedBooksSuffixAr =
@@ -49,6 +54,19 @@ class BookAssistantRepositoryImpl extends BookAssistantRepository {
   @override
   Future<Result<List<AssistantBook>>> getSuggestedBooks() async {
     return const Success<List<AssistantBook>>(_books);
+  }
+
+  @override
+  Future<Result<String>> summarize({required String purchaseId}) async {
+    try {
+      final BookSummaryModel model = await _remoteDataSource.summarize(
+        purchaseId: purchaseId,
+      );
+      return Success<String>(model.summary);
+    } catch (error) {
+      final Failure failure = ErrorMapper.map(error);
+      return ResultFailure<String>(failure.message, cause: failure);
+    }
   }
 
   @override

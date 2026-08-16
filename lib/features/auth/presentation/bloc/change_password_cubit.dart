@@ -19,7 +19,7 @@ class ChangePasswordState {
 
 class ChangePasswordCubit extends Cubit<ChangePasswordState> {
   ChangePasswordCubit(this._changePasswordUseCase)
-    : super(const ChangePasswordState());
+      : super(const ChangePasswordState());
 
   final ChangePasswordUseCase _changePasswordUseCase;
 

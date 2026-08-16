@@ -2,6 +2,7 @@ import '../../domain/entities/library_book_entity.dart';
 
 class LibraryBookModel {
   const LibraryBookModel({
+    this.purchaseId = '',
     required this.listingId,
     required this.price,
     required this.stock,
@@ -16,8 +17,13 @@ class LibraryBookModel {
     required this.categoryId,
     required this.categoryNameAr,
     required this.categoryNameEn,
+    this.publisher = '',
+    this.version = '',
+    this.format = '',
+    this.previewImageUrls = const <String>[],
   });
 
+  final String purchaseId;
   final String listingId;
   final String price;
   final String stock;
@@ -32,37 +38,101 @@ class LibraryBookModel {
   final String categoryId;
   final String categoryNameAr;
   final String categoryNameEn;
+  final String publisher;
+  final String version;
+  final String format;
+  final List<String> previewImageUrls;
 
   factory LibraryBookModel.fromJson(Map<String, dynamic> json) {
     final Map<String, dynamic> bookJson =
-        json['book'] as Map<String, dynamic>? ?? <String, dynamic>{};
-    final Map<String, dynamic> categoryJson =
-        bookJson['category'] as Map<String, dynamic>? ?? <String, dynamic>{};
+        _map(json['book']) ?? const <String, dynamic>{};
+    final Map<String, dynamic> categoryJson = _map(bookJson['category']) ??
+        _map(json['category']) ??
+        const <String, dynamic>{};
+    final Object? previewImages = bookJson['previewImageUrls'] ??
+        bookJson['previewImages'] ??
+        json['previewImageUrls'] ??
+        json['previewImages'];
 
     return LibraryBookModel(
-      listingId: json['listingId'] as String? ?? '',
-      price: json['price']?.toString() ?? '',
-      stock: json['stock']?.toString() ?? '',
-      condition: json['condition'] as int? ?? 0,
-      bookId: bookJson['bookId'] as String? ?? '',
-      title: bookJson['title'] as String? ?? '',
-      author: bookJson['author'] as String? ?? '',
-      description: bookJson['description'] as String? ?? '',
-      coverImageUrl: bookJson['coverImageUrl'] as String? ?? '',
-      language: bookJson['language'] as String? ?? '',
-      isbn: bookJson['isbn'] as String? ?? '',
-      categoryId: categoryJson['id'] as String? ?? '',
-      categoryNameAr: categoryJson['nameAr'] as String? ?? '',
-      categoryNameEn: categoryJson['nameEn'] as String? ?? '',
+      purchaseId: _text(json['purchaseId']),
+      listingId: _text(json['listingId'] ?? json['id']),
+      price: _text(json['price']),
+      stock: _text(json['stock']),
+      condition: _conditionValue(json['condition']),
+      bookId: _text(bookJson['bookId'] ?? json['bookId']),
+      title: _text(bookJson['title'] ?? json['title']),
+      author: _text(
+        bookJson['author'] ??
+            bookJson['writer'] ??
+            json['author'] ??
+            json['writer'],
+      ),
+      description: _text(bookJson['description'] ?? json['description']),
+      coverImageUrl: _text(
+        bookJson['coverImageUrl'] ?? json['coverImageUrl'],
+      ),
+      language: _text(bookJson['language'] ?? json['language']),
+      isbn: _text(bookJson['isbn'] ?? json['isbn']),
+      categoryId: _text(categoryJson['id'] ?? json['categoryId']),
+      categoryNameAr: _text(categoryJson['nameAr']),
+      categoryNameEn: _text(categoryJson['nameEn']),
+      publisher: _text(bookJson['publisher'] ?? json['publisher']),
+      version: _text(
+        json['version'] ?? bookJson['version'] ?? bookJson['edition'],
+      ),
+      format: _formatValue(json['format'] ?? bookJson['format']),
+      previewImageUrls: _stringList(previewImages),
     );
+  }
+
+  static Map<String, dynamic>? _map(Object? value) {
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) return Map<String, dynamic>.from(value);
+    return null;
+  }
+
+  static String _text(Object? value) => value?.toString() ?? '';
+  static int _conditionValue(Object? value) {
+    if (value is num) return value.toInt();
+
+    return switch (value?.toString().trim().toLowerCase()) {
+      'new' => 1,
+      'likenew' || 'like_new' || 'like new' => 2,
+      'good' => 3,
+      'acceptable' => 4,
+      final String raw => int.tryParse(raw) ?? 0,
+      _ => 0,
+    };
+  }
+
+  static String _formatValue(Object? value) {
+    if (value is num) {
+      return switch (value.toInt()) {
+        1 => 'Digital',
+        2 => 'Physical',
+        _ => value.toString(),
+      };
+    }
+    return value?.toString() ?? '';
+  }
+
+  static List<String> _stringList(Object? value) {
+    if (value is! List) return const <String>[];
+    return value
+        .map((Object? item) => item?.toString().trim() ?? '')
+        .where((String item) => item.isNotEmpty)
+        .toList(growable: false);
   }
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
+      'purchaseId': purchaseId,
       'listingId': listingId,
       'price': price,
       'stock': stock,
       'condition': condition,
+      'format': format,
       'book': <String, dynamic>{
         'bookId': bookId,
         'title': title,
@@ -71,6 +141,10 @@ class LibraryBookModel {
         'coverImageUrl': coverImageUrl,
         'language': language,
         'isbn': isbn,
+        'publisher': publisher,
+        'version': version,
+        'format': format,
+        'previewImageUrls': previewImageUrls,
         'category': <String, dynamic>{
           'id': categoryId,
           'nameAr': categoryNameAr,
@@ -82,6 +156,7 @@ class LibraryBookModel {
 
   LibraryBookEntity toEntity() {
     return LibraryBookEntity(
+      purchaseId: purchaseId,
       listingId: listingId,
       price: price,
       stock: stock,
@@ -96,6 +171,10 @@ class LibraryBookModel {
       categoryId: categoryId,
       categoryNameAr: categoryNameAr,
       categoryNameEn: categoryNameEn,
+      publisher: publisher,
+      version: version,
+      format: format,
+      previewImageUrls: previewImageUrls,
     );
   }
 }

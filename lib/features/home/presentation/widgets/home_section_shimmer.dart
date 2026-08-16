@@ -8,12 +8,10 @@ class HomeSectionShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color baseColor = context.isDark
-        ? AppColors.surfaceDark
-        : AppColors.primary100;
-    final Color highlightColor = context.isDark
-        ? AppColors.neutralBackgroundDark
-        : AppColors.primary50;
+    final Color baseColor =
+        context.isDark ? AppColors.surfaceDark : AppColors.primary100;
+    final Color highlightColor =
+        context.isDark ? AppColors.neutralBackgroundDark : AppColors.primary50;
 
     return SizedBox(
       key: const ValueKey<String>('home-books-shimmer'),
@@ -23,8 +21,9 @@ class HomeSectionShimmer extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.spacing16),
         physics: const NeverScrollableScrollPhysics(),
         itemCount: 3,
-        separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.spacing16),
-        itemBuilder: (_, _) {
+        separatorBuilder: (separatorContext, separatorIndex) =>
+            const SizedBox(width: AppSpacing.spacing16),
+        itemBuilder: (itemContext, itemIndex) {
           return Shimmer.fromColors(
             baseColor: baseColor,
             highlightColor: highlightColor,

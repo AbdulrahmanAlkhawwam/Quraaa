@@ -7,9 +7,10 @@ abstract class BookAssistantRepository {
 
   Future<Result<List<AssistantBook>>> getSuggestedBooks();
 
+  Future<Result<String>> summarize({required String purchaseId});
+
   Future<Result<AssistantResponse>> ask({
     required String question,
     required List<AssistantBook> books,
   });
 }
-

@@ -3,9 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../config/routes/route_names.dart';
+import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
+import '../../../cart/cart.dart';
 import '../../../libraries/libraries.dart';
+import '../../../settings/settings.dart';
 import '../../domain/entities/home_book_entity.dart';
 import '../bloc/home_bloc.dart';
 import '../widgets/home_app_bar.dart';
@@ -37,7 +40,15 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       context.read<HomeBloc>().add(const HomePermissionsRequested());
+      _requestCartIfNeeded(context.read<HomeBloc>().state);
     });
+  }
+
+  void _requestCartIfNeeded(HomeState state) {
+    final CartBloc cartBloc = context.read<CartBloc>();
+    if (!state.isGuest && cartBloc.state is CartInitial) {
+      cartBloc.add(const CartStarted());
+    }
   }
 
   void _onNavItemTapped(int index, String route) {
@@ -63,32 +74,46 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<HomeBloc, HomeState>(
-      listenWhen: (HomeState previous, HomeState current) =>
-          previous.notificationSerial != current.notificationSerial,
-      listener: _showNotificationSnackBar,
-      child: Scaffold(
-        backgroundColor: context.isDark? null : Colors.white,
-        extendBody: true,
-        extendBodyBehindAppBar: true,
-        drawer: HomeDrawer(
-          isGuest: context.watch<HomeBloc>().state.isGuest,
-        ),
-        appBar: _buildAppBar(),
-        body: Stack(
-          children: <Widget>[
-            _buildBody(),
-            PositionedDirectional(
-              start: 0,
-              end: 0,
-              bottom: 0,
-              child: HomeBottomNav(
-                currentIndex: _selectedIndex,
-                isGuest: context.watch<HomeBloc>().state.isGuest,
-                onTap: _onNavItemTapped,
-              ),
+    return BlocProvider<LibraryRegistrationCubit>(
+      create: (_) => sl<LibraryRegistrationCubit>(),
+      child: LibraryRegistrationListener(
+        child: MultiBlocListener(
+          listeners: <BlocListener<dynamic, dynamic>>[
+            BlocListener<HomeBloc, HomeState>(
+              listenWhen: (HomeState previous, HomeState current) =>
+                  previous.notificationSerial != current.notificationSerial,
+              listener: _showNotificationSnackBar,
+            ),
+            BlocListener<HomeBloc, HomeState>(
+              listenWhen: (HomeState previous, HomeState current) =>
+                  previous.isGuest != current.isGuest,
+              listener: (_, HomeState state) => _requestCartIfNeeded(state),
             ),
           ],
+          child: Scaffold(
+            backgroundColor: context.isDark ? null : Colors.white,
+            extendBody: true,
+            extendBodyBehindAppBar: true,
+            drawer: HomeDrawer(
+              isGuest: context.watch<HomeBloc>().state.isGuest,
+            ),
+            appBar: _buildAppBar(),
+            body: Stack(
+              children: <Widget>[
+                _buildBody(),
+                PositionedDirectional(
+                  start: 0,
+                  end: 0,
+                  bottom: 0,
+                  child: HomeBottomNav(
+                    currentIndex: _selectedIndex,
+                    isGuest: context.watch<HomeBloc>().state.isGuest,
+                    onTap: _onNavItemTapped,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -96,11 +121,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   PreferredSizeWidget _buildAppBar() {
     final HomeState homeState = context.watch<HomeBloc>().state;
+    final CartState cartState = context.watch<CartBloc>().state;
+    final bool hasCartItems =
+        cartState is CartLoaded && cartState.summary.items.isNotEmpty;
     return HomeAppBar(
       firstName: homeState.firstName,
       profileImage: homeState.profileImage,
       profileImageIsFile: true,
       isGuest: homeState.isGuest,
+      hasCartItems: hasCartItems,
     );
   }
 
@@ -159,11 +188,11 @@ class _HomeFeed extends StatelessWidget {
 
   void _openBookDetails(BuildContext context, HomeBookEntity book) {
     final LibraryBookEntity detailsBook = LibraryBookEntity(
-      listingId: '',
+      listingId: book.listingId,
       price: '',
       stock: '',
       condition: 0,
-      bookId: book.bookId,
+      bookId: '',
       title: book.title,
       author: book.author,
       description: book.description,
@@ -176,7 +205,7 @@ class _HomeFeed extends StatelessWidget {
     );
 
     context.pushTo(
-      RouteNames.bookDetailsPath(book.bookId),
+      RouteNames.bookDetailsPath(book.listingId),
       extra: BookDetailsNavigationData(book: detailsBook),
     );
   }
@@ -212,7 +241,7 @@ class _HomeFeed extends StatelessWidget {
             const SliverToBoxAdapter(
               child: SizedBox(height: AppSpacing.spacing14),
             ),
-            /*const SliverToBoxAdapter(child: HomeQuickActions()),
+            const SliverToBoxAdapter(child: HomeQuickActions()),
             const SliverToBoxAdapter(
               child: SizedBox(height: AppSpacing.spacing24),
             ),
@@ -224,7 +253,7 @@ class _HomeFeed extends StatelessWidget {
             ),
             const SliverToBoxAdapter(
               child: SizedBox(height: AppSpacing.spacing32),
-            ),*/
+            ),
             if (!state.isGuest) ...<Widget>[
               SliverToBoxAdapter(
                 child: HomeSection(

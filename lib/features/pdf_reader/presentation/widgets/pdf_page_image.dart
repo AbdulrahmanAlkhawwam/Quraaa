@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 
 import '../../../../shared/extensions/app_context.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +13,7 @@ import '../../../../shared/theme/app_radius.dart';
 import '../../../../shared/theme/app_shadows.dart';
 import '../../domain/entities/pdf_text_layer.dart';
 import '../../domain/entities/pdf_text_note.dart';
+import '../../domain/entities/pdf_reader_local_state.dart';
 import '../../domain/use_cases/get_pdf_text_layer_use_case.dart';
 import '../../domain/use_cases/render_pdf_page_use_case.dart';
 import '../../domain/use_cases/share_pdf_text_use_case.dart';
@@ -45,6 +47,14 @@ class PdfPageImage extends StatefulWidget {
     required this.onNoteRequested,
     required this.onSavedNotePressed,
     required this.onMessage,
+    this.enablePageTurnGestures = true,
+    this.continuousScrolling = false,
+    this.inkMode = false,
+    this.inkColorValue = 0xFFF5C242,
+    this.inkTool = PdfInkTool.highlighter,
+    this.renderQualityScale = 1,
+    this.inkStrokes = const <PdfInkStroke>[],
+    this.onInkStrokeCompleted,
     super.key,
   });
 
@@ -62,6 +72,14 @@ class PdfPageImage extends StatefulWidget {
   final PdfTextNoteRequested onNoteRequested;
   final ValueChanged<PdfTextNote> onSavedNotePressed;
   final ValueChanged<String> onMessage;
+  final bool enablePageTurnGestures;
+  final bool continuousScrolling;
+  final bool inkMode;
+  final int inkColorValue;
+  final double renderQualityScale;
+  final PdfInkTool inkTool;
+  final List<PdfInkStroke> inkStrokes;
+  final ValueChanged<PdfInkStroke>? onInkStrokeCompleted;
 
   @override
   State<PdfPageImage> createState() => _PdfPageImageState();
@@ -74,6 +92,8 @@ class _PdfPageImageState extends State<PdfPageImage> {
   Offset? _selectionStart;
   Offset? _selectionEnd;
   List<PdfTextContentInfo> _selectedContents = <PdfTextContentInfo>[];
+  final List<PdfInkPoint> _draftInkPoints = <PdfInkPoint>[];
+  final _InkDraftNotifier _draftInkRepaint = _InkDraftNotifier();
 
   @override
   void didUpdateWidget(covariant PdfPageImage oldWidget) {
@@ -84,7 +104,17 @@ class _PdfPageImageState extends State<PdfPageImage> {
       _textLayerFuture = null;
       _renderWidth = null;
       _resetSelectionFields();
+      _clearDraftInk();
     }
+    if (oldWidget.inkMode && !widget.inkMode) {
+      _clearDraftInk();
+    }
+  }
+
+  @override
+  void dispose() {
+    _draftInkRepaint.dispose();
+    super.dispose();
   }
 
   @override
@@ -119,13 +149,16 @@ class _PdfPageImageState extends State<PdfPageImage> {
               pageWidth = pageHeight * aspectRatio;
             }
             final Size pageSize = Size(pageWidth, pageHeight);
-            final double pixelRatio =
-                MediaQuery.devicePixelRatioOf(context)
-                    .clamp(1.0, 3.0)
-                    .toDouble();
-            final int renderWidth = (pageWidth * pixelRatio * 2)
+            final double pixelRatio = MediaQuery.devicePixelRatioOf(context)
+                .clamp(1.0, 3.0)
+                .toDouble();
+            final double renderScale = widget.continuousScrolling
+                ? 1.05 * widget.renderQualityScale.clamp(1.0, 2.25).toDouble()
+                : 1.5;
+            const int maxRenderWidth = 3200;
+            final int renderWidth = (pageWidth * pixelRatio * renderScale)
                 .round()
-                .clamp(720, 3600)
+                .clamp(640, maxRenderWidth)
                 .toInt();
 
             if (_pageFuture == null || _renderWidth != renderWidth) {
@@ -139,8 +172,8 @@ class _PdfPageImageState extends State<PdfPageImage> {
                 minScale: 1,
                 maxScale: 4.5,
                 boundaryMargin: EdgeInsets.zero,
-                panEnabled: true,
-                scaleEnabled: true,
+                panEnabled: !widget.inkMode && !widget.continuousScrolling,
+                scaleEnabled: !widget.inkMode && !widget.continuousScrolling,
                 clipBehavior: Clip.hardEdge,
                 child: Center(
                   child: SizedBox(
@@ -202,7 +235,7 @@ class _PdfPageImageState extends State<PdfPageImage> {
                                 ),
                               Positioned.fill(
                                 child: PdfSelectionGestureLayer(
-                                  enabled: textLayer.hasText,
+                                  enabled: textLayer.hasText && !widget.inkMode,
                                   textLayer: textLayer,
                                   pageSize: pageSize,
                                   onSelectionStarted: _startSelection,
@@ -212,14 +245,16 @@ class _PdfPageImageState extends State<PdfPageImage> {
                                   onTap: _clearSelection,
                                 ),
                               ),
-                              Positioned.fill(
-                                child: PdfPageTurnGestureLayer(
-                                  canGoPrevious: widget.canGoPrevious,
-                                  canGoNext: widget.canGoNext,
-                                  onPrevious: widget.onPreviousPageTurn,
-                                  onNext: widget.onNextPageTurn,
+                              if (widget.enablePageTurnGestures &&
+                                  !widget.inkMode)
+                                Positioned.fill(
+                                  child: PdfPageTurnGestureLayer(
+                                    canGoPrevious: widget.canGoPrevious,
+                                    canGoNext: widget.canGoNext,
+                                    onPrevious: widget.onPreviousPageTurn,
+                                    onNext: widget.onNextPageTurn,
+                                  ),
                                 ),
-                              ),
                               for (final PdfTextNote note in widget.notes)
                                 if (note.isPageAnchorNote)
                                   PdfPageNoteMarker(
@@ -227,7 +262,41 @@ class _PdfPageImageState extends State<PdfPageImage> {
                                     pageSize: pageSize,
                                     onPressed: widget.onSavedNotePressed,
                                   ),
-                              if (_selectedText.isNotEmpty)
+                              Positioned.fill(
+                                child: IgnorePointer(
+                                  child: RepaintBoundary(
+                                    child: CustomPaint(
+                                      painter: _PdfInkPainter(
+                                        strokes: widget.inkStrokes,
+                                        draftPoints: _draftInkPoints,
+                                        draftColorValue: widget.inkColorValue,
+                                        draftTool: widget.inkTool,
+                                        repaint: _draftInkRepaint,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              if (widget.inkMode)
+                                Positioned.fill(
+                                  child: GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    dragStartBehavior: DragStartBehavior.down,
+                                    onPanStart: (DragStartDetails details) =>
+                                        _startInk(
+                                      details.localPosition,
+                                      pageSize,
+                                    ),
+                                    onPanUpdate: (DragUpdateDetails details) =>
+                                        _updateInk(
+                                      details.localPosition,
+                                      pageSize,
+                                    ),
+                                    onPanEnd: (_) => _finishInk(),
+                                    onPanCancel: _cancelInk,
+                                  ),
+                                ),
+                              if (_selectedText.isNotEmpty && !widget.inkMode)
                                 PdfSelectionToolbarPosition(
                                   selectedBounds: _selectedLocalBounds(
                                     textLayer: textLayer,
@@ -252,6 +321,65 @@ class _PdfPageImageState extends State<PdfPageImage> {
           },
         );
       },
+    );
+  }
+
+  void _startInk(Offset position, Size pageSize) {
+    _clearDraftInk();
+    _draftInkPoints.add(_inkPoint(position, pageSize));
+    _draftInkRepaint.repaint();
+  }
+
+  void _updateInk(Offset position, Size pageSize) {
+    if (_draftInkPoints.isEmpty) {
+      return;
+    }
+    final PdfInkPoint point = _inkPoint(position, pageSize);
+    final PdfInkPoint previous = _draftInkPoints.last;
+    final double dx = (point.xRatio - previous.xRatio) * pageSize.width;
+    final double dy = (point.yRatio - previous.yRatio) * pageSize.height;
+    if (dx * dx + dy * dy < 1) {
+      return;
+    }
+    _draftInkPoints.add(point);
+    _draftInkRepaint.repaint();
+  }
+
+  void _finishInk() {
+    if (_draftInkPoints.isEmpty) {
+      _cancelInk();
+      return;
+    }
+    final PdfInkStroke stroke = PdfInkStroke(
+      id: widget.path +
+          '-' +
+          widget.pageIndex.toString() +
+          '-' +
+          DateTime.now().microsecondsSinceEpoch.toString(),
+      pageIndex: widget.pageIndex,
+      colorValue: widget.inkColorValue,
+      tool: widget.inkTool,
+      widthRatio: widget.inkTool == PdfInkTool.highlighter ? 0.018 : 0.0045,
+      points: List<PdfInkPoint>.unmodifiable(_draftInkPoints),
+    );
+    _clearDraftInk();
+    widget.onInkStrokeCompleted?.call(stroke);
+  }
+
+  void _cancelInk() => _clearDraftInk();
+
+  void _clearDraftInk() {
+    if (_draftInkPoints.isEmpty) {
+      return;
+    }
+    _draftInkPoints.clear();
+    _draftInkRepaint.repaint();
+  }
+
+  PdfInkPoint _inkPoint(Offset position, Size pageSize) {
+    return PdfInkPoint(
+      xRatio: _ratioOf(position.dx, pageSize.width),
+      yRatio: _ratioOf(position.dy, pageSize.height),
     );
   }
 
@@ -518,6 +646,114 @@ class _PdfPageImageState extends State<PdfPageImage> {
       onSuccess: (bool shared) => shared,
       onFailure: (_) => false,
     );
+  }
+}
+
+class _InkDraftNotifier extends ChangeNotifier {
+  void repaint() => notifyListeners();
+}
+
+class _PdfInkPainter extends CustomPainter {
+  _PdfInkPainter({
+    required this.strokes,
+    required this.draftPoints,
+    required this.draftColorValue,
+    required this.draftTool,
+    required Listenable repaint,
+  }) : super(repaint: repaint);
+
+  final List<PdfInkStroke> strokes;
+  final List<PdfInkPoint> draftPoints;
+  final int draftColorValue;
+  final PdfInkTool draftTool;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    for (final PdfInkStroke stroke in strokes) {
+      _paintStroke(
+        canvas,
+        size,
+        points: stroke.points,
+        colorValue: stroke.colorValue,
+        widthRatio: stroke.widthRatio,
+        tool: stroke.tool,
+      );
+    }
+    _paintStroke(
+      canvas,
+      size,
+      points: draftPoints,
+      colorValue: draftColorValue,
+      widthRatio: draftTool == PdfInkTool.highlighter ? 0.018 : 0.0045,
+      tool: draftTool,
+    );
+  }
+
+  void _paintStroke(
+    Canvas canvas,
+    Size size, {
+    required List<PdfInkPoint> points,
+    required int colorValue,
+    required double widthRatio,
+    required PdfInkTool tool,
+  }) {
+    if (points.isEmpty) {
+      return;
+    }
+    final double minimumWidth = tool == PdfInkTool.highlighter ? 7 : 1.6;
+    final double strokeWidth =
+        math.max(minimumWidth, size.shortestSide * widthRatio);
+    final Paint paint = Paint()
+      ..isAntiAlias = true
+      ..color = Color(colorValue)
+          .withValues(alpha: tool == PdfInkTool.highlighter ? 0.34 : 0.96)
+      ..blendMode = tool == PdfInkTool.highlighter
+          ? BlendMode.multiply
+          : BlendMode.srcOver
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..style = PaintingStyle.stroke;
+    final Offset first = Offset(
+      points.first.xRatio * size.width,
+      points.first.yRatio * size.height,
+    );
+    if (points.length == 1) {
+      canvas.drawCircle(
+          first, strokeWidth / 2, paint..style = PaintingStyle.fill);
+      return;
+    }
+
+    final Path path = Path()..moveTo(first.dx, first.dy);
+    for (int index = 1; index < points.length - 1; index++) {
+      final PdfInkPoint point = points[index];
+      final PdfInkPoint following = points[index + 1];
+      final Offset control = Offset(
+        point.xRatio * size.width,
+        point.yRatio * size.height,
+      );
+      final Offset next = Offset(
+        following.xRatio * size.width,
+        following.yRatio * size.height,
+      );
+      final Offset end = Offset.lerp(control, next, 0.5)!;
+      path.quadraticBezierTo(control.dx, control.dy, end.dx, end.dy);
+    }
+    final PdfInkPoint last = points.last;
+    path.lineTo(
+      last.xRatio * size.width,
+      last.yRatio * size.height,
+    );
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _PdfInkPainter oldDelegate) {
+    return strokes != oldDelegate.strokes ||
+        draftPoints != oldDelegate.draftPoints ||
+        draftColorValue != oldDelegate.draftColorValue ||
+        draftTool != oldDelegate.draftTool;
   }
 }
 

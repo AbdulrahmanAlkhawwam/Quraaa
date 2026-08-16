@@ -33,7 +33,9 @@ class ExplorerHeader extends StatelessWidget {
           tooltip: MaterialLocalizations.of(context).backButtonTooltip,
           onPressed: canNavigateBack ? onNavigateBack : null,
           icon: HugeIcon(
-            icon: HugeIcons.strokeRoundedArrowLeft01,
+            icon: context.isRTL
+                ? HugeIcons.strokeRoundedArrowRight01
+                : HugeIcons.strokeRoundedArrowLeft01,
             color: context.isDark ? AppColors.primary300 : AppColors.secondary,
             size: 24,
           ),
@@ -46,7 +48,8 @@ class ExplorerHeader extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: AppTextStyles.explorerTitle().copyWith(
-              color: context.isDark ? AppColors.primary300 : AppColors.secondary,
+              color:
+                  context.isDark ? AppColors.primary300 : AppColors.secondary,
             ),
           ),
         ),
@@ -67,7 +70,8 @@ class ExplorerHeader extends StatelessWidget {
         ),
         const SizedBox(width: AppSpacing.spacing8),
         IconButton(
-          tooltip: MaterialLocalizations.of(context).refreshIndicatorSemanticLabel,
+          tooltip:
+              MaterialLocalizations.of(context).refreshIndicatorSemanticLabel,
           onPressed: onRefresh,
           icon: HugeIcon(
             icon: HugeIcons.strokeRoundedReload,

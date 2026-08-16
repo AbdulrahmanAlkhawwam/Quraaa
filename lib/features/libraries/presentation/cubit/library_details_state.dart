@@ -57,12 +57,12 @@ class LibraryDetailsState extends Equatable {
 
   @override
   List<Object?> get props => <Object?>[
-    status,
-    books,
-    authors,
-    hasMore,
-    errorMessage,
-  ];
+        status,
+        books,
+        authors,
+        hasMore,
+        errorMessage,
+      ];
 }
 
 enum LibraryDetailsStatus { initial, loading, success, error }

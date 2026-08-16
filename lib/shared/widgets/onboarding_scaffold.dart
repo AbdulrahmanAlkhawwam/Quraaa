@@ -144,12 +144,12 @@ class OnboardingNextButton extends StatelessWidget {
       child: FilledButton(
         onPressed: isLoading ? null : onPressed,
         child: isLoading
-            ? const SizedBox(
+            ? SizedBox(
                 width: 20,
                 height: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2.5,
-                  color: Colors.white,
+                  color: context.colors.onPrimary,
                 ),
               )
             : Text(LocalizationConstants.onboardingNextKey.tr()),

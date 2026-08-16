@@ -200,7 +200,7 @@ class _FakeHomeBooksRepository implements HomeBooksRepository {
       HomeBooksPage(
         items: <HomeBookEntity>[
           HomeBookEntity(
-            bookId: 'recommended',
+            listingId: 'recommended',
             title: 'Recommended book',
             author: 'Author',
             description: '',
@@ -231,7 +231,7 @@ class _FakeHomeBooksRepository implements HomeBooksRepository {
       HomeBooksPage(
         items: <HomeBookEntity>[
           HomeBookEntity(
-            bookId: 'popular',
+            listingId: 'popular',
             title: 'Popular book',
             author: 'Author',
             description: '',

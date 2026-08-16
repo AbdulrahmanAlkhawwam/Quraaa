@@ -30,15 +30,60 @@ class ProfileLocation extends Equatable {
   const ProfileLocation({
     required this.latitude,
     required this.longitude,
-    this.label,
-  });
+    this.id,
+    String? name,
+    String? label,
+    this.address,
+    this.isDefault = false,
+    this.creationTime,
+    this.lastModificationTime,
+  }) : name = name ?? label;
 
+  final String? id;
+  final String? name;
+  final String? address;
   final double latitude;
   final double longitude;
-  final String? label;
+  final bool isDefault;
+  final String? creationTime;
+  final String? lastModificationTime;
+
+  /// Backwards-compatible alias for older profile payloads and UI call sites.
+  String? get label => name;
+
+  ProfileLocation copyWith({
+    String? id,
+    String? name,
+    String? address,
+    double? latitude,
+    double? longitude,
+    bool? isDefault,
+    String? creationTime,
+    String? lastModificationTime,
+  }) {
+    return ProfileLocation(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      address: address ?? this.address,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      isDefault: isDefault ?? this.isDefault,
+      creationTime: creationTime ?? this.creationTime,
+      lastModificationTime: lastModificationTime ?? this.lastModificationTime,
+    );
+  }
 
   @override
-  List<Object?> get props => <Object?>[latitude, longitude, label];
+  List<Object?> get props => <Object?>[
+        id,
+        name,
+        address,
+        latitude,
+        longitude,
+        isDefault,
+        creationTime,
+        lastModificationTime,
+      ];
 }
 
 class Profile extends Equatable {
@@ -75,9 +120,9 @@ class Profile extends Equatable {
   final String? lastModificationTime;
 
   String get fullName => <String>[
-    firstName?.trim() ?? '',
-    lastName?.trim() ?? '',
-  ].where((String part) => part.isNotEmpty).join(' ');
+        firstName?.trim() ?? '',
+        lastName?.trim() ?? '',
+      ].where((String part) => part.isNotEmpty).join(' ');
 
   Profile copyWith({
     String? userId,
@@ -116,19 +161,19 @@ class Profile extends Equatable {
 
   @override
   List<Object?> get props => <Object?>[
-    userId,
-    firstName,
-    lastName,
-    phoneNumber,
-    gender,
-    role,
-    dateOfBirth,
-    profileImageUrl,
-    interests,
-    location,
-    lastLoginDate,
-    previousLoginDate,
-    creationTime,
-    lastModificationTime,
-  ];
+        userId,
+        firstName,
+        lastName,
+        phoneNumber,
+        gender,
+        role,
+        dateOfBirth,
+        profileImageUrl,
+        interests,
+        location,
+        lastLoginDate,
+        previousLoginDate,
+        creationTime,
+        lastModificationTime,
+      ];
 }

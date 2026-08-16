@@ -1,4 +1,4 @@
-import 'package:client_information/client_information.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_device_info_plus/flutter_device_info_plus.dart';
@@ -27,7 +27,7 @@ class DeviceInfoProvider {
   }
 
   Future<DeviceSnapshot> _loadSnapshot() async {
-    final ClientInformation clientInfo = await ClientInformation.fetch();
+    final PackageInfo packageInfo = await PackageInfo.fromPlatform();
     final Locale locale = WidgetsBinding.instance.platformDispatcher.locale;
     final deviceInfo = FlutterDeviceInfoPlus();
     final deviceData = await deviceInfo.getDeviceInfo();
@@ -39,24 +39,16 @@ class DeviceInfoProvider {
             ? deviceData.model
             : (deviceData.deviceName.isNotEmpty
                 ? deviceData.deviceName
-                : (clientInfo.softwareName.isNotEmpty
-                    ? clientInfo.softwareName
-                    : 'web')),
-        manufacturer: deviceData.brand.isNotEmpty
-            ? deviceData.brand
-            : (clientInfo.softwareName.isNotEmpty
-                ? clientInfo.softwareName
                 : 'web'),
+        manufacturer: deviceData.brand.isNotEmpty ? deviceData.brand : 'web',
         osVersion: deviceData.systemVersion.isNotEmpty
             ? deviceData.systemVersion
-            : (clientInfo.osVersion.isNotEmpty
-                ? '${clientInfo.osName} ${clientInfo.osVersion}'
-                : 'unknown'),
+            : 'unknown',
         locale: locale.toLanguageTag(),
-        appVersion: clientInfo.applicationVersion,
-        buildNumber: clientInfo.applicationBuildCode,
-        appName: clientInfo.applicationName,
-        environment: clientInfo.applicationId,
+        appVersion: packageInfo.version,
+        buildNumber: packageInfo.buildNumber,
+        appName: packageInfo.appName,
+        environment: packageInfo.packageName,
       );
     }
 
@@ -66,19 +58,16 @@ class DeviceInfoProvider {
         deviceModel: deviceData.model.isNotEmpty
             ? deviceData.model
             : deviceData.deviceName,
-        manufacturer: deviceData.brand.isNotEmpty
-            ? deviceData.brand
-            : 'unknown',
+        manufacturer:
+            deviceData.brand.isNotEmpty ? deviceData.brand : 'unknown',
         osVersion: deviceData.systemVersion.isNotEmpty
             ? deviceData.systemVersion
-            : (clientInfo.osVersion.isNotEmpty
-                ? clientInfo.osVersion
-                : 'unknown'),
+            : 'unknown',
         locale: locale.toLanguageTag(),
-        appVersion: clientInfo.applicationVersion,
-        buildNumber: clientInfo.applicationBuildCode,
-        appName: clientInfo.applicationName,
-        environment: clientInfo.applicationId,
+        appVersion: packageInfo.version,
+        buildNumber: packageInfo.buildNumber,
+        appName: packageInfo.appName,
+        environment: packageInfo.packageName,
       );
     }
 
@@ -91,14 +80,12 @@ class DeviceInfoProvider {
         manufacturer: 'Apple',
         osVersion: deviceData.systemVersion.isNotEmpty
             ? deviceData.systemVersion
-            : (clientInfo.osVersion.isNotEmpty
-                ? clientInfo.osVersion
-                : 'unknown'),
+            : 'unknown',
         locale: locale.toLanguageTag(),
-        appVersion: clientInfo.applicationVersion,
-        buildNumber: clientInfo.applicationBuildCode,
-        appName: clientInfo.applicationName,
-        environment: clientInfo.applicationId,
+        appVersion: packageInfo.version,
+        buildNumber: packageInfo.buildNumber,
+        appName: packageInfo.appName,
+        environment: packageInfo.packageName,
       );
     }
 
@@ -114,10 +101,10 @@ class DeviceInfoProvider {
           ? deviceData.systemVersion
           : 'unknown',
       locale: locale.toLanguageTag(),
-      appVersion: clientInfo.applicationVersion,
-      buildNumber: clientInfo.applicationBuildCode,
-      appName: clientInfo.applicationName,
-      environment: clientInfo.applicationId,
+      appVersion: packageInfo.version,
+      buildNumber: packageInfo.buildNumber,
+      appName: packageInfo.appName,
+      environment: packageInfo.packageName,
     );
   }
 }
@@ -136,15 +123,15 @@ class DeviceSnapshot {
   });
 
   const DeviceSnapshot.unknown()
-    : platform = 'unknown',
-      deviceModel = 'unknown',
-      manufacturer = 'unknown',
-      osVersion = 'unknown',
-      locale = 'unknown',
-      appVersion = 'unknown',
-      buildNumber = 'unknown',
-      appName = 'unknown',
-      environment = 'unknown';
+      : platform = 'unknown',
+        deviceModel = 'unknown',
+        manufacturer = 'unknown',
+        osVersion = 'unknown',
+        locale = 'unknown',
+        appVersion = 'unknown',
+        buildNumber = 'unknown',
+        appName = 'unknown',
+        environment = 'unknown';
 
   final String platform;
   final String deviceModel;

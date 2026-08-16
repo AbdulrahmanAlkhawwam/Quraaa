@@ -25,7 +25,7 @@ class DioLoggingInterceptor extends Interceptor {
       data: <String, Object?>{
         'method': options.method,
         'url': options.uri.toString(),
-        'requestBody': encodeSanitizedBody(options.data),
+        'requestBody': _encodeRequestBody(options.data),
       },
     );
     handler.next(options);
@@ -68,7 +68,7 @@ class DioLoggingInterceptor extends Interceptor {
     }
 
     final String requestBody = truncateBody(
-      encodeSanitizedBody(err.requestOptions.data),
+      _encodeRequestBody(err.requestOptions.data),
     );
     final String requestHeaders = truncateBody(
       encodeSanitizedBody(err.requestOptions.headers),
@@ -97,6 +97,11 @@ class DioLoggingInterceptor extends Interceptor {
       },
     );
 
+    final int? statusCode = err.response?.statusCode;
+    if (statusCode != null && statusCode >= 400 && statusCode < 500) {
+      handler.next(err);
+      return;
+    }
     unawaited(
       _logger.error(
         err,
@@ -114,6 +119,27 @@ class DioLoggingInterceptor extends Interceptor {
       ),
     );
     handler.next(err);
+  }
+
+  String _encodeRequestBody(Object? data) {
+    if (data is FormData) {
+      return encodeSanitizedBody(<String, Object?>{
+        'fields': <String, String>{
+          for (final MapEntry<String, String> field in data.fields)
+            field.key: field.value,
+        },
+        'files': data.files
+            .map(
+              (MapEntry<String, MultipartFile> file) => <String, Object?>{
+                'field': file.key,
+                'filename': file.value.filename,
+                'length': file.value.length,
+              },
+            )
+            .toList(growable: false),
+      });
+    }
+    return encodeSanitizedBody(data);
   }
 
   Duration _duration(RequestOptions options) {

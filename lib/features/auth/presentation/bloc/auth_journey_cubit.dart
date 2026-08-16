@@ -16,8 +16,8 @@ class AuthJourneyState {
 
 class AuthJourneyCubit extends Cubit<AuthJourneyState> {
   AuthJourneyCubit({required AuthLocalDataSource authJourney})
-    : _authJourney = authJourney,
-      super(const AuthJourneyState());
+      : _authJourney = authJourney,
+        super(const AuthJourneyState());
 
   final AuthLocalDataSource _authJourney;
 

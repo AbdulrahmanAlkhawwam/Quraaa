@@ -36,12 +36,14 @@ class LibrariesCubit extends Cubit<LibrariesState> {
 
   final GetLibrariesUseCase _getLibrariesUseCase;
   final LoadAccountUserSnapshotUseCase _loadUserSnapshotUseCase;
+  int _requestGeneration = 0;
 
   Future<void> loadUserSnapshot() async {
     try {
       final AccountUserSnapshot userSnapshot = await _loadUserSnapshotUseCase(
         const NoParams(),
       );
+      if (isClosed) return;
       emit(state.copyWith(userSnapshot: userSnapshot));
     } catch (_) {
       // The header profile is optional; library paging should remain usable.
@@ -49,22 +51,30 @@ class LibrariesCubit extends Cubit<LibrariesState> {
   }
 
   void updateSearchTerm(String searchTerm) {
-    if (searchTerm == state.searchTerm) return;
+    if (isClosed || searchTerm == state.searchTerm) return;
 
+    _requestGeneration++;
     emit(state.copyWith(searchTerm: searchTerm));
     state.pagingController.refresh();
   }
 
   Future<void> _fetchPage(int pageKey) async {
+    if (isClosed) return;
+
+    final int requestGeneration = _requestGeneration;
+    final String searchTerm = state.searchTerm;
+    final int pageSize = state.pageSize;
     emit(state.copyWith(status: LibrariesStatus.loading));
 
-    final result = await _getLibrariesUseCase(
+    final Result<LibrariesPage> result = await _getLibrariesUseCase(
       GetLibrariesParams(
-        searchTerm: state.searchTerm,
+        searchTerm: searchTerm,
         pageNumber: pageKey,
-        pageSize: state.pageSize,
+        pageSize: pageSize,
       ),
     );
+
+    if (isClosed || requestGeneration != _requestGeneration) return;
 
     switch (result) {
       case Success<LibrariesPage>(value: final LibrariesPage page):
@@ -97,7 +107,10 @@ class LibrariesCubit extends Cubit<LibrariesState> {
 
   @override
   Future<void> close() {
-    state.pagingController.dispose();
+    _requestGeneration++;
+    state.pagingController
+      ..removePageRequestListener(_fetchPage)
+      ..dispose();
     return super.close();
   }
 }

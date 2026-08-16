@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../config/routes/route_names.dart';
@@ -7,8 +8,9 @@ import '../../../../core/di/injection_container.dart';
 import '../../../../core/error_monitoring/user_context_provider.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
+import '../../../settings/presentation/cubit/library_registration_cubit.dart';
 
-enum _HomeProfileMenuAction { profile, cart, sellBook }
+enum _HomeProfileMenuAction { profile, cart, sellBook, libraryAccount }
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   const HomeAppBar({
@@ -17,12 +19,16 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.profileImage,
     this.profileImageIsFile = true,
     this.isGuest,
+    this.hasCartItems = false,
+    this.extraActions = const <Widget>[],
   });
 
   final String firstName;
   final String? profileImage;
   final bool profileImageIsFile;
   final bool? isGuest;
+  final bool hasCartItems;
+  final List<Widget> extraActions;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -31,9 +37,14 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final bool guest = isGuest ??
         sl<UserContextProvider>().snapshot.subscriptionStatus != 'active';
-    final String resolvedFirstName = firstName.trim().isEmpty
+    final String storedName = sl.isRegistered<UserContextProvider>()
+        ? sl<UserContextProvider>().snapshot.userName?.trim() ?? ''
+        : '';
+    final String candidateName =
+        firstName.trim().isNotEmpty ? firstName.trim() : storedName;
+    final String resolvedFirstName = candidateName.isEmpty
         ? LocalizationConstants.appNameKey.tr()
-        : firstName.trim();
+        : candidateName.split(' ').first;
     final Color headerTextColor =
         context.isDark ? AppColors.primary300 : AppColors.libraryGreen;
 
@@ -51,6 +62,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
         maxLines: 1,
       ),
       actions: <Widget>[
+        ...extraActions,
         Padding(
           padding: const EdgeInsetsDirectional.only(end: AppSpacing.spacing16),
           child: PopupMenuButton<_HomeProfileMenuAction>(
@@ -80,7 +92,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                   value: _HomeProfileMenuAction.cart,
                   label: LocalizationConstants.homeNavCartKey.tr(),
                   icon: HugeIcons.strokeRoundedShoppingCart01,
-                  showNotificationDot: true,
+                  showNotificationDot: hasCartItems,
                 ),
               _menuItem(
                 context,
@@ -89,10 +101,17 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                 icon: HugeIcons.strokeRoundedStore01,
                 showAddBadge: true,
               ),
+              _menuItem(
+                context,
+                value: _HomeProfileMenuAction.libraryAccount,
+                label: LocalizationConstants.homeProfileMenuLibraryKey.tr(),
+                icon: HugeIcons.strokeRoundedLibrary,
+              ),
             ],
             child: _ProfileAvatar(
               profileImage: profileImage,
               profileImageIsFile: profileImageIsFile,
+              showCartIndicator: hasCartItems,
             ),
           ),
         ),
@@ -142,6 +161,9 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       case _HomeProfileMenuAction.sellBook:
         context.pushTo(RouteNames.sellBook);
         return;
+      case _HomeProfileMenuAction.libraryAccount:
+        context.read<LibraryRegistrationCubit>().requestRegistration();
+        return;
     }
   }
 }
@@ -150,10 +172,12 @@ class _ProfileAvatar extends StatelessWidget {
   const _ProfileAvatar({
     required this.profileImage,
     required this.profileImageIsFile,
+    required this.showCartIndicator,
   });
 
   final String? profileImage;
   final bool profileImageIsFile;
+  final bool showCartIndicator;
 
   @override
   Widget build(BuildContext context) {
@@ -165,12 +189,15 @@ class _ProfileAvatar extends StatelessWidget {
       clipBehavior: Clip.none,
       children: <Widget>[
         Container(
+          key: const ValueKey<String>('home-profile-avatar'),
           width: 42,
           height: 42,
           decoration: BoxDecoration(
             color: context.appSubtleSurface,
             shape: BoxShape.circle,
-            border: Border.all(color: AppColors.error500, width: 1.6),
+            border: showCartIndicator
+                ? Border.all(color: AppColors.error500, width: 1.6)
+                : null,
           ),
           clipBehavior: Clip.antiAlias,
           child: hasImage
@@ -182,18 +209,20 @@ class _ProfileAvatar extends StatelessWidget {
                 )
               : _avatarPlaceholder(avatarColor),
         ),
-        PositionedDirectional(
-          end: -1,
-          bottom: 1,
-          child: Container(
-            width: 9,
-            height: 9,
-            decoration: const BoxDecoration(
-              color: Colors.red,
-              shape: BoxShape.circle,
+        if (showCartIndicator)
+          PositionedDirectional(
+            end: -1,
+            bottom: 1,
+            child: Container(
+              key: const ValueKey<String>('home-cart-avatar-dot'),
+              width: 9,
+              height: 9,
+              decoration: const BoxDecoration(
+                color: Colors.red,
+                shape: BoxShape.circle,
+              ),
             ),
           ),
-        ),
       ],
     );
   }
@@ -239,6 +268,7 @@ class _MenuIcon extends StatelessWidget {
               end: 1,
               top: 0,
               child: DecoratedBox(
+                key: ValueKey<String>('home-cart-menu-dot'),
                 decoration: BoxDecoration(
                   color: Colors.red,
                   shape: BoxShape.circle,

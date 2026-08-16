@@ -50,8 +50,7 @@ dependencies:
   firebase_messaging: ^16.3.0
   firebase_crashlytics: ^5.2.4
   intl_phone_number_input: ^0.7.5
-  flutter_device_info_plus: ^0.4.0
-  client_information: ^2.2.0
+  flutter_device_info_plus: 0.7.1
   connectivity_plus: ^7.1.1
   internet_connection_checker_plus: ^3.1.0
   smooth_page_indicator: ^2.0.1
@@ -70,6 +69,7 @@ dependencies:
   cached_network_image: ^3.4.1
   flutter_map: 8.3.1
   latlong2: 0.9.1
+  package_info_plus: 10.2.1
 
 dev_dependencies:
   flutter_test:

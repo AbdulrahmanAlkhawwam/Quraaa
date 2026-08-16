@@ -29,7 +29,7 @@ class LocationPermissionScreen extends StatelessWidget {
         builder: (context, state) {
           return AppLayout(
             expandContent: true,
-            cardColor: AppColors.card,
+            cardColor: context.appCard,
             padding: const EdgeInsetsDirectional.fromSTEB(
               AppSpacing.spacing24,
               AppSpacing.spacing24,
@@ -49,7 +49,7 @@ class LocationPermissionScreen extends StatelessWidget {
                     child: Container(
                       height: AppDimensions.otpProgressHeight,
                       decoration: BoxDecoration(
-                        color: AppColors.primary100,
+                        color: context.appBorder,
                         borderRadius: BorderRadius.circular(AppRadius.radius40),
                       ),
                       child: Row(
@@ -58,7 +58,7 @@ class LocationPermissionScreen extends StatelessWidget {
                             child: Container(
                               height: AppDimensions.otpProgressHeight,
                               decoration: BoxDecoration(
-                                color: AppColors.primary600,
+                                color: context.colors.primary,
                                 borderRadius: BorderRadius.circular(
                                   AppRadius.radius40,
                                 ),
@@ -79,13 +79,13 @@ class LocationPermissionScreen extends StatelessWidget {
                     height: AppDimensions.permissionIconSize,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppColors.primary50,
-                      border: Border.all(color: AppColors.primary200, width: 2),
+                      color: context.appSubtleSurface,
+                      border: Border.all(color: context.appBorder, width: 2),
                     ),
                     child: Center(
                       child: HugeIcon(
                         icon: HugeIcons.strokeRoundedLocation01,
-                        color: AppColors.primary600,
+                        color: context.colors.primary,
                         size: AppDimensions.permissionIconInnerSize,
                       ),
                     ),
@@ -96,7 +96,9 @@ class LocationPermissionScreen extends StatelessWidget {
                   LocalizationConstants.authLocationTitleKey.tr(),
                   textAlign: TextAlign.center,
                   style: AppTextStyles.h3.copyWith(
-                    color: AppColors.libraryGreen,
+                    color: context.isDark
+                        ? AppColors.primary300
+                        : AppColors.libraryGreen,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.spacing16),
@@ -135,16 +137,17 @@ class LocationPermissionScreen extends StatelessWidget {
                                   .requestLocationAlways(),
                             ),
                     style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.primary400,
-                      foregroundColor: AppColors.card,
+                      backgroundColor: context.colors.secondary,
+                      foregroundColor: context.colors.onSecondary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppRadius.radius32),
                       ),
                       textStyle: AppTextStyles.buttonMedium.copyWith(
-                        color: AppColors.card,
+                        color: context.colors.onSecondary,
                       ),
                     ),
-                    child: Text(LocalizationConstants.authLocationAlwaysKey.tr()),
+                    child:
+                        Text(LocalizationConstants.authLocationAlwaysKey.tr()),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.spacing16),

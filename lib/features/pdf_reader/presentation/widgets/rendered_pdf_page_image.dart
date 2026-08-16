@@ -44,7 +44,7 @@ class RenderedPdfPageImage extends StatelessWidget {
       bytes,
       fit: BoxFit.fill,
       gaplessPlayback: true,
-      filterQuality: FilterQuality.high,
+      filterQuality: FilterQuality.medium,
     );
   }
 }

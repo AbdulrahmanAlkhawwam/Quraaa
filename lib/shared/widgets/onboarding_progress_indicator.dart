@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_colors.dart';
+import '../extensions/app_context.dart';
+
 import '../theme/app_dimensions.dart';
 import '../theme/app_radius.dart';
 import '../theme/app_spacing.dart';
@@ -34,7 +35,7 @@ class OnboardingProgressIndicator extends StatelessWidget {
               : AppDimensions.onboardingDotSize,
           height: AppDimensions.onboardingDotSize,
           decoration: BoxDecoration(
-            color: active ? AppColors.primary600 : AppColors.primary100,
+            color: active ? context.colors.primary : context.appBorder,
             borderRadius: BorderRadius.circular(AppRadius.radius40),
           ),
         );

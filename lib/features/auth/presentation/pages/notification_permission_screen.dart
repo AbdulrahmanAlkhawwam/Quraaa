@@ -92,7 +92,7 @@ class _NotificationPermissionScreenState
         builder: (context, state) {
           return AppLayout(
             expandContent: true,
-            cardColor: AppColors.card,
+            cardColor: context.appCard,
             padding: const EdgeInsetsDirectional.fromSTEB(
               AppSpacing.spacing24,
               AppSpacing.spacing40,
@@ -118,16 +118,16 @@ class _NotificationPermissionScreenState
                       height: AppDimensions.permissionIconSize,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: AppColors.primary50,
+                        color: context.appSubtleSurface,
                         border: Border.all(
-                          color: AppColors.primary200,
+                          color: context.appBorder,
                           width: 2,
                         ),
                       ),
                       child: Center(
                         child: HugeIcon(
                           icon: HugeIcons.strokeRoundedNotification01,
-                          color: AppColors.primary600,
+                          color: context.colors.primary,
                           size: AppDimensions.permissionIconInnerSize,
                         ),
                       ),
@@ -139,7 +139,9 @@ class _NotificationPermissionScreenState
                   LocalizationConstants.authNotificationTitleKey.tr(),
                   textAlign: TextAlign.center,
                   style: AppTextStyles.h3.copyWith(
-                    color: AppColors.libraryGreen,
+                    color: context.isDark
+                        ? AppColors.primary300
+                        : AppColors.libraryGreen,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.spacing16),
@@ -162,8 +164,7 @@ class _NotificationPermissionScreenState
                                   .requestNotificationPermission(),
                             ),
                     child: Text(
-                      LocalizationConstants
-                          .authNotificationTakePermissionKey
+                      LocalizationConstants.authNotificationTakePermissionKey
                           .tr(),
                     ),
                   ),

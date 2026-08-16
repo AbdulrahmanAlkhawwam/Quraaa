@@ -3,6 +3,7 @@ import '../../domain/entities/favorite_book.dart';
 class FavoriteBookModel {
   const FavoriteBookModel({
     required this.favoriteId,
+    this.listingId = '',
     required this.bookId,
     required this.title,
     required this.author,
@@ -15,6 +16,7 @@ class FavoriteBookModel {
   });
 
   final String favoriteId;
+  final String listingId;
   final String bookId;
   final String title;
   final String author;
@@ -28,6 +30,7 @@ class FavoriteBookModel {
   factory FavoriteBookModel.fromJson(Map<String, dynamic> json) {
     return FavoriteBookModel(
       favoriteId: json['favoriteId']?.toString() ?? '',
+      listingId: json['listingId']?.toString() ?? '',
       bookId: json['bookId']?.toString() ?? '',
       title: json['title']?.toString() ?? '',
       author: json['author']?.toString() ?? '',
@@ -42,6 +45,7 @@ class FavoriteBookModel {
 
   FavoriteBook toEntity() => FavoriteBook(
     favoriteId: favoriteId,
+    listingId: listingId,
     bookId: bookId,
     title: title,
     author: author,

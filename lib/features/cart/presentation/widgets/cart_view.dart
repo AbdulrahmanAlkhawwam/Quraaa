@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../core/assets/app_icons.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import '../../../orders/orders.dart';
@@ -69,9 +70,8 @@ class CartView extends StatelessWidget {
   Widget build(BuildContext context) {
     final Color background = context.appCard;
     final CheckoutState checkoutState = context.watch<CheckoutCubit>().state;
-    final Brightness overlayBrightness = context.isDark
-        ? Brightness.light
-        : Brightness.dark;
+    final Brightness overlayBrightness =
+        context.isDark ? Brightness.light : Brightness.dark;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
@@ -119,8 +119,8 @@ class CartView extends StatelessWidget {
                     final bool hasUnavailableItem = state.summary.items.any(
                       (CartItem item) => !item.isAvailable,
                     );
-                    final double horizontal = (constraints.maxWidth * 0.05)
-                        .clamp(18.0, 24.0);
+                    final double horizontal =
+                        (constraints.maxWidth * 0.05).clamp(18.0, 24.0);
 
                     return Padding(
                       padding: EdgeInsetsDirectional.fromSTEB(
@@ -137,8 +137,8 @@ class CartView extends StatelessWidget {
                             onClear: state.isUpdating
                                 ? null
                                 : () => context.read<CartBloc>().add(
-                                    const CartCleared(),
-                                  ),
+                                      const CartCleared(),
+                                    ),
                           ),
                           const SizedBox(height: AppSpacing.spacing16),
                           Expanded(
@@ -150,26 +150,25 @@ class CartView extends StatelessWidget {
                                     itemCount: state.summary.items.length,
                                     itemBuilder:
                                         (BuildContext context, int index) {
-                                          final CartItem item =
-                                              state.summary.items[index];
-                                          return CartItemTile(
-                                            item: item,
-                                            showDivider:
-                                                index !=
-                                                state.summary.items.length - 1,
-                                            onIncrease: () =>
-                                                context.read<CartBloc>().add(
+                                      final CartItem item =
+                                          state.summary.items[index];
+                                      return CartItemTile(
+                                        item: item,
+                                        showDivider: index !=
+                                            state.summary.items.length - 1,
+                                        onIncrease: () =>
+                                            context.read<CartBloc>().add(
                                                   CartQuantityIncreased(item),
                                                 ),
-                                            onDecrease: () =>
-                                                context.read<CartBloc>().add(
+                                        onDecrease: () =>
+                                            context.read<CartBloc>().add(
                                                   CartQuantityDecreased(item),
                                                 ),
-                                            onRemove: () => context
-                                                .read<CartBloc>()
-                                                .add(CartItemRemoved(item.id)),
-                                          );
-                                        },
+                                        onRemove: () => context
+                                            .read<CartBloc>()
+                                            .add(CartItemRemoved(item.id)),
+                                      );
+                                    },
                                   ),
                           ),
                           if (!isEmpty) ...<Widget>[
@@ -183,9 +182,9 @@ class CartView extends StatelessWidget {
                                 onPressed: hasUnavailableItem
                                     ? null
                                     : () => _openPaymentFlow(
-                                        context,
-                                        state.summary,
-                                      ),
+                                          context,
+                                          state.summary,
+                                        ),
                                 style: FilledButton.styleFrom(
                                   backgroundColor: AppColors.primary600,
                                   foregroundColor: AppColors.card,
@@ -240,25 +239,11 @@ class _EmptyCartContent extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Container(
-                width: 96,
-                height: 96,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: <BoxShadow>[
-                    BoxShadow(
-                      color: AppColors.leafGreen.withValues(alpha: 0.18),
-                      blurRadius: 36,
-                      spreadRadius: -4,
-                    ),
-                  ],
-                ),
-                child: const HugeIcon(
-                  icon: HugeIcons.strokeRoundedShoppingCart01,
-                  color: AppColors.leafGreen,
-                  size: 76,
-                ),
+              SvgPicture.asset(
+                AppIcons.books,
+                width: 91,
+                height: 120,
+                fit: BoxFit.contain,
               ),
               const SizedBox(height: AppSpacing.spacing24),
               Text(

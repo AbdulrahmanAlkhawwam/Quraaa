@@ -1,14 +1,16 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/extensions/app_context.dart';
-import '../../../../shared/models/message.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_text_styles.dart';
+import '../cubit/library_registration_cubit.dart';
 import '../widgets/account_type_card.dart';
+import '../widgets/library_registration_listener.dart';
 import '../widgets/settings_palette.dart';
 
 class AccountTypePage extends StatelessWidget {
@@ -18,43 +20,43 @@ class AccountTypePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final SettingsPalette palette = SettingsPalette.of(context);
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle(
-        statusBarColor: palette.background,
-        statusBarIconBrightness: palette.isDark
-            ? Brightness.light
-            : Brightness.dark,
-        systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarDividerColor: Colors.transparent,
-        systemNavigationBarContrastEnforced: false,
-        systemNavigationBarIconBrightness: palette.isDark
-            ? Brightness.light
-            : Brightness.dark,
-      ),
-      child: Scaffold(
-        backgroundColor: palette.background,
-        body: SafeArea(
-          child: ListView(
-            padding: const EdgeInsetsDirectional.fromSTEB(24, 28, 24, 32),
-            children: <Widget>[
-              _AccountTypeHeader(palette: palette),
-              const SizedBox(height: 20),
-              AccountTypeCard(
-                minHeight: 108,
-                title: LocalizationConstants.settingsAccountTypePersonalTitleKey
-                    .tr(),
-                description: LocalizationConstants
-                    .settingsAccountTypePersonalDescriptionKey
-                    .tr(),
-                badgeText: LocalizationConstants
-                    .settingsAccountTypeCurrentPlanKey
-                    .tr(),
-                selected: true,
-                badgeColor: palette.accent,
-                badgeTextColor: palette.onAccent,
-              ),
-              /*const SizedBox(height: 26),*/
-              /*AccountTypeCard(
+    return LibraryRegistrationListener(
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle(
+          statusBarColor: palette.background,
+          statusBarIconBrightness:
+              palette.isDark ? Brightness.light : Brightness.dark,
+          systemNavigationBarColor: Colors.transparent,
+          systemNavigationBarDividerColor: Colors.transparent,
+          systemNavigationBarContrastEnforced: false,
+          systemNavigationBarIconBrightness:
+              palette.isDark ? Brightness.light : Brightness.dark,
+        ),
+        child: Scaffold(
+          backgroundColor: palette.background,
+          body: SafeArea(
+            child: ListView(
+              padding: const EdgeInsetsDirectional.fromSTEB(24, 28, 24, 32),
+              children: <Widget>[
+                _AccountTypeHeader(palette: palette),
+                const SizedBox(height: 20),
+                AccountTypeCard(
+                  minHeight: 108,
+                  title: LocalizationConstants
+                      .settingsAccountTypePersonalTitleKey
+                      .tr(),
+                  description: LocalizationConstants
+                      .settingsAccountTypePersonalDescriptionKey
+                      .tr(),
+                  badgeText: LocalizationConstants
+                      .settingsAccountTypeCurrentPlanKey
+                      .tr(),
+                  selected: true,
+                  badgeColor: palette.accent,
+                  badgeTextColor: palette.onAccent,
+                ),
+                /*const SizedBox(height: 26),*/
+                /*AccountTypeCard(
                 minHeight: 108,
                 title: LocalizationConstants
                     .settingsAccountTypeFamilyTitleKey
@@ -63,7 +65,7 @@ class AccountTypePage extends StatelessWidget {
                     .settingsAccountTypeFamilyDescriptionKey
                     .tr(),
               ),*/
-              /*const SizedBox(height: 26),
+                /*const SizedBox(height: 26),
               AccountTypeCard(
                 minHeight: 90,
                 title: LocalizationConstants.settingsAccountTypeProTitleKey
@@ -79,35 +81,38 @@ class AccountTypePage extends StatelessWidget {
                 ),
                 badgeTextColor: Colors.white,
               ),*/
-              const SizedBox(height: 26),
-              AccountTypeCard(
-                minHeight: 170,
-                title: LocalizationConstants.settingsAccountTypeLibraryTitleKey
-                    .tr(),
-                description: LocalizationConstants
-                    .settingsAccountTypeLibraryDescriptionKey
-                    .tr(),
-                footer: _CreateLibraryButton(
-                  palette: palette,
-                  onPressed: () => _showLibraryComingSoon(context),
+                const SizedBox(height: 26),
+                AccountTypeCard(
+                  minHeight: 170,
+                  title: LocalizationConstants
+                      .settingsAccountTypeLibraryTitleKey
+                      .tr(),
+                  description: LocalizationConstants
+                      .settingsAccountTypeLibraryDescriptionKey
+                      .tr(),
+                  footer: BlocBuilder<LibraryRegistrationCubit,
+                      LibraryRegistrationState>(
+                    builder: (
+                      BuildContext context,
+                      LibraryRegistrationState state,
+                    ) {
+                      final bool isLoading =
+                          state is LibraryRegistrationLoading;
+                      return _CreateLibraryButton(
+                        palette: palette,
+                        isLoading: isLoading,
+                        onPressed: isLoading
+                            ? null
+                            : () => context
+                                .read<LibraryRegistrationCubit>()
+                                .requestRegistration(),
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ),
-    );
-  }
-
-  void _showLibraryComingSoon(BuildContext context) {
-    final String feature = LocalizationConstants
-        .settingsAccountTypeLibraryTitleKey
-        .tr();
-    context.showSuccessSnackBar(
-      message: Message(
-        title: LocalizationConstants.profileComingSoonTitleKey.tr(),
-        value: LocalizationConstants.profileComingSoonMessageKey.tr(
-          namedArgs: <String, String>{'feature': feature},
         ),
       ),
     );
@@ -159,10 +164,15 @@ class _AccountTypeHeader extends StatelessWidget {
 }
 
 class _CreateLibraryButton extends StatelessWidget {
-  const _CreateLibraryButton({required this.palette, required this.onPressed});
+  const _CreateLibraryButton({
+    required this.palette,
+    required this.isLoading,
+    required this.onPressed,
+  });
 
   final SettingsPalette palette;
-  final VoidCallback onPressed;
+  final bool isLoading;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -173,31 +183,39 @@ class _CreateLibraryButton extends StatelessWidget {
         child: FilledButton(
           onPressed: onPressed,
           style: FilledButton.styleFrom(
-            backgroundColor: palette.isDark
-                ? palette.accent
-                : AppColors.primary600,
+            backgroundColor:
+                palette.isDark ? palette.accent : AppColors.primary600,
             foregroundColor: Colors.white,
             padding: const EdgeInsetsDirectional.symmetric(horizontal: 18),
             shape: const StadiumBorder(),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Text(
-                LocalizationConstants.settingsAccountTypeLibraryActionKey.tr(),
-                style: AppTextStyles.buttonMedium.copyWith(
-                  color: Colors.white,
-                  fontSize: 19,
+          child: isLoading
+              ? const SizedBox.square(
+                  dimension: 22,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.4,
+                    color: Colors.white,
+                  ),
+                )
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text(
+                      LocalizationConstants.settingsAccountTypeLibraryActionKey
+                          .tr(),
+                      style: AppTextStyles.buttonMedium.copyWith(
+                        color: Colors.white,
+                        fontSize: 19,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    const HugeIcon(
+                      icon: HugeIcons.strokeRoundedLinkSquare02,
+                      color: Colors.white,
+                      size: 22,
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(width: 10),
-              const HugeIcon(
-                icon: HugeIcons.strokeRoundedLinkSquare02,
-                color: Colors.white,
-                size: 22,
-              ),
-            ],
-          ),
         ),
       ),
     );

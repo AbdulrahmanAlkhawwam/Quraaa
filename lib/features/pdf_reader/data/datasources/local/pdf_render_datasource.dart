@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/services.dart';
 
 import '../../../domain/entities/pdf_text_layer.dart';
@@ -21,10 +23,21 @@ abstract class PdfRenderDataSource {
 
 class MethodChannelPdfRenderDataSource implements PdfRenderDataSource {
   MethodChannelPdfRenderDataSource({
-    this._channel = const MethodChannel('quraaa/pdf_renderer'),
-  });
+    MethodChannel channel = const MethodChannel('quraaa/pdf_renderer'),
+  }) : _channel = channel;
 
   final MethodChannel _channel;
+  static const int _maxRenderedPages = 8;
+  static const int _maxTextLayers = 16;
+
+  final LinkedHashMap<String, Uint8List> _renderedPageCache =
+      LinkedHashMap<String, Uint8List>();
+  final LinkedHashMap<String, PdfPageTextLayer> _textLayerCache =
+      LinkedHashMap<String, PdfPageTextLayer>();
+  final Map<String, Future<Uint8List>> _pendingPageRenders =
+      <String, Future<Uint8List>>{};
+  final Map<String, Future<PdfPageTextLayer>> _pendingTextLayers =
+      <String, Future<PdfPageTextLayer>>{};
 
   @override
   Future<int> pageCount(String path) async {
@@ -43,6 +56,39 @@ class MethodChannelPdfRenderDataSource implements PdfRenderDataSource {
 
   @override
   Future<Uint8List> renderPage({
+    required String path,
+    required int pageIndex,
+    required int width,
+  }) {
+    final String cacheKey = '$path::$pageIndex::$width';
+    final Uint8List? cached = _readCached(_renderedPageCache, cacheKey);
+    if (cached != null) {
+      return Future<Uint8List>.value(cached);
+    }
+    final Future<Uint8List>? pending = _pendingPageRenders[cacheKey];
+    if (pending != null) {
+      return pending;
+    }
+    final Future<Uint8List> future = _renderPageFromPlatform(
+      path: path,
+      pageIndex: pageIndex,
+      width: width,
+    ).then((Uint8List bytes) {
+      _storeCached(
+        _renderedPageCache,
+        cacheKey,
+        bytes,
+        _maxRenderedPages,
+      );
+      return bytes;
+    }).whenComplete(() {
+      _pendingPageRenders.remove(cacheKey);
+    });
+    _pendingPageRenders[cacheKey] = future;
+    return future;
+  }
+
+  Future<Uint8List> _renderPageFromPlatform({
     required String path,
     required int pageIndex,
     required int width,
@@ -69,8 +115,7 @@ class MethodChannelPdfRenderDataSource implements PdfRenderDataSource {
     }
   }
 
-  @override
-  Future<PdfPageTextLayer> textLayer({
+  Future<PdfPageTextLayer> _textLayerFromPlatform({
     required String path,
     required int pageIndex,
   }) async {
@@ -90,6 +135,38 @@ class MethodChannelPdfRenderDataSource implements PdfRenderDataSource {
   }
 
   @override
+  Future<PdfPageTextLayer> textLayer({
+    required String path,
+    required int pageIndex,
+  }) {
+    final String cacheKey = '$path::$pageIndex';
+    final PdfPageTextLayer? cached = _readCached(_textLayerCache, cacheKey);
+    if (cached != null) {
+      return Future<PdfPageTextLayer>.value(cached);
+    }
+    final Future<PdfPageTextLayer>? pending = _pendingTextLayers[cacheKey];
+    if (pending != null) {
+      return pending;
+    }
+    final Future<PdfPageTextLayer> future = _textLayerFromPlatform(
+      path: path,
+      pageIndex: pageIndex,
+    ).then((PdfPageTextLayer layer) {
+      _storeCached(
+        _textLayerCache,
+        cacheKey,
+        layer,
+        _maxTextLayers,
+      );
+      return layer;
+    }).whenComplete(() {
+      _pendingTextLayers.remove(cacheKey);
+    });
+    _pendingTextLayers[cacheKey] = future;
+    return future;
+  }
+
+  @override
   Future<void> shareText(String text) async {
     try {
       await _channel.invokeMethod<void>(
@@ -98,6 +175,27 @@ class MethodChannelPdfRenderDataSource implements PdfRenderDataSource {
       );
     } on MissingPluginException catch (error) {
       throw UnsupportedError('Text sharing is not available: $error');
+    }
+  }
+
+  T? _readCached<T>(LinkedHashMap<String, T> cache, String key) {
+    final T? value = cache.remove(key);
+    if (value != null) {
+      cache[key] = value;
+    }
+    return value;
+  }
+
+  void _storeCached<T>(
+    LinkedHashMap<String, T> cache,
+    String key,
+    T value,
+    int maxEntries,
+  ) {
+    cache.remove(key);
+    cache[key] = value;
+    while (cache.length > maxEntries) {
+      cache.remove(cache.keys.first);
     }
   }
 }

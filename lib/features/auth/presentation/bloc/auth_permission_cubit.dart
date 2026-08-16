@@ -53,7 +53,8 @@ class AuthPermissionCubit extends Cubit<AuthPermissionState> {
     await _navigateAfterLocation();
   }
 
-  Future<void> _handleLocationPermission(Future<void> Function() request) async {
+  Future<void> _handleLocationPermission(
+      Future<void> Function() request) async {
     emit(state.copyWith(status: AuthPermissionStatus.loading));
     await _authJourney.markLocationPermissionSeen();
     try {
@@ -72,8 +73,8 @@ class AuthPermissionCubit extends Cubit<AuthPermissionState> {
   }
 
   Future<void> _navigateAfterLocation() async {
-    final bool notificationSeen = await _authJourney
-        .isNotificationPermissionSeen();
+    final bool notificationSeen =
+        await _authJourney.isNotificationPermissionSeen();
     _emitNavigation(
       notificationSeen ? RouteNames.home : RouteNames.notificationPermission,
     );

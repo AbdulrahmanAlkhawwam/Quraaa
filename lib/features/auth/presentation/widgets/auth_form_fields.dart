@@ -17,7 +17,8 @@ class AuthLabeledField extends StatelessWidget {
         Text(
           label,
           style: AppTextStyles.bodySmall.copyWith(
-            color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
+            color:
+                context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
           ),
         ),
         const SizedBox(height: AppSpacing.spacing12),

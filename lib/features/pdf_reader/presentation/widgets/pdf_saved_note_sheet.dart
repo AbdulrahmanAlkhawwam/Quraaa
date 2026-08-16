@@ -38,7 +38,9 @@ class PdfSavedNoteSheet extends StatelessWidget {
               children: <Widget>[
                 HugeIcon(
                   icon: HugeIcons.strokeRoundedStickyNote02,
-                  color: context.isDark ? AppColors.primary300 : AppColors.secondary,
+                  color: context.isDark
+                      ? AppColors.primary300
+                      : AppColors.secondary,
                   size: 24,
                 ),
                 const SizedBox(width: AppSpacing.spacing8),

@@ -6,14 +6,16 @@ import '../../../../core/errors/error_response_model.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/network/http_helper.dart';
 import '../../domain/entities/profile.dart';
+import '../models/profile_location_model.dart';
 import '../models/profile_model.dart';
 import '../models/update_profile_request_model.dart';
 
 abstract class ProfileRemoteDataSource {
   Future<ProfileModel> getMyProfile();
   Future<ProfileModel> updateMyProfile(UpdateProfileRequestModel request);
+  Future<List<ProfileLocationModel>> getLocations();
   Future<void> updateLocation(ProfileLocation location);
-  Future<void> deleteLocation();
+  Future<void> deleteLocation(ProfileLocation location);
 }
 
 class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
@@ -32,21 +34,52 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       );
 
   @override
-  Future<void> updateLocation(ProfileLocation location) async {
-    await _voidRequest(
-      () => _httpHelper.post(
+  Future<List<ProfileLocationModel>> getLocations() async {
+    try {
+      final Response<dynamic> response = await _httpHelper.get(
         ApiEndpoints.profileLocation,
-        data: <String, dynamic>{
-          'latitude': location.latitude.toString(),
-          'longitude': location.longitude.toString(),
-        },
-      ),
+      );
+      return ProfileLocationModel.listFromJson(response.data);
+    } on DioException catch (error) {
+      throw _mapDioException(error);
+    } on FormatException catch (error) {
+      throw UnknownException(message: error.message);
+    }
+  }
+
+  @override
+  Future<void> updateLocation(ProfileLocation location) async {
+    final ProfileLocationModel request = ProfileLocationModel(
+      id: location.id,
+      name: location.name,
+      address: location.address,
+      latitude: location.latitude,
+      longitude: location.longitude,
+      isDefault: location.isDefault,
+      creationTime: location.creationTime,
+      lastModificationTime: location.lastModificationTime,
+    );
+    await _voidRequest(
+      () => location.id == null
+          ? _httpHelper.post(
+              ApiEndpoints.profileLocation,
+              data: request.toRequestJson(),
+            )
+          : _httpHelper.put(
+              ApiEndpoints.profileLocationById(location.id!),
+              data: request.toRequestJson(),
+            ),
     );
   }
 
   @override
-  Future<void> deleteLocation() =>
-      _voidRequest(() => _httpHelper.delete(ApiEndpoints.profileLocation));
+  Future<void> deleteLocation(ProfileLocation location) => _voidRequest(
+        () => _httpHelper.delete(
+          location.id == null
+              ? ApiEndpoints.profileLocation
+              : ApiEndpoints.profileLocationById(location.id!),
+        ),
+      );
 
   Future<ProfileModel> _profileRequest(
     Future<Response<dynamic>> Function() request,

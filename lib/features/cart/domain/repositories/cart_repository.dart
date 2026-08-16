@@ -9,14 +9,8 @@ abstract class CartRepository {
 
   Future<Result<CartSummary>> clearCart();
 
-
   Future<Result<CartSummary>> addItem({
     required String listingId,
-    required int quantity,
-  });
-
-  Future<Result<CartSummary>> updateQuantity({
-    required String itemId,
     required int quantity,
     CartItem? metadata,
   });
@@ -27,7 +21,4 @@ abstract class CartRepository {
   });
 
   Future<Result<CartSummary>> removeItem(String listingId);
-  Future<Result<CartSummary>> clearCart();
-
-  Future<Result<CartSummary>> applyCoupon(String code);
 }

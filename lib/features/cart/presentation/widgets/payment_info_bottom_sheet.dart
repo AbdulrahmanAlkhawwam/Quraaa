@@ -72,7 +72,7 @@ class _PaymentInfoBottomSheetState extends State<PaymentInfoBottomSheet> {
                   padding: EdgeInsets.zero,
                   physics: const BouncingScrollPhysics(),
                   itemCount: 3,
-                  separatorBuilder: (_, _) =>
+                  separatorBuilder: (context, index) =>
                       const SizedBox(height: AppSpacing.spacing8),
                   itemBuilder: (BuildContext context, int index) {
                     return _PaymentCardTile(
@@ -114,8 +114,8 @@ class _PaymentInfoBottomSheetState extends State<PaymentInfoBottomSheet> {
                   onPressed: _selectedCardIndex == null
                       ? null
                       : () => Navigator.of(
-                          context,
-                        ).pop(PaymentInfoAction.checkout),
+                            context,
+                          ).pop(PaymentInfoAction.checkout),
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.primary600,
                     disabledBackgroundColor: context.isDark
@@ -149,9 +149,8 @@ class _PaymentCardTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color borderColor = selected
-        ? AppColors.primary600
-        : context.appBorder;
+    final Color borderColor =
+        selected ? AppColors.primary600 : context.appBorder;
 
     return Material(
       color: Colors.transparent,

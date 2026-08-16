@@ -109,7 +109,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           LocalizationConstants.authForgotPasswordTitleKey.tr(),
                           textAlign: TextAlign.center,
                           style: AppTextStyles.h3.copyWith(
-                            color: AppColors.libraryGreen,
+                            color: context.isDark
+                                ? AppColors.primary300
+                                : AppColors.libraryGreen,
                           ),
                         ),
                       ),
@@ -163,24 +165,24 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         child: FilledButton(
                           onPressed: state.isLoading ? null : _onSubmit,
                           style: FilledButton.styleFrom(
-                            backgroundColor: AppColors.leafGreen,
-                            foregroundColor: AppColors.card,
+                            backgroundColor: context.colors.primary,
+                            foregroundColor: context.colors.onPrimary,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(
                                 AppRadius.radius32,
                               ),
                             ),
                             textStyle: AppTextStyles.buttonMedium.copyWith(
-                              color: AppColors.card,
+                              color: context.colors.onPrimary,
                             ),
                           ),
                           child: state.isLoading
-                              ? const SizedBox(
+                              ? SizedBox(
                                   width: 20,
                                   height: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2.5,
-                                    color: AppColors.card,
+                                    color: context.colors.onPrimary,
                                   ),
                                 )
                               : Text(
