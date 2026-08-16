@@ -1,31 +1,20 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../config/routes/route_names.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
-import '../../domain/entities/library_book_entity.dart';
-import '../cubit/library_details_state.dart';
-import '../models/library_details_navigation_data.dart';
-import '../models/library_review_view_model.dart';
-import '../widgets/library_review_card.dart';
+import '../../domain/entities/author_entity.dart';
+import '../cubit/author_details_cubit.dart';
 
 class AuthorDetailsScreen extends StatelessWidget {
-  const AuthorDetailsScreen({super.key, required this.authorName, this.data});
-
-  final String authorName;
-  final AuthorDetailsNavigationData? data;
+  const AuthorDetailsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final LibraryAuthorViewModel author =
-        data?.author ?? LibraryAuthorViewModel(name: authorName, imageUrl: '');
-    final String description = data?.description.trim().isNotEmpty ?? false
-        ? data!.description.trim()
-        : LocalizationConstants.libraryDetailsDefaultDescriptionKey.tr();
-
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: context.isDark
           ? SystemUiOverlayStyle.light
@@ -33,76 +22,89 @@ class AuthorDetailsScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: context.appCard,
         body: SafeArea(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.only(bottom: AppSpacing.spacing20),
+          child: BlocBuilder<AuthorDetailsCubit, AuthorDetailsState>(
+            builder: (BuildContext context, AuthorDetailsState state) {
+              if (state.loading && state.author == null) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (state.author == null) {
+                return _ErrorView(
+                  message: state.error ??
+                      LocalizationConstants.errorsUnknownMessageKey.tr(),
+                  onRetry: context.read<AuthorDetailsCubit>().load,
+                );
+              }
+              return _AuthorContent(state: state);
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AuthorContent extends StatelessWidget {
+  const _AuthorContent({required this.state});
+
+  final AuthorDetailsState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final AuthorEntity author = state.author!;
+    final String description = author.bio?.trim().isNotEmpty == true
+        ? author.bio!.trim()
+        : LocalizationConstants.libraryDetailsDefaultDescriptionKey.tr();
+    return RefreshIndicator(
+      onRefresh: context.read<AuthorDetailsCubit>().load,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
+        padding: const EdgeInsets.only(bottom: AppSpacing.spacing24),
+        children: <Widget>[
+          _BackHeader(onBack: context.back),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.spacing20,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                _BackHeader(onBack: context.back),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.spacing20,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      const SizedBox(height: AppSpacing.spacing20),
-                      _AuthorIdentity(author: author),
-                      const SizedBox(height: AppSpacing.spacing20),
-                      Text(
-                        description,
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: context.isDark
-                              ? AppColors.textSecondaryDark
-                              : const Color(0xFF53664A),
-                          height: 1.34,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.spacing10),
-                      _RatingRow(
-                        rating: data?.rating ?? 0,
-                        reviewCount: data?.reviewCount ?? 0,
-                      ),
-                      const SizedBox(height: AppSpacing.spacing20),
-                      Text(
-                        LocalizationConstants.libraryAuthorWorksKey.tr(),
-                        style: AppTextStyles.titleMedium.copyWith(
-                          color: context.isDark
-                              ? AppColors.primary300
-                              : AppColors.libraryGreen,
-                        ),
-                      ),
-                    ],
+                const SizedBox(height: AppSpacing.spacing16),
+                _AuthorIdentity(author: author),
+                const SizedBox(height: AppSpacing.spacing20),
+                Text(
+                  description,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: context.appTextSecondary,
+                    height: 1.4,
                   ),
                 ),
-                const SizedBox(height: AppSpacing.spacing10),
-                _AuthorWorks(works: data?.works ?? const <LibraryBookEntity>[]),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.spacing20,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      const SizedBox(height: AppSpacing.spacing20),
-                      Text(
-                        LocalizationConstants.libraryReviewsTitleKey.tr(),
-                        style: AppTextStyles.titleMedium.copyWith(
-                          color: context.isDark
-                              ? AppColors.primary300
-                              : AppColors.libraryGreen,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.spacing10),
-                      LibraryReviewCard(review: _previewReview(context, 3)),
-                    ],
+                const SizedBox(height: AppSpacing.spacing24),
+                Text(
+                  LocalizationConstants.libraryAuthorWorksKey.tr(),
+                  style: AppTextStyles.titleMedium.copyWith(
+                    color: context.isDark
+                        ? AppColors.primary300
+                        : AppColors.libraryGreen,
                   ),
                 ),
               ],
             ),
           ),
-        ),
+          const SizedBox(height: AppSpacing.spacing12),
+          _AuthorWorks(works: state.books),
+          if (state.error != null)
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.spacing20),
+              child: Text(
+                state.error!,
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.error500,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -120,9 +122,8 @@ class _BackHeader extends StatelessWidget {
       child: Align(
         alignment: AlignmentDirectional.centerStart,
         child: Padding(
-          padding: const EdgeInsetsDirectional.only(
-            start: AppSpacing.spacing20,
-          ),
+          padding:
+              const EdgeInsetsDirectional.only(start: AppSpacing.spacing20),
           child: IconButton(
             onPressed: onBack,
             icon: HugeIcon(
@@ -144,138 +145,88 @@ class _BackHeader extends StatelessWidget {
 class _AuthorIdentity extends StatelessWidget {
   const _AuthorIdentity({required this.author});
 
-  final LibraryAuthorViewModel author;
+  final AuthorEntity author;
 
   @override
   Widget build(BuildContext context) {
+    final String imageUrl = author.photoUrl?.trim() ?? '';
     return Row(
       children: <Widget>[
         ClipOval(
           child: SizedBox(
             width: 76,
             height: 76,
-            child: author.imageUrl.isNotEmpty
-                ? AppImage(
-                    author.imageUrl,
+            child: imageUrl.isEmpty
+                ? _placeholder(context)
+                : AppImage(
+                    imageUrl,
                     width: 76,
                     height: 76,
                     fit: BoxFit.cover,
-                    errorWidget: _authorPlaceholder(context),
-                  )
-                : _authorPlaceholder(context),
+                    errorWidget: _placeholder(context),
+                  ),
           ),
         ),
         const SizedBox(width: AppSpacing.spacing12),
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                author.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.titleLarge.copyWith(
-                  color: context.isDark
-                      ? AppColors.primary300
-                      : AppColors.libraryGreen,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.spacing4),
-              Text(
-                LocalizationConstants.libraryAuthorWriterKey.tr(),
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: context.appTextSecondary,
-                ),
-              ),
-              if (author.subtitle.isNotEmpty) ...<Widget>[
-                const SizedBox(height: AppSpacing.spacing4),
-                Text(
-                  author.subtitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: context.appTextSecondary,
-                  ),
-                ),
-              ],
-            ],
+          child: Text(
+            author.name,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.titleLarge.copyWith(
+              color: context.isDark
+                  ? AppColors.primary300
+                  : AppColors.libraryGreen,
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _authorPlaceholder(BuildContext context) {
-    return ColoredBox(
-      color: context.appSubtleSurface,
-      child: Icon(
-        Icons.person_outline,
-        size: 40,
-        color: context.isDark ? AppColors.primary300 : AppColors.primary600,
-      ),
-    );
-  }
-}
-
-class _RatingRow extends StatelessWidget {
-  const _RatingRow({required this.rating, required this.reviewCount});
-
-  final double rating;
-  final int reviewCount;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: <Widget>[
-        ...List<Widget>.generate(5, (int index) {
-          return Icon(
-            index < rating.clamp(0, 5).round()
-                ? Icons.star_rounded
-                : Icons.star_border_rounded,
-            color: const Color(0xFFFFC400),
-            size: 20,
-          );
-        }),
-        const SizedBox(width: AppSpacing.spacing10),
-        Text(
-          '$reviewCount ${LocalizationConstants.libraryDetailsReviewersKey.tr()}',
-          style: AppTextStyles.bodySmall.copyWith(
-            color: context.appTextSecondary,
-          ),
+  Widget _placeholder(BuildContext context) => ColoredBox(
+        color: context.appSubtleSurface,
+        child: Icon(
+          Icons.person_outline,
+          size: 40,
+          color: context.isDark ? AppColors.primary300 : AppColors.primary600,
         ),
-      ],
-    );
-  }
+      );
 }
 
 class _AuthorWorks extends StatelessWidget {
   const _AuthorWorks({required this.works});
 
-  final List<LibraryBookEntity> works;
+  final List<AuthorBookEntity> works;
 
   @override
   Widget build(BuildContext context) {
     if (works.isEmpty) {
-      return const SizedBox(height: 125);
+      return Padding(
+        padding: const EdgeInsets.all(AppSpacing.spacing20),
+        child: Text(
+          LocalizationConstants.explorerEmptyMessageKey.tr(),
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: context.appTextSecondary,
+          ),
+        ),
+      );
     }
-
     return SizedBox(
-      height: 150,
+      height: 168,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.spacing20),
         itemCount: works.length,
-        separatorBuilder: (separatorContext, separatorIndex) =>
+        separatorBuilder: (_, __) =>
             const SizedBox(width: AppSpacing.spacing14),
         itemBuilder: (BuildContext context, int index) {
-          final LibraryBookEntity book = works[index];
+          final AuthorBookEntity book = works[index];
           return SizedBox(
             width: 116,
-            child: GestureDetector(
+            child: InkWell(
               onTap: () => context.pushTo(
-                RouteNames.bookDetailsPath(book.bookId, book.listingId),
-                extra: BookDetailsNavigationData(book: book),
+                RouteNames.bookDetailsPath(book.listingId),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -286,16 +237,16 @@ class _AuthorWorks extends StatelessWidget {
                       child: SizedBox(
                         width: 64,
                         height: 96,
-                        child: book.coverImageUrl.isNotEmpty
-                            ? AppImage(
+                        child: book.coverImageUrl.isEmpty
+                            ? const ColoredBox(
+                                color: AppColors.primary100,
+                                child: Icon(Icons.book_outlined),
+                              )
+                            : AppImage(
                                 book.coverImageUrl,
                                 width: 64,
                                 height: 96,
                                 fit: BoxFit.cover,
-                              )
-                            : const ColoredBox(
-                                color: AppColors.primary100,
-                                child: Icon(Icons.book_outlined),
                               ),
                       ),
                     ),
@@ -303,19 +254,10 @@ class _AuthorWorks extends StatelessWidget {
                   const SizedBox(height: AppSpacing.spacing8),
                   Text(
                     book.title,
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.bodySmall.copyWith(
                       color: context.appTextPrimary,
-                    ),
-                  ),
-                  Text(
-                    _bookSubtitle(context, book),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.caption.copyWith(
-                      color: AppColors.primary600,
-                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
@@ -326,20 +268,39 @@ class _AuthorWorks extends StatelessWidget {
       ),
     );
   }
-
-  String _bookSubtitle(BuildContext context, LibraryBookEntity book) {
-    if (context.locale.languageCode == 'ar' && book.categoryNameAr.isNotEmpty) {
-      return book.categoryNameAr;
-    }
-    if (book.categoryNameEn.isNotEmpty) return book.categoryNameEn;
-    return book.language;
-  }
 }
 
-LibraryReviewViewModel _previewReview(BuildContext context, int rating) {
-  return LibraryReviewViewModel(
-    rating: rating,
-    comment: LocalizationConstants.libraryReviewsPreviewCommentKey.tr(),
-    reviewerName: LocalizationConstants.libraryReviewsPreviewUserKey.tr(),
-  );
+class _ErrorView extends StatelessWidget {
+  const _ErrorView({required this.message, required this.onRetry});
+
+  final String message;
+  final Future<void> Function() onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        _BackHeader(onBack: context.back),
+        Expanded(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.spacing24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Text(message, textAlign: TextAlign.center),
+                  const SizedBox(height: AppSpacing.spacing16),
+                  FilledButton.icon(
+                    onPressed: onRetry,
+                    icon: const Icon(Icons.refresh),
+                    label: Text(LocalizationConstants.commonRetryKey.tr()),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }

@@ -30,6 +30,7 @@ import '../../features/libraries/presentation/pages/book_details_screen.dart';
 import '../../features/libraries/presentation/models/library_details_navigation_data.dart';
 import '../../features/libraries/presentation/cubit/book_details_cubit.dart';
 import '../../features/libraries/presentation/cubit/library_details_cubit.dart';
+import '../../features/libraries/presentation/cubit/author_details_cubit.dart';
 import '../../features/home/presentation/pages/user_books_screen.dart';
 import '../../features/sell_book/presentation/pages/sell_book_screen.dart';
 import '../../features/sell_book/presentation/pages/my_listings_screen.dart';
@@ -74,8 +75,8 @@ GoRouter buildAppRouter({
 
       if (location == RouteNames.cart) {
         try {
-          final bool isAuthenticated = await sl<AuthLocalDataSource>()
-              .isAuthenticatedSession();
+          final bool isAuthenticated =
+              await sl<AuthLocalDataSource>().isAuthenticatedSession();
           if (!isAuthenticated) {
             return RouteNames.home;
           }
@@ -208,11 +209,12 @@ GoRouter buildAppRouter({
         name: RouteNames.authorDetails,
         path: RouteNames.authorDetails,
         builder: (context, state) {
-          return AuthorDetailsScreen(
-            authorName: Uri.decodeComponent(
-              state.pathParameters['authorName'] ?? '',
-            ),
-            data: state.extra as AuthorDetailsNavigationData?,
+          final String authorId = Uri.decodeComponent(
+            state.pathParameters['authorId'] ?? '',
+          );
+          return BlocProvider<AuthorDetailsCubit>(
+            create: (_) => sl<AuthorDetailsCubit>(param1: authorId)..load(),
+            child: const AuthorDetailsScreen(),
           );
         },
       ),
@@ -229,9 +231,8 @@ GoRouter buildAppRouter({
           final String detailsId = listingId.isNotEmpty ? listingId : bookId;
 
           return BlocProvider<BookDetailsCubit>(
-            create: (_) =>
-                sl<BookDetailsCubit>()
-                  ..load(detailsId: detailsId, fallbackBook: data?.book),
+            create: (_) => sl<BookDetailsCubit>()
+              ..load(detailsId: detailsId, fallbackBook: data?.book),
             child: BookDetailsScreen(bookId: bookId, data: data),
           );
         },
@@ -472,36 +473,35 @@ Page<void> _buildSoftTransitionPage({
     transitionDuration: const Duration(milliseconds: 360),
     reverseTransitionDuration: const Duration(milliseconds: 280),
     child: child,
-    transitionsBuilder:
-        (
-          BuildContext context,
-          Animation<double> animation,
-          Animation<double> secondaryAnimation,
-          Widget child,
-        ) {
-          final Animation<double> curvedAnimation = CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeOutCubic,
-            reverseCurve: Curves.easeInCubic,
-          );
+    transitionsBuilder: (
+      BuildContext context,
+      Animation<double> animation,
+      Animation<double> secondaryAnimation,
+      Widget child,
+    ) {
+      final Animation<double> curvedAnimation = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+        reverseCurve: Curves.easeInCubic,
+      );
 
-          return FadeTransition(
-            opacity: curvedAnimation,
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: beginOffset,
-                end: Offset.zero,
-              ).animate(curvedAnimation),
-              child: ScaleTransition(
-                scale: Tween<double>(
-                  begin: 0.985,
-                  end: 1,
-                ).animate(curvedAnimation),
-                child: child,
-              ),
-            ),
-          );
-        },
+      return FadeTransition(
+        opacity: curvedAnimation,
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: beginOffset,
+            end: Offset.zero,
+          ).animate(curvedAnimation),
+          child: ScaleTransition(
+            scale: Tween<double>(
+              begin: 0.985,
+              end: 1,
+            ).animate(curvedAnimation),
+            child: child,
+          ),
+        ),
+      );
+    },
   );
 }
 

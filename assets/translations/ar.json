@@ -1002,6 +1002,9 @@
     "book_fallback": "كتاب"
   },
   "search": {
+    "books": "الكتب",
+    "authors": "المؤلفون",
+    "libraries": "المكتبات",
     "hint": "\u0627\u0628\u062d\u062b \u0639\u0646 \u0643\u062a\u0627\u0628 \u0623\u0648 \u0645\u0624\u0644\u0641...",
     "trending": "\u0639\u0645\u0644\u064a\u0627\u062a \u0628\u062d\u062b \u0631\u0627\u0626\u062c\u0629",
     "recent": "\u0627\u0644\u0623\u062e\u064a\u0631\u0629",
@@ -1067,7 +1070,12 @@
     "cancel_order": "\u0625\u0644\u063a\u0627\u0621 \u0627\u0644\u0637\u0644\u0628",
     "cancel_reason_optional": "\u0627\u0644\u0633\u0628\u0628 (\u0627\u062e\u062a\u064a\u0627\u0631\u064a)",
     "confirm_cancel": "\u062a\u0623\u0643\u064a\u062f \u0627\u0644\u0625\u0644\u063a\u0627\u0621",
-    "cancel_failed": "\u062a\u0639\u0630\u0631 \u0625\u0644\u063a\u0627\u0621 \u0627\u0644\u0637\u0644\u0628."
+    "cancel_failed": "\u062a\u0639\u0630\u0631 \u0625\u0644\u063a\u0627\u0621 \u0627\u0644\u0637\u0644\u0628.",
+    "change_shipping_location": "تغيير عنوان التوصيل",
+    "choose_shipping_location": "اختر عنوان التوصيل",
+    "no_locations": "لا توجد عناوين توصيل محفوظة.",
+    "shipping_location_updated": "تم تحديث عنوان التوصيل.",
+    "shipping_location_update_failed": "تعذر تحديث عنوان التوصيل."
   },
   "book_engagement": {
     "reviews": "\u0627\u0644\u062a\u0642\u064a\u064a\u0645\u0627\u062a",

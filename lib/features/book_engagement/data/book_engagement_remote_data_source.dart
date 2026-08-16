@@ -14,26 +14,25 @@ class BookEngagementRemoteDataSource {
       ApiEndpoints.bookReviews(bookId),
       queryParameters: const <String, dynamic>{'PageNumber': 1, 'PageSize': 20},
     );
-    final Object? raw = response.data is Map
-        ? (response.data as Map)['items']
-        : response.data;
+    final Object? raw =
+        response.data is Map ? (response.data as Map)['items'] : response.data;
     if (raw is! List) return const <BookComment>[];
-    return raw
-        .whereType<Map>()
-        .map((Map item) {
-          final Map<String, dynamic> json = Map<String, dynamic>.from(item);
-          return BookComment(
-            id: json['id']?.toString() ?? '',
-            userId: json['userId']?.toString() ?? '',
-            name: json['userName']?.toString() ?? '',
-            content: json['content']?.toString() ?? '',
-            score: _integer(json['score']),
-            createdAt: DateTime.tryParse(
-              json['creationTimeUtc']?.toString() ?? '',
-            ),
-          );
-        })
-        .toList(growable: false);
+    return raw.whereType<Map>().map((Map item) {
+      final Map<String, dynamic> json = Map<String, dynamic>.from(item);
+      return _comment(json);
+    }).toList(growable: false);
+  }
+
+  Future<BookComment?> getMyReview(String bookId) async {
+    final Response<dynamic> response = await _http.get(
+      ApiEndpoints.myBookReview(bookId),
+      options: Options(
+        validateStatus: (int? status) => status == 200 || status == 404,
+      ),
+    );
+    if (response.statusCode == 404) return null;
+    if (response.data is! Map) return null;
+    return _comment(Map<String, dynamic>.from(response.data as Map));
   }
 
   Future<BookRatingSummary> getRating(String bookId) async {
@@ -86,18 +85,15 @@ class BookEngagementRemoteDataSource {
     );
     final Object? raw = response.data;
     if (raw is! List) return const <BookReportReason>[];
-    return raw
-        .whereType<Map>()
-        .map((Map item) {
-          final Map<String, dynamic> json = Map<String, dynamic>.from(item);
-          return BookReportReason(
-            value: _integer(json['reason']),
-            nameEn: json['nameEn']?.toString() ?? '',
-            nameAr: json['nameAr']?.toString() ?? '',
-            requiresDetails: json['requiresDetails'] == true,
-          );
-        })
-        .toList(growable: false);
+    return raw.whereType<Map>().map((Map item) {
+      final Map<String, dynamic> json = Map<String, dynamic>.from(item);
+      return BookReportReason(
+        value: _integer(json['reason']),
+        nameEn: json['nameEn']?.toString() ?? '',
+        nameAr: json['nameAr']?.toString() ?? '',
+        requiresDetails: json['requiresDetails'] == true,
+      );
+    }).toList(growable: false);
   }
 
   Future<void> report(String bookId, int reason, String? details) async {
@@ -110,6 +106,16 @@ class BookEngagementRemoteDataSource {
     );
   }
 
+  BookComment _comment(Map<String, dynamic> json) => BookComment(
+        id: json['id']?.toString() ?? '',
+        userId: json['userId']?.toString() ?? '',
+        name: json['userName']?.toString() ?? '',
+        content: json['content']?.toString() ?? '',
+        score: _integer(json['score']),
+        createdAt: DateTime.tryParse(
+          json['creationTimeUtc']?.toString() ?? '',
+        ),
+      );
   int _integer(Object? value) =>
       value is num ? value.toInt() : int.tryParse(value?.toString() ?? '') ?? 0;
 }

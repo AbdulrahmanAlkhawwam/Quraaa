@@ -27,6 +27,12 @@ abstract class OrdersRemoteDataSource {
 
   Future<List<AccountOrderModel>> getMyOrders({int pageNumber = 1});
 
+  Future<AccountOrderModel> updateShippingLocation({
+    required String orderId,
+    String? shippingLocationId,
+    double? latitude,
+    double? longitude,
+  });
   Future<void> cancelOrder(String orderId, {String? reason});
 
   Future<List<AccountOrderModel>> getSellHistory({int pageNumber = 1});
@@ -44,6 +50,37 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
   const OrdersRemoteDataSourceImpl(this._httpHelper);
 
   final HttpHelper _httpHelper;
+
+  @override
+  Future<AccountOrderModel> updateShippingLocation({
+    required String orderId,
+    String? shippingLocationId,
+    double? latitude,
+    double? longitude,
+  }) async {
+    try {
+      final Response<dynamic> response = await _httpHelper.put(
+        ApiEndpoints.orderShippingLocation(orderId),
+        data: <String, Object?>{
+          if (shippingLocationId?.trim().isNotEmpty == true)
+            'shippingLocationId': shippingLocationId!.trim(),
+          if (latitude != null) 'latitude': latitude,
+          if (longitude != null) 'longitude': longitude,
+        },
+      );
+      if (response.data is Map) {
+        return AccountOrderModel.fromJson(
+          Map<String, dynamic>.from(response.data as Map),
+        );
+      }
+      throw const UnknownException(message: 'Invalid updated order response.');
+    } on DioException catch (error) {
+      throw _mapDioException(
+        error,
+        fallback: 'Unable to update the shipping location.',
+      );
+    }
+  }
 
   @override
   Future<void> cancelOrder(String orderId, {String? reason}) async {

@@ -14,6 +14,28 @@ class OrdersRepositoryImpl implements OrdersRepository {
   final OrdersRemoteDataSource _remoteDataSource;
 
   @override
+  Future<Result<AccountOrder>> updateShippingLocation({
+    required String orderId,
+    String? shippingLocationId,
+    double? latitude,
+    double? longitude,
+  }) async {
+    try {
+      return Success<AccountOrder>(
+        await _remoteDataSource.updateShippingLocation(
+          orderId: orderId,
+          shippingLocationId: shippingLocationId,
+          latitude: latitude,
+          longitude: longitude,
+        ),
+      );
+    } catch (error) {
+      final Failure failure = ErrorMapper.map(error);
+      return ResultFailure<AccountOrder>(failure.message, cause: failure);
+    }
+  }
+
+  @override
   Future<Result<void>> cancelOrder(String orderId, {String? reason}) async {
     try {
       await _remoteDataSource.cancelOrder(orderId, reason: reason);

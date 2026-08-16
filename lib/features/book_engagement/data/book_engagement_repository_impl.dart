@@ -18,6 +18,9 @@ class BookEngagementRepositoryImpl implements BookEngagementRepository {
       _result(() => _remote.getRating(bookId));
 
   @override
+  Future<Result<BookComment?>> getMyReview(String bookId) =>
+      _result(() => _remote.getMyReview(bookId));
+  @override
   Future<Result<void>> addReview(String bookId, int score, String content) =>
       _result(() => _remote.addReview(bookId, score, content));
 

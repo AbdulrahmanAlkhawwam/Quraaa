@@ -7,6 +7,7 @@ import '../../../../config/routes/route_names.dart';
 import '../../../../shared/shared.dart';
 import '../../../home/presentation/widgets/home_order_status_card.dart';
 import '../../domain/entities/account_order.dart';
+import '../../domain/entities/order_checkout_context.dart';
 import '../cubit/account_orders_cubit.dart';
 
 class MyOrdersScreen extends StatelessWidget {
@@ -199,6 +200,8 @@ class _OrderGroup extends StatelessWidget {
     }
     if (!isSale && order.stage == AccountOrderStage.pending) {
       children.add(const SizedBox(height: AppSpacing.spacing12));
+      children.add(_ChangeShippingButton(order: order));
+      children.add(const SizedBox(height: AppSpacing.spacing8));
       children.add(_CancelOrderButton(order: order));
     }
     return Column(children: children);
@@ -212,6 +215,71 @@ class _OrderGroup extends StatelessWidget {
         AccountOrderStage.cancelled =>
           HomeOrderStatus.onDoor,
       };
+}
+
+class _ChangeShippingButton extends StatelessWidget {
+  const _ChangeShippingButton({required this.order});
+
+  final AccountOrder order;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: () => _change(context),
+        icon: const Icon(Icons.location_on_outlined),
+        label: Text('orders.change_shipping_location'.tr()),
+      ),
+    );
+  }
+
+  Future<void> _change(BuildContext context) async {
+    final AccountOrdersCubit cubit = context.read<AccountOrdersCubit>();
+    final OrderCheckoutContext? checkout = await cubit.getShippingContext();
+    if (!context.mounted) return;
+    if (checkout == null || checkout.locations.isEmpty) {
+      final String message = cubit.state.error ?? 'orders.no_locations'.tr();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+      return;
+    }
+    final OrderCheckoutLocation? selected =
+        await showDialog<OrderCheckoutLocation>(
+      context: context,
+      builder: (BuildContext dialogContext) => SimpleDialog(
+        title: Text('orders.choose_shipping_location'.tr()),
+        children: checkout.locations
+            .map(
+              (OrderCheckoutLocation location) => SimpleDialogOption(
+                onPressed: () => Navigator.pop(dialogContext, location),
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.location_on_outlined),
+                  title: Text(location.name?.trim().isNotEmpty == true
+                      ? location.name!
+                      : location.address ?? ''),
+                  subtitle: location.name?.trim().isNotEmpty == true &&
+                          location.address?.trim().isNotEmpty == true
+                      ? Text(location.address!)
+                      : null,
+                ),
+              ),
+            )
+            .toList(growable: false),
+      ),
+    );
+    if (selected == null || !context.mounted) return;
+    final bool success = await cubit.updateShippingLocation(order, selected);
+    if (!context.mounted) return;
+    final String message = success
+        ? 'orders.shipping_location_updated'.tr()
+        : cubit.state.error ?? 'orders.shipping_location_update_failed'.tr();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
 }
 
 class _CancelOrderButton extends StatelessWidget {

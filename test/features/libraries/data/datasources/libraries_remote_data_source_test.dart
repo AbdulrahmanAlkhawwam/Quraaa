@@ -79,6 +79,45 @@ void main() {
       ).called(1);
     });
 
+    test('searches libraries using the dedicated endpoint', () async {
+      when(
+        () => httpHelper.get(
+          ApiEndpoints.librarySearch,
+          queryParameters: <String, dynamic>{
+            'SearchTerm': 'jarir',
+            'PageNumber': 1,
+            'PageSize': 10,
+          },
+        ),
+      ).thenAnswer(
+        (_) async => Response<dynamic>(
+          data: <String, dynamic>{
+            'items': <Map<String, dynamic>>[
+              <String, dynamic>{
+                'id': 'library-1',
+                'name': 'Jarir',
+                'logoUrl': null,
+                'location': 'Riyadh',
+                'totalActiveListingsCount': 4,
+              },
+            ],
+            'totalCount': 1,
+            'hasNextPage': false,
+          },
+          statusCode: 200,
+          requestOptions: RequestOptions(),
+        ),
+      );
+
+      final result = await dataSource.searchLibraries(
+        searchTerm: 'jarir',
+        pageNumber: 1,
+        pageSize: 10,
+      );
+
+      expect(result.items.single.id, 'library-1');
+      expect(result.items.single.totalActiveListingsCount, 4);
+    });
     test('throws UnknownException on invalid response shape', () async {
       when(
         () => httpHelper.get(

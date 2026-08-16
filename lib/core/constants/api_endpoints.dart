@@ -46,6 +46,8 @@ abstract class ApiEndpoints {
       '/libraries/register/context';
   static const String libraryRegistrationSubmit = '/libraries/register/submit';
   static const String libraryProfile = '/libraries/my-profile';
+  static const String authorSearch = '/authors/search';
+  static const String librarySearch = '/libraries/search';
 
   static String cartItem(String listingId) => '/cart/items/$listingId';
 
@@ -72,6 +74,7 @@ abstract class ApiEndpoints {
   static String author(String authorId) => '/authors/$authorId';
   static String authorBooks(String authorId) => '/authors/$authorId/books';
   static String bookReviews(String bookId) => '/books/$bookId/reviews';
+  static String myBookReview(String bookId) => '/books/$bookId/reviews/me';
   static String bookReports(String bookId) => '/books/$bookId/reports';
   static String profileLocationDefault(String locationId) =>
       '/profile/locations/$locationId/default';

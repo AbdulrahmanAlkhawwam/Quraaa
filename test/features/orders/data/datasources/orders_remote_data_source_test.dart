@@ -100,6 +100,42 @@ void main() {
     ).called(1);
   });
 
+  test('updates an order shipping location with the saved location id',
+      () async {
+    when(
+      () => httpHelper.put(
+        ApiEndpoints.orderShippingLocation('order-1'),
+        data: <String, Object?>{'shippingLocationId': 'location-2'},
+      ),
+    ).thenAnswer(
+      (_) async => Response<dynamic>(
+        data: <String, dynamic>{
+          'orderId': 'order-1',
+          'orderNumber': 'Q-100',
+          'status': 'Pending',
+          'paymentStatus': 'Paid',
+          'currency': 'usd',
+          'totalAmount': 10,
+          'items': <Object?>[],
+        },
+        statusCode: 200,
+        requestOptions: RequestOptions(),
+      ),
+    );
+
+    final order = await dataSource.updateShippingLocation(
+      orderId: 'order-1',
+      shippingLocationId: 'location-2',
+    );
+
+    expect(order.orderId, 'order-1');
+    verify(
+      () => httpHelper.put(
+        ApiEndpoints.orderShippingLocation('order-1'),
+        data: <String, Object?>{'shippingLocationId': 'location-2'},
+      ),
+    ).called(1);
+  });
   test('resumes the pending order instead of creating a duplicate', () async {
     when(
       () => httpHelper.get(

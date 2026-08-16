@@ -39,7 +39,10 @@ class LibraryRegistrationListener extends StatelessWidget {
       case LibraryRegistrationFailure(error: final error):
         context.showResolvedErrorSnackBar(error);
         cubit.reset();
-      case LibraryRegistrationInitial() || LibraryRegistrationLoading():
+      case LibraryRegistrationInitial() ||
+            LibraryRegistrationLoading() ||
+            LibraryProfileLoading() ||
+            LibraryProfileReady():
         break;
     }
   }

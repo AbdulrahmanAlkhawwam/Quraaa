@@ -5,11 +5,11 @@ abstract class RouteNames {
   static const String stores = '/stores';
   static const String libraries = '/libraries';
   static const String libraryDetails = '/libraries/:libraryId';
-  static const String authorDetails = '/authors/:authorName';
+  static const String authorDetails = '/authors/:authorId';
   static const String bookDetails = '/books/:bookId';
 
-  static String authorDetailsPath(String authorName) {
-    return '/authors/${Uri.encodeComponent(authorName)}';
+  static String authorDetailsPath(String authorId) {
+    return '/authors/${Uri.encodeComponent(authorId)}';
   }
 
   static String bookDetailsPath(String bookId, [String fallbackId = 'book']) {

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/di/injection_container.dart';
-import '../../../core/error_monitoring/user_context_provider.dart';
 import '../../../shared/shared.dart';
 import '../domain/book_engagement.dart';
 import 'book_engagement_cubit.dart';
@@ -18,7 +17,6 @@ class BookEngagementPanel extends StatefulWidget {
 }
 
 class _BookEngagementPanelState extends State<BookEngagementPanel> {
-  final String _currentUserId = sl<UserContextProvider>().snapshot.userId ?? '';
   late final BookEngagementCubit _cubit = BookEngagementCubit(
     sl<BookEngagementRepository>(),
     widget.bookId,
@@ -93,9 +91,15 @@ class _BookEngagementPanelState extends State<BookEngagementPanel> {
                 ),
                 const Spacer(),
                 TextButton.icon(
-                  onPressed: state.saving ? null : _showReview,
+                  onPressed:
+                      state.saving ? null : () => _showReview(state.myReview),
                   icon: const Icon(Icons.rate_review_outlined),
-                  label: Text('book_engagement.add_review'.tr()),
+                  label: Text(
+                    (state.myReview == null
+                            ? 'book_engagement.add_review'
+                            : 'book_engagement.edit_comment')
+                        .tr(),
+                  ),
                 ),
               ],
             ),
@@ -118,8 +122,7 @@ class _BookEngagementPanelState extends State<BookEngagementPanel> {
               ...state.comments.take(5).map(
                     (BookComment comment) => _CommentCard(
                       comment: comment,
-                      editable: _currentUserId.isNotEmpty &&
-                          comment.userId == _currentUserId,
+                      editable: state.myReview?.id == comment.id,
                       onEdit: () => _editComment(comment),
                       onDelete: () => _deleteComment(comment),
                     ),
@@ -130,14 +133,19 @@ class _BookEngagementPanelState extends State<BookEngagementPanel> {
     );
   }
 
-  Future<void> _showReview() async {
-    String commentText = '';
-    int score = 5;
+  Future<void> _showReview(BookComment? currentReview) async {
+    String commentText = currentReview?.content ?? '';
+    int score = currentReview?.score ?? 5;
     final bool? submit = await showDialog<bool>(
       context: context,
       builder: (BuildContext dialogContext) => StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) => AlertDialog(
-          title: Text('book_engagement.add_review'.tr()),
+          title: Text(
+            (currentReview == null
+                    ? 'book_engagement.add_review'
+                    : 'book_engagement.edit_comment')
+                .tr(),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
@@ -155,6 +163,7 @@ class _BookEngagementPanelState extends State<BookEngagementPanel> {
                 ),
               ),
               TextFormField(
+                initialValue: commentText,
                 maxLines: 3,
                 onChanged: (String value) => commentText = value,
                 decoration: InputDecoration(
@@ -177,7 +186,21 @@ class _BookEngagementPanelState extends State<BookEngagementPanel> {
       ),
     );
     if (submit == true) {
-      await _cubit.addReview(score: score, comment: commentText);
+      if (currentReview == null) {
+        await _cubit.addReview(score: score, comment: commentText);
+      } else {
+        await _cubit.updateComment(
+          BookComment(
+            id: currentReview.id,
+            userId: currentReview.userId,
+            name: currentReview.name,
+            content: currentReview.content,
+            score: score,
+            createdAt: currentReview.createdAt,
+          ),
+          commentText,
+        );
+      }
     }
   }
 

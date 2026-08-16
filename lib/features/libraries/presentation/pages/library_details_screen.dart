@@ -173,22 +173,7 @@ class _LibraryDetailsViewState extends State<_LibraryDetailsView> {
                             const SizedBox(width: AppSpacing.spacing12),
                         itemBuilder: (BuildContext context, int index) {
                           final author = state.authors[index];
-                          final works = state.books
-                              .where((book) => book.author == author.name)
-                              .toList(growable: false);
-                          return LibraryAuthorCard(
-                            author: author,
-                            onTap: () => context.pushTo(
-                              RouteNames.authorDetailsPath(author.name),
-                              extra: AuthorDetailsNavigationData(
-                                author: author,
-                                works: works,
-                                description: widget.library?.description ?? '',
-                                rating: widget.library?.rating ?? 0,
-                                reviewCount: widget.library?.reviewCount ?? 0,
-                              ),
-                            ),
-                          );
+                          return LibraryAuthorCard(author: author);
                         },
                       ),
                     ),

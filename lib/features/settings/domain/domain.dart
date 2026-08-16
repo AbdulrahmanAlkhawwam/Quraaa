@@ -1,6 +1,7 @@
 export 'entities/appearance_option.dart';
 export 'entities/language_option.dart';
 export 'entities/library_registration.dart';
+export 'entities/library_profile.dart';
 export 'entities/notification_setting.dart';
 export 'entities/settings_section.dart';
 export 'entities/settings_tab.dart';
@@ -16,6 +17,7 @@ export 'use_cases/get_profile_sections_use_case.dart';
 export 'use_cases/get_settings_sections_use_case.dart';
 export 'use_cases/get_settings_tabs_use_case.dart';
 export 'use_cases/request_library_registration_use_case.dart';
+export 'use_cases/get_library_profile_use_case.dart';
 export 'use_cases/update_appearance_option_use_case.dart';
 export 'use_cases/update_language_option_use_case.dart';
 export 'use_cases/update_notification_setting_use_case.dart';

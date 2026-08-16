@@ -1004,6 +1004,9 @@
     "book_fallback": "Book"
   },
   "search": {
+    "books": "Books",
+    "authors": "Authors",
+    "libraries": "Libraries",
     "hint": "Search books, authors...",
     "trending": "Trending",
     "recent": "Recent",
@@ -1069,7 +1072,12 @@
     "cancel_order": "Cancel order",
     "cancel_reason_optional": "Reason (optional)",
     "confirm_cancel": "Confirm cancellation",
-    "cancel_failed": "Could not cancel the order."
+    "cancel_failed": "Could not cancel the order.",
+    "change_shipping_location": "Change shipping location",
+    "choose_shipping_location": "Choose shipping location",
+    "no_locations": "No saved shipping locations are available.",
+    "shipping_location_updated": "Shipping location updated.",
+    "shipping_location_update_failed": "Could not update the shipping location."
   },
   "book_engagement": {
     "reviews": "Reviews",

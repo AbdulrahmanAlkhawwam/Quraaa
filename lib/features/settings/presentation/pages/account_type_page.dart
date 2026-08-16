@@ -13,8 +13,36 @@ import '../widgets/account_type_card.dart';
 import '../widgets/library_registration_listener.dart';
 import '../widgets/settings_palette.dart';
 
-class AccountTypePage extends StatelessWidget {
+class AccountTypePage extends StatefulWidget {
   const AccountTypePage({super.key});
+
+  @override
+  State<AccountTypePage> createState() => _AccountTypePageState();
+}
+
+class _AccountTypePageState extends State<AccountTypePage>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) context.read<LibraryRegistrationCubit>().loadProfile();
+    });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && mounted) {
+      context.read<LibraryRegistrationCubit>().loadProfile();
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,8 +124,17 @@ class AccountTypePage extends StatelessWidget {
                       BuildContext context,
                       LibraryRegistrationState state,
                     ) {
+                      if (state is LibraryProfileReady) {
+                        return _LibraryProfileSummary(
+                          name: state.profile.libraryName,
+                          location: state.profile.location,
+                          email: state.profile.email,
+                          palette: palette,
+                        );
+                      }
                       final bool isLoading =
-                          state is LibraryRegistrationLoading;
+                          state is LibraryRegistrationLoading ||
+                              state is LibraryProfileLoading;
                       return _CreateLibraryButton(
                         palette: palette,
                         isLoading: isLoading,
@@ -218,6 +255,39 @@ class _CreateLibraryButton extends StatelessWidget {
                 ),
         ),
       ),
+    );
+  }
+}
+
+class _LibraryProfileSummary extends StatelessWidget {
+  const _LibraryProfileSummary({
+    required this.name,
+    required this.location,
+    required this.email,
+    required this.palette,
+  });
+
+  final String name;
+  final String location;
+  final String email;
+  final SettingsPalette palette;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Icon(Icons.store_outlined, color: palette.accent),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            <String>[name, location, email]
+                .where((String value) => value.trim().isNotEmpty)
+                .join('\n'),
+            style: AppTextStyles.bodySmall.copyWith(color: palette.text),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -57,6 +57,10 @@ import '../../features/profile/domain/entities/profile.dart';
 import '../../features/home/home.dart';
 import '../../features/book_engagement/book_engagement.dart';
 import '../../features/purchases/purchases.dart';
+import '../../features/libraries/data/datasources/authors_remote_data_source.dart';
+import '../../features/libraries/data/repositories/authors_repository_impl.dart';
+import '../../features/libraries/domain/repositories/authors_repository.dart';
+import '../../features/libraries/presentation/cubit/author_details_cubit.dart';
 import '../../features/libraries/data/datasources/libraries_remote_data_source.dart';
 import '../../features/libraries/data/repositories/libraries_repository_impl.dart';
 import '../../features/libraries/domain/repositories/libraries_repository.dart';
@@ -142,6 +146,7 @@ import '../../features/settings/domain/use_cases/get_profile_sections_use_case.d
 import '../../features/settings/domain/use_cases/get_settings_sections_use_case.dart';
 import '../../features/settings/domain/use_cases/get_settings_tabs_use_case.dart';
 import '../../features/settings/domain/use_cases/request_library_registration_use_case.dart';
+import '../../features/settings/domain/use_cases/get_library_profile_use_case.dart';
 import '../../features/settings/domain/use_cases/update_appearance_option_use_case.dart';
 import '../../features/settings/domain/use_cases/update_language_option_use_case.dart';
 import '../../features/settings/domain/use_cases/update_notification_setting_use_case.dart';
@@ -594,6 +599,18 @@ void registerFeatureDependencies() {
     ),
   );
 
+  sl.registerLazySingleton<AuthorsRemoteDataSource>(
+    () => AuthorsRemoteDataSourceImpl(sl<HttpHelper>()),
+  );
+  sl.registerLazySingleton<AuthorsRepository>(
+    () => AuthorsRepositoryImpl(sl<AuthorsRemoteDataSource>()),
+  );
+  sl.registerFactoryParam<AuthorDetailsCubit, String, void>(
+    (String authorId, _) => AuthorDetailsCubit(
+      sl<AuthorsRepository>(),
+      authorId,
+    ),
+  );
   // Library details feature
   sl.registerLazySingleton<LibraryDetailsRemoteDataSource>(
     () => LibraryDetailsRemoteDataSourceImpl(sl<HttpHelper>()),
@@ -952,9 +969,18 @@ void registerFeatureDependencies() {
     );
   }
 
+  if (!sl.isRegistered<GetLibraryProfileUseCase>()) {
+    sl.registerLazySingleton<GetLibraryProfileUseCase>(
+      () => GetLibraryProfileUseCase(sl<LibraryRegistrationRepository>()),
+    );
+  }
+
   if (!sl.isRegistered<LibraryRegistrationCubit>()) {
     sl.registerFactory<LibraryRegistrationCubit>(
-      () => LibraryRegistrationCubit(sl<RequestLibraryRegistrationUseCase>()),
+      () => LibraryRegistrationCubit(
+        sl<RequestLibraryRegistrationUseCase>(),
+        sl<GetLibraryProfileUseCase>(),
+      ),
     );
   }
 

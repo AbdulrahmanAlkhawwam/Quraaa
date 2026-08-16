@@ -6,9 +6,11 @@ import '../../../../core/errors/error_response_model.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/network/http_helper.dart';
 import '../models/library_registration_model.dart';
+import '../models/library_profile_model.dart';
 
 abstract class LibraryRegistrationRemoteDataSource {
   Future<LibraryRegistrationModel> requestRegistration();
+  Future<LibraryProfileModel?> getMyProfile();
 }
 
 class LibraryRegistrationRemoteDataSourceImpl
@@ -16,6 +18,27 @@ class LibraryRegistrationRemoteDataSourceImpl
   const LibraryRegistrationRemoteDataSourceImpl(this._httpHelper);
 
   final HttpHelper _httpHelper;
+  @override
+  Future<LibraryProfileModel?> getMyProfile() async {
+    try {
+      final Response<dynamic> response = await _httpHelper.get(
+        ApiEndpoints.libraryProfile,
+        options: Options(
+          validateStatus: (int? status) => status == 200 || status == 404,
+        ),
+      );
+      if (response.statusCode == 404) return null;
+      if (response.data is Map) {
+        return LibraryProfileModel.fromJson(
+          Map<String, dynamic>.from(response.data as Map),
+        );
+      }
+      throw const UnknownException(
+          message: 'Invalid library profile response.');
+    } on DioException catch (error) {
+      throw _mapDioException(error);
+    }
+  }
 
   @override
   Future<LibraryRegistrationModel> requestRegistration() async {

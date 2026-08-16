@@ -2,10 +2,16 @@ import 'package:equatable/equatable.dart';
 
 import '../../../../core/architecture/result.dart';
 import '../entities/library_entity.dart';
+import '../entities/library_search_entity.dart';
 
 /// Repository contract for paginated library listings.
 abstract class LibrariesRepository {
   /// Returns a page of libraries matching [searchTerm].
+  Future<Result<LibrarySearchPage>> searchLibraries({
+    required String searchTerm,
+    required int pageNumber,
+    required int pageSize,
+  });
   Future<Result<LibrariesPage>> getLibraries({
     required String searchTerm,
     required int pageNumber,
@@ -43,4 +49,19 @@ class LibrariesPage extends Equatable {
         hasNextPage,
         hasPreviousPage,
       ];
+}
+
+class LibrarySearchPage extends Equatable {
+  const LibrarySearchPage({
+    required this.items,
+    required this.totalCount,
+    required this.hasNextPage,
+  });
+
+  final List<LibrarySearchEntity> items;
+  final int totalCount;
+  final bool hasNextPage;
+
+  @override
+  List<Object?> get props => <Object?>[items, totalCount, hasNextPage];
 }

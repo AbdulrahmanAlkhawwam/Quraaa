@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/architecture/result.dart';
 import '../../domain/entities/account_order.dart';
+import '../../domain/entities/order_checkout_context.dart';
 import '../../domain/repositories/orders_repository.dart';
 
 enum AccountOrdersMode { purchases, sales }
@@ -50,6 +51,52 @@ class AccountOrdersCubit extends Cubit<AccountOrdersState> {
 
   final OrdersRepository _repository;
   final AccountOrdersMode mode;
+  Future<OrderCheckoutContext?> getShippingContext() async {
+    if (state.loading || mode != AccountOrdersMode.purchases) return null;
+    emit(state.copyWith(loading: true, clearError: true));
+    final Result<OrderCheckoutContext> result =
+        await _repository.getCheckoutContext();
+    if (isClosed) return null;
+    OrderCheckoutContext? checkoutContext;
+    String? error;
+    result.fold(
+      (failure) => error = failure.message,
+      (value) => checkoutContext = value,
+    );
+    emit(state.copyWith(
+        loading: false, error: error, clearError: error == null));
+    return checkoutContext;
+  }
+
+  Future<bool> updateShippingLocation(
+    AccountOrder order,
+    OrderCheckoutLocation location,
+  ) async {
+    if (state.loading || mode != AccountOrdersMode.purchases) return false;
+    emit(state.copyWith(loading: true, clearError: true));
+    final Result<AccountOrder> result =
+        await _repository.updateShippingLocation(
+      orderId: order.orderId,
+      shippingLocationId: location.id,
+    );
+    if (isClosed) return false;
+    AccountOrder? updatedOrder;
+    String? error;
+    result.fold(
+      (failure) => error = failure.message,
+      (value) => updatedOrder = value,
+    );
+    if (error != null) {
+      emit(state.copyWith(loading: false, error: error));
+      return false;
+    }
+    final List<AccountOrder> orders = state.orders
+        .map((AccountOrder item) =>
+            item.orderId == order.orderId ? updatedOrder! : item)
+        .toList(growable: false);
+    emit(state.copyWith(loading: false, orders: orders, clearError: true));
+    return true;
+  }
 
   Future<bool> cancel(AccountOrder order, {String? reason}) async {
     if (state.loading || mode != AccountOrdersMode.purchases) return false;

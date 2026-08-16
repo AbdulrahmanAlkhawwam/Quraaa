@@ -23,6 +23,12 @@ abstract class OrdersRepository {
 
   Future<Result<List<AccountOrder>>> getMyOrders({int pageNumber = 1});
 
+  Future<Result<AccountOrder>> updateShippingLocation({
+    required String orderId,
+    String? shippingLocationId,
+    double? latitude,
+    double? longitude,
+  });
   Future<Result<void>> cancelOrder(String orderId, {String? reason});
 
   Future<Result<List<AccountOrder>>> getSellHistory({int pageNumber = 1});

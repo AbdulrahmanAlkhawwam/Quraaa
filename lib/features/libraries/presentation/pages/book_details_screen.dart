@@ -14,7 +14,6 @@ import '../../../favorites/favorites.dart';
 import '../../domain/entities/library_book_entity.dart';
 import '../cubit/book_details_cubit.dart';
 import '../cubit/book_details_state.dart';
-import '../cubit/library_details_state.dart';
 import '../models/library_details_navigation_data.dart';
 import '../widgets/book_purchase_bottom_sheet.dart';
 
@@ -475,24 +474,9 @@ class _BookOverview extends StatelessWidget {
                     label: LocalizationConstants.libraryBookPublisherKey.tr(),
                     value: _publisherValue(context),
                   ),
-                  GestureDetector(
-                    onTap: book == null || book!.author.isEmpty
-                        ? null
-                        : () => context.pushTo(
-                              RouteNames.authorDetailsPath(book!.author),
-                              extra: AuthorDetailsNavigationData(
-                                author: LibraryAuthorViewModel(
-                                  name: book!.author,
-                                  imageUrl: '',
-                                ),
-                                works: <LibraryBookEntity>[book!],
-                                description: book!.description,
-                              ),
-                            ),
-                    child: _MetadataLine(
-                      label: LocalizationConstants.libraryBookWriterKey.tr(),
-                      value: book?.author ?? '',
-                    ),
+                  _MetadataLine(
+                    label: LocalizationConstants.libraryBookWriterKey.tr(),
+                    value: book?.author ?? '',
                   ),
                   _MetadataLine(
                     label: LocalizationConstants.libraryBookVersionKey.tr(),

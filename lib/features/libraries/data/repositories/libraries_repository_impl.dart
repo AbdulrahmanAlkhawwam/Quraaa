@@ -10,6 +10,33 @@ class LibrariesRepositoryImpl extends BaseRepository<LibrariesPage>
   const LibrariesRepositoryImpl(this._remoteDataSource);
 
   final LibrariesRemoteDataSource _remoteDataSource;
+  @override
+  Future<Result<LibrarySearchPage>> searchLibraries({
+    required String searchTerm,
+    required int pageNumber,
+    required int pageSize,
+  }) async {
+    try {
+      final response = await _remoteDataSource.searchLibraries(
+        searchTerm: searchTerm,
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+      );
+      return Success<LibrarySearchPage>(
+        LibrarySearchPage(
+          items: response.items,
+          totalCount: response.totalCount,
+          hasNextPage: response.hasNextPage,
+        ),
+      );
+    } catch (error) {
+      final Failure failure = ErrorMapper.map(error);
+      return ResultFailure<LibrarySearchPage>(
+        failure.message,
+        cause: failure,
+      );
+    }
+  }
 
   @override
   Future<Result<LibrariesPage>> getLibraries({

@@ -24,6 +24,13 @@ void main() {
     expect(comments.single.content, 'Useful');
   });
 
+  test('loads the authenticated user review from reviews me', () async {
+    final BookComment? review = await dataSource.getMyReview('book-1');
+
+    expect(http.lastPath, '/books/book-1/reviews/me');
+    expect(review?.id, 'review-1');
+    expect(review?.userId, 'user-1');
+  });
   test('creates, updates, and deletes the current user review', () async {
     await dataSource.addReview('book-1', 5, 'Excellent');
     expect(http.lastMethod, 'POST');
@@ -61,6 +68,21 @@ class _RecordingHttpHelper extends HttpHelper {
     lastMethod = 'GET';
     lastPath = path;
     lastQuery = queryParameters;
+    if (path.endsWith('/reviews/me')) {
+      return Response<dynamic>(
+        requestOptions: RequestOptions(path: path),
+        statusCode: 200,
+        data: <String, dynamic>{
+          'id': 'review-1',
+          'userId': 'user-1',
+          'userName': 'Reader',
+          'userAvatarUrl': '',
+          'score': 4,
+          'content': 'Useful',
+          'creationTimeUtc': '2026-08-16T19:00:00Z',
+        },
+      );
+    }
     return Response<dynamic>(
       requestOptions: RequestOptions(path: path),
       statusCode: 200,
@@ -114,6 +136,21 @@ class _RecordingHttpHelper extends HttpHelper {
     lastMethod = method;
     lastPath = path;
     lastData = data;
+    if (path.endsWith('/reviews/me')) {
+      return Response<dynamic>(
+        requestOptions: RequestOptions(path: path),
+        statusCode: 200,
+        data: <String, dynamic>{
+          'id': 'review-1',
+          'userId': 'user-1',
+          'userName': 'Reader',
+          'userAvatarUrl': '',
+          'score': 4,
+          'content': 'Useful',
+          'creationTimeUtc': '2026-08-16T19:00:00Z',
+        },
+      );
+    }
     return Response<dynamic>(
       requestOptions: RequestOptions(path: path),
       statusCode: 200,

@@ -1,3 +1,6 @@
+export 'domain/entities/author_entity.dart';
+export 'domain/entities/library_search_entity.dart';
+export 'domain/repositories/authors_repository.dart';
 // Public API exposed by the libraries feature to other app features.
 export 'domain/entities/library_book_entity.dart';
 export 'domain/entities/library_entity.dart';

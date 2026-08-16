@@ -11,6 +11,7 @@ class BookEngagementState extends Equatable {
     this.comments = const <BookComment>[],
     this.rating = const BookRatingSummary(average: 0, count: 0),
     this.reasons = const <BookReportReason>[],
+    this.myReview,
     this.error,
     this.actionSerial = 0,
   });
@@ -20,24 +21,26 @@ class BookEngagementState extends Equatable {
   final List<BookComment> comments;
   final BookRatingSummary rating;
   final List<BookReportReason> reasons;
+  final BookComment? myReview;
   final String? error;
   final int actionSerial;
 
   @override
   List<Object?> get props => <Object?>[
-    loading,
-    saving,
-    comments,
-    rating,
-    reasons,
-    error,
-    actionSerial,
-  ];
+        loading,
+        saving,
+        comments,
+        rating,
+        reasons,
+        myReview,
+        error,
+        actionSerial,
+      ];
 }
 
 class BookEngagementCubit extends Cubit<BookEngagementState> {
   BookEngagementCubit(this._repository, this.bookId)
-    : super(const BookEngagementState());
+      : super(const BookEngagementState());
 
   final BookEngagementRepository _repository;
   final String bookId;
@@ -50,20 +53,23 @@ class BookEngagementCubit extends Cubit<BookEngagementState> {
         comments: state.comments,
         rating: state.rating,
         reasons: state.reasons,
+        myReview: state.myReview,
         actionSerial: state.actionSerial,
       ),
     );
-    final List<Result<Object>> results =
-        await Future.wait(<Future<Result<Object>>>[
-          _repository.getComments(bookId),
-          _repository.getRating(bookId),
-          _repository.getReportReasons(),
-        ]);
+    final List<Result<dynamic>> results =
+        await Future.wait(<Future<Result<dynamic>>>[
+      _repository.getComments(bookId),
+      _repository.getRating(bookId),
+      _repository.getReportReasons(),
+      _repository.getMyReview(bookId),
+    ]);
     if (isClosed) return;
     String? error;
     List<BookComment> comments = state.comments;
     BookRatingSummary rating = state.rating;
     List<BookReportReason> reasons = state.reasons;
+    BookComment? myReview = state.myReview;
     results[0].fold(
       (failure) => error ??= failure.message,
       (value) => comments = value as List<BookComment>,
@@ -76,11 +82,16 @@ class BookEngagementCubit extends Cubit<BookEngagementState> {
       (failure) => error ??= failure.message,
       (value) => reasons = value as List<BookReportReason>,
     );
+    results[3].fold(
+      (failure) => error ??= failure.message,
+      (value) => myReview = value as BookComment?,
+    );
     emit(
       BookEngagementState(
         comments: comments,
         rating: rating,
         reasons: reasons,
+        myReview: myReview,
         error: error,
         actionSerial: state.actionSerial,
       ),
@@ -146,18 +157,20 @@ class BookEngagementCubit extends Cubit<BookEngagementState> {
   bool get saving => state.saving;
 
   BookEngagementState _saving() => BookEngagementState(
-    saving: true,
-    comments: state.comments,
-    rating: state.rating,
-    reasons: state.reasons,
-    actionSerial: state.actionSerial,
-  );
+        saving: true,
+        comments: state.comments,
+        rating: state.rating,
+        reasons: state.reasons,
+        myReview: state.myReview,
+        actionSerial: state.actionSerial,
+      );
 
   BookEngagementState _done({String? error, bool success = false}) =>
       BookEngagementState(
         comments: state.comments,
         rating: state.rating,
         reasons: state.reasons,
+        myReview: state.myReview,
         error: error,
         actionSerial: state.actionSerial + (success ? 1 : 0),
       );

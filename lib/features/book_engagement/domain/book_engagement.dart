@@ -21,13 +21,13 @@ class BookComment extends Equatable {
 
   @override
   List<Object?> get props => <Object?>[
-    id,
-    userId,
-    name,
-    content,
-    score,
-    createdAt,
-  ];
+        id,
+        userId,
+        name,
+        content,
+        score,
+        createdAt,
+      ];
 }
 
 class BookRatingSummary extends Equatable {
@@ -60,6 +60,7 @@ class BookReportReason extends Equatable {
 abstract class BookEngagementRepository {
   Future<Result<List<BookComment>>> getComments(String bookId);
   Future<Result<BookRatingSummary>> getRating(String bookId);
+  Future<Result<BookComment?>> getMyReview(String bookId);
   Future<Result<void>> addReview(String bookId, int score, String content);
   Future<Result<void>> updateReview(String bookId, int score, String content);
   Future<Result<void>> deleteReview(String bookId);
