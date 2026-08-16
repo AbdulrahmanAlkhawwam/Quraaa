@@ -243,7 +243,7 @@ GoRouter buildAppRouter({
         pageBuilder: (context, state) => _buildTabTransitionPage(
           state: state,
           tabIndex: 4,
-          child: const CartScreen(),
+          child: CartScreen(openCheckoutOnLoad: state.extra == true),
         ),
       ),
       GoRoute(

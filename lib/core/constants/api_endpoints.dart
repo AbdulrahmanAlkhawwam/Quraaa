@@ -25,6 +25,8 @@ abstract class ApiEndpoints {
   static const String homeCatalog = '/books/home-catalog';
   static const String cart = '/cart/me';
   static const String orders = '/orders';
+  static const String ordersCheckoutContext = '/orders/checkout-context';
+  static const String ordersMine = '/orders/me';
   static const String cartItems = '/cart/items';
   static const String favoriteBooks = '/favorite-books';
   static const String aiSummarize = '/ai/summarize';
@@ -41,4 +43,7 @@ abstract class ApiEndpoints {
 
   static String listingDetails(String listingId) =>
       '/listings/$listingId/details';
+
+  static String orderCheckoutSession(String orderId) =>
+      '/orders/$orderId/checkout-session';
 }

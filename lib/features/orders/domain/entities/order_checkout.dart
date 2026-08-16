@@ -19,11 +19,11 @@ class OrderCheckout extends Equatable {
 
   @override
   List<Object?> get props => <Object?>[
-    orderId,
-    orderNumber,
-    paymentAttemptId,
-    checkoutSessionId,
-    checkoutUrl,
-    expiresAt,
-  ];
+        orderId,
+        orderNumber,
+        paymentAttemptId,
+        checkoutSessionId,
+        checkoutUrl,
+        expiresAt,
+      ];
 }

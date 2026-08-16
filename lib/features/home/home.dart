@@ -9,3 +9,4 @@ export 'presentation/pages/home_screen.dart';
 export 'presentation/pages/audio_books_screen.dart';
 export 'presentation/pages/stores_screen.dart';
 export 'presentation/widgets/home_app_bar.dart';
+export 'presentation/widgets/home_order_status_card.dart';

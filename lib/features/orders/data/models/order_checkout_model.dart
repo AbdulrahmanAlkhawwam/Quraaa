@@ -33,11 +33,11 @@ class OrderCheckoutModel {
   }
 
   OrderCheckout toEntity() => OrderCheckout(
-    orderId: orderId,
-    orderNumber: orderNumber,
-    paymentAttemptId: paymentAttemptId,
-    checkoutSessionId: checkoutSessionId,
-    checkoutUrl: checkoutUrl,
-    expiresAt: expiresAt,
-  );
+        orderId: orderId,
+        orderNumber: orderNumber,
+        paymentAttemptId: paymentAttemptId,
+        checkoutSessionId: checkoutSessionId,
+        checkoutUrl: checkoutUrl,
+        expiresAt: expiresAt,
+      );
 }

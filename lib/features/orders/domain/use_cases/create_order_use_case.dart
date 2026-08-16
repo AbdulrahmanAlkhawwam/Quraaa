@@ -16,6 +16,7 @@ class CreateOrderUseCase
     return _repository.createOrder(
       successUrl: params.successUrl,
       cancelUrl: params.cancelUrl,
+      shippingLocationId: params.shippingLocationId,
       latitude: params.latitude,
       longitude: params.longitude,
     );
@@ -26,20 +27,23 @@ class CreateOrderParams extends Equatable {
   const CreateOrderParams({
     required this.successUrl,
     required this.cancelUrl,
+    this.shippingLocationId,
     this.latitude,
     this.longitude,
   });
 
   final String successUrl;
   final String cancelUrl;
+  final String? shippingLocationId;
   final double? latitude;
   final double? longitude;
 
   @override
   List<Object?> get props => <Object?>[
-    successUrl,
-    cancelUrl,
-    latitude,
-    longitude,
-  ];
+        successUrl,
+        cancelUrl,
+        shippingLocationId,
+        latitude,
+        longitude,
+      ];
 }

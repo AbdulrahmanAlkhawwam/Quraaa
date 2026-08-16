@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../config/routes/route_names.dart';
 import '../../../../core/assets/app_icons.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
@@ -13,35 +14,50 @@ import '../../../orders/orders.dart';
 import '../../domain/entities/cart_item.dart';
 import '../../domain/entities/cart_summary.dart';
 import '../bloc/cart_bloc.dart';
-import 'add_payment_card_bottom_sheet.dart';
 import 'cart_item_tile.dart';
 import 'cart_totals_card.dart';
 import 'payment_info_bottom_sheet.dart';
 
-class CartView extends StatelessWidget {
-  const CartView({super.key});
+class CartView extends StatefulWidget {
+  const CartView({super.key, this.openCheckoutOnLoad = false});
 
-  Future<void> _openPaymentFlow(
-    BuildContext context,
-    CartSummary summary,
-  ) async {
-    final PaymentInfoAction? action = await PaymentInfoBottomSheet.show(
+  final bool openCheckoutOnLoad;
+
+  @override
+  State<CartView> createState() => _CartViewState();
+}
+
+class _CartViewState extends State<CartView> {
+  bool _didOpenInitialCheckout = false;
+
+  Future<void> _openPaymentFlow(CartSummary summary) async {
+    final CheckoutSelection? selection = await PaymentInfoBottomSheet.show(
       context,
       summary,
     );
-    if (!context.mounted || action == null) return;
-    switch (action) {
-      case PaymentInfoAction.addPaymentMethod:
-        await AddPaymentCardBottomSheet.show(context);
-      case PaymentInfoAction.checkout:
-        await _startCheckout(context);
+    if (!mounted) return;
+    if (selection == null) return;
+    if (selection.manageLocations) {
+      context.pushTo(RouteNames.settingsLocations);
+      return;
     }
+    await _startCheckout(
+      shippingLocationId: selection.shippingLocationId,
+      resumePendingOrder: selection.resumePendingOrder,
+    );
   }
 
-  Future<void> _startCheckout(BuildContext context) async {
+  Future<void> _startCheckout({
+    String? shippingLocationId,
+    bool resumePendingOrder = false,
+  }) async {
     final CheckoutCubit cubit = context.read<CheckoutCubit>();
-    await cubit.startCheckout();
-    if (!context.mounted) return;
+    if (resumePendingOrder) {
+      await cubit.resumePendingCheckout();
+    } else {
+      await cubit.startCheckout(shippingLocationId: shippingLocationId);
+    }
+    if (!mounted) return;
 
     final CheckoutState state = cubit.state;
     switch (state) {
@@ -59,7 +75,7 @@ class CartView extends StatelessWidget {
           );
         }
       case CheckoutFailure(error: final error):
-        context.showResolvedErrorSnackBar(error);
+        if (context.mounted) context.showResolvedErrorSnackBar(error);
       case CheckoutInitial() || CheckoutLoading():
         break;
     }
@@ -73,151 +89,166 @@ class CartView extends StatelessWidget {
     final Brightness overlayBrightness =
         context.isDark ? Brightness.light : Brightness.dark;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle(
-        statusBarColor: background,
-        statusBarIconBrightness: overlayBrightness,
-        systemNavigationBarColor: background,
-        systemNavigationBarIconBrightness: overlayBrightness,
-      ),
-      child: MediaQuery(
-        data: MediaQuery.of(
-          context,
-        ).copyWith(textScaler: const TextScaler.linear(1)),
-        child: Scaffold(
-          backgroundColor: background,
-          body: SafeArea(
-            child: BlocBuilder<CartBloc, CartState>(
-              builder: (BuildContext context, CartState state) {
-                if (state is CartLoading || state is CartInitial) {
-                  return const Center(
-                    child: CircularProgressIndicator(
-                      color: AppColors.primary600,
-                    ),
-                  );
-                }
-
-                if (state is CartFailure) {
-                  return Center(
-                    child: Text(
-                      state.message,
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.error500,
+    return BlocListener<CartBloc, CartState>(
+      listenWhen: (CartState previous, CartState current) =>
+          widget.openCheckoutOnLoad &&
+          !_didOpenInitialCheckout &&
+          current is CartLoaded &&
+          current.summary.items.isNotEmpty,
+      listener: (BuildContext context, CartState state) {
+        if (state is! CartLoaded || _didOpenInitialCheckout) return;
+        _didOpenInitialCheckout = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _openPaymentFlow(state.summary);
+        });
+      },
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle(
+          statusBarColor: background,
+          statusBarIconBrightness: overlayBrightness,
+          systemNavigationBarColor: background,
+          systemNavigationBarIconBrightness: overlayBrightness,
+        ),
+        child: MediaQuery(
+          data: MediaQuery.of(
+            context,
+          ).copyWith(textScaler: const TextScaler.linear(1)),
+          child: Scaffold(
+            backgroundColor: background,
+            body: SafeArea(
+              child: BlocBuilder<CartBloc, CartState>(
+                builder: (BuildContext context, CartState state) {
+                  if (state is CartLoading || state is CartInitial) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.primary600,
                       ),
-                    ),
-                  );
-                }
-
-                if (state is! CartLoaded) {
-                  return const SizedBox.shrink();
-                }
-
-                final bool isEmpty = state.summary.items.isEmpty;
-
-                return LayoutBuilder(
-                  builder: (BuildContext context, BoxConstraints constraints) {
-                    final bool hasUnavailableItem = state.summary.items.any(
-                      (CartItem item) => !item.isAvailable,
                     );
-                    final double horizontal =
-                        (constraints.maxWidth * 0.05).clamp(18.0, 24.0);
+                  }
 
-                    return Padding(
-                      padding: EdgeInsetsDirectional.fromSTEB(
-                        horizontal,
-                        AppSpacing.spacing8,
-                        horizontal,
-                        AppSpacing.spacing12,
+                  if (state is CartFailure) {
+                    return Center(
+                      child: Text(
+                        state.message,
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: AppColors.error500,
+                        ),
                       ),
-                      child: Column(
-                        children: <Widget>[
-                          _CartPageHeader(
-                            onBack: context.back,
-                            showClearAction: !isEmpty,
-                            onClear: state.isUpdating
-                                ? null
-                                : () => context.read<CartBloc>().add(
-                                      const CartCleared(),
-                                    ),
-                          ),
-                          const SizedBox(height: AppSpacing.spacing16),
-                          Expanded(
-                            child: isEmpty
-                                ? const _EmptyCartContent()
-                                : ListView.builder(
-                                    padding: EdgeInsets.zero,
-                                    physics: const BouncingScrollPhysics(),
-                                    itemCount: state.summary.items.length,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      final CartItem item =
-                                          state.summary.items[index];
-                                      return CartItemTile(
-                                        item: item,
-                                        showDivider: index !=
-                                            state.summary.items.length - 1,
-                                        onIncrease: () =>
-                                            context.read<CartBloc>().add(
-                                                  CartQuantityIncreased(item),
-                                                ),
-                                        onDecrease: () =>
-                                            context.read<CartBloc>().add(
-                                                  CartQuantityDecreased(item),
-                                                ),
-                                        onRemove: () => context
-                                            .read<CartBloc>()
-                                            .add(CartItemRemoved(item.id)),
-                                      );
-                                    },
-                                  ),
-                          ),
-                          if (!isEmpty) ...<Widget>[
-                            const SizedBox(height: AppSpacing.spacing12),
-                            CartTotalsCard(summary: state.summary),
-                            const SizedBox(height: AppSpacing.spacing16),
-                            SizedBox(
-                              width: double.infinity,
-                              height: 52,
-                              child: FilledButton(
-                                onPressed: hasUnavailableItem
-                                    ? null
-                                    : () => _openPaymentFlow(
-                                          context,
-                                          state.summary,
-                                        ),
-                                style: FilledButton.styleFrom(
-                                  backgroundColor: AppColors.primary600,
-                                  foregroundColor: AppColors.card,
-                                  disabledBackgroundColor: context.appBorder,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                      AppRadius.radius28,
-                                    ),
-                                  ),
-                                ),
-                                child: checkoutState is CheckoutLoading
-                                    ? const SizedBox(
-                                        width: 22,
-                                        height: 22,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2.5,
-                                          color: AppColors.card,
-                                        ),
-                                      )
-                                    : Text(
-                                        LocalizationConstants.cartCheckoutKey
-                                            .tr(),
-                                        style: AppTextStyles.buttonMedium,
+                    );
+                  }
+
+                  if (state is! CartLoaded) {
+                    return const SizedBox.shrink();
+                  }
+
+                  final bool isEmpty = state.summary.items.isEmpty;
+
+                  return LayoutBuilder(
+                    builder:
+                        (BuildContext context, BoxConstraints constraints) {
+                      final bool hasUnavailableItem = state.summary.items.any(
+                        (CartItem item) => !item.isAvailable,
+                      );
+                      final double horizontal =
+                          (constraints.maxWidth * 0.05).clamp(18.0, 24.0);
+
+                      return Padding(
+                        padding: EdgeInsetsDirectional.fromSTEB(
+                          horizontal,
+                          AppSpacing.spacing8,
+                          horizontal,
+                          AppSpacing.spacing12,
+                        ),
+                        child: Column(
+                          children: <Widget>[
+                            _CartPageHeader(
+                              onBack: context.back,
+                              showClearAction: !isEmpty,
+                              onClear: state.isUpdating
+                                  ? null
+                                  : () => context.read<CartBloc>().add(
+                                        const CartCleared(),
                                       ),
-                              ),
                             ),
+                            const SizedBox(height: AppSpacing.spacing16),
+                            Expanded(
+                              child: isEmpty
+                                  ? const _EmptyCartContent()
+                                  : ListView.builder(
+                                      padding: EdgeInsets.zero,
+                                      physics: const BouncingScrollPhysics(),
+                                      itemCount: state.summary.items.length,
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        final CartItem item =
+                                            state.summary.items[index];
+                                        return CartItemTile(
+                                          item: item,
+                                          showDivider: index !=
+                                              state.summary.items.length - 1,
+                                          onIncrease: () =>
+                                              context.read<CartBloc>().add(
+                                                    CartQuantityIncreased(item),
+                                                  ),
+                                          onDecrease: () =>
+                                              context.read<CartBloc>().add(
+                                                    CartQuantityDecreased(item),
+                                                  ),
+                                          onRemove: () => context
+                                              .read<CartBloc>()
+                                              .add(CartItemRemoved(item.id)),
+                                        );
+                                      },
+                                    ),
+                            ),
+                            if (!isEmpty) ...<Widget>[
+                              const SizedBox(height: AppSpacing.spacing12),
+                              CartTotalsCard(summary: state.summary),
+                              const SizedBox(height: AppSpacing.spacing16),
+                              SizedBox(
+                                width: double.infinity,
+                                height: 52,
+                                child: FilledButton(
+                                  onPressed: hasUnavailableItem
+                                      ? null
+                                      : checkoutState is CheckoutLoading
+                                          ? null
+                                          : () =>
+                                              _openPaymentFlow(state.summary),
+                                  style: FilledButton.styleFrom(
+                                    backgroundColor: AppColors.primary600,
+                                    foregroundColor: AppColors.card,
+                                    disabledBackgroundColor: context.appBorder,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(
+                                        AppRadius.radius28,
+                                      ),
+                                    ),
+                                  ),
+                                  child: checkoutState is CheckoutLoading
+                                      ? const SizedBox(
+                                          width: 22,
+                                          height: 22,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2.5,
+                                            color: AppColors.card,
+                                          ),
+                                        )
+                                      : Text(
+                                          LocalizationConstants.cartCheckoutKey
+                                              .tr(),
+                                          style: AppTextStyles.buttonMedium,
+                                        ),
+                                ),
+                              ),
+                            ],
                           ],
-                        ],
-                      ),
-                    );
-                  },
-                );
-              },
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ),
         ),

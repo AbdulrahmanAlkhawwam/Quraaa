@@ -12,9 +12,14 @@ import '../../../cart/cart.dart';
 import '../../domain/entities/library_book_entity.dart';
 
 class BookPurchaseBottomSheet extends StatelessWidget {
-  const BookPurchaseBottomSheet({super.key, required this.onCheckout});
+  const BookPurchaseBottomSheet({
+    super.key,
+    required this.onCheckout,
+    required this.onAddToCart,
+  });
 
   final VoidCallback onCheckout;
+  final VoidCallback onAddToCart;
 
   static Future<void> show(
     BuildContext context, {
@@ -56,112 +61,161 @@ class BookPurchaseBottomSheet extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      barrierColor: Colors.black.withValues(alpha: 0.34),
+      barrierColor: Colors.black.withValues(alpha: 0.38),
       builder: (BuildContext sheetContext) => BookPurchaseBottomSheet(
-        onCheckout: () async {
-          if (book == null || book.listingId.trim().isEmpty) {
-            Navigator.of(sheetContext).pop();
-            if (context.mounted) {
-              context.showResolvedErrorSnackBar(
-                LocalizationConstants.libraryBookListingRequiredKey.tr(),
-              );
-            }
-            return;
-          }
-
-          final Result<CartSummary> result = await sl<AddCartItemUseCase>()(
-            AddCartItemParams(
-              listingId: book.listingId,
-              metadata: CartItem(
-                id: book.listingId,
-                title: book.title,
-                subtitle: book.author,
-                fileSize: '',
-                imageUrl: book.coverImageUrl,
-                unitPrice: double.tryParse(book.price) ?? 0,
-                quantity: 1,
-              ),
-            ),
-          );
-          if (!context.mounted || !sheetContext.mounted) return;
-          switch (result) {
-            case Success<CartSummary>():
-              Navigator.of(sheetContext).pop();
-              context.pushTo(RouteNames.cart);
-            case ResultFailure<CartSummary>(message: final message):
-              Navigator.of(sheetContext).pop();
-              context.showResolvedErrorSnackBar(message);
-          }
-        },
+        onCheckout: () => _handleAction(
+          parentContext: context,
+          sheetContext: sheetContext,
+          book: book,
+          checkout: true,
+        ),
+        onAddToCart: () => _handleAction(
+          parentContext: context,
+          sheetContext: sheetContext,
+          book: book,
+          checkout: false,
+        ),
       ),
     );
   }
 
+  static Future<void> _handleAction({
+    required BuildContext parentContext,
+    required BuildContext sheetContext,
+    required LibraryBookEntity? book,
+    required bool checkout,
+  }) async {
+    if (book == null || book.listingId.trim().isEmpty) {
+      Navigator.of(sheetContext).pop();
+      if (parentContext.mounted) {
+        parentContext.showResolvedErrorSnackBar(
+          LocalizationConstants.libraryBookListingRequiredKey.tr(),
+        );
+      }
+      return;
+    }
+
+    final Result<CartSummary> result = await sl<AddCartItemUseCase>()(
+      AddCartItemParams(
+        listingId: book.listingId,
+        metadata: CartItem(
+          id: book.listingId,
+          title: book.title,
+          subtitle: book.author,
+          fileSize: '',
+          imageUrl: book.coverImageUrl,
+          unitPrice: double.tryParse(book.price) ?? 0,
+          quantity: 1,
+        ),
+      ),
+    );
+    if (!parentContext.mounted || !sheetContext.mounted) return;
+
+    Navigator.of(sheetContext).pop();
+    switch (result) {
+      case Success<CartSummary>():
+        if (checkout) {
+          parentContext.pushTo(RouteNames.cart, extra: true);
+        } else {
+          parentContext.showSuccessSnackBar(
+            message: Message(
+              title: LocalizationConstants.cartAddedKey.tr(),
+              value: book.title,
+            ),
+          );
+        }
+      case ResultFailure<CartSummary>(message: final message):
+        parentContext.showResolvedErrorSnackBar(message);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: context.appCard,
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(AppRadius.radius28),
-          ),
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: context.appCard,
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(AppRadius.radius28),
         ),
-        child: SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(
-              AppSpacing.spacing24,
-              AppSpacing.spacing20,
-              AppSpacing.spacing24,
-              AppSpacing.spacing20,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Text(
-                        LocalizationConstants.libraryBookPurchaseTitleKey.tr(),
-                        style: AppTextStyles.titleLarge.copyWith(
-                          color: context.appTextPrimary,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      visualDensity: VisualDensity.compact,
-                      icon: HugeIcon(
-                        icon: HugeIcons.strokeRoundedCancel01,
-                        color: context.isDark
-                            ? AppColors.primary300
-                            : AppColors.libraryGreen,
-                        size: 24,
-                      ),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(
+            AppSpacing.spacing24,
+            AppSpacing.spacing24,
+            AppSpacing.spacing24,
+            AppSpacing.spacing20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: IconButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  visualDensity: VisualDensity.compact,
+                  icon: HugeIcon(
+                    icon: HugeIcons.strokeRoundedCancel01,
+                    color: context.appTextSecondary,
+                    size: 23,
+                  ),
+                ),
+              ),
+              Container(
+                width: 86,
+                height: 86,
+                decoration: BoxDecoration(
+                  color: AppColors.primary50,
+                  shape: BoxShape.circle,
+                  boxShadow: <BoxShadow>[
+                    BoxShadow(
+                      color: AppColors.primary500.withValues(alpha: 0.16),
+                      blurRadius: 24,
+                      spreadRadius: 4,
                     ),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.spacing28),
-                HugeIcon(
+                alignment: Alignment.center,
+                child: HugeIcon(
                   icon: HugeIcons.strokeRoundedShoppingCart01,
-                  color: AppColors.leafGreen,
-                  size: 78,
+                  color: AppColors.primary500,
+                  size: 54,
                 ),
-                const SizedBox(height: AppSpacing.spacing32),
-                _PurchaseButton(
-                  label: LocalizationConstants.libraryBookCheckoutKey.tr(),
-                  filled: true,
-                  onPressed: onCheckout,
+              ),
+              const SizedBox(height: AppSpacing.spacing24),
+              Text(
+                LocalizationConstants.cartReadyTitleKey.tr(),
+                textAlign: TextAlign.center,
+                style: AppTextStyles.titleLarge.copyWith(
+                  color: context.appTextPrimary,
+                  fontSize: 23,
                 ),
-                const SizedBox(height: AppSpacing.spacing20),
-                _PurchaseButton(
-                  label: LocalizationConstants.libraryBookBuyDirectlyKey.tr(),
-                  onPressed: () => Navigator.of(context).pop(),
+              ),
+              const SizedBox(height: AppSpacing.spacing12),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 390),
+                child: Text(
+                  LocalizationConstants.cartReadyMessageKey.tr(),
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: context.appTextSecondary,
+                    height: 1.4,
+                  ),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: AppSpacing.spacing28),
+              _PurchaseButton(
+                label: LocalizationConstants.cartCheckoutKey.tr(),
+                filled: true,
+                onPressed: onCheckout,
+              ),
+              const SizedBox(height: AppSpacing.spacing14),
+              _PurchaseButton(
+                label: LocalizationConstants.cartAddToCartKey.tr(),
+                onPressed: onAddToCart,
+              ),
+            ],
           ),
         ),
       ),

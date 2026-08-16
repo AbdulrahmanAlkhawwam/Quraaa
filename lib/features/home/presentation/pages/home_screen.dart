@@ -15,6 +15,7 @@ import '../widgets/home_app_bar.dart';
 import '../widgets/home_banner.dart';
 
 import '../widgets/home_drawer.dart';
+import '../widgets/home_order_status_card.dart';
 import '../widgets/home_quick_actions.dart';
 import '../widgets/home_section.dart';
 
@@ -240,6 +241,15 @@ class _HomeFeed extends StatelessWidget {
             ),
             const SliverToBoxAdapter(
               child: SizedBox(height: AppSpacing.spacing14),
+            ),
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: AppSpacing.spacing16),
+                child: HomeOrderStatusCard(),
+              ),
+            ),
+            const SliverToBoxAdapter(
+              child: SizedBox(height: AppSpacing.spacing16),
             ),
             const SliverToBoxAdapter(child: HomeQuickActions()),
             const SliverToBoxAdapter(

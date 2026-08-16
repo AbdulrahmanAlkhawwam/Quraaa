@@ -11,6 +11,15 @@ class LocalizationConstants {
   static const String homeBooksLoadFailedKey = 'home.books_load_failed';
   static const String homeNoteKey = 'home.note';
   static const String homeSearchHintKey = 'home.search_hint';
+  static const String homeOrderNumberKey = 'home.order_status.order_number';
+  static const String homeOrderPendingKey = 'home.order_status.pending';
+  static const String homeOrderProcessingKey = 'home.order_status.processing';
+  static const String homeOrderOnDeliveryKey = 'home.order_status.on_delivery';
+  static const String homeOrderOnDoorKey = 'home.order_status.on_door';
+  static const String homeOrderViewPurchaseKey =
+      'home.order_status.view_order_purchase';
+  static const String homeOrderDeliveryArrivedKey =
+      'home.order_status.delivery_arrived';
   static const String homeActionBrowseFilesKey = 'home.actions.browse_files';
   static const String homeActionAskAssistantKey = 'home.actions.ask_assistant';
   static const String homeBannerTitleKey = 'home.banner.title';
@@ -834,6 +843,25 @@ class LocalizationConstants {
   static const String cartTitleKey = 'cart.title';
   static const String cartCheckoutKey = 'cart.checkout';
   static const String cartCheckoutOpenFailedKey = 'cart.checkout_open_failed';
+  static const String cartAddedKey = 'cart.added';
+  static const String cartReadyTitleKey = 'cart.ready_title';
+  static const String cartReadyMessageKey = 'cart.ready_message';
+  static const String cartAddToCartKey = 'cart.add_to_cart';
+  static const String cartPaymentMethodKey = 'cart.payment_method';
+  static const String cartCashKey = 'cart.cash';
+  static const String cartStripeKey = 'cart.stripe';
+  static const String cartCashUnavailableKey = 'cart.cash_unavailable';
+  static const String cartPromoKey = 'cart.promo';
+  static const String cartOfferCodeKey = 'cart.offer_code';
+  static const String cartDeliveryLocationKey = 'cart.delivery_location';
+  static const String cartChooseLocationKey = 'cart.choose_location';
+  static const String cartAddLocationKey = 'cart.add_location';
+  static const String cartLocationNotRequiredKey = 'cart.location_not_required';
+  static const String cartCheckoutContextFailedKey =
+      'cart.checkout_context_failed';
+  static const String cartPendingOrderLockedKey = 'cart.pending_order_locked';
+  static const String cartResumePaymentKey = 'cart.resume_payment';
+  static const String cartSecurePaymentNoteKey = 'cart.secure_payment_note';
   static const String cartPurchaseKey = 'cart.purchase';
   static const String cartExpandPurchaseKey = 'cart.expand_purchase';
   static const String cartCollapsePurchaseKey = 'cart.collapse_purchase';

@@ -787,12 +787,20 @@ void registerFeatureDependencies() {
     sl.registerLazySingleton<CreateOrderUseCase>(
       () => CreateOrderUseCase(sl<OrdersRepository>()),
     );
+    sl.registerLazySingleton<GetOrderCheckoutContextUseCase>(
+      () => GetOrderCheckoutContextUseCase(sl<OrdersRepository>()),
+    );
+    sl.registerLazySingleton<ResumePendingOrderCheckoutUseCase>(
+      () => ResumePendingOrderCheckoutUseCase(sl<OrdersRepository>()),
+    );
   }
 
   if (!sl.isRegistered<CheckoutCubit>()) {
     sl.registerFactory<CheckoutCubit>(
       () => CheckoutCubit(
         createOrder: sl<CreateOrderUseCase>(),
+        getCheckoutContext: sl<GetOrderCheckoutContextUseCase>(),
+        resumePendingOrderCheckout: sl<ResumePendingOrderCheckoutUseCase>(),
         profileRepository: sl<ProfileRepository>(),
       ),
     );

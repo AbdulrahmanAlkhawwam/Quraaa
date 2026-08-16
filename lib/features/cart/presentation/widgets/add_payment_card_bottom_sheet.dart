@@ -5,7 +5,7 @@ import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
-import 'payment_info_bottom_sheet.dart';
+import 'payment_card_mark.dart';
 
 class AddPaymentCardBottomSheet extends StatefulWidget {
   const AddPaymentCardBottomSheet({super.key});
@@ -184,26 +184,24 @@ class _AddPaymentCardBottomSheetState extends State<AddPaymentCardBottomSheet> {
                     color: AppColors.primary600,
                     size: 20,
                   ),
-                  items:
-                      <String>[
-                            LocalizationConstants.cartAddCardCountrySyriaKey
-                                .tr(),
-                            LocalizationConstants.cartAddCardCountryUaeKey.tr(),
-                            LocalizationConstants.cartAddCardCountryUsaKey.tr(),
-                          ]
-                          .map(
-                            (String country) => DropdownMenuItem<String>(
-                              value: country,
-                              child: Text(
-                                country,
-                                overflow: TextOverflow.ellipsis,
-                                style: AppTextStyles.bodySmall.copyWith(
-                                  color: context.appTextPrimary,
-                                ),
-                              ),
+                  items: <String>[
+                    LocalizationConstants.cartAddCardCountrySyriaKey.tr(),
+                    LocalizationConstants.cartAddCardCountryUaeKey.tr(),
+                    LocalizationConstants.cartAddCardCountryUsaKey.tr(),
+                  ]
+                      .map(
+                        (String country) => DropdownMenuItem<String>(
+                          value: country,
+                          child: Text(
+                            country,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: context.appTextPrimary,
                             ),
-                          )
-                          .toList(growable: false),
+                          ),
+                        ),
+                      )
+                      .toList(growable: false),
                   onChanged: (String? value) =>
                       setState(() => _country = value),
                 ),
@@ -225,9 +223,8 @@ class _AddPaymentCardBottomSheetState extends State<AddPaymentCardBottomSheet> {
                   width: double.infinity,
                   height: 52,
                   child: FilledButton(
-                    onPressed: _canSubmit
-                        ? () => Navigator.of(context).pop()
-                        : null,
+                    onPressed:
+                        _canSubmit ? () => Navigator.of(context).pop() : null,
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary600,
                       disabledBackgroundColor: context.isDark
@@ -270,9 +267,8 @@ class _SheetHeader extends StatelessWidget {
             icon: context.isRTL
                 ? HugeIcons.strokeRoundedArrowRight01
                 : HugeIcons.strokeRoundedArrowLeft01,
-            color: context.isDark
-                ? AppColors.primary300
-                : AppColors.libraryGreen,
+            color:
+                context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
             size: 23,
           ),
         ),

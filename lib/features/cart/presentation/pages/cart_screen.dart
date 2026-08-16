@@ -7,7 +7,9 @@ import '../bloc/cart_bloc.dart';
 import '../widgets/cart_view.dart';
 
 class CartScreen extends StatelessWidget {
-  const CartScreen({super.key});
+  const CartScreen({super.key, this.openCheckoutOnLoad = false});
+
+  final bool openCheckoutOnLoad;
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +20,7 @@ class CartScreen extends StatelessWidget {
         ),
         BlocProvider<CheckoutCubit>(create: (_) => sl<CheckoutCubit>()),
       ],
-      child: const CartView(),
+      child: CartView(openCheckoutOnLoad: openCheckoutOnLoad),
     );
   }
 }
