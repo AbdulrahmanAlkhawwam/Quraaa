@@ -71,7 +71,8 @@ abstract class AppLogger {
   });
 
   Future<void> recordFlutterError(FlutterErrorDetails details);
-  Future<void> recordPlatformDispatcherError(Object error, StackTrace stackTrace);
+  Future<void> recordPlatformDispatcherError(
+      Object error, StackTrace stackTrace);
   Future<void> recordAsyncError(
     Object error,
     StackTrace stackTrace, {
@@ -90,12 +91,16 @@ typedef LoggerService = AppLogger;
 
 class AppLoggerImpl implements AppLogger {
   AppLoggerImpl({
-    required this._crashlyticsService,
-    required this._telegramNotificationService,
-    required this._navigationTracker,
-    required this._userContextProvider,
-    required this._deviceInfoProvider,
-  });
+    required CrashlyticsService crashlyticsService,
+    required TelegramNotificationService telegramNotificationService,
+    required NavigationTracker navigationTracker,
+    required UserContextProvider userContextProvider,
+    required DeviceInfoProvider deviceInfoProvider,
+  })  : _crashlyticsService = crashlyticsService,
+        _telegramNotificationService = telegramNotificationService,
+        _navigationTracker = navigationTracker,
+        _userContextProvider = userContextProvider,
+        _deviceInfoProvider = deviceInfoProvider;
 
   final CrashlyticsService _crashlyticsService;
   final TelegramNotificationService _telegramNotificationService;
@@ -434,7 +439,8 @@ class AppLoggerImpl implements AppLogger {
         'locale': device.locale,
         if (user.userName != null) 'user_name': user.userName!,
         if (user.userEmail != null) 'user_email': user.userEmail!,
-        if (user.lastUserAction != null) 'last_user_action': user.lastUserAction!,
+        if (user.lastUserAction != null)
+          'last_user_action': user.lastUserAction!,
         if (report != null) 'error_fingerprint': report.fingerprint,
       });
     } catch (error, stackTrace) {
@@ -460,9 +466,35 @@ class AppLoggerImpl implements AppLogger {
       return;
     }
 
+    final String safeMessage = redactSensitiveText(message);
+    final String loggerName = source ?? 'AppLogger';
+    final String? safeData = data == null || data.isEmpty
+        ? null
+        : redactSensitiveText(
+            data.entries
+                .map(
+                  (MapEntry<String, Object?> entry) =>
+                      '${entry.key}=${entry.value}',
+                )
+                .join(', '),
+          );
+
+    if (!kReleaseMode) {
+      debugPrint('[$level] [$loggerName] $safeMessage');
+      if (error != null) {
+        debugPrint('Error: ${redactSensitiveText(error.toString())}');
+      }
+      if (safeData != null) {
+        debugPrint('Data: $safeData');
+      }
+      if (stackTrace != null) {
+        debugPrintStack(stackTrace: stackTrace);
+      }
+    }
+
     developer.log(
-      redactSensitiveText(message),
-      name: source ?? 'AppLogger',
+      safeMessage,
+      name: loggerName,
       level: switch (level) {
         'DEBUG' => 500,
         'INFO' => 800,
@@ -475,12 +507,10 @@ class AppLoggerImpl implements AppLogger {
       stackTrace: stackTrace,
     );
 
-    if (data != null && data.isNotEmpty && !kReleaseMode) {
+    if (safeData != null && !kReleaseMode) {
       developer.log(
-        data.entries
-            .map((MapEntry<String, Object?> entry) => '${entry.key}=${entry.value}')
-            .join(', '),
-        name: source ?? 'AppLogger',
+        safeData,
+        name: loggerName,
       );
     }
   }

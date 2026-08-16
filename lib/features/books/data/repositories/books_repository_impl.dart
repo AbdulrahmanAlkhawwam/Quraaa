@@ -15,7 +15,7 @@ class BooksRepositoryImpl implements BooksRepository {
     BookFormat? format,
     BookCatalogFilter catalogFilter = const BookCatalogFilter(),
   }) async {
-    final List<Book> books = await _loadCatalog(catalogFilter);
+    final List<Book> books = await _loadCatalog(catalogFilter, query);
     final String normalizedQuery = query.trim().toLowerCase();
 
     return books.where((Book book) {
@@ -28,9 +28,10 @@ class BooksRepositoryImpl implements BooksRepository {
     }).toList(growable: false);
   }
 
-  Future<List<Book>> _loadCatalog(BookCatalogFilter filter) async {
+  Future<List<Book>> _loadCatalog(
+      BookCatalogFilter filter, String query) async {
     final List<HomeCatalogBookModel> models =
-        await _remoteDataSource.fetchHomeCatalog(filter: filter);
+        await _remoteDataSource.fetchHomeCatalog(filter: filter, query: query);
     return models
         .map((HomeCatalogBookModel model) => model.toEntity())
         .toList(growable: false);

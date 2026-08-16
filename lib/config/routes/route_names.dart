@@ -23,6 +23,7 @@ abstract class RouteNames {
   static const String cart = '/cart';
   static const String favorites = '/favorites';
   static const String bookAssistant = '/book-assistant';
+  static const String aiTextTools = '/settings/ai-text-tools';
   static const String auth = '/auth';
   static const String login = '/login';
   static const String register = '/register';
@@ -30,8 +31,14 @@ abstract class RouteNames {
   static const String onboardingAge = '/onboarding/age';
   static const String onboardingInterests = '/onboarding/interests';
   static const String routeBridge = '/open';
+  static const String checkoutSuccess = '/checkout/success';
+  static const String checkoutCancel = '/checkout/cancel';
   static const String search = '/search';
   static const String settings = '/settings';
+  static const String myOrders = '/settings/my-orders';
+  static const String mySells = '/settings/my-sells';
+  static const String myListings = '/settings/my-listings';
+  static const String purchasedBooks = '/settings/my-books';
   static const String settingsPersonalInformation =
       '/settings/personal-information';
   static const String settingsLocations = '/settings/locations';

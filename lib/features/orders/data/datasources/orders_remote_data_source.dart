@@ -7,6 +7,7 @@ import '../../../../core/errors/exceptions.dart';
 import '../../../../core/network/http_helper.dart';
 import '../models/order_checkout_context_model.dart';
 import '../models/order_checkout_model.dart';
+import '../models/account_order_model.dart';
 
 abstract class OrdersRemoteDataSource {
   Future<OrderCheckoutContextModel> getCheckoutContext();
@@ -23,12 +24,141 @@ abstract class OrdersRemoteDataSource {
     required String successUrl,
     required String cancelUrl,
   });
+
+  Future<List<AccountOrderModel>> getMyOrders({int pageNumber = 1});
+
+  Future<void> cancelOrder(String orderId, {String? reason});
+
+  Future<List<AccountOrderModel>> getSellHistory({int pageNumber = 1});
+
+  Future<List<AccountOrderModel>> getSellerOrders({
+    int pageNumber = 1,
+    int? fulfillmentStatus,
+  });
+
+  Future<void> markSellerItemProcessing(String orderId, String orderItemId);
+  Future<void> markSellerItemFulfilled(String orderId, String orderItemId);
 }
 
 class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
   const OrdersRemoteDataSourceImpl(this._httpHelper);
 
   final HttpHelper _httpHelper;
+
+  @override
+  Future<void> cancelOrder(String orderId, {String? reason}) async {
+    try {
+      await _httpHelper.post(
+        ApiEndpoints.orderCancel(orderId),
+        data: <String, Object?>{
+          if (reason?.trim().isNotEmpty == true) 'reason': reason!.trim(),
+        },
+      );
+    } on DioException catch (error) {
+      throw _mapDioException(error, fallback: 'Unable to cancel order.');
+    }
+  }
+
+  @override
+  Future<void> markSellerItemProcessing(
+    String orderId,
+    String orderItemId,
+  ) async {
+    await _httpHelper.post(
+      ApiEndpoints.sellerOrderProcessing(orderId, orderItemId),
+    );
+  }
+
+  @override
+  Future<void> markSellerItemFulfilled(
+    String orderId,
+    String orderItemId,
+  ) async {
+    await _httpHelper.post(
+      ApiEndpoints.sellerOrderFulfilled(orderId, orderItemId),
+    );
+  }
+
+  @override
+  Future<List<AccountOrderModel>> getMyOrders({int pageNumber = 1}) async {
+    try {
+      final Response<dynamic> response = await _httpHelper.get(
+        ApiEndpoints.myOrders,
+        queryParameters: <String, dynamic>{
+          'PageNumber': pageNumber,
+          'PageSize': 20,
+        },
+      );
+      final List<Map<String, dynamic>> summaries = _items(response.data);
+      return Future.wait(
+        summaries.map((Map<String, dynamic> summary) async {
+          final String id = summary['orderId']?.toString() ?? '';
+          if (id.isEmpty) return AccountOrderModel.fromJson(summary);
+          try {
+            final Response<dynamic> details = await _httpHelper.get(
+              ApiEndpoints.order(id),
+            );
+            if (details.data is Map) {
+              return AccountOrderModel.fromJson(
+                Map<String, dynamic>.from(details.data as Map),
+              );
+            }
+          } on DioException {
+            // Keep the summary visible if one details request fails.
+          }
+          return AccountOrderModel.fromJson(summary);
+        }),
+      );
+    } on DioException catch (error) {
+      throw _mapDioException(error, fallback: 'Unable to load orders.');
+    }
+  }
+
+  @override
+  Future<List<AccountOrderModel>> getSellHistory({int pageNumber = 1}) async {
+    try {
+      final Response<dynamic> response = await _httpHelper.get(
+        ApiEndpoints.sellHistory,
+        queryParameters: <String, dynamic>{
+          'PageNumber': pageNumber,
+          'PageSize': 50,
+        },
+      );
+      return _items(response.data)
+          .map(AccountOrderModel.fromSellHistory)
+          .toList(growable: false);
+    } on DioException catch (error) {
+      throw _mapDioException(error, fallback: 'Unable to load sales history.');
+    }
+  }
+
+  @override
+  Future<List<AccountOrderModel>> getSellerOrders({
+    int pageNumber = 1,
+    int? fulfillmentStatus,
+  }) async {
+    try {
+      final Response<dynamic> response = await _httpHelper.get(
+        ApiEndpoints.sellerOrders,
+        queryParameters: <String, dynamic>{
+          'PageNumber': pageNumber,
+          'PageSize': 50,
+          if (fulfillmentStatus != null) 'FulfillmentStatus': fulfillmentStatus,
+        },
+      );
+      final Map<String, AccountOrderModel> grouped =
+          <String, AccountOrderModel>{};
+      for (final Map<String, dynamic> item in _items(response.data)) {
+        final String id = item['orderId']?.toString() ?? '';
+        if (id.isEmpty) continue;
+        grouped[id] = grouped[id]?.mergeSellerItem(item) ??
+            AccountOrderModel.fromSellerItem(item);
+      }
+      return grouped.values.toList(growable: false);
+    } on DioException catch (error) {
+      throw _mapDioException(error, fallback: 'Unable to load sales.');
+    }
+  }
 
   @override
   Future<OrderCheckoutContextModel> getCheckoutContext() async {
@@ -146,6 +276,15 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
       }
     }
     return null;
+  }
+
+  List<Map<String, dynamic>> _items(Object? payload) {
+    final Object? raw = payload is Map ? payload['items'] : payload;
+    if (raw is! List) return const <Map<String, dynamic>>[];
+    return raw
+        .whereType<Map>()
+        .map((Map item) => Map<String, dynamic>.from(item))
+        .toList(growable: false);
   }
 
   AppException _mapDioException(

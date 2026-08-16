@@ -97,11 +97,6 @@ class DioLoggingInterceptor extends Interceptor {
       },
     );
 
-    final int? statusCode = err.response?.statusCode;
-    if (statusCode != null && statusCode >= 400 && statusCode < 500) {
-      handler.next(err);
-      return;
-    }
     unawaited(
       _logger.error(
         err,

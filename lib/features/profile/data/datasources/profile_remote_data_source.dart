@@ -16,6 +16,7 @@ abstract class ProfileRemoteDataSource {
   Future<List<ProfileLocationModel>> getLocations();
   Future<void> updateLocation(ProfileLocation location);
   Future<void> deleteLocation(ProfileLocation location);
+  Future<void> setDefaultLocation(String locationId);
 }
 
 class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
@@ -78,6 +79,13 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
           location.id == null
               ? ApiEndpoints.profileLocation
               : ApiEndpoints.profileLocationById(location.id!),
+        ),
+      );
+
+  @override
+  Future<void> setDefaultLocation(String locationId) => _voidRequest(
+        () => _httpHelper.put(
+          ApiEndpoints.profileLocationDefault(locationId),
         ),
       );
 

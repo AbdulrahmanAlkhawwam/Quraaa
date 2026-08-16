@@ -142,6 +142,12 @@
       "ebook": "E-book",
       "version": "Version",
       "price": "Price",
+    "author": "Author",
+    "quantity": "Quantity",
+    "unit_price": "Unit price",
+    "total_earned": "Total earned",
+    "start_processing": "Start processing",
+    "mark_fulfilled": "Mark fulfilled",
       "purchase_title": "Buy Book",
       "checkout": "Checkout",
     "checkout_open_failed": "Could not open the secure payment page.",
@@ -474,6 +480,8 @@
     "copy": "Copy",
     "share": "Share",
     "highlight": "Highlight",
+    "translate": "Translate page",
+    "translation": "Page translation",
     "pen": "Pen",
     "add_note": "Add note",
     "note_title": "Add note",
@@ -618,6 +626,7 @@
     "library": {
       "myBooks": "My Books",
       "downloads": "Downloads",
+      "aiTextTools": "AI text tools",
       "wishlist": "Wishlist",
       "collections": "Collections"
     },
@@ -626,6 +635,9 @@
       "achievementLevels": "Achievement Levels"
     },
     "activity": {
+      "myOrders": "My Orders",
+      "mySells": "My Sells",
+      "myListings": "My Listings",
       "readingTime": "Reading Time",
       "lastOpenedBooks": "Last Opened Books"
     },
@@ -925,6 +937,8 @@
     "title": "Cart",
     "checkout": "Checkout",
     "checkout_open_failed": "Could not open the secure payment page.",
+    "payment_success_title": "Payment successful",
+    "payment_success_message": "Your purchase was confirmed. Your order and library will update automatically.",
     "added": "Added to cart.",
     "ready_title": "Ready to get this book!",
     "ready_message": "This book is ready to join your library. Buy it now to continue with checkout, or add it to your cart and explore more books first.",
@@ -1031,6 +1045,67 @@
     "unavailable": "Your current location could not be determined.",
     "favorite": "Favorite location",
     "set_favorite": "Set as favorite location"
+  },
+  "orders": {
+    "my_orders": "My Orders",
+    "my_sells": "My Sells",
+    "completed": "Completed",
+    "pending": "Pending",
+    "processing": "Processing",
+    "rejected": "Rejected",
+    "empty": "No orders are available yet.",
+    "book": "Book",
+    "order": "Order",
+    "type": "Type",
+    "date": "Date",
+    "book_status": "Book Status",
+    "price": "Price",
+    "author": "Author",
+    "quantity": "Quantity",
+    "unit_price": "Unit price",
+    "total_earned": "Total earned",
+    "start_processing": "Start processing",
+    "mark_fulfilled": "Mark fulfilled",
+    "cancel_order": "Cancel order",
+    "cancel_reason_optional": "Reason (optional)",
+    "confirm_cancel": "Confirm cancellation",
+    "cancel_failed": "Could not cancel the order."
+  },
+  "book_engagement": {
+    "reviews": "Reviews",
+    "add_review": "Add review",
+    "comment_hint": "Write your comment (optional)",
+    "empty": "No reviews yet. Be the first to review this book.",
+    "report": "Report book",
+    "report_details": "Describe the issue",
+    "send": "Send",
+    "saved": "Your action was saved.",
+    "reader": "Reader",
+    "edit_comment": "Edit comment",
+    "delete_comment": "Delete comment",
+    "delete_comment_confirm": "Delete this comment permanently?",
+    "delete": "Delete"
+  },
+  "purchases": {
+    "empty": "Your purchased books will appear here.",
+    "opening": "Opening...",
+    "read": "Read book",
+    "physical": "Physical book",
+    "offline_copy": "Offline copy"
+  },
+  "ai_tools": {
+    "title": "AI Text Tools",
+    "book": "Purchased book",
+    "selected_text": "Selected text to explain",
+    "page": "Page number to translate",
+    "explain": "Explain",
+    "translate": "Translate page"
+  },
+  "listings": {
+    "title": "My Listings",
+    "empty": "You have no active listings yet.",
+    "add": "Publish a book",
+    "stock": "Stock"
   },
   "assistant": {
     "greeting": "Hi, {name}",

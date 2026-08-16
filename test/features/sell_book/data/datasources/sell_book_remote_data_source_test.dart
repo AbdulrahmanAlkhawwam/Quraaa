@@ -29,6 +29,15 @@ void main() {
     final _MockHttpHelper httpHelper = _MockHttpHelper();
     final SellBookRemoteDataSource dataSource =
         SellBookRemoteDataSourceImpl(httpHelper);
+    when(
+      () => httpHelper.get(any()),
+    ).thenAnswer(
+      (_) async => Response<dynamic>(
+        data: true,
+        statusCode: 200,
+        requestOptions: RequestOptions(),
+      ),
+    );
 
     when(
       () => httpHelper.post(
@@ -95,6 +104,15 @@ void main() {
     final _MockHttpHelper httpHelper = _MockHttpHelper();
     final SellBookRemoteDataSource dataSource =
         SellBookRemoteDataSourceImpl(httpHelper);
+    when(
+      () => httpHelper.get(any()),
+    ).thenAnswer(
+      (_) async => Response<dynamic>(
+        data: true,
+        statusCode: 200,
+        requestOptions: RequestOptions(),
+      ),
+    );
     final RequestOptions request = RequestOptions(
       path: ApiEndpoints.userPhysicalListings,
     );

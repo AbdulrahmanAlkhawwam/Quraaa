@@ -26,11 +26,18 @@ class SettingsRepositoryImpl extends SettingsRepository {
   };
 
   static const List<SettingsTab> _tabs = <SettingsTab>[
-    SettingsTab(id: 'profile', labelKey: 'settings.tabs.profile', iconKey: 'user'),
-    SettingsTab(id: 'library', labelKey: 'settings.tabs.library', iconKey: 'library'),
-    SettingsTab(id: 'badges', labelKey: 'settings.tabs.badges', iconKey: 'trophy'),
-    SettingsTab(id: 'activity', labelKey: 'settings.tabs.activity', iconKey: 'clock'),
-    SettingsTab(id: 'settings', labelKey: 'settings.tabs.settings', iconKey: 'settings'),
+    SettingsTab(
+        id: 'profile', labelKey: 'settings.tabs.profile', iconKey: 'user'),
+    SettingsTab(
+        id: 'library', labelKey: 'settings.tabs.library', iconKey: 'library'),
+    SettingsTab(
+        id: 'badges', labelKey: 'settings.tabs.badges', iconKey: 'trophy'),
+    SettingsTab(
+        id: 'activity', labelKey: 'settings.tabs.activity', iconKey: 'clock'),
+    SettingsTab(
+        id: 'settings',
+        labelKey: 'settings.tabs.settings',
+        iconKey: 'settings'),
   ];
 
   static const List<SettingsSection> _profileSections = <SettingsSection>[
@@ -110,6 +117,11 @@ class SettingsRepositoryImpl extends SettingsRepository {
       action: SettingsSectionAction.navigate,
     ),
     SettingsSection(
+      id: 'ai_text_tools',
+      labelKey: 'settings.library.aiTextTools',
+      action: SettingsSectionAction.navigate,
+    ),
+    SettingsSection(
       id: 'wishlist',
       labelKey: 'settings.library.wishlist',
       action: SettingsSectionAction.navigate,
@@ -135,6 +147,21 @@ class SettingsRepositoryImpl extends SettingsRepository {
   ];
 
   static const List<SettingsSection> _activitySections = <SettingsSection>[
+    SettingsSection(
+      id: 'my_orders',
+      labelKey: 'settings.activity.myOrders',
+      action: SettingsSectionAction.navigate,
+    ),
+    SettingsSection(
+      id: 'my_sells',
+      labelKey: 'settings.activity.mySells',
+      action: SettingsSectionAction.navigate,
+    ),
+    SettingsSection(
+      id: 'my_listings',
+      labelKey: 'settings.activity.myListings',
+      action: SettingsSectionAction.navigate,
+    ),
     SettingsSection(
       id: 'reading_time',
       labelKey: 'settings.activity.readingTime',
@@ -292,11 +319,13 @@ class SettingsRepositoryImpl extends SettingsRepository {
   }
 
   @override
-  Future<Result<List<AppearanceOption>>> updateAppearanceOption(String id) async {
+  Future<Result<List<AppearanceOption>>> updateAppearanceOption(
+      String id) async {
     final String selectedId = _normalizeAppearanceId(id);
     await _storageService.setString(AppStorageKeys.appThemeMode, selectedId);
     return Success<List<AppearanceOption>>(
-      List<AppearanceOption>.unmodifiable(_selectedAppearanceOptions(selectedId)),
+      List<AppearanceOption>.unmodifiable(
+          _selectedAppearanceOptions(selectedId)),
     );
   }
 
@@ -333,8 +362,9 @@ class SettingsRepositoryImpl extends SettingsRepository {
     return _notificationSettings
         .map(
           (NotificationSetting setting) => setting.copyWith(
-            value: _storageService.getBool(_notificationStorageKey(setting.id)) ??
-                setting.value,
+            value:
+                _storageService.getBool(_notificationStorageKey(setting.id)) ??
+                    setting.value,
           ),
         )
         .toList(growable: false);

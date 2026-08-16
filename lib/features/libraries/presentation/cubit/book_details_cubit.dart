@@ -25,6 +25,18 @@ class BookDetailsCubit extends Cubit<BookDetailsState> {
       ),
     );
 
+    if (fallbackBook?.purchaseId.trim().isNotEmpty == true &&
+        fallbackBook?.listingId.trim().isEmpty == true) {
+      emit(
+        state.copyWith(
+          status: BookDetailsStatus.success,
+          book: fallbackBook,
+          clearError: true,
+        ),
+      );
+      return;
+    }
+
     if (_detailsId.isEmpty) {
       emit(
         state.copyWith(

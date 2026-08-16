@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+
 import 'error_codes.dart';
 import 'error_response_model.dart';
 import 'exceptions.dart';
@@ -7,8 +9,7 @@ class ErrorMapper {
   ErrorMapper._();
 
   static AppException mapResponseToException(ErrorResponseModel response) {
-    final String code =
-        response.code ??
+    final String code = response.code ??
         _codeFromStatus(
           response.statusCode,
           hasValidationErrors: response.errors.isNotEmpty,
@@ -30,10 +31,9 @@ class ErrorMapper {
     required bool hasValidationErrors,
   }) {
     return switch (statusCode) {
-      400 =>
-        hasValidationErrors
-            ? ErrorCodes.validationFailed
-            : ErrorCodes.badRequest,
+      400 => hasValidationErrors
+          ? ErrorCodes.validationFailed
+          : ErrorCodes.badRequest,
       401 => ErrorCodes.unauthorized,
       403 => ErrorCodes.forbidden,
       404 => ErrorCodes.resourceNotFound,
@@ -288,6 +288,10 @@ class ErrorMapper {
       return error;
     }
 
+    if (error is DioException) {
+      return _mapDioException(error);
+    }
+
     if (error is AppException) {
       return mapExceptionToFailure(error);
     }
@@ -305,6 +309,57 @@ class ErrorMapper {
     }
 
     return const UnknownFailure();
+  }
+
+  static Failure _mapDioException(DioException error) {
+    final Object? underlyingError = error.error;
+    if (underlyingError is Failure) {
+      return underlyingError;
+    }
+    if (underlyingError is AppException) {
+      return mapExceptionToFailure(underlyingError);
+    }
+
+    final Object? responseData = error.response?.data;
+    if (responseData is Map) {
+      return mapResponseToFailure(
+        ErrorResponseModel.fromJson(
+          Map<String, dynamic>.from(responseData),
+          statusCode: error.response?.statusCode,
+        ),
+      );
+    }
+
+    switch (error.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+      case DioExceptionType.transformTimeout:
+        return TimeoutFailure(message: error.message);
+      case DioExceptionType.connectionError:
+      case DioExceptionType.badCertificate:
+        return NetworkFailure(message: error.message);
+      case DioExceptionType.cancel:
+        return OperationCancelledFailure(message: error.message);
+      case DioExceptionType.badResponse:
+      case DioExceptionType.unknown:
+        break;
+    }
+
+    final int? statusCode = error.response?.statusCode;
+    final String? code = _codeFromStatus(
+      statusCode,
+      hasValidationErrors: false,
+    );
+    if (code != null) {
+      return mapCodeToFailure(
+        code,
+        message: error.response?.statusMessage ?? error.message,
+        statusCode: statusCode,
+      );
+    }
+
+    return NetworkFailure(message: error.message);
   }
 }
 

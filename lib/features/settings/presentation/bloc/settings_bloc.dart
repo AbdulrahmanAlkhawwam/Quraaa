@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/architecture/result.dart';
 import '../../../../core/architecture/use_case.dart';
 import '../../../../core/localization/localization_constants.dart';
+import '../../../../core/services/firebase_messaging_service.dart';
 import '../../../../core/services/storage_service.dart';
 import '../../../auth/auth.dart';
 import '../../domain/entities/appearance_option.dart';
@@ -165,21 +166,23 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     required UpdateLanguageOptionUseCase updateLanguage,
     required LogoutUseCase logout,
     required StorageService storageService,
-  }) : _getTabs = getTabs,
-       _getProfileSections = getProfileSections,
-       _getSettingsSections = getSettingsSections,
-       _getLibrarySections = getLibrarySections,
-       _getBadgesSections = getBadgesSections,
-       _getActivitySections = getActivitySections,
-       _getAppearanceOptions = getAppearanceOptions,
-       _getNotificationSettings = getNotificationSettings,
-       _getLanguageOptions = getLanguageOptions,
-       _updateAppearance = updateAppearance,
-       _updateNotification = updateNotification,
-       _updateLanguage = updateLanguage,
-       _logout = logout,
-       _storageService = storageService,
-       super(const SettingsInitial()) {
+    FirebaseMessagingService? messagingService,
+  })  : _getTabs = getTabs,
+        _getProfileSections = getProfileSections,
+        _getSettingsSections = getSettingsSections,
+        _getLibrarySections = getLibrarySections,
+        _getBadgesSections = getBadgesSections,
+        _getActivitySections = getActivitySections,
+        _getAppearanceOptions = getAppearanceOptions,
+        _getNotificationSettings = getNotificationSettings,
+        _getLanguageOptions = getLanguageOptions,
+        _updateAppearance = updateAppearance,
+        _updateNotification = updateNotification,
+        _updateLanguage = updateLanguage,
+        _logout = logout,
+        _storageService = storageService,
+        _messagingService = messagingService,
+        super(const SettingsInitial()) {
     on<SettingsStarted>(_onStarted);
     on<SettingsTabChanged>(_onTabChanged);
     on<SettingsScrolled>(_onScrolled);
@@ -203,6 +206,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   final UpdateLanguageOptionUseCase _updateLanguage;
   final LogoutUseCase _logout;
   final StorageService _storageService;
+  final FirebaseMessagingService? _messagingService;
 
   Future<void> _onStarted(
     SettingsStarted event,
@@ -227,21 +231,21 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
     final List<SettingsSection> profileSections =
         switch (profileSectionsResult) {
-          Success<List<SettingsSection>>(value: final value) => value,
-          ResultFailure<List<SettingsSection>>() => <SettingsSection>[],
-        };
+      Success<List<SettingsSection>>(value: final value) => value,
+      ResultFailure<List<SettingsSection>>() => <SettingsSection>[],
+    };
 
     final List<SettingsSection> settingsSections =
         switch (settingsSectionsResult) {
-          Success<List<SettingsSection>>(value: final value) => value,
-          ResultFailure<List<SettingsSection>>() => <SettingsSection>[],
-        };
+      Success<List<SettingsSection>>(value: final value) => value,
+      ResultFailure<List<SettingsSection>>() => <SettingsSection>[],
+    };
 
     final List<SettingsSection> librarySections =
         switch (librarySectionsResult) {
-          Success<List<SettingsSection>>(value: final value) => value,
-          ResultFailure<List<SettingsSection>>() => <SettingsSection>[],
-        };
+      Success<List<SettingsSection>>(value: final value) => value,
+      ResultFailure<List<SettingsSection>>() => <SettingsSection>[],
+    };
 
     final List<SettingsSection> badgesSections = switch (badgesSectionsResult) {
       Success<List<SettingsSection>>(value: final value) => value,
@@ -250,9 +254,9 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
     final List<SettingsSection> activitySections =
         switch (activitySectionsResult) {
-          Success<List<SettingsSection>>(value: final value) => value,
-          ResultFailure<List<SettingsSection>>() => <SettingsSection>[],
-        };
+      Success<List<SettingsSection>>(value: final value) => value,
+      ResultFailure<List<SettingsSection>>() => <SettingsSection>[],
+    };
 
     final List<AppearanceOption> appearanceOptions = switch (appearanceResult) {
       Success<List<AppearanceOption>>(value: final value) => value,
@@ -261,9 +265,9 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
     final List<NotificationSetting> notificationSettings =
         switch (notificationResult) {
-          Success<List<NotificationSetting>>(value: final value) => value,
-          ResultFailure<List<NotificationSetting>>() => <NotificationSetting>[],
-        };
+      Success<List<NotificationSetting>>(value: final value) => value,
+      ResultFailure<List<NotificationSetting>>() => <NotificationSetting>[],
+    };
 
     final List<LanguageOption> languageOptions = switch (languageResult) {
       Success<List<LanguageOption>>(value: final value) => value,
@@ -378,6 +382,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     Emitter<SettingsState> emit,
   ) async {
     // Local cleanup must still happen when the remote token is expired.
+    await _messagingService?.unregisterDeviceToken();
     await _logout(const NoParams());
     await _storageService.clearAll();
     emit(const SettingsLogoutSuccess());

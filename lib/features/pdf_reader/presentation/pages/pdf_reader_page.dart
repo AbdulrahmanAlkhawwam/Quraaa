@@ -6,11 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../../../../core/architecture/result.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/extensions/app_context.dart';
 import '../../../../shared/theme/app_colors.dart';
 import '../../../../shared/theme/app_dimensions.dart';
+import '../../../book_assistant/domain/repositories/book_assistant_repository.dart';
 import '../../data/datasources/local/pdf_reader_local_state_datasource.dart';
 import '../../domain/entities/pdf_reader_local_state.dart';
 import '../../domain/entities/pdf_text_layer.dart';
@@ -31,6 +33,7 @@ class PdfReaderPage extends StatefulWidget {
   const PdfReaderPage({
     required this.path,
     required this.name,
+    this.purchaseId = '',
     this.bloc,
     this.renderPage,
     this.getTextLayer,
@@ -41,6 +44,7 @@ class PdfReaderPage extends StatefulWidget {
 
   final String path;
   final String name;
+  final String purchaseId;
   final PdfReaderBloc? bloc;
   final RenderPdfPageUseCase? renderPage;
   final GetPdfTextLayerUseCase? getTextLayer;
@@ -93,6 +97,7 @@ class _PdfReaderPageState extends State<PdfReaderPage> {
       child: _PdfReaderBody(
         path: widget.path,
         name: widget.name,
+        purchaseId: widget.purchaseId,
         renderPage: _renderPage,
         getTextLayer: _getTextLayer,
         shareText: _shareText,
@@ -106,6 +111,7 @@ class _PdfReaderBody extends StatefulWidget {
   const _PdfReaderBody({
     required this.path,
     required this.name,
+    required this.purchaseId,
     required this.renderPage,
     required this.getTextLayer,
     required this.shareText,
@@ -114,6 +120,7 @@ class _PdfReaderBody extends StatefulWidget {
 
   final String path;
   final String name;
+  final String purchaseId;
   final RenderPdfPageUseCase renderPage;
   final GetPdfTextLayerUseCase getTextLayer;
   final SharePdfTextUseCase shareText;
@@ -144,6 +151,7 @@ class _PdfReaderBodyState extends State<_PdfReaderBody> {
   List<PdfInkStroke> _editingStrokes = <PdfInkStroke>[];
   List<PdfInkStroke> _redoStrokes = <PdfInkStroke>[];
   bool _annotationMode = false;
+  bool _translating = false;
   PdfInkTool _inkTool = PdfInkTool.highlighter;
   int _highlighterColorValue = _highlighterColors.first;
   int _penColorValue = _penColors.first;
@@ -208,6 +216,11 @@ class _PdfReaderBodyState extends State<_PdfReaderBody> {
                       onInfo: readyState == null
                           ? () {}
                           : () => _showProgress(readyState),
+                      // Temporarily hidden until the translation flow is re-enabled.
+                      translateAvailable: false,
+                      onTranslate: readyState == null || _translating
+                          ? null
+                          : () => _translateCurrentPage(readyState),
                       onHighlight: () =>
                           _enterAnnotationMode(PdfInkTool.highlighter),
                       onAddNote: readyState == null
@@ -480,6 +493,74 @@ class _PdfReaderBodyState extends State<_PdfReaderBody> {
         _penColorValue = selected;
       }
     });
+  }
+
+  Future<void> _translateCurrentPage(PdfReaderReady state) async {
+    if (_translating || widget.purchaseId.trim().isEmpty) return;
+    setState(() => _translating = true);
+    final Result<String> result = await sl<BookAssistantRepository>().translate(
+      purchaseId: widget.purchaseId.trim(),
+      pageNumber:
+          _localState.currentPageIndex.clamp(0, state.pageCount - 1) + 1,
+      targetLanguage:
+          context.locale.languageCode == 'ar' ? 'Arabic' : 'English',
+    );
+    if (!mounted) return;
+    setState(() => _translating = false);
+    result.fold(
+      (failure) => _showMessage(failure.message),
+      (translation) => _showTranslation(translation),
+    );
+  }
+
+  Future<void> _showTranslation(String translation) {
+    return showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      backgroundColor: context.appCard,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (BuildContext sheetContext) => SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+            24,
+            8,
+            24,
+            24 + MediaQuery.viewInsetsOf(sheetContext).bottom,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  Icon(Icons.translate, color: AppColors.primary600),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      LocalizationConstants.pdfReaderTranslationKey.tr(),
+                      style: Theme.of(sheetContext).textTheme.titleLarge,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.sizeOf(sheetContext).height * 0.62,
+                ),
+                child: SingleChildScrollView(
+                  child: SelectableText(translation),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _showProgress(PdfReaderReady state) {

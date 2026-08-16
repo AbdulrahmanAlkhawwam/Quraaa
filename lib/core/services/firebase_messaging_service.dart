@@ -7,6 +7,8 @@ import 'package:flutter/widgets.dart';
 import '../../firebase_options.dart';
 import '../constants/firebase_constants.dart';
 import '../utils/logger.dart';
+import '../constants/api_endpoints.dart';
+import '../network/http_helper.dart';
 import 'notification_service.dart';
 
 /// Wrapper around Firebase Cloud Messaging operations for the Quraaa app.
@@ -14,11 +16,15 @@ class FirebaseMessagingService {
   /// Creates the Firebase messaging service.
   FirebaseMessagingService({
     FirebaseMessaging? messaging,
-    required this._notificationService,
-  }) : _messaging = messaging ?? FirebaseMessaging.instance;
+    required LocalNotificationService notificationService,
+    required HttpHelper httpHelper,
+  })  : _messaging = messaging ?? FirebaseMessaging.instance,
+        _notificationService = notificationService,
+        _httpHelper = httpHelper;
 
   final FirebaseMessaging _messaging;
   final LocalNotificationService _notificationService;
+  final HttpHelper _httpHelper;
 
   /// Requests FCM notification permission on platforms that require it.
   Future<bool> requestPermissions() async {
@@ -34,7 +40,7 @@ class FirebaseMessagingService {
 
     final authorized =
         settings.authorizationStatus == AuthorizationStatus.authorized ||
-        settings.authorizationStatus == AuthorizationStatus.provisional;
+            settings.authorizationStatus == AuthorizationStatus.provisional;
 
     AppLogger.info('FCM authorization status: ${settings.authorizationStatus}');
     return authorized;
@@ -52,6 +58,52 @@ class FirebaseMessagingService {
     AppLogger.info(
       'Unsubscribed from FCM topic: ${FirebaseConstants.fcmTopic}',
     );
+  }
+
+  /// Registers this signed-in device for backend push notifications.
+  Future<void> registerDeviceToken() async {
+    try {
+      final String? token = await getDeviceToken();
+      if (token == null || token.isEmpty) return;
+      await _httpHelper.put(
+        ApiEndpoints.notificationDevices,
+        data: <String, Object?>{'deviceToken': token},
+      );
+      AppLogger.info('Push device registered.');
+    } catch (error, stackTrace) {
+      // Guest and offline sessions are expected to fail without affecting app use.
+      AppLogger.error('Push device registration skipped', error, stackTrace);
+    }
+  }
+
+  /// Unregisters this device before the authenticated session is cleared.
+  Future<void> unregisterDeviceToken() async {
+    try {
+      final String? token = await getDeviceToken();
+      if (token == null || token.isEmpty) return;
+      await _httpHelper.delete(
+        ApiEndpoints.notificationDevices,
+        data: <String, Object?>{'deviceToken': token},
+      );
+      AppLogger.info('Push device unregistered.');
+    } catch (error, stackTrace) {
+      // Logout must remain available when offline or when the token expired.
+      AppLogger.error('Push device unregister skipped', error, stackTrace);
+    }
+  }
+
+  /// Keeps the backend device registration current after FCM token rotation.
+  void listenToTokenRefresh() {
+    _messaging.onTokenRefresh.listen((String token) async {
+      try {
+        await _httpHelper.put(
+          ApiEndpoints.notificationDevices,
+          data: <String, Object?>{'deviceToken': token},
+        );
+      } catch (error, stackTrace) {
+        AppLogger.error('Push token refresh sync failed', error, stackTrace);
+      }
+    });
   }
 
   /// Stream of foreground FCM messages.

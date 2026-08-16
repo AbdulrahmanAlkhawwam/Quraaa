@@ -89,6 +89,10 @@ build_args=(
 [ -n "${LATEST_VERSION:-}" ] &&
   build_args+=("--dart-define=LATEST_VERSION=$LATEST_VERSION")
 
+[ -n "${TELEGRAM_BOT_TOKEN:-}" ] &&
+  build_args+=("--dart-define=TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN")
+[ -n "${TELEGRAM_CHAT_ID:-}" ] &&
+  build_args+=("--dart-define=TELEGRAM_CHAT_ID=$TELEGRAM_CHAT_ID")
 info "Building universal Flutter $BUILD_TYPE release..."
 flutter "${build_args[@]}"
 [ -f "$ARTIFACT" ] || fail "Expected artifact not found: $ARTIFACT"

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,6 +10,7 @@ import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import '../../../cart/cart.dart';
 import '../../../libraries/libraries.dart';
+import '../../../orders/orders.dart';
 import '../../../settings/settings.dart';
 import '../../domain/entities/home_book_entity.dart';
 import '../bloc/home_bloc.dart';
@@ -22,19 +25,23 @@ import '../widgets/home_section.dart';
 /// The main home screen that serves as the central hub for the app.
 /// Uses a 5-tab bottom navigation with an IndexedStack.
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key, this.showCheckoutSuccess = false});
+
+  final bool showCheckoutSuccess;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   int _selectedIndex = 0;
   int _previousIndex = 0;
+  bool _checkoutSuccessShown = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) {
         return;
@@ -42,7 +49,47 @@ class _HomeScreenState extends State<HomeScreen> {
 
       context.read<HomeBloc>().add(const HomePermissionsRequested());
       _requestCartIfNeeded(context.read<HomeBloc>().state);
+      _showCheckoutSuccessIfNeeded();
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && mounted) {
+      unawaited(context.read<AccountOrdersCubit>().load());
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant HomeScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!widget.showCheckoutSuccess) {
+      _checkoutSuccessShown = false;
+    }
+    if (!oldWidget.showCheckoutSuccess && widget.showCheckoutSuccess) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showCheckoutSuccessIfNeeded();
+      });
+    }
+  }
+
+  void _showCheckoutSuccessIfNeeded() {
+    if (!mounted || !widget.showCheckoutSuccess || _checkoutSuccessShown) {
+      return;
+    }
+    _checkoutSuccessShown = true;
+    context.showSuccessSnackBar(
+      message: Message(
+        title: LocalizationConstants.cartPaymentSuccessTitleKey.tr(),
+        value: LocalizationConstants.cartPaymentSuccessMessageKey.tr(),
+      ),
+    );
   }
 
   void _requestCartIfNeeded(HomeState state) {
@@ -242,10 +289,38 @@ class _HomeFeed extends StatelessWidget {
             const SliverToBoxAdapter(
               child: SizedBox(height: AppSpacing.spacing14),
             ),
-            const SliverToBoxAdapter(
+            SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: AppSpacing.spacing16),
-                child: HomeOrderStatusCard(),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.spacing16,
+                ),
+                child: BlocBuilder<AccountOrdersCubit, AccountOrdersState>(
+                  builder: (BuildContext context, AccountOrdersState state) {
+                    if (state.orders.isEmpty) return const SizedBox.shrink();
+                    final AccountOrder order = state.orders.first;
+                    if (order.stage == AccountOrderStage.cancelled) {
+                      return const SizedBox.shrink();
+                    }
+                    return HomeOrderStatusCard(
+                      orderNumber: order.orderNumber,
+                      status: switch (order.stage) {
+                        AccountOrderStage.pending => HomeOrderStatus.pending,
+                        AccountOrderStage.processing =>
+                          HomeOrderStatus.processing,
+                        AccountOrderStage.onDelivery =>
+                          HomeOrderStatus.onDelivery,
+                        AccountOrderStage.onDoor => HomeOrderStatus.onDoor,
+                        AccountOrderStage.cancelled => HomeOrderStatus.pending,
+                      },
+                      onPressed: () async {
+                        await context.pushTo<void>(RouteNames.myOrders);
+                        if (context.mounted) {
+                          await context.read<AccountOrdersCubit>().load();
+                        }
+                      },
+                    );
+                  },
+                ),
               ),
             ),
             const SliverToBoxAdapter(

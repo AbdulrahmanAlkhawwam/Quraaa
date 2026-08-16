@@ -9,6 +9,15 @@ import '../models/book_summary_model.dart';
 
 abstract class BookAssistantRemoteDataSource {
   Future<BookSummaryModel> summarize({required String purchaseId});
+  Future<String> translate({
+    required String purchaseId,
+    required int pageNumber,
+    required String targetLanguage,
+  });
+  Future<String> explain({
+    required String purchaseId,
+    required String selectedText,
+  });
 }
 
 class BookAssistantRemoteDataSourceImpl
@@ -34,6 +43,57 @@ class BookAssistantRemoteDataSourceImpl
         }
       }
       throw const UnknownException(message: 'Invalid book summary response.');
+    } on DioException catch (error) {
+      throw _mapDioException(error);
+    }
+  }
+
+  @override
+  Future<String> translate({
+    required String purchaseId,
+    required int pageNumber,
+    required String targetLanguage,
+  }) =>
+      _textRequest(
+        ApiEndpoints.aiTranslate,
+        <String, Object?>{
+          'purchaseId': purchaseId,
+          'pageNumber': pageNumber,
+          'targetLanguage': targetLanguage,
+        },
+        'translatedText',
+      );
+
+  @override
+  Future<String> explain({
+    required String purchaseId,
+    required String selectedText,
+  }) =>
+      _textRequest(
+        ApiEndpoints.aiExplain,
+        <String, Object?>{
+          'purchaseId': purchaseId,
+          'selectedText': selectedText,
+        },
+        'explanation',
+      );
+
+  Future<String> _textRequest(
+    String endpoint,
+    Map<String, Object?> body,
+    String responseKey,
+  ) async {
+    try {
+      final Response<dynamic> response = await _httpHelper.post(
+        endpoint,
+        data: body,
+      );
+      if (response.data is Map) {
+        final String value =
+            (response.data as Map)[responseKey]?.toString() ?? '';
+        if (value.trim().isNotEmpty) return value;
+      }
+      throw const UnknownException(message: 'Invalid AI response.');
     } on DioException catch (error) {
       throw _mapDioException(error);
     }

@@ -13,6 +13,8 @@ import '../../features/home/presentation/bloc/home_bloc.dart';
 import '../../features/home/presentation/pages/audio_books_screen.dart';
 import '../../features/cart/presentation/pages/cart_screen.dart';
 import '../../features/cart/presentation/bloc/cart_bloc.dart';
+import '../../features/orders/orders.dart';
+import '../../features/purchases/purchases.dart';
 import '../../features/favorites/presentation/pages/favorite_books_screen.dart';
 import '../../features/book_assistant/book_assistant.dart';
 import '../../features/auth/presentation/pages/landing_page.dart';
@@ -30,6 +32,7 @@ import '../../features/libraries/presentation/cubit/book_details_cubit.dart';
 import '../../features/libraries/presentation/cubit/library_details_cubit.dart';
 import '../../features/home/presentation/pages/user_books_screen.dart';
 import '../../features/sell_book/presentation/pages/sell_book_screen.dart';
+import '../../features/sell_book/presentation/pages/my_listings_screen.dart';
 import '../../features/onboarding/presentation/pages/age_onboarding_page.dart';
 import '../../features/onboarding/presentation/pages/gender_onboarding_page.dart';
 import '../../features/onboarding/presentation/pages/interests_onboarding_page.dart';
@@ -46,6 +49,7 @@ import '../../features/splash/presentation/pages/splash_screen.dart';
 import '../../features/local_explorer/presentation/pages/explorer_history_screen.dart';
 import '../../features/local_explorer/presentation/pages/local_explorer_page.dart';
 import '../../features/pdf_reader/presentation/pages/pdf_reader_page.dart';
+import '../../features/pdf_reader/presentation/widgets/purchased_pdf_reader_loader.dart';
 import '../../features/settings/presentation/cubit/library_registration_cubit.dart';
 import '../../features/settings/presentation/pages/account_type_page.dart';
 import 'route_names.dart';
@@ -70,8 +74,8 @@ GoRouter buildAppRouter({
 
       if (location == RouteNames.cart) {
         try {
-          final bool isAuthenticated =
-              await sl<AuthLocalDataSource>().isAuthenticatedSession();
+          final bool isAuthenticated = await sl<AuthLocalDataSource>()
+              .isAuthenticatedSession();
           if (!isAuthenticated) {
             return RouteNames.home;
           }
@@ -135,6 +139,14 @@ GoRouter buildAppRouter({
             RouteNames.splash,
       ),
       GoRoute(
+        path: RouteNames.checkoutSuccess,
+        redirect: (context, state) => '${RouteNames.home}?checkout=success',
+      ),
+      GoRoute(
+        path: RouteNames.checkoutCancel,
+        redirect: (context, state) => RouteNames.cart,
+      ),
+      GoRoute(
         name: RouteNames.home,
         path: RouteNames.home,
         pageBuilder: (context, state) => _buildTabTransitionPage(
@@ -147,8 +159,17 @@ GoRouter buildAppRouter({
                     sl<HomeBloc>()..add(const HomeStarted()),
               ),
               BlocProvider<CartBloc>(create: (_) => sl<CartBloc>()),
+              BlocProvider<AccountOrdersCubit>(
+                create: (_) => AccountOrdersCubit(
+                  sl<OrdersRepository>(),
+                  mode: AccountOrdersMode.purchases,
+                )..load(),
+              ),
             ],
-            child: const HomeScreen(),
+            child: HomeScreen(
+              showCheckoutSuccess:
+                  state.uri.queryParameters['checkout'] == 'success',
+            ),
           ),
         ),
       ),
@@ -208,8 +229,9 @@ GoRouter buildAppRouter({
           final String detailsId = listingId.isNotEmpty ? listingId : bookId;
 
           return BlocProvider<BookDetailsCubit>(
-            create: (_) => sl<BookDetailsCubit>()
-              ..load(detailsId: detailsId, fallbackBook: data?.book),
+            create: (_) =>
+                sl<BookDetailsCubit>()
+                  ..load(detailsId: detailsId, fallbackBook: data?.book),
             child: BookDetailsScreen(bookId: bookId, data: data),
           );
         },
@@ -282,8 +304,22 @@ GoRouter buildAppRouter({
         builder: (context, state) {
           final String? path = state.uri.queryParameters['path'];
           final String? name = state.uri.queryParameters['name'];
+          final String? purchaseId = state.uri.queryParameters['purchaseId'];
+          final String effectivePath = path ?? '';
+          final String effectiveName = name ?? 'PDF';
 
-          return PdfReaderPage(path: path ?? '', name: name ?? 'PDF');
+          if (effectivePath.isEmpty && purchaseId?.trim().isNotEmpty == true) {
+            return PurchasedPdfReaderLoader(
+              purchaseId: purchaseId!.trim(),
+              name: effectiveName,
+            );
+          }
+
+          return PdfReaderPage(
+            path: effectivePath,
+            name: effectiveName,
+            purchaseId: purchaseId ?? '',
+          );
         },
       ),
       GoRoute(
@@ -299,6 +335,43 @@ GoRouter buildAppRouter({
           tabIndex: 3,
           child: const SettingsScreen(),
         ),
+      ),
+      GoRoute(
+        name: RouteNames.myOrders,
+        path: RouteNames.myOrders,
+        builder: (context, state) => BlocProvider<AccountOrdersCubit>(
+          create: (_) => AccountOrdersCubit(
+            sl<OrdersRepository>(),
+            mode: AccountOrdersMode.purchases,
+          )..load(),
+          child: const MyOrdersScreen(),
+        ),
+      ),
+      GoRoute(
+        name: RouteNames.mySells,
+        path: RouteNames.mySells,
+        builder: (context, state) => BlocProvider<AccountOrdersCubit>(
+          create: (_) => AccountOrdersCubit(
+            sl<OrdersRepository>(),
+            mode: AccountOrdersMode.sales,
+          )..load(),
+          child: const MySellsScreen(),
+        ),
+      ),
+      GoRoute(
+        name: RouteNames.myListings,
+        path: RouteNames.myListings,
+        builder: (context, state) => const MyListingsScreen(),
+      ),
+      GoRoute(
+        name: RouteNames.purchasedBooks,
+        path: RouteNames.purchasedBooks,
+        builder: (context, state) => const PurchasedBooksScreen(),
+      ),
+      GoRoute(
+        name: RouteNames.aiTextTools,
+        path: RouteNames.aiTextTools,
+        builder: (context, state) => const AiTextToolsScreen(),
       ),
       GoRoute(
         name: RouteNames.settingsPersonalInformation,
@@ -399,35 +472,36 @@ Page<void> _buildSoftTransitionPage({
     transitionDuration: const Duration(milliseconds: 360),
     reverseTransitionDuration: const Duration(milliseconds: 280),
     child: child,
-    transitionsBuilder: (
-      BuildContext context,
-      Animation<double> animation,
-      Animation<double> secondaryAnimation,
-      Widget child,
-    ) {
-      final Animation<double> curvedAnimation = CurvedAnimation(
-        parent: animation,
-        curve: Curves.easeOutCubic,
-        reverseCurve: Curves.easeInCubic,
-      );
+    transitionsBuilder:
+        (
+          BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+          Widget child,
+        ) {
+          final Animation<double> curvedAnimation = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+            reverseCurve: Curves.easeInCubic,
+          );
 
-      return FadeTransition(
-        opacity: curvedAnimation,
-        child: SlideTransition(
-          position: Tween<Offset>(
-            begin: beginOffset,
-            end: Offset.zero,
-          ).animate(curvedAnimation),
-          child: ScaleTransition(
-            scale: Tween<double>(
-              begin: 0.985,
-              end: 1,
-            ).animate(curvedAnimation),
-            child: child,
-          ),
-        ),
-      );
-    },
+          return FadeTransition(
+            opacity: curvedAnimation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: beginOffset,
+                end: Offset.zero,
+              ).animate(curvedAnimation),
+              child: ScaleTransition(
+                scale: Tween<double>(
+                  begin: 0.985,
+                  end: 1,
+                ).animate(curvedAnimation),
+                child: child,
+              ),
+            ),
+          );
+        },
   );
 }
 
@@ -444,8 +518,13 @@ bool _isKnownRoute(String location) {
     RouteNames.cart,
     RouteNames.favorites,
     RouteNames.bookAssistant,
+    RouteNames.aiTextTools,
     RouteNames.search,
     RouteNames.settings,
+    RouteNames.myOrders,
+    RouteNames.mySells,
+    RouteNames.myListings,
+    RouteNames.purchasedBooks,
     RouteNames.settingsPersonalInformation,
     RouteNames.settingsLocations,
     RouteNames.settingsPersonalFiles,
@@ -461,6 +540,8 @@ bool _isKnownRoute(String location) {
     RouteNames.onboardingAge,
     RouteNames.onboardingInterests,
     RouteNames.routeBridge,
+    RouteNames.checkoutSuccess,
+    RouteNames.checkoutCancel,
     RouteNames.notificationPermission,
     RouteNames.locationPermission,
     RouteNames.otpVerification,

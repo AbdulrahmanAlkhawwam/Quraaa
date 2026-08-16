@@ -1,12 +1,15 @@
+import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../../../../config/routes/route_names.dart';
+import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
+import '../../../books/books.dart';
 
-/// Search screen with expanded search UI.
-/// This screen is shown after the animated transition from the home search widget.
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
 
@@ -15,32 +18,65 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  final List<String> _recentSearches = <String>[];
-  final List<String> _trendingSearchKeys = <String>[
-    LocalizationConstants.onboardingInterestHistoryKey,
-    LocalizationConstants.searchMathematicalKey,
-    LocalizationConstants.onboardingInterestScienceKey,
-    LocalizationConstants.searchPhilosophyKey,
-    LocalizationConstants.onboardingInterestLiteratureKey,
-    LocalizationConstants.onboardingInterestArtKey,
-  ];
+  final GetBooksUseCase _getBooks = sl<GetBooksUseCase>();
+  final List<String> _recent = <String>[];
+  Timer? _debounce;
+  List<Book> _results = const <Book>[];
+  bool _loading = false;
+  String? _error;
 
   @override
   void initState() {
     super.initState();
-    // Auto-focus the search field when the screen opens.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _focusNode.requestFocus();
-    });
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _focusNode.requestFocus());
   }
 
   @override
   void dispose() {
-    _searchController.dispose();
+    _debounce?.cancel();
+    _controller.dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  void _changed(String value) {
+    setState(() {});
+    _debounce?.cancel();
+    final String query = value.trim();
+    if (query.isEmpty) {
+      setState(() {
+        _results = const <Book>[];
+        _loading = false;
+        _error = null;
+      });
+      return;
+    }
+    _debounce = Timer(const Duration(milliseconds: 350), () => _search(query));
+  }
+
+  Future<void> _search(String query) async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final List<Book> books = await _getBooks(query: query);
+      if (!mounted || query != _controller.text.trim()) return;
+      setState(() {
+        _results = books;
+        _loading = false;
+        if (!_recent.contains(query)) _recent.insert(0, query);
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+        _error = error.toString();
+      });
+    }
   }
 
   @override
@@ -51,314 +87,152 @@ class _SearchScreenState extends State<SearchScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            // Animated Search Bar (at the top)
-            _buildSearchBar(),
-            const SizedBox(height: AppSpacing.spacing24),
-            // Search content that animates down
-            Expanded(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 400),
-                transitionBuilder: (
-                  Widget child,
-                  Animation<double> animation,
-                ) {
-                  return SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(0, 0.15),
-                      end: Offset.zero,
-                    ).animate(
-                      CurvedAnimation(
-                        parent: animation,
-                        curve: Curves.easeOutCubic,
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.spacing16),
+              child: Row(
+                children: <Widget>[
+                  IconButton.filledTonal(
+                    onPressed: context.back,
+                    icon: HugeIcon(
+                      icon: context.isRTL
+                          ? HugeIcons.strokeRoundedArrowRight01
+                          : HugeIcons.strokeRoundedArrowLeft01,
+                      color: context.appTextPrimary,
+                      size: 22,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextField(
+                      controller: _controller,
+                      focusNode: _focusNode,
+                      onChanged: _changed,
+                      decoration: InputDecoration(
+                        hintText: LocalizationConstants.searchHintKey.tr(),
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: _controller.text.isEmpty
+                            ? null
+                            : IconButton(
+                                onPressed: () {
+                                  _controller.clear();
+                                  _changed('');
+                                },
+                                icon: const Icon(Icons.close),
+                              ),
                       ),
                     ),
-                    child: FadeTransition(
-                      opacity: animation,
-                      child: child,
-                    ),
-                  );
-                },
-                child: _searchController.text.isEmpty
-                    ? _buildDefaultContent()
-                    : _buildSearchResults(),
+                  ),
+                ],
               ),
             ),
+            Expanded(child: _content()),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.spacing16,
-        vertical: AppSpacing.spacing12,
-      ),
-      child: Row(
+  Widget _content() {
+    if (_controller.text.trim().isEmpty) {
+      return ListView(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.spacing16),
         children: <Widget>[
-          // Back button
-          GestureDetector(
-            onTap: () => context.back(),
-            child: Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: context.appCard,
-                borderRadius: BorderRadius.circular(AppRadius.radius12),
-              ),
-              child:  Center(
-                child: HugeIcon(
-                  icon: context.isRTL ? HugeIcons.strokeRoundedArrowRight01 : HugeIcons.strokeRoundedArrowLeft01,
-                  color: context.appTextPrimary,
-                  size: 22,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: AppSpacing.spacing12),
-          // Search input field
-          Expanded(
-            child: Container(
-              height: 44,
-              decoration: BoxDecoration(
-                color: context.appCard,
-                borderRadius: BorderRadius.circular(AppRadius.radius12),
-              ),
-              child: TextField(
-                controller: _searchController,
-                focusNode: _focusNode,
-                onChanged: (_) => setState(() {}),
-                textAlignVertical: TextAlignVertical.center,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: context.appTextPrimary,
-                ),
-                decoration: InputDecoration(
-                  hintText: LocalizationConstants.searchHintKey.tr(),
-                  hintStyle: AppTextStyles.bodyMedium.copyWith(
-                    color: context.appTextTertiary,
-                  ),
-                  prefixIcon:  Padding(
-                    padding: EdgeInsets.all(AppSpacing.spacing12),
-                    child: HugeIcon(
-                      icon: HugeIcons.strokeRoundedSearch01,
-                      color: context.appTextTertiary,
-                      size: 20,
-                    ),
-                  ),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? GestureDetector(
-                          onTap: () {
-                            _searchController.clear();
-                            setState(() {});
-                          },
-                          child:  Padding(
-                            padding: EdgeInsets.all(AppSpacing.spacing12),
-                            child: HugeIcon(
-                              icon: HugeIcons.strokeRoundedCancel01,
-                              color: context.appTextTertiary,
-                              size: 20,
-                            ),
-                          ),
-                        )
-                      : null,
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.spacing12,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDefaultContent() {
-    return SingleChildScrollView(
-      key: const ValueKey<String>('default'),
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.spacing16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          // Trending searches
           Text(
             LocalizationConstants.searchTrendingKey.tr(),
-            style: AppTextStyles.h4.copyWith(
-              color: context.appTextPrimary,
-            ),
+            style: AppTextStyles.h4.copyWith(color: context.appTextPrimary),
           ),
-          const SizedBox(height: AppSpacing.spacing16),
+          const SizedBox(height: 14),
           Wrap(
-            spacing: AppSpacing.spacing8,
-            runSpacing: AppSpacing.spacing8,
-            children: _trendingSearchKeys.map((String searchKey) {
-              return _buildChip(searchKey);
-            }).toList(),
+            spacing: 8,
+            runSpacing: 8,
+            children: <String>[
+              LocalizationConstants.onboardingInterestHistoryKey,
+              LocalizationConstants.searchMathematicalKey,
+              LocalizationConstants.onboardingInterestScienceKey,
+              LocalizationConstants.searchPhilosophyKey,
+              LocalizationConstants.onboardingInterestLiteratureKey,
+            ].map((String key) {
+              final String label = key.tr();
+              return ActionChip(
+                label: Text(label),
+                onPressed: () {
+                  _controller.text = label;
+                  _changed(label);
+                },
+              );
+            }).toList(growable: false),
           ),
-          const SizedBox(height: AppSpacing.spacing32),
-          // Recent searches (if any)
-          if (_recentSearches.isNotEmpty) ...<Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  LocalizationConstants.searchRecentKey.tr(),
-                  style: AppTextStyles.h4.copyWith(
-                    color: context.appTextPrimary,
+          if (_recent.isNotEmpty) ...<Widget>[
+            const SizedBox(height: 28),
+            Text(
+              LocalizationConstants.searchRecentKey.tr(),
+              style: AppTextStyles.h4.copyWith(color: context.appTextPrimary),
+            ),
+            ..._recent.take(5).map(
+                  (String query) => ListTile(
+                    leading: const Icon(Icons.history),
+                    title: Text(query),
+                    onTap: () {
+                      _controller.text = query;
+                      _changed(query);
+                    },
                   ),
                 ),
-                TextButton(
-                  onPressed: () => setState(() => _recentSearches.clear()),
-                  child: Text(
-                    LocalizationConstants.searchClearKey.tr(),
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.primary600,
+          ],
+        ],
+      );
+    }
+    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_error != null) {
+      return Center(
+        child: TextButton.icon(
+          onPressed: () => _search(_controller.text.trim()),
+          icon: const Icon(Icons.refresh),
+          label: Text(LocalizationConstants.commonRetryKey.tr()),
+        ),
+      );
+    }
+    if (_results.isEmpty) {
+      return Center(child: Text('books_catalog.empty'.tr()));
+    }
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 28),
+      itemCount: _results.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      itemBuilder: (BuildContext context, int index) {
+        final Book book = _results[index];
+        return ListTile(
+          tileColor: context.appCard,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.radius16),
+          ),
+          leading: ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: SizedBox(
+              width: 46,
+              height: 58,
+              child: book.displayCover.isEmpty
+                  ? const ColoredBox(
+                      color: AppColors.primary100,
+                      child: Icon(Icons.menu_book_outlined),
+                    )
+                  : Image.network(
+                      book.displayCover,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => const Icon(Icons.book),
                     ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.spacing16),
-            ..._recentSearches.map((String search) {
-              return _buildRecentItem(search);
-            }),
-          ],
-          const SizedBox(height: AppSpacing.spacing32),
-          // Browse categories hint
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(AppSpacing.spacing20),
-            decoration: BoxDecoration(
-              color: context.appSubtleSurface,
-              borderRadius: BorderRadius.circular(AppRadius.radius16),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                HugeIcon(
-                  icon: HugeIcons.strokeRoundedBookOpen01,
-                  color: AppColors.primary600,
-                  size: 28,
-                ),
-                const SizedBox(height: AppSpacing.spacing12),
-                Text(
-                  LocalizationConstants.searchBrowseCategoriesTitleKey.tr(),
-                  style: AppTextStyles.titleMedium.copyWith(
-                    color: context.appTextPrimary,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.spacing8),
-                Text(
-                  LocalizationConstants.searchBrowseCategoriesDescriptionKey.tr(),
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: context.appTextSecondary,
-                  ),
-                ),
-              ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSearchResults() {
-    return Center(
-      key: const ValueKey<String>('results'),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          HugeIcon(
-            icon: HugeIcons.strokeRoundedSearch01,
-            color: AppColors.primary200,
-            size: 64,
+          title: Text(book.title, maxLines: 2, overflow: TextOverflow.ellipsis),
+          subtitle: Text(book.author, maxLines: 1),
+          trailing: Icon(
+            context.isRTL ? Icons.chevron_left : Icons.chevron_right,
           ),
-          const SizedBox(height: AppSpacing.spacing16),
-          Text(
-            LocalizationConstants.searchSearchingForKey.tr(
-              namedArgs: <String, String>{'query': _searchController.text},
-            ),
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: context.appTextSecondary,
-            ),
+          onTap: () => context.pushTo(
+            RouteNames.bookDetailsPath(book.listingId, book.id),
           ),
-          const SizedBox(height: AppSpacing.spacing8),
-          Text(
-            LocalizationConstants.searchResultsSoonKey.tr(),
-            style: AppTextStyles.bodySmall.copyWith(
-              color: context.appTextTertiary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildChip(String labelKey) {
-    final String label = labelKey.tr();
-
-    return GestureDetector(
-      onTap: () {
-        _searchController.text = label;
-        setState(() {});
+        );
       },
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.spacing16,
-          vertical: AppSpacing.spacing8,
-        ),
-        decoration: BoxDecoration(
-          color: context.appCard,
-          borderRadius: BorderRadius.circular(AppRadius.radius24),
-          border: Border.all(color: context.appBorder),
-        ),
-        child: Text(
-          label,
-          style: AppTextStyles.bodySmall.copyWith(
-            color: context.appTextPrimary,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRecentItem(String search) {
-    return GestureDetector(
-      onTap: () {
-        _searchController.text = search;
-        setState(() {});
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.spacing8),
-        child: Row(
-          children: <Widget>[
-            HugeIcon(
-              icon: HugeIcons.strokeRoundedClock01,
-              color: context.appTextTertiary,
-              size: 18,
-            ),
-            const SizedBox(width: AppSpacing.spacing12),
-            Expanded(
-              child: Text(
-                search,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: context.appTextPrimary,
-                ),
-              ),
-            ),
-            GestureDetector(
-              onTap: () => setState(() => _recentSearches.remove(search)),
-              child: HugeIcon(
-                icon: HugeIcons.strokeRoundedCancel01,
-                color: context.appTextTertiary,
-                size: 16,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

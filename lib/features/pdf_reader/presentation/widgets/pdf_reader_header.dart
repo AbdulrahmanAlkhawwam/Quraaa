@@ -17,6 +17,8 @@ class PdfReaderHeader extends StatelessWidget {
     required this.canRedo,
     required this.onBack,
     required this.onInfo,
+    required this.translateAvailable,
+    required this.onTranslate,
     required this.onHighlight,
     required this.onAddNote,
     required this.onLayout,
@@ -35,6 +37,8 @@ class PdfReaderHeader extends StatelessWidget {
   final bool canRedo;
   final VoidCallback onBack;
   final VoidCallback onInfo;
+  final bool translateAvailable;
+  final VoidCallback? onTranslate;
   final VoidCallback onHighlight;
   final VoidCallback onAddNote;
   final VoidCallback onLayout;
@@ -119,6 +123,13 @@ class PdfReaderHeader extends StatelessWidget {
                 color: iconColor,
                 onPressed: onInfo,
               ),
+              if (translateAvailable)
+                _HeaderButton(
+                  tooltip: LocalizationConstants.pdfReaderTranslateKey.tr(),
+                  icon: HugeIcons.strokeRoundedTranslate,
+                  color: iconColor,
+                  onPressed: onTranslate,
+                ),
               _HeaderButton(
                 tooltip: LocalizationConstants.pdfReaderHighlightKey.tr(),
                 icon: HugeIcons.strokeRoundedHighlighter,

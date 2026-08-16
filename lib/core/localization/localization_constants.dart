@@ -551,6 +551,8 @@ class LocalizationConstants {
   static const String pdfReaderCopyKey = 'pdf_reader.copy';
   static const String pdfReaderShareKey = 'pdf_reader.share';
   static const String pdfReaderHighlightKey = 'pdf_reader.highlight';
+  static const String pdfReaderTranslateKey = 'pdf_reader.translate';
+  static const String pdfReaderTranslationKey = 'pdf_reader.translation';
   static const String pdfReaderPenKey = 'pdf_reader.pen';
   static const String pdfReaderAddNoteKey = 'pdf_reader.add_note';
   static const String pdfReaderNoteTitleKey = 'pdf_reader.note_title';
@@ -588,6 +590,7 @@ class LocalizationConstants {
   static const String pdfReaderContinuousKey = 'pdf_reader.continuous';
   static const String pdfReaderSplitKey = 'pdf_reader.split';
   static const String pdfReaderResetChangesKey = 'pdf_reader.reset_changes';
+  static const String purchasesOfflineCopyKey = 'purchases.offline_copy';
   // Auth OTP / Permissions (additional keys)
   static const String authOtpTitleKey = 'auth.otp.title';
   static const String authOtpDescriptionKey = 'auth.otp.description';
@@ -843,6 +846,9 @@ class LocalizationConstants {
   static const String cartTitleKey = 'cart.title';
   static const String cartCheckoutKey = 'cart.checkout';
   static const String cartCheckoutOpenFailedKey = 'cart.checkout_open_failed';
+  static const String cartPaymentSuccessTitleKey = 'cart.payment_success_title';
+  static const String cartPaymentSuccessMessageKey =
+      'cart.payment_success_message';
   static const String cartAddedKey = 'cart.added';
   static const String cartReadyTitleKey = 'cart.ready_title';
   static const String cartReadyMessageKey = 'cart.ready_message';

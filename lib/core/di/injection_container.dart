@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../features/auth/data/datasources/auth_local_datasource.dart';
@@ -54,6 +55,8 @@ import '../../features/profile/presentation/cubit/profile_edit_cubit.dart';
 import '../../features/profile/presentation/cubit/profile_location_cubit.dart';
 import '../../features/profile/domain/entities/profile.dart';
 import '../../features/home/home.dart';
+import '../../features/book_engagement/book_engagement.dart';
+import '../../features/purchases/purchases.dart';
 import '../../features/libraries/data/datasources/libraries_remote_data_source.dart';
 import '../../features/libraries/data/repositories/libraries_repository_impl.dart';
 import '../../features/libraries/domain/repositories/libraries_repository.dart';
@@ -301,6 +304,7 @@ void registerCoreDependencies() {
   sl.registerLazySingleton<FirebaseMessagingService>(
     () => FirebaseMessagingService(
       notificationService: sl<LocalNotificationService>(),
+      httpHelper: sl<HttpHelper>(),
     ),
   );
 
@@ -806,6 +810,46 @@ void registerFeatureDependencies() {
     );
   }
 
+  if (!sl.isRegistered<PurchasesRemoteDataSource>()) {
+    sl.registerLazySingleton<FlutterSecureStorage>(
+      FlutterSecureStorage.new,
+    );
+    sl.registerLazySingleton<PurchaseCacheKeyStore>(
+      () => FlutterSecurePurchaseCacheKeyStore(
+        sl<FlutterSecureStorage>(),
+      ),
+    );
+    sl.registerLazySingleton<SecurePurchaseBookDataSource>(
+      () => SecurePurchaseBookDataSource(
+        http: sl<HttpHelper>(),
+        storage: sl<StorageService>(),
+        connectivity: sl<ConnectivityService>(),
+        keyStore: sl<PurchaseCacheKeyStore>(),
+      ),
+    );
+    sl.registerLazySingleton<PurchasesRemoteDataSource>(
+      () => PurchasesRemoteDataSource(sl<HttpHelper>()),
+    );
+    sl.registerLazySingleton<PurchasesRepository>(
+      () => PurchasesRepositoryImpl(
+        sl<PurchasesRemoteDataSource>(),
+        sl<SecurePurchaseBookDataSource>(),
+      ),
+    );
+    sl.registerFactory<PurchasesCubit>(
+      () => PurchasesCubit(sl<PurchasesRepository>()),
+    );
+  }
+
+  if (!sl.isRegistered<BookEngagementRemoteDataSource>()) {
+    sl.registerLazySingleton<BookEngagementRemoteDataSource>(
+      () => BookEngagementRemoteDataSource(sl<HttpHelper>()),
+    );
+    sl.registerLazySingleton<BookEngagementRepository>(
+      () => BookEngagementRepositoryImpl(sl<BookEngagementRemoteDataSource>()),
+    );
+  }
+
   if (!sl.isRegistered<FavoriteBooksRemoteDataSource>()) {
     sl.registerLazySingleton<FavoriteBooksRemoteDataSource>(
       () => FavoriteBooksRemoteDataSourceImpl(sl<HttpHelper>()),
@@ -1009,6 +1053,7 @@ void registerFeatureDependencies() {
         updateLanguage: sl(),
         logout: sl(),
         storageService: sl(),
+        messagingService: sl<FirebaseMessagingService>(),
       ),
     );
   }
@@ -1028,5 +1073,7 @@ Future<void> initializeNotificationDependencies() async {
   await notificationService.initialize(shouldRequestPermission: false);
   await messagingService.subscribeToDefaultTopic();
   messagingService.listenToForegroundMessages();
+  messagingService.listenToTokenRefresh();
+  await messagingService.registerDeviceToken();
   await messagingService.logDeviceToken();
 }

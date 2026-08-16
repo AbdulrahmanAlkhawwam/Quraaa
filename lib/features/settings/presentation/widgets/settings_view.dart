@@ -107,6 +107,31 @@ class _SettingsViewState extends State<SettingsView> {
         return;
       }
 
+      if (section.id == 'my_orders') {
+        context.pushTo(RouteNames.myOrders);
+        return;
+      }
+      if (section.id == 'my_sells') {
+        context.pushTo(RouteNames.mySells);
+        return;
+      }
+      if (section.id == 'my_listings') {
+        context.pushTo(RouteNames.myListings);
+        return;
+      }
+      if (section.id == 'my_books' || section.id == 'downloads') {
+        context.pushTo(RouteNames.purchasedBooks);
+        return;
+      }
+      if (section.id == 'wishlist') {
+        context.pushTo(RouteNames.favorites);
+        return;
+      }
+      if (section.id == 'ai_text_tools') {
+        context.pushTo(RouteNames.aiTextTools);
+        return;
+      }
+
       _showComingSoon(context, section.labelKey.tr());
       return;
     }
@@ -197,12 +222,12 @@ class _SettingsViewState extends State<SettingsView> {
           options: state.appearanceOptions,
           onSelected: (AppearanceOption option) {
             context.read<SettingsBloc>().add(
-              SettingsAppearanceSelected(option.id),
-            );
+                  SettingsAppearanceSelected(option.id),
+                );
             unawaited(
               context.read<AppThemeCubit>().setThemeMode(
-                _themeModeFor(option.mode),
-              ),
+                    _themeModeFor(option.mode),
+                  ),
             );
           },
         );
@@ -227,8 +252,9 @@ class _SettingsViewState extends State<SettingsView> {
           settings: state.notificationSettings,
           onToggle: (setting) {
             context.read<SettingsBloc>().add(
-              SettingsNotificationToggled(id: setting.id, value: setting.value),
-            );
+                  SettingsNotificationToggled(
+                      id: setting.id, value: setting.value),
+                );
           },
         );
       },
@@ -252,8 +278,8 @@ class _SettingsViewState extends State<SettingsView> {
           options: state.languageOptions,
           onSelected: (LanguageOption option) {
             context.read<SettingsBloc>().add(
-              SettingsLanguageSelected(option.id),
-            );
+                  SettingsLanguageSelected(option.id),
+                );
             unawaited(_setLocale(context, option.languageCode));
           },
         );
@@ -337,8 +363,8 @@ class _SettingsViewState extends State<SettingsView> {
           );
           if (generalSettingsTab != state.activeTab) {
             context.read<SettingsBloc>().add(
-              SettingsTabChanged(generalSettingsTab),
-            );
+                  SettingsTabChanged(generalSettingsTab),
+                );
           }
         }
       },
@@ -373,15 +399,13 @@ class _SettingsViewState extends State<SettingsView> {
         return AnnotatedRegion<SystemUiOverlayStyle>(
           value: SystemUiOverlayStyle(
             statusBarColor: palette.header,
-            statusBarIconBrightness: palette.isDark
-                ? Brightness.light
-                : Brightness.dark,
+            statusBarIconBrightness:
+                palette.isDark ? Brightness.light : Brightness.dark,
             systemNavigationBarColor: Colors.transparent,
             systemNavigationBarDividerColor: Colors.transparent,
             systemNavigationBarContrastEnforced: false,
-            systemNavigationBarIconBrightness: palette.isDark
-                ? Brightness.light
-                : Brightness.dark,
+            systemNavigationBarIconBrightness:
+                palette.isDark ? Brightness.light : Brightness.dark,
           ),
           child: Scaffold(
             backgroundColor: palette.background,
@@ -389,8 +413,8 @@ class _SettingsViewState extends State<SettingsView> {
               onNotification: (ScrollNotification notification) {
                 if (notification is ScrollUpdateNotification) {
                   context.read<SettingsBloc>().add(
-                    SettingsScrolled(notification.metrics.pixels),
-                  );
+                        SettingsScrolled(notification.metrics.pixels),
+                      );
                 }
                 return false;
               },
@@ -440,8 +464,8 @@ class _SettingsViewState extends State<SettingsView> {
                           return;
                         }
                         context.read<SettingsBloc>().add(
-                          SettingsTabChanged(tab),
-                        );
+                              SettingsTabChanged(tab),
+                            );
                       },
                     ),
                   ),
@@ -457,8 +481,8 @@ class _SettingsViewState extends State<SettingsView> {
                         return;
                       }
                       context.read<SettingsBloc>().add(
-                        const SettingsLogoutRequested(),
-                      );
+                            const SettingsLogoutRequested(),
+                          );
                     },
                   ),
                 ],
@@ -551,7 +575,9 @@ class _SettingsSearchResultsDropdown extends StatelessWidget {
                                 result.label,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.bodyLarge
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
                                     ?.copyWith(
                                       color: palette.text,
                                       fontWeight: FontWeight.w600,
@@ -562,7 +588,9 @@ class _SettingsSearchResultsDropdown extends StatelessWidget {
                                 result.tabLabel,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.labelMedium
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelMedium
                                     ?.copyWith(
                                       color: palette.inactiveIcon,
                                       fontWeight: FontWeight.w600,

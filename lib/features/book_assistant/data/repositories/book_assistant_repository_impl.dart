@@ -70,6 +70,40 @@ class BookAssistantRepositoryImpl extends BookAssistantRepository {
   }
 
   @override
+  Future<Result<String>> translate({
+    required String purchaseId,
+    required int pageNumber,
+    required String targetLanguage,
+  }) async {
+    try {
+      return Success<String>(await _remoteDataSource.translate(
+        purchaseId: purchaseId,
+        pageNumber: pageNumber,
+        targetLanguage: targetLanguage,
+      ));
+    } catch (error) {
+      final Failure failure = ErrorMapper.map(error);
+      return ResultFailure<String>(failure.message, cause: failure);
+    }
+  }
+
+  @override
+  Future<Result<String>> explain({
+    required String purchaseId,
+    required String selectedText,
+  }) async {
+    try {
+      return Success<String>(await _remoteDataSource.explain(
+        purchaseId: purchaseId,
+        selectedText: selectedText,
+      ));
+    } catch (error) {
+      final Failure failure = ErrorMapper.map(error);
+      return ResultFailure<String>(failure.message, cause: failure);
+    }
+  }
+
+  @override
   Future<Result<AssistantResponse>> ask({
     required String question,
     required List<AssistantBook> books,

@@ -67,37 +67,23 @@ class ProfileLocationCubit extends Cubit<ProfileLocationState> {
     }
   }
 
-  /// Changes the favorite location in memory only.
-  ///
-  /// This intentionally does not call the repository because favorite-location
-  /// persistence is not supported by the backend yet.
-  void setDefault(ProfileLocation location) {
+  Future<void> setDefault(ProfileLocation location) async {
     if (state.saving || location.isDefault) return;
-
-    final List<ProfileLocation> locations = state.locations
-        .map(
-          (ProfileLocation current) => current.copyWith(
-            isDefault: _isSameLocation(current, location),
-          ),
-        )
-        .toList(growable: false);
-
-    emit(
-      state.copyWith(
-        locations: locations,
-        clearError: true,
-      ),
-    );
-  }
-
-  bool _isSameLocation(ProfileLocation first, ProfileLocation second) {
-    if (first.id != null && second.id != null) {
-      return first.id == second.id;
+    emit(state.copyWith(saving: true, clearError: true));
+    try {
+      final List<ProfileLocation> locations =
+          await _repository.setDefaultLocation(location);
+      emit(
+        state.copyWith(
+          locations: locations,
+          saving: false,
+          changeSerial: state.changeSerial + 1,
+          clearError: true,
+        ),
+      );
+    } catch (error) {
+      emit(state.copyWith(saving: false, error: error));
     }
-    return identical(first, second) ||
-        (first.latitude == second.latitude &&
-            first.longitude == second.longitude &&
-            first.name == second.name);
   }
 
   Future<void> save(ProfileLocation location) async {

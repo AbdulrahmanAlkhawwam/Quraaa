@@ -8,4 +8,5 @@ abstract class ProfileRepository {
   Future<List<ProfileLocation>> getLocations();
   Future<List<ProfileLocation>> updateLocation(ProfileLocation location);
   Future<List<ProfileLocation>> deleteLocation(ProfileLocation location);
+  Future<List<ProfileLocation>> setDefaultLocation(ProfileLocation location);
 }

@@ -76,6 +76,16 @@ class ProfileRepositoryImpl implements ProfileRepository {
     return getLocations();
   }
 
+  @override
+  Future<List<ProfileLocation>> setDefaultLocation(
+    ProfileLocation location,
+  ) async {
+    final String? id = location.id;
+    if (id == null || id.isEmpty) return getLocations();
+    await _remoteDataSource.setDefaultLocation(id);
+    return getLocations();
+  }
+
   Future<void> _cacheDefaultLocation(
     List<ProfileLocation> locations,
   ) async {

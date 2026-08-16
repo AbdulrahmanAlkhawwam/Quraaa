@@ -14,7 +14,8 @@ import 'error_report_cache.dart';
 /// The bot token and primary chat ID are supplied via constructor. A copy is
 /// also sent to the project owner. The app no longer reads these values from
 /// the bundled `.env` file because that would ship secrets inside the app
-/// package. If the bot token is missing, reporting is silently disabled.
+/// package. If the bot token is missing, reporting is disabled and a warning
+/// is printed once in non-release builds.
 ///
 /// In the long term this should be replaced by a backend endpoint that holds
 /// the token server-side.
@@ -23,16 +24,18 @@ class TelegramNotificationService {
   TelegramNotificationService(
     this._cache,
     this._connectivityService, {
-    this._botToken,
-    this._chatId,
-  }) : _dio = Dio(
-         BaseOptions(
-           connectTimeout: const Duration(seconds: 10),
-           receiveTimeout: const Duration(seconds: 10),
-           sendTimeout: const Duration(seconds: 10),
-           contentType: Headers.formUrlEncodedContentType,
-         ),
-       );
+    String? botToken,
+    String? chatId,
+  })  : _botToken = botToken,
+        _chatId = chatId,
+        _dio = Dio(
+          BaseOptions(
+            connectTimeout: const Duration(seconds: 10),
+            receiveTimeout: const Duration(seconds: 10),
+            sendTimeout: const Duration(seconds: 10),
+            contentType: Headers.formUrlEncodedContentType,
+          ),
+        );
 
   final Dio _dio;
   final ErrorReportCache _cache;
@@ -40,6 +43,7 @@ class TelegramNotificationService {
   final String? _botToken;
   final String? _chatId;
   final Map<String, DateTime> _recentFingerprintHits = <String, DateTime>{};
+  bool _configurationWarningLogged = false;
 
   /// Receives a copy in addition to the primary recipient configured at build
   /// time. Telegram chat IDs are not bot credentials, but this value should
@@ -51,6 +55,7 @@ class TelegramNotificationService {
     final Set<String> chatIds = _recipientChatIds;
 
     if (token == null || token.isEmpty || chatIds.isEmpty) {
+      _logMissingConfiguration();
       return false;
     }
 
@@ -84,6 +89,7 @@ class TelegramNotificationService {
     final Set<String> chatIds = _recipientChatIds;
 
     if (token == null || token.isEmpty || chatIds.isEmpty) {
+      _logMissingConfiguration();
       return false;
     }
 
@@ -112,9 +118,22 @@ class TelegramNotificationService {
   }
 
   Set<String> get _recipientChatIds => <String>{
-    if (_chatId?.trim().isNotEmpty ?? false) _chatId!.trim(),
-    _ownerChatId,
-  };
+        if (_chatId?.trim().isNotEmpty ?? false) _chatId!.trim(),
+        _ownerChatId,
+      };
+
+  void _logMissingConfiguration() {
+    if (_configurationWarningLogged) {
+      return;
+    }
+    _configurationWarningLogged = true;
+    developer.log(
+      'Telegram error reporting is disabled. Provide TELEGRAM_BOT_TOKEN '
+      'and TELEGRAM_CHAT_ID using --dart-define.',
+      name: 'TelegramNotificationService',
+      level: 900,
+    );
+  }
 
   Future<void> _flushCache() async {
     final List<ErrorReport> cachedReports = await _cache.getAll();
@@ -132,8 +151,7 @@ class TelegramNotificationService {
   }
 
   Future<bool> get _isOffline async {
-    final ConnectionStatus status =
-        await _connectivityService.currentStatus();
+    final ConnectionStatus status = await _connectivityService.currentStatus();
     return status == ConnectionStatus.disconnected;
   }
 

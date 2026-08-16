@@ -31,8 +31,7 @@ class ErrorMessageResolver {
       fallback: ErrorMapper.mapCodeToFailure(failure.code).message,
     );
     final String reason = _formatReason(failure.message);
-    final bool useLocalizedFallback =
-        reason.isEmpty ||
+    final bool useLocalizedFallback = reason.isEmpty ||
         _looksTechnical(reason) ||
         _isDefaultReason(failure.code, reason);
 
@@ -58,7 +57,7 @@ class ErrorMessageResolver {
     if (error is String && error.trim().isNotEmpty) {
       return UnknownFailure(message: error.trim());
     }
-    return const UnknownFailure();
+    return ErrorMapper.map(error);
   }
 
   static String _translatedOr(String key, {required String fallback}) {
@@ -137,7 +136,8 @@ class ErrorMessageResolver {
       ErrorCodes.tooManyRequests =>
         reason == 'Too many requests were sent. Please try again later.',
       ErrorCodes.serverError ||
-      ErrorCodes.serviceUnavailable => reason == 'A server error occurred.',
+      ErrorCodes.serviceUnavailable =>
+        reason == 'A server error occurred.',
       ErrorCodes.internalServerError =>
         reason == 'An internal server error occurred.',
       ErrorCodes.tokenExpired => reason == 'Your session has expired.',

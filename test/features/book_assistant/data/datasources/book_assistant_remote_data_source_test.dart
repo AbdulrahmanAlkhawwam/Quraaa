@@ -69,5 +69,38 @@ void main() {
         throwsA(isA<UnknownException>()),
       );
     });
+
+    test('posts the current page to the translate endpoint', () async {
+      when(
+        () => httpHelper.post(
+          ApiEndpoints.aiTranslate,
+          data: any<Object?>(named: 'data'),
+        ),
+      ).thenAnswer(
+        (_) async => Response<dynamic>(
+          requestOptions: RequestOptions(path: ApiEndpoints.aiTranslate),
+          data: <String, dynamic>{'translatedText': 'Translated page.'},
+        ),
+      );
+
+      final String result = await dataSource.translate(
+        purchaseId: 'purchase-1',
+        pageNumber: 7,
+        targetLanguage: 'Arabic',
+      );
+
+      expect(result, 'Translated page.');
+      final Object? requestBody = verify(
+        () => httpHelper.post(
+          ApiEndpoints.aiTranslate,
+          data: captureAny<Object?>(named: 'data'),
+        ),
+      ).captured.single;
+      expect(requestBody, <String, Object?>{
+        'purchaseId': 'purchase-1',
+        'pageNumber': 7,
+        'targetLanguage': 'Arabic',
+      });
+    });
   });
 }

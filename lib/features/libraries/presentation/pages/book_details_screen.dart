@@ -9,15 +9,14 @@ import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import '../../../book_assistant/book_assistant.dart';
+import '../../../book_engagement/book_engagement.dart';
 import '../../../favorites/favorites.dart';
 import '../../domain/entities/library_book_entity.dart';
 import '../cubit/book_details_cubit.dart';
 import '../cubit/book_details_state.dart';
 import '../cubit/library_details_state.dart';
 import '../models/library_details_navigation_data.dart';
-import '../models/library_review_view_model.dart';
 import '../widgets/book_purchase_bottom_sheet.dart';
-import '../widgets/library_review_card.dart';
 
 class BookDetailsScreen extends StatefulWidget {
   const BookDetailsScreen({super.key, required this.bookId, this.data});
@@ -57,6 +56,12 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     final LibraryBookEntity? book = detailsState.book ?? widget.data?.book;
     final String title = _bookTitle(book);
     _syncFavoriteBookId(book?.bookId ?? '');
+    final String purchaseId = _purchaseId(book);
+    final bool isOwned = purchaseId.isNotEmpty;
+    final String format = book?.format.toLowerCase() ?? '';
+    final bool isDigital = format.contains('digital') ||
+        format.contains('ebook') ||
+        format.contains('e-book');
 
     if (book == null && detailsState.status != BookDetailsStatus.success) {
       return _buildLoadState(context, detailsState);
@@ -108,9 +113,13 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                       const SizedBox(height: AppSpacing.spacing20),
                       _BookOverview(book: book, fallbackId: widget.bookId),
                       const SizedBox(height: AppSpacing.spacing14),
-                      _BuyBookButton(
-                        onPressed: () =>
-                            BookPurchaseBottomSheet.show(context, book: book),
+                      _BookPrimaryButton(
+                        label: isOwned && isDigital
+                            ? 'purchases.read'.tr()
+                            : isOwned
+                                ? 'orders.my_orders'.tr()
+                                : LocalizationConstants.libraryBookBuyKey.tr(),
+                        onPressed: () => _handlePrimaryAction(book),
                       ),
                       const SizedBox(height: AppSpacing.spacing32),
                       _PreviewHeader(
@@ -120,20 +129,12 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                       _BookPreview(book: book),
                       const SizedBox(height: AppSpacing.spacing28),
                       _ImportantPointsButton(
-                        onPressed: () => _openImportantPoints(book),
+                        onPressed:
+                            isOwned ? () => _openImportantPoints(book) : null,
                       ),
                       const SizedBox(height: AppSpacing.spacing28),
-                      Text(
-                        LocalizationConstants.libraryReviewsTitleKey.tr(),
-                        style: AppTextStyles.titleLarge.copyWith(
-                          color: context.appTextPrimary,
-                          fontSize: 17,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.spacing12),
-                      LibraryReviewCard(review: _previewReview(context, 3)),
-                      const SizedBox(height: AppSpacing.spacing12),
-                      LibraryReviewCard(review: _previewReview(context, 5)),
+                      if (book?.bookId.trim().isNotEmpty == true)
+                        BookEngagementPanel(bookId: book!.bookId),
                     ],
                   ),
                 ),
@@ -230,14 +231,42 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     return title.isNotEmpty ? title : widget.bookId;
   }
 
+  String _purchaseId(LibraryBookEntity? book) {
+    final String navigationId = widget.data?.purchaseId?.trim() ?? '';
+    return navigationId.isNotEmpty
+        ? navigationId
+        : book?.purchaseId.trim() ?? '';
+  }
+
+  Future<void> _handlePrimaryAction(LibraryBookEntity? book) async {
+    final String purchaseId = _purchaseId(book);
+    if (purchaseId.isEmpty) {
+      await BookPurchaseBottomSheet.show(context, book: book);
+      return;
+    }
+
+    final String format = book?.format.toLowerCase() ?? '';
+    final bool digital = format.contains('digital') ||
+        format.contains('ebook') ||
+        format.contains('e-book');
+    if (!digital) {
+      context.pushTo(RouteNames.myOrders);
+      return;
+    }
+
+    context.pushTo(
+      '${RouteNames.pdfReader}'
+      '?name=${Uri.encodeQueryComponent(_bookTitle(book))}'
+      '&purchaseId=${Uri.encodeQueryComponent(purchaseId)}',
+    );
+  }
+
   void _openImportantPoints(LibraryBookEntity? book) {
     final String navigationPurchaseId = widget.data?.purchaseId?.trim() ?? '';
     final String bookPurchaseId = book?.purchaseId.trim() ?? '';
-    final String purchaseId = navigationPurchaseId.isNotEmpty
-        ? navigationPurchaseId
-        : bookPurchaseId.isNotEmpty
-            ? bookPurchaseId
-            : widget.bookId.trim();
+    final String purchaseId =
+        navigationPurchaseId.isNotEmpty ? navigationPurchaseId : bookPurchaseId;
+    if (purchaseId.isEmpty) return;
     final String title = _bookTitle(book);
 
     context.pushTo(
@@ -596,10 +625,16 @@ class _MetadataLine extends StatelessWidget {
   }
 }
 
-class _BuyBookButton extends StatelessWidget {
-  const _BuyBookButton({required this.onPressed});
+class _BookPrimaryButton extends StatelessWidget {
+  const _BookPrimaryButton({
+    required this.label,
+    required this.onPressed,
+    this.loading = false,
+  });
 
-  final VoidCallback onPressed;
+  final String label;
+  final VoidCallback? onPressed;
+  final bool loading;
 
   @override
   Widget build(BuildContext context) {
@@ -620,18 +655,27 @@ class _BuyBookButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Text(
-              LocalizationConstants.libraryBookBuyKey.tr(),
+              label,
               style: AppTextStyles.h4.copyWith(
                 color: Colors.white,
                 fontSize: 20,
                 fontWeight: FontWeight.w400,
               ),
             ),
-            const HugeIcon(
-              icon: HugeIcons.strokeRoundedArrowDown01,
-              color: Colors.white,
-              size: 24,
-            ),
+            if (loading)
+              const SizedBox.square(
+                dimension: 22,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              )
+            else
+              const HugeIcon(
+                icon: HugeIcons.strokeRoundedArrowRight01,
+                color: Colors.white,
+                size: 24,
+              ),
           ],
         ),
       ),
@@ -841,7 +885,7 @@ class _PreviewPagePlaceholder extends StatelessWidget {
 class _ImportantPointsButton extends StatelessWidget {
   const _ImportantPointsButton({required this.onPressed});
 
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -913,12 +957,4 @@ class _AiPointsIcon extends StatelessWidget {
       ),
     );
   }
-}
-
-LibraryReviewViewModel _previewReview(BuildContext context, int rating) {
-  return LibraryReviewViewModel(
-    rating: rating,
-    comment: LocalizationConstants.libraryReviewsPreviewCommentKey.tr(),
-    reviewerName: LocalizationConstants.libraryReviewsPreviewUserKey.tr(),
-  );
 }

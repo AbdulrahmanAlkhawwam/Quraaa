@@ -135,6 +135,12 @@ if (-not [string]::IsNullOrWhiteSpace($env:LATEST_VERSION)) {
     $buildArgs += "--dart-define=LATEST_VERSION=$env:LATEST_VERSION"
 }
 
+if (-not [string]::IsNullOrWhiteSpace($env:TELEGRAM_BOT_TOKEN)) {
+    $buildArgs += "--dart-define=TELEGRAM_BOT_TOKEN=$env:TELEGRAM_BOT_TOKEN"
+}
+if (-not [string]::IsNullOrWhiteSpace($env:TELEGRAM_CHAT_ID)) {
+    $buildArgs += "--dart-define=TELEGRAM_CHAT_ID=$env:TELEGRAM_CHAT_ID"
+}
 Write-Info "Building universal Flutter $BuildType release..."
 & $flutter.Source @buildArgs
 if ($LASTEXITCODE -ne 0) {

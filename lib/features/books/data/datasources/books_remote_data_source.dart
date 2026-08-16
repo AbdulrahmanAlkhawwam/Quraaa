@@ -11,6 +11,7 @@ import '../models/home_catalog_book_model.dart';
 abstract interface class BooksRemoteDataSource {
   Future<List<HomeCatalogBookModel>> fetchHomeCatalog({
     BookCatalogFilter filter,
+    String query,
   });
 }
 
@@ -22,6 +23,7 @@ class BooksRemoteDataSourceImpl implements BooksRemoteDataSource {
   @override
   Future<List<HomeCatalogBookModel>> fetchHomeCatalog({
     BookCatalogFilter filter = const BookCatalogFilter(),
+    String query = '',
   }) async {
     if (!filter.hasValidPriceRange) {
       throw ArgumentError.value(filter, 'filter', 'Invalid price range.');
@@ -30,6 +32,9 @@ class BooksRemoteDataSourceImpl implements BooksRemoteDataSource {
       final Response<dynamic> response = await _httpHelper.get(
         ApiEndpoints.homeCatalog,
         queryParameters: <String, dynamic>{
+          if (query.trim().isNotEmpty) 'SearchTerm': query.trim(),
+          'PageNumber': 1,
+          'PageSize': 40,
           if (filter.categoryId?.isNotEmpty ?? false)
             'CategoryId': filter.categoryId,
           if (filter.libraryId?.isNotEmpty ?? false)
