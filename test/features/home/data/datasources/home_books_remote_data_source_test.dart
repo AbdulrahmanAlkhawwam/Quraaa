@@ -15,7 +15,7 @@ void main() {
   final Map<String, dynamic> response = <String, dynamic>{
     'items': <Map<String, dynamic>>[
       <String, dynamic>{
-        'bookId': 'book-id',
+        'listingId': 'listing-id',
         'title': 'Book title',
         'author': 'Author',
         'coverImageUrl': 'https://example.com/cover.jpg',
@@ -45,7 +45,7 @@ void main() {
 
     final result = await dataSource.getRecommendedBooks();
 
-    expect(result.items.single.bookId, 'book-id');
+    expect(result.items.single.listingId, 'listing-id');
     verify(() => httpHelper.get(ApiEndpoints.recommendedBooks)).called(1);
   });
 

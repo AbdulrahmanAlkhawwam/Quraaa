@@ -52,7 +52,11 @@ class HomeCatalogBookModel {
 
     return HomeCatalogBookModel(
       id: _asString(
-        book['bookId'] ?? book['id'] ?? json['bookId'] ?? json['id'],
+        book['bookId'] ??
+            book['id'] ??
+            json['bookId'] ??
+            json['id'] ??
+            json['listingId'],
       ),
       listingId: _asString(
         json['listingId'] ?? json['listing'] ?? book['listingId'],

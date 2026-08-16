@@ -78,7 +78,7 @@ class HomeSection extends StatelessWidget {
                 horizontal: AppSpacing.spacing16,
               ),
               itemCount: books.length,
-              separatorBuilder: (_, _) =>
+              separatorBuilder: (separatorContext, separatorIndex) =>
                   const SizedBox(width: AppSpacing.spacing16),
               itemBuilder: (BuildContext context, int index) {
                 final HomeBookEntity book = books[index];

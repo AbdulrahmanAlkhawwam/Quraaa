@@ -169,7 +169,7 @@ class _LibraryDetailsViewState extends State<_LibraryDetailsView> {
                           horizontal: AppSpacing.spacing26,
                         ),
                         itemCount: state.authors.length,
-                        separatorBuilder: (_, _) =>
+                        separatorBuilder: (separatorContext, separatorIndex) =>
                             const SizedBox(width: AppSpacing.spacing12),
                         itemBuilder: (BuildContext context, int index) {
                           final author = state.authors[index];
@@ -222,7 +222,7 @@ class _LibraryDetailsViewState extends State<_LibraryDetailsView> {
                           horizontal: AppSpacing.spacing26,
                         ),
                         itemCount: state.books.length,
-                        separatorBuilder: (_, _) =>
+                        separatorBuilder: (separatorContext, separatorIndex) =>
                             const SizedBox(width: AppSpacing.spacing8),
                         itemBuilder: (BuildContext context, int index) {
                           final book = state.books[index];

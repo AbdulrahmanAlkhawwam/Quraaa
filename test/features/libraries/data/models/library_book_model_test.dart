@@ -39,4 +39,31 @@ void main() {
     expect(model.categoryNameAr, 'أدب');
     expect(model.toEntity().listingId, listingId);
   });
+
+  test('parses the flat response currently returned by listing details', () {
+    final LibraryBookModel model = LibraryBookModel.fromJson(
+      <String, dynamic>{
+        'id': 'listing-4',
+        'title': 'book4',
+        'coverImageUrl': 'https://example.com/book.webp',
+        'format': 'Physical',
+        'condition': 'New',
+        'language': 'Other',
+        'publisher': 'Library name',
+        'writer': 'Author name',
+        'version': 1,
+        'price': 123.00,
+        'previewImageUrls': <String>[],
+      },
+    );
+
+    expect(model.listingId, 'listing-4');
+    expect(model.title, 'book4');
+    expect(model.author, 'Author name');
+    expect(model.publisher, 'Library name');
+    expect(model.coverImageUrl, 'https://example.com/book.webp');
+    expect(model.price, '123.0');
+    expect(model.condition, 1);
+    expect(model.format, 'Physical');
+  });
 }

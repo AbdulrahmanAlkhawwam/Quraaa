@@ -6,7 +6,6 @@ import '../../../../config/routes/route_names.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../shared/shared.dart';
 import 'home_app_bar.dart';
-import 'home_bottom_nav.dart';
 
 class HomeFeatureScreen extends StatelessWidget {
   const HomeFeatureScreen({

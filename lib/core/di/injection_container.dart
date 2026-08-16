@@ -66,6 +66,10 @@ import '../../features/libraries/domain/use_cases/get_library_books_use_case.dar
 import '../../features/libraries/domain/use_cases/get_listing_details_use_case.dart';
 import '../../features/libraries/presentation/cubit/book_details_cubit.dart';
 import '../../features/libraries/presentation/cubit/library_details_cubit.dart';
+import '../../features/sell_book/data/datasources/sell_book_remote_data_source.dart';
+import '../../features/sell_book/data/repositories/sell_book_repository_impl.dart';
+import '../../features/sell_book/domain/repositories/sell_book_repository.dart';
+import '../../features/sell_book/domain/use_cases/submit_sell_book_use_case.dart';
 import '../../config/env/env.dart';
 import '../network/auth_interceptor.dart';
 import '../network/connectivity_interceptor.dart';
@@ -708,6 +712,23 @@ void registerFeatureDependencies() {
     );
   }
 
+  if (!sl.isRegistered<SellBookRemoteDataSource>()) {
+    sl.registerLazySingleton<SellBookRemoteDataSource>(
+      () => SellBookRemoteDataSourceImpl(sl<HttpHelper>()),
+    );
+  }
+
+  if (!sl.isRegistered<SellBookRepository>()) {
+    sl.registerLazySingleton<SellBookRepository>(
+      () => SellBookRepositoryImpl(sl<SellBookRemoteDataSource>()),
+    );
+  }
+
+  if (!sl.isRegistered<SubmitSellBookUseCase>()) {
+    sl.registerLazySingleton<SubmitSellBookUseCase>(
+      () => SubmitSellBookUseCase(sl<SellBookRepository>()),
+    );
+  }
   if (!sl.isRegistered<CartRemoteDataSource>()) {
     sl.registerLazySingleton<CartRemoteDataSource>(
       () => CartRemoteDataSourceImpl(sl<HttpHelper>()),

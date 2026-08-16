@@ -8,9 +8,11 @@ import 'library_details_state.dart';
 class LibraryDetailsCubit extends Cubit<LibraryDetailsState> {
   LibraryDetailsCubit({
     required this.libraryId,
-    required this._getLibraryBooksUseCase,
-    this._pageSize = _defaultPageSize,
-  }) : super(const LibraryDetailsState());
+    required GetLibraryBooksUseCase getLibraryBooksUseCase,
+    int pageSize = _defaultPageSize,
+  })  : _getLibraryBooksUseCase = getLibraryBooksUseCase,
+        _pageSize = pageSize,
+        super(const LibraryDetailsState());
 
   static const int _defaultPageSize = 10;
 

@@ -28,6 +28,7 @@ abstract class ApiEndpoints {
   static const String cartItems = '/cart/items';
   static const String favoriteBooks = '/favorite-books';
   static const String aiSummarize = '/ai/summarize';
+  static const String userPhysicalListings = '/listings/me/physical';
 
   static String cartItem(String listingId) => '/cart/items/$listingId';
 

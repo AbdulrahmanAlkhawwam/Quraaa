@@ -45,39 +45,54 @@ class LibraryBookModel {
 
   factory LibraryBookModel.fromJson(Map<String, dynamic> json) {
     final Map<String, dynamic> bookJson =
-        json['book'] as Map<String, dynamic>? ?? <String, dynamic>{};
-    final Map<String, dynamic> categoryJson =
-        bookJson['category'] as Map<String, dynamic>? ?? <String, dynamic>{};
+        _map(json['book']) ?? const <String, dynamic>{};
+    final Map<String, dynamic> categoryJson = _map(bookJson['category']) ??
+        _map(json['category']) ??
+        const <String, dynamic>{};
     final Object? previewImages = bookJson['previewImageUrls'] ??
         bookJson['previewImages'] ??
         json['previewImageUrls'] ??
         json['previewImages'];
 
     return LibraryBookModel(
-      purchaseId: json['purchaseId'] as String? ?? '',
-      listingId: json['listingId'] as String? ?? '',
-      price: json['price']?.toString() ?? '',
-      stock: json['stock']?.toString() ?? '',
+      purchaseId: _text(json['purchaseId']),
+      listingId: _text(json['listingId'] ?? json['id']),
+      price: _text(json['price']),
+      stock: _text(json['stock']),
       condition: _conditionValue(json['condition']),
-      bookId: bookJson['bookId'] as String? ?? '',
-      title: bookJson['title'] as String? ?? '',
-      author: bookJson['author'] as String? ?? '',
-      description: bookJson['description'] as String? ?? '',
-      coverImageUrl: bookJson['coverImageUrl'] as String? ?? '',
-      language: bookJson['language'] as String? ?? '',
-      isbn: bookJson['isbn'] as String? ?? '',
-      categoryId: categoryJson['id'] as String? ?? '',
-      categoryNameAr: categoryJson['nameAr'] as String? ?? '',
-      categoryNameEn: categoryJson['nameEn'] as String? ?? '',
-      publisher: (bookJson['publisher'] ?? json['publisher'])?.toString() ?? '',
-      version: (json['version'] ?? bookJson['version'] ?? bookJson['edition'])
-              ?.toString() ??
-          '',
+      bookId: _text(bookJson['bookId'] ?? json['bookId']),
+      title: _text(bookJson['title'] ?? json['title']),
+      author: _text(
+        bookJson['author'] ??
+            bookJson['writer'] ??
+            json['author'] ??
+            json['writer'],
+      ),
+      description: _text(bookJson['description'] ?? json['description']),
+      coverImageUrl: _text(
+        bookJson['coverImageUrl'] ?? json['coverImageUrl'],
+      ),
+      language: _text(bookJson['language'] ?? json['language']),
+      isbn: _text(bookJson['isbn'] ?? json['isbn']),
+      categoryId: _text(categoryJson['id'] ?? json['categoryId']),
+      categoryNameAr: _text(categoryJson['nameAr']),
+      categoryNameEn: _text(categoryJson['nameEn']),
+      publisher: _text(bookJson['publisher'] ?? json['publisher']),
+      version: _text(
+        json['version'] ?? bookJson['version'] ?? bookJson['edition'],
+      ),
       format: _formatValue(json['format'] ?? bookJson['format']),
       previewImageUrls: _stringList(previewImages),
     );
   }
 
+  static Map<String, dynamic>? _map(Object? value) {
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) return Map<String, dynamic>.from(value);
+    return null;
+  }
+
+  static String _text(Object? value) => value?.toString() ?? '';
   static int _conditionValue(Object? value) {
     if (value is num) return value.toInt();
 

@@ -35,7 +35,7 @@ void main() {
   test('parses the flat home catalog response fields', () {
     final HomeCatalogBookModel model = HomeCatalogBookModel.fromJson(
       <String, dynamic>{
-        'bookId': 'book-4',
+        'listingId': 'listing-4',
         'title': 'book4',
         'authorName': 'Author name',
         'coverImageUrl': 'https://example.com/book.webp',
@@ -46,7 +46,8 @@ void main() {
       },
     );
 
-    expect(model.id, 'book-4');
+    expect(model.id, 'listing-4');
+    expect(model.listingId, 'listing-4');
     expect(model.author, 'Author name');
     expect(model.price, '123');
     expect(model.categoryId, 'category-1');

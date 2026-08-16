@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 class FavoriteBook extends Equatable {
   const FavoriteBook({
     required this.favoriteId,
+    this.listingId = '',
     required this.bookId,
     required this.title,
     required this.author,
@@ -15,6 +16,7 @@ class FavoriteBook extends Equatable {
   });
 
   final String favoriteId;
+  final String listingId;
   final String bookId;
   final String title;
   final String author;
@@ -28,6 +30,7 @@ class FavoriteBook extends Equatable {
   @override
   List<Object?> get props => <Object?>[
     favoriteId,
+    listingId,
     bookId,
     title,
     author,

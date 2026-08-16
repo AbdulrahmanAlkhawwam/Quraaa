@@ -17,29 +17,29 @@ void main() {
 
   const PaginatedHomeBooksResponseModel response =
       PaginatedHomeBooksResponseModel(
-        items: <HomeBookModel>[
-          HomeBookModel(
-            bookId: 'book-id',
-            title: 'Book title',
-            author: 'Author',
-            description: 'Description',
-            coverImageUrl: 'https://example.com/cover.jpg',
-            categoryId: 'category-id',
-            language: 'ar',
-            isbn: '123',
-            purchaseCount: '2',
-            ratingCount: '3',
-            averageRating: '4.5',
-            activeListingCount: '1',
-          ),
-        ],
-        pageNumber: '1',
-        pageSize: '10',
-        totalCount: '1',
-        totalPages: '1',
-        hasNextPage: false,
-        hasPreviousPage: false,
-      );
+    items: <HomeBookModel>[
+      HomeBookModel(
+        listingId: 'listing-id',
+        title: 'Book title',
+        author: 'Author',
+        description: 'Description',
+        coverImageUrl: 'https://example.com/cover.jpg',
+        categoryId: 'category-id',
+        language: 'ar',
+        isbn: '123',
+        purchaseCount: '2',
+        ratingCount: '3',
+        averageRating: '4.5',
+        activeListingCount: '1',
+      ),
+    ],
+    pageNumber: '1',
+    pageSize: '10',
+    totalCount: '1',
+    totalPages: '1',
+    hasNextPage: false,
+    hasPreviousPage: false,
+  );
 
   setUp(() {
     remoteDataSource = _MockHomeBooksRemoteDataSource();
@@ -55,7 +55,7 @@ void main() {
 
     expect(result, isA<Success<HomeBooksPage>>());
     final HomeBooksPage page = (result as Success<HomeBooksPage>).value;
-    expect(page.items.single.bookId, 'book-id');
+    expect(page.items.single.listingId, 'listing-id');
     expect(page.items.single.averageRating, '4.5');
   });
 

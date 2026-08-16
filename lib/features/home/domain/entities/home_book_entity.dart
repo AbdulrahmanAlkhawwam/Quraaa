@@ -3,7 +3,7 @@ import 'package:equatable/equatable.dart';
 /// A book summary displayed in a home feed section.
 class HomeBookEntity extends Equatable {
   const HomeBookEntity({
-    required this.bookId,
+    required this.listingId,
     required this.title,
     required this.author,
     required this.description,
@@ -17,7 +17,7 @@ class HomeBookEntity extends Equatable {
     required this.activeListingCount,
   });
 
-  final String bookId;
+  final String listingId;
   final String title;
   final String author;
   final String description;
@@ -35,17 +35,17 @@ class HomeBookEntity extends Equatable {
 
   @override
   List<Object?> get props => <Object?>[
-    bookId,
-    title,
-    author,
-    description,
-    coverImageUrl,
-    categoryId,
-    language,
-    isbn,
-    purchaseCount,
-    ratingCount,
-    averageRating,
-    activeListingCount,
-  ];
+        listingId,
+        title,
+        author,
+        description,
+        coverImageUrl,
+        categoryId,
+        language,
+        isbn,
+        purchaseCount,
+        ratingCount,
+        averageRating,
+        activeListingCount,
+      ];
 }

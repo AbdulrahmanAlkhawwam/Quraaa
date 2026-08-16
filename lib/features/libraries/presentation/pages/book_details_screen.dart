@@ -31,11 +31,17 @@ class BookDetailsScreen extends StatefulWidget {
 
 class _BookDetailsScreenState extends State<BookDetailsScreen> {
   late final FavoriteStatusCubit _favoriteStatusCubit;
+  String _favoriteBookId = '';
 
   @override
   void initState() {
     super.initState();
-    _favoriteStatusCubit = sl<FavoriteStatusCubit>()..load(widget.bookId);
+    _favoriteStatusCubit = sl<FavoriteStatusCubit>();
+    final String initialBookId = widget.data?.book.bookId.trim() ?? '';
+    if (initialBookId.isNotEmpty) {
+      _favoriteBookId = initialBookId;
+      _favoriteStatusCubit.load(initialBookId);
+    }
   }
 
   @override
@@ -50,6 +56,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         context.watch<BookDetailsCubit>().state;
     final LibraryBookEntity? book = detailsState.book ?? widget.data?.book;
     final String title = _bookTitle(book);
+    _syncFavoriteBookId(book?.bookId ?? '');
 
     if (book == null && detailsState.status != BookDetailsStatus.success) {
       return _buildLoadState(context, detailsState);
@@ -85,9 +92,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                       title: title,
                       isFavorite: state.isFavorite,
                       onBack: () => context.back(),
-                      onFavorite: state.isLoading
+                      onFavorite: state.isLoading || _favoriteBookId.isEmpty
                           ? null
-                          : () => _favoriteStatusCubit.toggle(widget.bookId),
+                          : () => _favoriteStatusCubit.toggle(_favoriteBookId),
                     );
                   },
                 ),
@@ -136,6 +143,16 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         ),
       ),
     );
+  }
+
+  void _syncFavoriteBookId(String value) {
+    final String bookId = value.trim();
+    if (bookId.isEmpty || bookId == _favoriteBookId) return;
+
+    _favoriteBookId = bookId;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _favoriteStatusCubit.load(bookId);
+    });
   }
 
   Widget _buildLoadState(

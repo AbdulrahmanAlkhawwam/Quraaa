@@ -226,7 +226,7 @@ class _CatalogBody extends StatelessWidget {
       price: book.price,
       stock: '',
       condition: book.condition ?? 0,
-      bookId: book.id,
+      bookId: book.id == book.listingId ? '' : book.id,
       title: book.title,
       author: book.author,
       description: book.description,
@@ -243,7 +243,9 @@ class _CatalogBody extends StatelessWidget {
     );
 
     context.pushTo(
-      RouteNames.bookDetailsPath(book.id),
+      RouteNames.bookDetailsPath(
+        book.listingId.isNotEmpty ? book.listingId : book.id,
+      ),
       extra: BookDetailsNavigationData(book: detailsBook),
     );
   }

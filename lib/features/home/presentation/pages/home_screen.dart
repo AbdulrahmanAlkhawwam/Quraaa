@@ -188,11 +188,11 @@ class _HomeFeed extends StatelessWidget {
 
   void _openBookDetails(BuildContext context, HomeBookEntity book) {
     final LibraryBookEntity detailsBook = LibraryBookEntity(
-      listingId: '',
+      listingId: book.listingId,
       price: '',
       stock: '',
       condition: 0,
-      bookId: book.bookId,
+      bookId: '',
       title: book.title,
       author: book.author,
       description: book.description,
@@ -205,7 +205,7 @@ class _HomeFeed extends StatelessWidget {
     );
 
     context.pushTo(
-      RouteNames.bookDetailsPath(book.bookId),
+      RouteNames.bookDetailsPath(book.listingId),
       extra: BookDetailsNavigationData(book: detailsBook),
     );
   }
