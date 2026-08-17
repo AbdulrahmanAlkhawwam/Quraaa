@@ -28,17 +28,17 @@ class HomeBottomNav extends StatelessWidget {
   // Keep the cart implementation available for the planned future rollout.
   static const bool _showCart = false;
 
+  // Keep the AI destination available for a future rollout.
+  static const bool _showAi = false;
+
   @override
   Widget build(BuildContext context) {
-    final bool guest =
-        isGuest ??
+    final bool guest = isGuest ??
         sl<UserContextProvider>().snapshot.subscriptionStatus != 'active';
-    final Color shadowColor = context.isDark
-        ? Colors.black
-        : AppColors.primary900;
-    final String fourthRoute = guest
-        ? RouteNames.settings
-        : RouteNames.bookAssistant;
+    final Color shadowColor =
+        context.isDark ? Colors.black : AppColors.primary900;
+    final String fourthRoute =
+        guest ? RouteNames.settings : RouteNames.bookAssistant;
 
     return SafeArea(
       top: false,
@@ -84,20 +84,21 @@ class HomeBottomNav extends StatelessWidget {
               label: LocalizationConstants.homeNavUserBooksKey.tr(),
               activeFlex: 3,
             ),
-            _destination(
-              index: 3,
-              route: fourthRoute,
-              icon: guest
-                  ? HugeIcons.strokeRoundedSettings01
-                  : HugeIcons.strokeRoundedSparkles,
-              activeIcon: guest
-                  ? HugeIcons.strokeRoundedSettings01
-                  : HugeIcons.strokeRoundedSparkles,
-              label: guest
-                  ? LocalizationConstants.homeNavSettingsKey.tr()
-                  : LocalizationConstants.homeNavAiKey.tr(),
-              activeFlex: 3,
-            ),
+            if (guest || _showAi)
+              _destination(
+                index: 3,
+                route: fourthRoute,
+                icon: guest
+                    ? HugeIcons.strokeRoundedSettings01
+                    : HugeIcons.strokeRoundedSparkles,
+                activeIcon: guest
+                    ? HugeIcons.strokeRoundedSettings01
+                    : HugeIcons.strokeRoundedSparkles,
+                label: guest
+                    ? LocalizationConstants.homeNavSettingsKey.tr()
+                    : LocalizationConstants.homeNavAiKey.tr(),
+                activeFlex: 3,
+              ),
             if (_showCart)
               _destination(
                 index: 4,

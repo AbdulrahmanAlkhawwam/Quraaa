@@ -57,6 +57,7 @@ import '../../features/profile/domain/entities/profile.dart';
 import '../../features/home/home.dart';
 import '../../features/book_engagement/book_engagement.dart';
 import '../../features/purchases/purchases.dart';
+import '../../features/purchases/data/purchases_local_data_source.dart';
 import '../../features/libraries/data/datasources/authors_remote_data_source.dart';
 import '../../features/libraries/data/repositories/authors_repository_impl.dart';
 import '../../features/libraries/domain/repositories/authors_repository.dart';
@@ -811,6 +812,9 @@ void registerFeatureDependencies() {
     sl.registerLazySingleton<GetOrderCheckoutContextUseCase>(
       () => GetOrderCheckoutContextUseCase(sl<OrdersRepository>()),
     );
+    sl.registerLazySingleton<GetOrderUseCase>(
+      () => GetOrderUseCase(sl<OrdersRepository>()),
+    );
     sl.registerLazySingleton<ResumePendingOrderCheckoutUseCase>(
       () => ResumePendingOrderCheckoutUseCase(sl<OrdersRepository>()),
     );
@@ -821,6 +825,7 @@ void registerFeatureDependencies() {
       () => CheckoutCubit(
         createOrder: sl<CreateOrderUseCase>(),
         getCheckoutContext: sl<GetOrderCheckoutContextUseCase>(),
+        getOrder: sl<GetOrderUseCase>(),
         resumePendingOrderCheckout: sl<ResumePendingOrderCheckoutUseCase>(),
         profileRepository: sl<ProfileRepository>(),
       ),
@@ -847,9 +852,16 @@ void registerFeatureDependencies() {
     sl.registerLazySingleton<PurchasesRemoteDataSource>(
       () => PurchasesRemoteDataSource(sl<HttpHelper>()),
     );
+    sl.registerLazySingleton<PurchasesLocalDataSource>(
+      () => PurchasesLocalDataSource(
+        sl<StorageService>(),
+        () => sl<UserContextProvider>().snapshot.userId ?? '',
+      ),
+    );
     sl.registerLazySingleton<PurchasesRepository>(
       () => PurchasesRepositoryImpl(
         sl<PurchasesRemoteDataSource>(),
+        sl<PurchasesLocalDataSource>(),
         sl<SecurePurchaseBookDataSource>(),
       ),
     );

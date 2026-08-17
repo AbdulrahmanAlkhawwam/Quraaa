@@ -939,6 +939,12 @@
     "checkout_open_failed": "Could not open the secure payment page.",
     "payment_success_title": "Payment successful",
     "payment_success_message": "Your purchase was confirmed. Your order and library will update automatically.",
+    "payment_pending_title": "Confirming payment",
+    "payment_pending_message": "Payment returned successfully, but confirmation is still processing. Your order will update automatically.",
+    "payment_failed_title": "Payment not completed",
+    "payment_failed_message": "The payment provider did not confirm this order. You can try again from your pending order.",
+    "checkout_return_invalid_title": "Could not verify payment",
+    "checkout_return_invalid_message": "The payment return did not match this checkout session. No purchase was marked as paid.",
     "added": "Added to cart.",
     "ready_title": "Ready to get this book!",
     "ready_message": "This book is ready to join your library. Buy it now to continue with checkout, or add it to your cart and explore more books first.",
@@ -1099,7 +1105,10 @@
     "opening": "Opening...",
     "read": "Read book",
     "physical": "Physical book",
-    "offline_copy": "Offline copy"
+    "offline_copy": "Available offline",
+    "online_only": "Not downloaded",
+    "download": "Download",
+    "downloading": "Downloading..."
   },
   "ai_tools": {
     "title": "AI Text Tools",

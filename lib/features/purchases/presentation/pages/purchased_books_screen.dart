@@ -28,15 +28,26 @@ class _PurchasedBooksView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<PurchasesCubit, PurchasesState>(
-      listenWhen: (previous, current) => previous.error != current.error,
+      listenWhen: (PurchasesState previous, PurchasesState current) =>
+          previous.error != current.error ||
+          previous.openSerial != current.openSerial,
       listener: (BuildContext context, PurchasesState state) {
         if (state.error != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.error!)),
           );
+          return;
+        }
+        if (state.openSerial > 0 &&
+            state.openedPurchaseId?.trim().isNotEmpty == true) {
+          final String route = '${RouteNames.pdfReader}'
+              '?purchaseId=${Uri.encodeQueryComponent(state.openedPurchaseId!)}'
+              '&name=${Uri.encodeQueryComponent(state.openedName ?? 'PDF')}';
+          context.pushTo(route);
         }
       },
       builder: (BuildContext context, PurchasesState state) {
+        final PurchasesCubit cubit = context.read<PurchasesCubit>();
         return Scaffold(
           backgroundColor: context.appBackground,
           appBar: AppBar(
@@ -52,10 +63,10 @@ class _PurchasedBooksView extends StatelessWidget {
                     ),
                   )
                 : null,
-            title: Text('settings.library.myBooks'.tr()),
+            title: Text('settings.library.downloads'.tr()),
           ),
           body: RefreshIndicator(
-            onRefresh: context.read<PurchasesCubit>().load,
+            onRefresh: cubit.load,
             child: state.loading && state.books.isEmpty
                 ? const Center(child: CircularProgressIndicator())
                 : state.books.isEmpty
@@ -63,7 +74,7 @@ class _PurchasedBooksView extends StatelessWidget {
                         children: <Widget>[
                           const SizedBox(height: 180),
                           Icon(
-                            Icons.auto_stories_outlined,
+                            Icons.download_done_outlined,
                             size: 70,
                             color: AppColors.primary300,
                           ),
@@ -76,16 +87,22 @@ class _PurchasedBooksView extends StatelessWidget {
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
-                          childAspectRatio: .62,
+                          childAspectRatio: .53,
                           crossAxisSpacing: 14,
                           mainAxisSpacing: 16,
                         ),
                         itemCount: state.books.length,
                         itemBuilder: (BuildContext context, int index) {
                           final PurchasedBook book = state.books[index];
+                          final bool offline = state.isOffline(book);
+                          final bool downloading = state.isDownloading(book);
                           return _PurchasedBookCard(
                             book: book,
+                            offline: offline,
+                            downloading: downloading,
                             onTap: () => _openDetails(context, book),
+                            onDownload: () => cubit.download(book),
+                            onRead: () => cubit.open(book),
                           );
                         },
                       ),
@@ -125,10 +142,21 @@ class _PurchasedBooksView extends StatelessWidget {
 }
 
 class _PurchasedBookCard extends StatelessWidget {
-  const _PurchasedBookCard({required this.book, required this.onTap});
+  const _PurchasedBookCard({
+    required this.book,
+    required this.offline,
+    required this.downloading,
+    required this.onTap,
+    required this.onDownload,
+    required this.onRead,
+  });
 
   final PurchasedBook book;
+  final bool offline;
+  final bool downloading;
   final VoidCallback onTap;
+  final Future<bool> Function() onDownload;
+  final VoidCallback onRead;
 
   @override
   Widget build(BuildContext context) {
@@ -150,7 +178,10 @@ class _PurchasedBookCard extends StatelessWidget {
                   : Image.network(
                       book.coverImageUrl,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => const Icon(Icons.book),
+                      errorBuilder: (_, __, ___) => const ColoredBox(
+                        color: AppColors.primary100,
+                        child: Icon(Icons.book),
+                      ),
                     ),
             ),
             Padding(
@@ -167,15 +198,73 @@ class _PurchasedBookCard extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    book.digital
-                        ? 'purchases.read'.tr()
-                        : 'purchases.physical'.tr(),
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.primary600,
+                  const SizedBox(height: 5),
+                  if (!book.digital)
+                    Text(
+                      'purchases.physical'.tr(),
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: context.appTextSecondary,
+                      ),
+                    )
+                  else ...<Widget>[
+                    Row(
+                      children: <Widget>[
+                        Icon(
+                          offline
+                              ? Icons.offline_pin_outlined
+                              : Icons.cloud_download_outlined,
+                          size: 16,
+                          color: offline
+                              ? AppColors.primary600
+                              : context.appTextSecondary,
+                        ),
+                        const SizedBox(width: 5),
+                        Expanded(
+                          child: Text(
+                            offline
+                                ? 'purchases.offline_copy'.tr()
+                                : 'purchases.online_only'.tr(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.caption.copyWith(
+                              color: offline
+                                  ? AppColors.primary600
+                                  : context.appTextSecondary,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 36,
+                      child: offline
+                          ? FilledButton.icon(
+                              onPressed: onRead,
+                              icon: const Icon(Icons.menu_book_outlined,
+                                  size: 17),
+                              label: Text('purchases.read'.tr()),
+                            )
+                          : OutlinedButton.icon(
+                              onPressed: downloading ? null : onDownload,
+                              icon: downloading
+                                  ? const SizedBox.square(
+                                      dimension: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Icon(Icons.download_outlined,
+                                      size: 17),
+                              label: Text(
+                                downloading
+                                    ? 'purchases.downloading'.tr()
+                                    : 'purchases.download'.tr(),
+                              ),
+                            ),
+                    ),
+                  ],
                 ],
               ),
             ),

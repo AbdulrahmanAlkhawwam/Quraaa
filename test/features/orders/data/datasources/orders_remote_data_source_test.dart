@@ -52,6 +52,32 @@ void main() {
     verify(() => httpHelper.get(ApiEndpoints.ordersCheckoutContext)).called(1);
   });
 
+  test('loads one order so payment can be verified after redirect', () async {
+    when(() => httpHelper.get(ApiEndpoints.order('order-1'))).thenAnswer(
+      (_) async => Response<dynamic>(
+        data: <String, dynamic>{
+          'order': <String, dynamic>{
+            'orderId': 'order-1',
+            'orderNumber': 'Q-100',
+            'status': 'Pending',
+            'paymentStatus': 'Paid',
+            'currency': 'usd',
+            'totalAmount': 10,
+            'items': <Object?>[],
+          },
+        },
+        statusCode: 200,
+        requestOptions: RequestOptions(),
+      ),
+    );
+
+    final order = await dataSource.getOrder('order-1');
+
+    expect(order.orderId, 'order-1');
+    expect(order.paymentStatus, 1);
+    verify(() => httpHelper.get(ApiEndpoints.order('order-1'))).called(1);
+  });
+
   test('creates an order with a saved shipping location id', () async {
     when(
       () => httpHelper.post(

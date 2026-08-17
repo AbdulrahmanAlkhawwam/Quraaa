@@ -219,6 +219,30 @@ class SecurePurchaseBookDataSource {
     }
   }
 
+  Future<bool> isAvailableOffline(String purchaseId) async {
+    final String normalizedId = purchaseId.trim();
+    if (normalizedId.isEmpty) return false;
+    final _PurchaseCacheMetadata? metadata = _loadMetadata(normalizedId);
+    if (metadata == null ||
+        metadata.schemaVersion != _cacheSchemaVersion ||
+        metadata.blockSize != blockSize) {
+      return false;
+    }
+    return _hasAllBlocks(
+      await _purchaseDirectory(normalizedId),
+      metadata,
+    );
+  }
+
+  Future<void> downloadForOffline(String purchaseId) async {
+    final PurchaseBookSession session = await open(purchaseId);
+    try {
+      await session.cacheForOffline();
+    } finally {
+      await session.dispose();
+    }
+  }
+
   Future<PreparedPurchaseBook> prepareForNativeReader(String purchaseId) async {
     final PurchaseBookSession session = await open(purchaseId);
     File? clearFile;

@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.Settings;
+import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 
@@ -38,6 +39,7 @@ import io.flutter.plugin.common.MethodChannel;
 public class MainActivity extends FlutterActivity {
     private static final String EXPLORER_CHANNEL = "quraaa/local_explorer";
     private static final String PDF_CHANNEL = "quraaa/pdf_renderer";
+    private static final String SCREEN_SECURITY_CHANNEL = "quraaa/screen_security";
     private static final int STORAGE_PERMISSION_REQUEST = 4207;
 
     private MethodChannel.Result pendingStorageResult;
@@ -56,6 +58,11 @@ public class MainActivity extends FlutterActivity {
                 flutterEngine.getDartExecutor().getBinaryMessenger(),
                 PDF_CHANNEL
         ).setMethodCallHandler(this::handlePdfCall);
+
+        new MethodChannel(
+                flutterEngine.getDartExecutor().getBinaryMessenger(),
+                SCREEN_SECURITY_CHANNEL
+        ).setMethodCallHandler(this::handleScreenSecurityCall);
     }
     @Override
     protected void onDestroy() {
@@ -63,6 +70,26 @@ public class MainActivity extends FlutterActivity {
         super.onDestroy();
     }
 
+
+    private void handleScreenSecurityCall(MethodCall call, MethodChannel.Result result) {
+        if (!"setSecure".equals(call.method)) {
+            result.notImplemented();
+            return;
+        }
+
+        Boolean enabled = call.argument("enabled");
+        if (enabled == null) {
+            result.error("missing_enabled", "The secure screen state is required.", null);
+            return;
+        }
+
+        if (enabled) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
+        } else {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
+        }
+        result.success(null);
+    }
 
     private void handleExplorerCall(MethodCall call, MethodChannel.Result result) {
         switch (call.method) {

@@ -64,8 +64,11 @@ void main() {
       status: ConnectionStatus.connected,
     );
 
+    expect(await dataSource.isAvailableOffline('purchase-1'), isFalse);
+
     final PurchaseBookSession session = await dataSource.open('purchase-1');
     await session.cacheForOffline();
+    expect(await dataSource.isAvailableOffline('purchase-1'), isTrue);
 
     final Uint8List output = Uint8List(pdfBytes.length);
     expect(await session.read(output, 0, output.length), output.length);

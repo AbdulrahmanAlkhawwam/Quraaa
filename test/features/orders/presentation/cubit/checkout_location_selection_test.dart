@@ -15,6 +15,7 @@ void main() {
     final CheckoutCubit cubit = CheckoutCubit(
       createOrder: CreateOrderUseCase(ordersRepository),
       getCheckoutContext: GetOrderCheckoutContextUseCase(ordersRepository),
+      getOrder: GetOrderUseCase(ordersRepository),
       resumePendingOrderCheckout:
           ResumePendingOrderCheckoutUseCase(ordersRepository),
       profileRepository: profileRepository,

@@ -10,20 +10,17 @@ import '../models/order_checkout_model.dart';
 import '../models/account_order_model.dart';
 
 abstract class OrdersRemoteDataSource {
+  Future<AccountOrderModel> getOrder(String orderId);
+
   Future<OrderCheckoutContextModel> getCheckoutContext();
 
   Future<OrderCheckoutModel> createOrder({
-    required String successUrl,
-    required String cancelUrl,
     String? shippingLocationId,
     double? latitude,
     double? longitude,
   });
 
-  Future<OrderCheckoutModel> resumePendingOrderCheckout({
-    required String successUrl,
-    required String cancelUrl,
-  });
+  Future<OrderCheckoutModel> resumePendingOrderCheckout();
 
   Future<List<AccountOrderModel>> getMyOrders({int pageNumber = 1});
 
@@ -50,6 +47,28 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
   const OrdersRemoteDataSourceImpl(this._httpHelper);
 
   final HttpHelper _httpHelper;
+
+  @override
+  Future<AccountOrderModel> getOrder(String orderId) async {
+    try {
+      final Response<dynamic> response = await _httpHelper.get(
+        ApiEndpoints.order(orderId),
+      );
+      final Object? responseData = response.data;
+      if (responseData is Map) {
+        final Map<String, dynamic> data = Map<String, dynamic>.from(
+          responseData,
+        );
+        final Object? nestedOrder = data['order'];
+        return AccountOrderModel.fromJson(
+          nestedOrder is Map ? Map<String, dynamic>.from(nestedOrder) : data,
+        );
+      }
+      throw const UnknownException(message: 'Invalid order response.');
+    } on DioException catch (error) {
+      throw _mapDioException(error, fallback: 'Unable to load the order.');
+    }
+  }
 
   @override
   Future<AccountOrderModel> updateShippingLocation({
@@ -219,8 +238,6 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
 
   @override
   Future<OrderCheckoutModel> createOrder({
-    required String successUrl,
-    required String cancelUrl,
     String? shippingLocationId,
     double? latitude,
     double? longitude,
@@ -230,8 +247,6 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
       final Response<dynamic> response = await _httpHelper.post(
         ApiEndpoints.orders,
         data: <String, Object?>{
-          'successUrl': successUrl,
-          'cancelUrl': cancelUrl,
           if (shippingLocationId?.trim().isNotEmpty == true)
             'shippingLocationId': shippingLocationId!.trim()
           else if (hasLocation)
@@ -248,10 +263,7 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
   }
 
   @override
-  Future<OrderCheckoutModel> resumePendingOrderCheckout({
-    required String successUrl,
-    required String cancelUrl,
-  }) async {
+  Future<OrderCheckoutModel> resumePendingOrderCheckout() async {
     try {
       final Response<dynamic> ordersResponse = await _httpHelper.get(
         ApiEndpoints.ordersMine,
@@ -269,10 +281,6 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
 
       final Response<dynamic> response = await _httpHelper.post(
         ApiEndpoints.orderCheckoutSession(pendingOrderId),
-        data: <String, Object?>{
-          'successUrl': successUrl,
-          'cancelUrl': cancelUrl,
-        },
       );
       return _parseCheckout(response.data);
     } on DioException catch (error) {

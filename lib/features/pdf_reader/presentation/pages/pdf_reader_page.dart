@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
 
@@ -21,6 +22,7 @@ import '../../domain/use_cases/get_pdf_text_layer_use_case.dart';
 import '../../domain/use_cases/render_pdf_page_use_case.dart';
 import '../../domain/use_cases/share_pdf_text_use_case.dart';
 import '../bloc/pdf_reader_bloc.dart';
+import '../services/pdf_reader_screen_security.dart';
 import '../widgets/pdf_note_dialog.dart';
 import '../widgets/pdf_reader_continuous_view.dart';
 import '../widgets/pdf_reader_header.dart';
@@ -39,6 +41,7 @@ class PdfReaderPage extends StatefulWidget {
     this.getTextLayer,
     this.shareText,
     this.localStateDataSource,
+    this.screenSecurity,
     super.key,
   });
 
@@ -50,6 +53,7 @@ class PdfReaderPage extends StatefulWidget {
   final GetPdfTextLayerUseCase? getTextLayer;
   final SharePdfTextUseCase? shareText;
   final PdfReaderLocalStateDataSource? localStateDataSource;
+  final PdfReaderScreenSecurity? screenSecurity;
 
   @override
   State<PdfReaderPage> createState() => _PdfReaderPageState();
@@ -66,10 +70,13 @@ class _PdfReaderPageState extends State<PdfReaderPage> {
       widget.shareText ?? sl<SharePdfTextUseCase>();
   late final PdfReaderLocalStateDataSource _localStateDataSource =
       widget.localStateDataSource ?? sl<PdfReaderLocalStateDataSource>();
+  late final PdfReaderScreenSecurity _screenSecurity =
+      widget.screenSecurity ?? const PlatformPdfReaderScreenSecurity();
 
   @override
   void initState() {
     super.initState();
+    unawaited(_setScreenSecure(true));
     _bloc.add(PdfReaderStarted(widget.path));
   }
 
@@ -84,10 +91,19 @@ class _PdfReaderPageState extends State<PdfReaderPage> {
 
   @override
   void dispose() {
+    unawaited(_setScreenSecure(false));
     if (_ownsBloc) {
       _bloc.close();
     }
     super.dispose();
+  }
+
+  Future<void> _setScreenSecure(bool enabled) async {
+    try {
+      await _screenSecurity.setSecure(enabled);
+    } on PlatformException {
+      // A platform security failure must not prevent the reader from closing.
+    }
   }
 
   @override

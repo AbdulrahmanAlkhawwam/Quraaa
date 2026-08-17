@@ -141,7 +141,7 @@ GoRouter buildAppRouter({
       ),
       GoRoute(
         path: RouteNames.checkoutSuccess,
-        redirect: (context, state) => '${RouteNames.home}?checkout=success',
+        redirect: (context, state) => RouteNames.cart,
       ),
       GoRoute(
         path: RouteNames.checkoutCancel,
@@ -168,8 +168,7 @@ GoRouter buildAppRouter({
               ),
             ],
             child: HomeScreen(
-              showCheckoutSuccess:
-                  state.uri.queryParameters['checkout'] == 'success',
+              showCheckoutSuccess: state.extra == true,
             ),
           ),
         ),

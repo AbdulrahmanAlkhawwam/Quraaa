@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../config/env/env.dart';
 import '../../../../config/routes/route_names.dart';
 import '../../../../core/assets/app_icons.dart';
 import '../../../../core/localization/localization_constants.dart';
@@ -59,33 +60,116 @@ class _CartViewState extends State<CartView> {
     }
     if (!mounted) return;
 
-    final CheckoutState state = cubit.state;
-    switch (state) {
+    switch (cubit.state) {
       case CheckoutReady(checkout: final checkout):
-        final Uri? uri = Uri.tryParse(checkout.checkoutUrl);
-        bool opened = false;
-        if (uri != null && (uri.scheme == 'https' || uri.scheme == 'http')) {
-          try {
-            opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
-          } catch (_) {}
-        }
-        if (!opened && context.mounted) {
-          context.showResolvedErrorSnackBar(
-            LocalizationConstants.cartCheckoutOpenFailedKey.tr(),
-          );
-        }
+        await _openStripeCheckout(cubit, checkout);
       case CheckoutFailure(error: final error):
-        if (context.mounted) context.showResolvedErrorSnackBar(error);
-      case CheckoutInitial() || CheckoutLoading():
+        cubit.reset();
+        if (mounted) context.showResolvedErrorSnackBar(error);
+      case CheckoutInitial() ||
+            CheckoutLoading() ||
+            CheckoutVerifying() ||
+            CheckoutPaid() ||
+            CheckoutCancelled() ||
+            CheckoutPaymentPending() ||
+            CheckoutPaymentFailed() ||
+            CheckoutInvalidReturn():
         break;
     }
+  }
+
+  Future<void> _openStripeCheckout(
+    CheckoutCubit cubit,
+    OrderCheckout checkout,
+  ) async {
+    final Uri? checkoutUri = Uri.tryParse(checkout.checkoutUrl);
+    if (checkoutUri == null || checkoutUri.scheme != 'https') {
+      cubit.reset();
+      if (mounted) {
+        context.showResolvedErrorSnackBar(
+          LocalizationConstants.cartCheckoutOpenFailedKey.tr(),
+        );
+      }
+      return;
+    }
+
+    try {
+      final String result = await FlutterWebAuth2.authenticate(
+        url: checkoutUri.toString(),
+        callbackUrlScheme: Env.checkoutCallbackScheme,
+      );
+      final Uri? callbackUri = Uri.tryParse(result);
+      if (!mounted) return;
+      await cubit.handleCheckoutReturn(
+        checkout: checkout,
+        callbackUri: callbackUri ?? Uri(),
+      );
+    } on PlatformException catch (error) {
+      if (!mounted) return;
+      if (error.code == 'CANCELED') {
+        cubit.markCheckoutCancelled();
+      } else {
+        cubit.reset();
+        context.showResolvedErrorSnackBar(
+          LocalizationConstants.cartCheckoutOpenFailedKey.tr(),
+        );
+        return;
+      }
+    } catch (_) {
+      if (!mounted) return;
+      cubit.reset();
+      context.showResolvedErrorSnackBar(
+        LocalizationConstants.cartCheckoutOpenFailedKey.tr(),
+      );
+      return;
+    }
+
+    if (!mounted) return;
+    final CheckoutState completion = cubit.state;
     cubit.reset();
+
+    switch (completion) {
+      case CheckoutPaid():
+        context.goTo(RouteNames.home, extra: true);
+      case CheckoutPaymentPending():
+        context.showSuccessSnackBar(
+          message: Message(
+            title: LocalizationConstants.cartPaymentPendingTitleKey.tr(),
+            value: LocalizationConstants.cartPaymentPendingMessageKey.tr(),
+          ),
+        );
+      case CheckoutPaymentFailed():
+        context.showErrorSnackBar(
+          message: Message(
+            title: LocalizationConstants.cartPaymentFailedTitleKey.tr(),
+            value: LocalizationConstants.cartPaymentFailedMessageKey.tr(),
+          ),
+        );
+      case CheckoutInvalidReturn():
+        context.showErrorSnackBar(
+          message: Message(
+            title: LocalizationConstants.cartCheckoutReturnInvalidTitleKey.tr(),
+            value:
+                LocalizationConstants.cartCheckoutReturnInvalidMessageKey.tr(),
+          ),
+        );
+      case CheckoutFailure(error: final error):
+        context.showResolvedErrorSnackBar(error);
+      case CheckoutCancelled() ||
+            CheckoutInitial() ||
+            CheckoutLoading() ||
+            CheckoutReady() ||
+            CheckoutVerifying():
+        break;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final Color background = context.appCard;
     final CheckoutState checkoutState = context.watch<CheckoutCubit>().state;
+    final bool checkoutBusy =
+        checkoutState is CheckoutLoading || checkoutState is CheckoutVerifying;
     final Brightness overlayBrightness =
         context.isDark ? Brightness.light : Brightness.dark;
 
@@ -209,12 +293,9 @@ class _CartViewState extends State<CartView> {
                                 width: double.infinity,
                                 height: 52,
                                 child: FilledButton(
-                                  onPressed: hasUnavailableItem
+                                  onPressed: hasUnavailableItem || checkoutBusy
                                       ? null
-                                      : checkoutState is CheckoutLoading
-                                          ? null
-                                          : () =>
-                                              _openPaymentFlow(state.summary),
+                                      : () => _openPaymentFlow(state.summary),
                                   style: FilledButton.styleFrom(
                                     backgroundColor: AppColors.primary600,
                                     foregroundColor: AppColors.card,
@@ -225,7 +306,7 @@ class _CartViewState extends State<CartView> {
                                       ),
                                     ),
                                   ),
-                                  child: checkoutState is CheckoutLoading
+                                  child: checkoutBusy
                                       ? const SizedBox(
                                           width: 22,
                                           height: 22,

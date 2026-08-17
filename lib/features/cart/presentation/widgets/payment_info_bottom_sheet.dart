@@ -169,23 +169,23 @@ class _PaymentInfoBottomSheetState extends State<PaymentInfoBottomSheet> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: AppSpacing.spacing20),
-                    _SectionLabel(
-                      text: LocalizationConstants.cartPromoKey.tr(),
-                    ),
-                    const SizedBox(height: AppSpacing.spacing8),
-                    TextField(
-                      enabled: false,
-                      decoration: _checkoutInputDecoration(
-                        context,
-                        LocalizationConstants.cartOfferCodeKey.tr(),
-                      ).copyWith(
-                        suffixIcon: Icon(
-                          Icons.check_circle_outline_rounded,
-                          color: context.appTextTertiary,
-                        ),
-                      ),
-                    ),
+                    // const SizedBox(height: AppSpacing.spacing20),
+                    // _SectionLabel(
+                    //   text: LocalizationConstants.cartPromoKey.tr(),
+                    // ),
+                    // const SizedBox(height: AppSpacing.spacing8),
+                    // TextField(
+                    //   enabled: false,
+                    //   decoration: _checkoutInputDecoration(
+                    //     context,
+                    //     LocalizationConstants.cartOfferCodeKey.tr(),
+                    //   ).copyWith(
+                    //     suffixIcon: Icon(
+                    //       Icons.check_circle_outline_rounded,
+                    //       color: context.appTextTertiary,
+                    //     ),
+                    //   ),
+                    // ),
                     const SizedBox(height: AppSpacing.spacing20),
                     _SectionLabel(
                       text: LocalizationConstants.cartDeliveryLocationKey.tr(),

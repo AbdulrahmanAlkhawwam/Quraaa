@@ -849,6 +849,16 @@ class LocalizationConstants {
   static const String cartPaymentSuccessTitleKey = 'cart.payment_success_title';
   static const String cartPaymentSuccessMessageKey =
       'cart.payment_success_message';
+  static const String cartPaymentPendingTitleKey = 'cart.payment_pending_title';
+  static const String cartPaymentPendingMessageKey =
+      'cart.payment_pending_message';
+  static const String cartPaymentFailedTitleKey = 'cart.payment_failed_title';
+  static const String cartPaymentFailedMessageKey =
+      'cart.payment_failed_message';
+  static const String cartCheckoutReturnInvalidTitleKey =
+      'cart.checkout_return_invalid_title';
+  static const String cartCheckoutReturnInvalidMessageKey =
+      'cart.checkout_return_invalid_message';
   static const String cartAddedKey = 'cart.added';
   static const String cartReadyTitleKey = 'cart.ready_title';
   static const String cartReadyMessageKey = 'cart.ready_message';

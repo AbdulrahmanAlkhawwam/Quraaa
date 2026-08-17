@@ -14,6 +14,16 @@ class OrdersRepositoryImpl implements OrdersRepository {
   final OrdersRemoteDataSource _remoteDataSource;
 
   @override
+  Future<Result<AccountOrder>> getOrder(String orderId) async {
+    try {
+      return Success<AccountOrder>(await _remoteDataSource.getOrder(orderId));
+    } catch (error) {
+      final Failure failure = ErrorMapper.map(error);
+      return ResultFailure<AccountOrder>(failure.message, cause: failure);
+    }
+  }
+
+  @override
   Future<Result<AccountOrder>> updateShippingLocation({
     required String orderId,
     String? shippingLocationId,
@@ -135,16 +145,12 @@ class OrdersRepositoryImpl implements OrdersRepository {
 
   @override
   Future<Result<OrderCheckout>> createOrder({
-    required String successUrl,
-    required String cancelUrl,
     String? shippingLocationId,
     double? latitude,
     double? longitude,
   }) async {
     try {
       final OrderCheckoutModel model = await _remoteDataSource.createOrder(
-        successUrl: successUrl,
-        cancelUrl: cancelUrl,
         shippingLocationId: shippingLocationId,
         latitude: latitude,
         longitude: longitude,
@@ -157,16 +163,10 @@ class OrdersRepositoryImpl implements OrdersRepository {
   }
 
   @override
-  Future<Result<OrderCheckout>> resumePendingOrderCheckout({
-    required String successUrl,
-    required String cancelUrl,
-  }) async {
+  Future<Result<OrderCheckout>> resumePendingOrderCheckout() async {
     try {
       final OrderCheckoutModel model =
-          await _remoteDataSource.resumePendingOrderCheckout(
-        successUrl: successUrl,
-        cancelUrl: cancelUrl,
-      );
+          await _remoteDataSource.resumePendingOrderCheckout();
       return Success<OrderCheckout>(model.toEntity());
     } catch (error) {
       final Failure failure = ErrorMapper.map(error);

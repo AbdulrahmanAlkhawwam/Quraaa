@@ -33,18 +33,18 @@ class PurchasedBook extends Equatable {
 
   @override
   List<Object?> get props => <Object?>[
-    purchaseId,
-    bookId,
-    title,
-    author,
-    coverImageUrl,
-    purchasedAt,
-    digital,
-    description,
-    language,
-    isbn,
-    categoryId,
-  ];
+        purchaseId,
+        bookId,
+        title,
+        author,
+        coverImageUrl,
+        purchasedAt,
+        digital,
+        description,
+        language,
+        isbn,
+        categoryId,
+      ];
 }
 
 abstract class PurchasesRepository {
@@ -53,6 +53,10 @@ abstract class PurchasesRepository {
   Future<Result<PurchaseBookSession>> openForReading(String purchaseId);
 
   Future<Result<PreparedPurchaseBook>> prepareForReading(String purchaseId);
+
+  Future<Result<bool>> isAvailableOffline(String purchaseId);
+
+  Future<Result<void>> downloadForOffline(String purchaseId);
 }
 
 /// A short-lived clear-text file required by the existing native PDF renderer.
