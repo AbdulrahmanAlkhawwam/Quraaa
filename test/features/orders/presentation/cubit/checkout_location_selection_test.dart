@@ -15,7 +15,7 @@ void main() {
     final CheckoutCubit cubit = CheckoutCubit(
       createOrder: CreateOrderUseCase(ordersRepository),
       getCheckoutContext: GetOrderCheckoutContextUseCase(ordersRepository),
-      getOrder: GetOrderUseCase(ordersRepository),
+      confirmCheckout: ConfirmCheckoutUseCase(ordersRepository),
       resumePendingOrderCheckout:
           ResumePendingOrderCheckoutUseCase(ordersRepository),
       profileRepository: profileRepository,
@@ -55,8 +55,6 @@ void main() {
     );
     when(
       () => ordersRepository.createOrder(
-        successUrl: any(named: 'successUrl'),
-        cancelUrl: any(named: 'cancelUrl'),
         shippingLocationId: 'office',
       ),
     ).thenAnswer((_) async => const Success<OrderCheckout>(checkout));
@@ -66,8 +64,6 @@ void main() {
     expect(cubit.state, isA<CheckoutReady>());
     verify(
       () => ordersRepository.createOrder(
-        successUrl: any(named: 'successUrl'),
-        cancelUrl: any(named: 'cancelUrl'),
         shippingLocationId: 'office',
       ),
     ).called(1);

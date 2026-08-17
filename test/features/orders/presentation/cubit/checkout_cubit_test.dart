@@ -19,11 +19,11 @@ void main() {
     cubit = CheckoutCubit(
       createOrder: CreateOrderUseCase(ordersRepository),
       getCheckoutContext: GetOrderCheckoutContextUseCase(ordersRepository),
-      getOrder: GetOrderUseCase(ordersRepository),
+      confirmCheckout: ConfirmCheckoutUseCase(ordersRepository),
       resumePendingOrderCheckout:
           ResumePendingOrderCheckoutUseCase(ordersRepository),
       profileRepository: profileRepository,
-      verificationAttempts: 3,
+      verificationAttempts: 5,
       verificationDelay: (_) async {},
     );
   });
@@ -56,8 +56,6 @@ void main() {
     ).thenAnswer((_) async => const Success<OrderCheckoutContext>(context));
     when(
       () => ordersRepository.createOrder(
-        successUrl: any(named: 'successUrl'),
-        cancelUrl: any(named: 'cancelUrl'),
         shippingLocationId: 'location-2',
       ),
     ).thenAnswer((_) async => const Success<OrderCheckout>(checkout));
@@ -68,8 +66,6 @@ void main() {
     verifyNever(() => profileRepository.getCachedProfile());
     verify(
       () => ordersRepository.createOrder(
-        successUrl: any(named: 'successUrl'),
-        cancelUrl: any(named: 'cancelUrl'),
         shippingLocationId: 'location-2',
       ),
     ).called(1);
@@ -85,83 +81,127 @@ void main() {
       expiresAt: null,
     );
     when(
-      () => ordersRepository.resumePendingOrderCheckout(
-        successUrl: any(named: 'successUrl'),
-        cancelUrl: any(named: 'cancelUrl'),
-      ),
+      () => ordersRepository.resumePendingOrderCheckout(),
     ).thenAnswer((_) async => const Success<OrderCheckout>(checkout));
 
     await cubit.resumePendingCheckout();
 
     expect(cubit.state, isA<CheckoutReady>());
     verify(
-      () => ordersRepository.resumePendingOrderCheckout(
-        successUrl: any(named: 'successUrl'),
-        cancelUrl: any(named: 'cancelUrl'),
-      ),
+      () => ordersRepository.resumePendingOrderCheckout(),
     ).called(1);
     verifyNever(ordersRepository.getCheckoutContext);
   });
 
-  test('polls the backend until the webhook marks the order paid', () async {
+  test('confirms the stored session without comparing callback sessionId',
+      () async {
     int requestCount = 0;
-    when(() => ordersRepository.getOrder('order-1')).thenAnswer((_) async {
+    when(() => ordersRepository.confirmCheckout('session-1'))
+        .thenAnswer((_) async {
       requestCount++;
-      return Success<AccountOrder>(
-        _orderWithPaymentStatus(requestCount == 1 ? 0 : 1),
+      return Success<CheckoutConfirmation>(
+        _confirmation(
+          paid: requestCount > 1,
+          pending: requestCount == 1,
+        ),
       );
     });
 
     await cubit.handleCheckoutReturn(
       checkout: _checkout,
       callbackUri: Uri.parse(
-        'quraaa://checkout/success?session_id=session-1',
+        'quraaa://checkout/success?orderId=order-1&sessionId=another-session',
       ),
     );
 
     expect(cubit.state, isA<CheckoutPaid>());
-    verify(() => ordersRepository.getOrder('order-1')).called(2);
+    expect(
+      (cubit.state as CheckoutPaid).confirmation.orderNumber,
+      'ORD-100',
+    );
+    verify(() => ordersRepository.confirmCheckout('session-1')).called(2);
   });
 
-  test('keeps the order pending when webhook confirmation is delayed',
-      () async {
+  test('fails after five pending backend confirmations', () async {
     when(
-      () => ordersRepository.getOrder('order-1'),
+      () => ordersRepository.confirmCheckout('session-1'),
     ).thenAnswer(
-      (_) async => Success<AccountOrder>(_orderWithPaymentStatus(0)),
-    );
-
-    await cubit.handleCheckoutReturn(
-      checkout: _checkout,
-      callbackUri: Uri.parse(
-        'quraaa://checkout/success?session_id=session-1',
+      (_) async => Success<CheckoutConfirmation>(
+        _confirmation(paid: false, pending: true),
       ),
     );
 
-    expect(cubit.state, isA<CheckoutPaymentPending>());
-    verify(() => ordersRepository.getOrder('order-1')).called(3);
-  });
-
-  test('does not query the order for a cancelled checkout', () async {
-    await cubit.handleCheckoutReturn(
-      checkout: _checkout,
-      callbackUri: Uri.parse('quraaa://checkout/cancel'),
-    );
-
-    expect(cubit.state, isA<CheckoutCancelled>());
-    verifyNever(() => ordersRepository.getOrder(any()));
-  });
-
-  test('rejects a callback from a different Stripe session', () async {
     await cubit.handleCheckoutReturn(
       checkout: _checkout,
       callbackUri: Uri.parse(
-        'quraaa://checkout/success?session_id=another-session',
+        'quraaa://checkout/success?orderId=order-1',
+      ),
+    );
+
+    expect(cubit.state, isA<CheckoutPaymentFailed>());
+    verify(() => ordersRepository.confirmCheckout('session-1')).called(5);
+  });
+
+  test('stops polling when backend reports a terminal payment failure',
+      () async {
+    when(
+      () => ordersRepository.confirmCheckout('session-1'),
+    ).thenAnswer(
+      (_) async => Success<CheckoutConfirmation>(
+        _confirmation(paid: false, pending: false),
+      ),
+    );
+
+    await cubit.handleCheckoutReturn(
+      checkout: _checkout,
+      callbackUri: Uri.parse(
+        'quraaa://checkout/success?orderId=order-1&sessionId=session-1',
+      ),
+    );
+
+    expect(cubit.state, isA<CheckoutPaymentFailed>());
+    verify(() => ordersRepository.confirmCheckout('session-1')).called(1);
+  });
+
+  test('does not confirm a cancelled checkout', () async {
+    await cubit.handleCheckoutReturn(
+      checkout: _checkout,
+      callbackUri: Uri.parse('quraaa://checkout/cancel?orderId=order-1'),
+    );
+
+    expect(cubit.state, isA<CheckoutCancelled>());
+    verifyNever(() => ordersRepository.confirmCheckout(any()));
+  });
+
+  test('rejects a callback for a different order', () async {
+    await cubit.handleCheckoutReturn(
+      checkout: _checkout,
+      callbackUri: Uri.parse(
+        'quraaa://checkout/success?orderId=order-2',
       ),
     );
 
     expect(cubit.state, isA<CheckoutInvalidReturn>());
-    verifyNever(() => ordersRepository.getOrder(any()));
+    verifyNever(() => ordersRepository.confirmCheckout(any()));
+  });
+
+  test('rejects a confirmation that belongs to another order', () async {
+    when(
+      () => ordersRepository.confirmCheckout('session-1'),
+    ).thenAnswer(
+      (_) async => Success<CheckoutConfirmation>(
+        _confirmation(paid: true, pending: false, orderId: 'order-2'),
+      ),
+    );
+
+    await cubit.handleCheckoutReturn(
+      checkout: _checkout,
+      callbackUri: Uri.parse(
+        'quraaa://checkout/success?orderId=order-1',
+      ),
+    );
+
+    expect(cubit.state, isA<CheckoutFailure>());
   });
 }
 
@@ -174,15 +214,17 @@ const OrderCheckout _checkout = OrderCheckout(
   expiresAt: null,
 );
 
-AccountOrder _orderWithPaymentStatus(int paymentStatus) {
-  return AccountOrder(
-    orderId: 'order-1',
-    orderNumber: 'Q-100',
-    status: 0,
-    paymentStatus: paymentStatus,
-    currency: 'USD',
-    totalAmount: 10,
-    creationTime: null,
-    items: const <AccountOrderItem>[],
+CheckoutConfirmation _confirmation({
+  required bool paid,
+  required bool pending,
+  String orderId = 'order-1',
+}) {
+  return CheckoutConfirmation(
+    paid: paid,
+    pending: pending,
+    orderId: orderId,
+    orderNumber: 'ORD-100',
+    orderStatus: paid ? 'Processing' : 'Pending',
+    paymentStatus: paid ? 'Paid' : 'Pending',
   );
 }

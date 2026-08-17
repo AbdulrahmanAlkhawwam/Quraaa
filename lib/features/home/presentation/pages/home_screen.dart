@@ -330,12 +330,12 @@ class _HomeFeed extends StatelessWidget {
             const SliverToBoxAdapter(
               child: SizedBox(height: AppSpacing.spacing24),
             ),
-            const SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: AppSpacing.spacing16),
-                child: HomeBanner(),
-              ),
-            ),
+            // const SliverToBoxAdapter(
+            //   child: Padding(
+            //     padding: EdgeInsets.symmetric(horizontal: AppSpacing.spacing16),
+            //     child: HomeBanner(),
+            //   ),
+            // ),
             const SliverToBoxAdapter(
               child: SizedBox(height: AppSpacing.spacing32),
             ),

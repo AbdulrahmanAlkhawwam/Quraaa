@@ -28,6 +28,7 @@ abstract class ApiEndpoints {
   static const String cart = '/cart/me';
   static const String orders = '/orders';
   static const String ordersCheckoutContext = '/orders/checkout-context';
+  static const String ordersCheckoutConfirm = '/orders/checkout/confirm';
   static const String ordersMine = '/orders/me';
   static const String cartItems = '/cart/items';
   static const String favoriteBooks = '/favorite-books';

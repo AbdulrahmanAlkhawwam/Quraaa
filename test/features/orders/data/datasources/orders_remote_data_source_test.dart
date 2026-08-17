@@ -78,13 +78,50 @@ void main() {
     verify(() => httpHelper.get(ApiEndpoints.order('order-1'))).called(1);
   });
 
-  test('creates an order with a saved shipping location id', () async {
+  test('confirms checkout using the stored Stripe session id', () async {
+    when(
+      () => httpHelper.post(
+        ApiEndpoints.ordersCheckoutConfirm,
+        data: <String, Object?>{'sessionId': 'cs_test_session-1'},
+      ),
+    ).thenAnswer(
+      (_) async => Response<dynamic>(
+        data: <String, dynamic>{
+          'paid': true,
+          'pending': false,
+          'orderId': 'order-1',
+          'orderNumber': 'ORD-100',
+          'orderStatus': 'Processing',
+          'paymentStatus': 'Paid',
+        },
+        statusCode: 200,
+        requestOptions: RequestOptions(),
+      ),
+    );
+
+    final confirmation = await dataSource.confirmCheckout(
+      'cs_test_session-1',
+    );
+
+    expect(confirmation.paid, isTrue);
+    expect(confirmation.pending, isFalse);
+    expect(confirmation.orderId, 'order-1');
+    expect(confirmation.orderNumber, 'ORD-100');
+    expect(confirmation.orderStatus, 'Processing');
+    expect(confirmation.paymentStatus, 'Paid');
+    verify(
+      () => httpHelper.post(
+        ApiEndpoints.ordersCheckoutConfirm,
+        data: <String, Object?>{'sessionId': 'cs_test_session-1'},
+      ),
+    ).called(1);
+  });
+
+  test('creates an order without client redirect URLs', () async {
     when(
       () => httpHelper.post(
         ApiEndpoints.orders,
         data: <String, Object?>{
-          'successUrl': 'https://example.com/success',
-          'cancelUrl': 'https://example.com/cancel',
           'shippingLocationId': 'location-2',
         },
       ),
@@ -106,8 +143,6 @@ void main() {
     );
 
     final checkout = await dataSource.createOrder(
-      successUrl: 'https://example.com/success',
-      cancelUrl: 'https://example.com/cancel',
       shippingLocationId: 'location-2',
       latitude: 33.5,
       longitude: 36.3,
@@ -118,8 +153,6 @@ void main() {
       () => httpHelper.post(
         ApiEndpoints.orders,
         data: <String, Object?>{
-          'successUrl': 'https://example.com/success',
-          'cancelUrl': 'https://example.com/cancel',
           'shippingLocationId': 'location-2',
         },
       ),
@@ -187,13 +220,7 @@ void main() {
       ),
     );
     when(
-      () => httpHelper.post(
-        ApiEndpoints.orderCheckoutSession('order-1'),
-        data: <String, Object?>{
-          'successUrl': 'https://example.com/success',
-          'cancelUrl': 'https://example.com/cancel',
-        },
-      ),
+      () => httpHelper.post(ApiEndpoints.orderCheckoutSession('order-1')),
     ).thenAnswer(
       (_) async => Response<dynamic>(
         data: <String, dynamic>{
@@ -211,21 +238,12 @@ void main() {
       ),
     );
 
-    final checkout = await dataSource.resumePendingOrderCheckout(
-      successUrl: 'https://example.com/success',
-      cancelUrl: 'https://example.com/cancel',
-    );
+    final checkout = await dataSource.resumePendingOrderCheckout();
 
     expect(checkout.orderId, 'order-1');
     expect(checkout.checkoutSessionId, 'session-2');
     verify(
-      () => httpHelper.post(
-        ApiEndpoints.orderCheckoutSession('order-1'),
-        data: <String, Object?>{
-          'successUrl': 'https://example.com/success',
-          'cancelUrl': 'https://example.com/cancel',
-        },
-      ),
+      () => httpHelper.post(ApiEndpoints.orderCheckoutSession('order-1')),
     ).called(1);
     verifyNever(
       () => httpHelper.post(

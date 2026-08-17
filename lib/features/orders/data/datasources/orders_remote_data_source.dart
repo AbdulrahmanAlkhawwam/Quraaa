@@ -6,6 +6,7 @@ import '../../../../core/errors/error_response_model.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/network/http_helper.dart';
 import '../models/order_checkout_context_model.dart';
+import '../models/checkout_confirmation_model.dart';
 import '../models/order_checkout_model.dart';
 import '../models/account_order_model.dart';
 
@@ -21,6 +22,7 @@ abstract class OrdersRemoteDataSource {
   });
 
   Future<OrderCheckoutModel> resumePendingOrderCheckout();
+  Future<CheckoutConfirmationModel> confirmCheckout(String sessionId);
 
   Future<List<AccountOrderModel>> getMyOrders({int pageNumber = 1});
 
@@ -291,12 +293,40 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
     }
   }
 
+  @override
+  Future<CheckoutConfirmationModel> confirmCheckout(String sessionId) async {
+    try {
+      final Response<dynamic> response = await _httpHelper.post(
+        ApiEndpoints.ordersCheckoutConfirm,
+        data: <String, Object?>{'sessionId': sessionId.trim()},
+      );
+      final Object? data = response.data;
+      if (data is Map) {
+        return CheckoutConfirmationModel.fromJson(
+          Map<String, dynamic>.from(data),
+        );
+      }
+      throw const UnknownException(
+        message: 'Invalid checkout confirmation response.',
+      );
+    } on DioException catch (error) {
+      throw _mapDioException(
+        error,
+        fallback: 'Unable to confirm the checkout.',
+      );
+    } on FormatException catch (error) {
+      throw UnknownException(message: error.message);
+    }
+  }
+
   OrderCheckoutModel _parseCheckout(Object? payload) {
     if (payload is Map) {
       final OrderCheckoutModel model = OrderCheckoutModel.fromJson(
         Map<String, dynamic>.from(payload),
       );
-      if (model.orderId.isNotEmpty && model.checkoutUrl.isNotEmpty) {
+      if (model.orderId.isNotEmpty &&
+          model.checkoutSessionId.isNotEmpty &&
+          model.checkoutUrl.isNotEmpty) {
         return model;
       }
     }

@@ -2,10 +2,12 @@ import '../../../../core/architecture/result.dart';
 import '../../../../core/errors/error_mapper.dart';
 import '../../../../core/errors/failures.dart';
 import '../../domain/entities/account_order.dart';
+import '../../domain/entities/checkout_confirmation.dart';
 import '../../domain/entities/order_checkout.dart';
 import '../../domain/entities/order_checkout_context.dart';
 import '../../domain/repositories/orders_repository.dart';
 import '../datasources/orders_remote_data_source.dart';
+import '../models/checkout_confirmation_model.dart';
 import '../models/order_checkout_model.dart';
 
 class OrdersRepositoryImpl implements OrdersRepository {
@@ -171,6 +173,23 @@ class OrdersRepositoryImpl implements OrdersRepository {
     } catch (error) {
       final Failure failure = ErrorMapper.map(error);
       return ResultFailure<OrderCheckout>(failure.message, cause: failure);
+    }
+  }
+
+  @override
+  Future<Result<CheckoutConfirmation>> confirmCheckout(
+    String sessionId,
+  ) async {
+    try {
+      final CheckoutConfirmationModel model =
+          await _remoteDataSource.confirmCheckout(sessionId);
+      return Success<CheckoutConfirmation>(model.toEntity());
+    } catch (error) {
+      final Failure failure = ErrorMapper.map(error);
+      return ResultFailure<CheckoutConfirmation>(
+        failure.message,
+        cause: failure,
+      );
     }
   }
 }

@@ -4,12 +4,12 @@ import '../../../../config/env/env.dart';
 import '../../../../core/architecture/result.dart';
 import '../../../../core/architecture/use_case.dart';
 import '../../../profile/profile.dart';
-import '../../domain/entities/account_order.dart';
+import '../../domain/entities/checkout_confirmation.dart';
 import '../../domain/entities/order_checkout.dart';
 import '../../domain/entities/order_checkout_context.dart';
 import '../../domain/use_cases/create_order_use_case.dart';
 import '../../domain/use_cases/get_order_checkout_context_use_case.dart';
-import '../../domain/use_cases/get_order_use_case.dart';
+import '../../domain/use_cases/confirm_checkout_use_case.dart';
 import '../../domain/use_cases/resume_pending_order_checkout_use_case.dart';
 
 typedef CheckoutDelay = Future<void> Function(Duration duration);
@@ -40,9 +40,9 @@ final class CheckoutVerifying extends CheckoutState {
 }
 
 final class CheckoutPaid extends CheckoutState {
-  const CheckoutPaid(this.order);
+  const CheckoutPaid(this.confirmation);
 
-  final AccountOrder order;
+  final CheckoutConfirmation confirmation;
 }
 
 final class CheckoutCancelled extends CheckoutState {
@@ -71,16 +71,16 @@ class CheckoutCubit extends Cubit<CheckoutState> {
   CheckoutCubit({
     required CreateOrderUseCase createOrder,
     required GetOrderCheckoutContextUseCase getCheckoutContext,
-    required GetOrderUseCase getOrder,
+    required ConfirmCheckoutUseCase confirmCheckout,
     required ResumePendingOrderCheckoutUseCase resumePendingOrderCheckout,
     required ProfileRepository profileRepository,
-    Duration verificationInterval = const Duration(seconds: 2),
-    int verificationAttempts = 6,
+    Duration verificationInterval = const Duration(seconds: 1),
+    int verificationAttempts = 5,
     CheckoutDelay verificationDelay = _defaultCheckoutDelay,
   })  : assert(verificationAttempts > 0),
         _createOrder = createOrder,
         _getCheckoutContext = getCheckoutContext,
-        _getOrder = getOrder,
+        _confirmCheckout = confirmCheckout,
         _resumePendingOrderCheckout = resumePendingOrderCheckout,
         _profileRepository = profileRepository,
         _verificationInterval = verificationInterval,
@@ -90,7 +90,7 @@ class CheckoutCubit extends Cubit<CheckoutState> {
 
   final CreateOrderUseCase _createOrder;
   final GetOrderCheckoutContextUseCase _getCheckoutContext;
-  final GetOrderUseCase _getOrder;
+  final ConfirmCheckoutUseCase _confirmCheckout;
   final ResumePendingOrderCheckoutUseCase _resumePendingOrderCheckout;
   final ProfileRepository _profileRepository;
   final Duration _verificationInterval;
@@ -188,23 +188,32 @@ class CheckoutCubit extends Cubit<CheckoutState> {
 
     for (int attempt = 0; attempt < _verificationAttempts; attempt++) {
       if (isClosed) return;
-      final Result<AccountOrder> result = await _getOrder(
-        GetOrderParams(checkout.orderId),
+      final Result<CheckoutConfirmation> result = await _confirmCheckout(
+        ConfirmCheckoutParams(checkout.checkoutSessionId),
       );
       if (isClosed) return;
 
       switch (result) {
-        case Success<AccountOrder>(value: final order):
+        case Success<CheckoutConfirmation>(value: final confirmation):
           lastFailure = null;
-          if (order.paymentStatus == 1) {
-            emit(CheckoutPaid(order));
+          if (confirmation.orderId.toLowerCase() !=
+              checkout.orderId.toLowerCase()) {
+            emit(
+              CheckoutFailure(
+                StateError('Checkout confirmation returned another order.'),
+              ),
+            );
             return;
           }
-          if (order.paymentStatus >= 2) {
+          if (confirmation.paid) {
+            emit(CheckoutPaid(confirmation));
+            return;
+          }
+          if (!confirmation.pending) {
             emit(const CheckoutPaymentFailed());
             return;
           }
-        case ResultFailure<AccountOrder>(
+        case ResultFailure<CheckoutConfirmation>(
             message: final message,
             cause: final cause,
           ):
@@ -220,7 +229,7 @@ class CheckoutCubit extends Cubit<CheckoutState> {
     if (lastFailure != null) {
       emit(CheckoutFailure(lastFailure));
     } else {
-      emit(const CheckoutPaymentPending());
+      emit(const CheckoutPaymentFailed());
     }
   }
 
@@ -241,8 +250,7 @@ _CheckoutReturnKind _checkoutReturnKind(Uri uri, OrderCheckout checkout) {
     return _CheckoutReturnKind.invalid;
   }
 
-  final String returnedOrderId =
-      uri.queryParameters['orderId']?.trim() ?? '';
+  final String returnedOrderId = uri.queryParameters['orderId']?.trim() ?? '';
   if (returnedOrderId.isEmpty ||
       returnedOrderId.toLowerCase() != checkout.orderId.toLowerCase()) {
     return _CheckoutReturnKind.invalid;
@@ -252,16 +260,6 @@ _CheckoutReturnKind _checkoutReturnKind(Uri uri, OrderCheckout checkout) {
     case '/cancel':
       return _CheckoutReturnKind.cancelled;
     case '/success':
-      final String returnedSessionId =
-          (uri.queryParameters['sessionId'] ??
-                  uri.queryParameters['session_id'])
-              ?.trim() ??
-          '';
-      if (returnedSessionId.isNotEmpty &&
-          (checkout.checkoutSessionId.isEmpty ||
-              returnedSessionId != checkout.checkoutSessionId)) {
-        return _CheckoutReturnKind.invalid;
-      }
       return _CheckoutReturnKind.success;
     default:
       return _CheckoutReturnKind.invalid;
