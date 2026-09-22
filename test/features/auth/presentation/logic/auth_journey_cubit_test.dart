@@ -1,10 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:quraaa/features/auth/data/data_sources/auth_local_data_source.dart';
+import 'package:quraaa/features/auth/domain/entities/auth_journey.dart';
+import 'package:quraaa/features/auth/domain/repositories/auth_journey_repository.dart';
 import 'package:quraaa/features/auth/presentation/logic/auth_journey_cubit.dart';
 
 void main() {
   test('moveFromInterestsToAge saves current and previous stages', () async {
-    final _FakeAuthLocalDataSource authJourney = _FakeAuthLocalDataSource();
+    final _FakeAuthJourneyRepository authJourney = _FakeAuthJourneyRepository();
     final AuthJourneyCubit cubit = AuthJourneyCubit(authJourney: authJourney);
     addTearDown(cubit.close);
 
@@ -15,7 +16,7 @@ void main() {
   });
 
   test('enterOnboardingAge saves onboarding age as current stage', () async {
-    final _FakeAuthLocalDataSource authJourney = _FakeAuthLocalDataSource();
+    final _FakeAuthJourneyRepository authJourney = _FakeAuthJourneyRepository();
     final AuthJourneyCubit cubit = AuthJourneyCubit(authJourney: authJourney);
     addTearDown(cubit.close);
 
@@ -25,7 +26,7 @@ void main() {
   });
 }
 
-class _FakeAuthLocalDataSource implements AuthLocalDataSource {
+class _FakeAuthJourneyRepository implements AuthJourneyRepository {
   AuthJourneyStage? currentStage;
   AuthJourneyStage? previousStage;
 
@@ -39,65 +40,19 @@ class _FakeAuthLocalDataSource implements AuthLocalDataSource {
   }
 
   @override
-  Future<void> clearSession() async {}
-
-  @override
-  Future<String?> getAccessToken() async => null;
-
-  @override
-  Future<DateTime?> getAccessTokenExpiration() async => null;
-
-  @override
-  Future<Map<String, Object?>> getCachedUser() async => <String, Object?>{};
-
-  @override
-  Future<AuthJourneyStage?> getCurrentStage() async => currentStage;
-
-  @override
   Future<String?> getLastPhoneIsoCode() async => null;
 
   @override
   Future<String?> getLastPhoneNumber() async => null;
 
   @override
-  Future<AuthJourneyStage?> getPreviousStage() async => previousStage;
-
-  @override
-  Future<String?> getRefreshToken() async => null;
-
-  @override
-  Future<AuthSessionMode?> getSessionMode() async => null;
-
-  @override
-  Future<bool> isAuthSeen() async => false;
-
-  @override
-  Future<bool> isAuthenticatedSession() async => false;
-
-  @override
-  Future<bool> isGuestSession() async => false;
-
-  @override
   Future<bool> isLocationPermissionSeen() async => false;
-
-  @override
-  Future<bool> isLoginSeen() async => false;
 
   @override
   Future<bool> isNotificationPermissionSeen() async => false;
 
   @override
-  Future<bool> isRegisterSeen() async => false;
-
-  @override
   Future<void> markAuthSeen() async {}
-
-  @override
-  Future<void> markAuthenticatedSession({
-    String? accessToken,
-    String? refreshToken,
-    DateTime? accessTokenExpiration,
-  }) async {}
 
   @override
   Future<void> markGuestSession() async {}

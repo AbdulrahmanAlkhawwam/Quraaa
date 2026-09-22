@@ -383,7 +383,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   ) async {
     // Local cleanup must still happen when the remote token is expired.
     await _messagingService?.unregisterDeviceToken();
-    await _logout(const NoParams());
+    await _logout();
     await _storageService.clearAll();
     emit(const SettingsLogoutSuccess());
   }

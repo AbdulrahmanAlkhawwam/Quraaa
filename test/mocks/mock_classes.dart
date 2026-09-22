@@ -6,6 +6,7 @@ import 'package:quraaa/core/services/storage_service.dart';
 import 'package:quraaa/core/sync/sync_manager.dart';
 import 'package:quraaa/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:quraaa/features/auth/data/data_sources/auth_remote_data_source.dart';
+import 'package:quraaa/features/auth/domain/repositories/auth_journey_repository.dart';
 import 'package:quraaa/features/auth/domain/repositories/auth_repository.dart';
 import 'package:quraaa/features/auth/data/data_sources/user_local_data_source.dart';
 import 'package:quraaa/features/auth/data/services/auth_session_service.dart';
@@ -38,6 +39,8 @@ class MockGetLibraryBooksUseCase extends Mock
     implements GetLibraryBooksUseCase {}
 
 class MockAuthLocalDataSource extends Mock implements AuthLocalDataSource {}
+
+class MockAuthJourneyRepository extends Mock implements AuthJourneyRepository {}
 
 class MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
 

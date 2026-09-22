@@ -1,5 +1,4 @@
 import '../../../../core/error_monitoring/user_context_provider.dart';
-import '../../domain/entities/user.dart';
 import '../data_sources/auth_local_data_source.dart';
 import '../data_sources/user_local_data_source.dart';
 import '../models/user_model.dart';
@@ -28,7 +27,7 @@ class AuthSessionService {
   final Future<void> Function()? _afterSessionExpired;
 
   Future<void> completeAuthenticatedSession(
-    User user, {
+    UserModel user, {
     required String fallbackId,
     String? fallbackName,
     String? fallbackPhone,
@@ -76,7 +75,7 @@ class AuthSessionService {
 
   /// Persists rotated tokens after a successful refresh operation.
   Future<String?> refreshAuthenticatedSession(
-    User user, {
+    UserModel user, {
     required String previousRefreshToken,
   }) async {
     final String? accessToken = _nonEmpty(user.accessToken);
@@ -111,8 +110,8 @@ class AuthSessionService {
     } catch (_) {}
   }
 
-  UserModel _toModel(User user, {required String? phone}) {
-    if (user is UserModel && user.phoneNumber == phone) {
+  UserModel _toModel(UserModel user, {required String? phone}) {
+    if (user.phoneNumber == phone) {
       return user;
     }
     return UserModel(
@@ -121,7 +120,6 @@ class AuthSessionService {
       lastName: user.lastName,
       phoneNumber: phone,
       country: user.country,
-      password: user.password,
       interests: user.interests,
       birthday: user.birthday,
       gender: user.gender,

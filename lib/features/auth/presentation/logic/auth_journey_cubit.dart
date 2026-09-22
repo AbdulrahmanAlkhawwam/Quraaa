@@ -1,7 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
 
-import '../../data/data_sources/auth_local_data_source.dart';
+import '../../domain/entities/auth_journey.dart';
+import '../../domain/repositories/auth_journey_repository.dart';
 
 @immutable
 class AuthJourneyState {
@@ -15,11 +16,11 @@ class AuthJourneyState {
 }
 
 class AuthJourneyCubit extends Cubit<AuthJourneyState> {
-  AuthJourneyCubit({required AuthLocalDataSource authJourney})
+  AuthJourneyCubit({required AuthJourneyRepository authJourney})
       : _authJourney = authJourney,
         super(const AuthJourneyState());
 
-  final AuthLocalDataSource _authJourney;
+  final AuthJourneyRepository _authJourney;
 
   Future<void> enterOnboarding() {
     return _saveStage(AuthJourneyStage.onboarding);

@@ -4,11 +4,11 @@ import 'package:meta/meta.dart';
 import '../../../../core/constants/app_routes.dart';
 import '../../../../core/services/location_permission_service.dart';
 import '../../../../core/services/notification_service.dart';
-import '../../data/data_sources/auth_local_data_source.dart';
+import '../../domain/repositories/auth_journey_repository.dart';
 
 class AuthPermissionCubit extends Cubit<AuthPermissionState> {
   AuthPermissionCubit({
-    required AuthLocalDataSource authJourney,
+    required AuthJourneyRepository authJourney,
     required NotificationService notificationService,
     required LocationPermissionService locationPermissionService,
   })  : _authJourney = authJourney,
@@ -16,7 +16,7 @@ class AuthPermissionCubit extends Cubit<AuthPermissionState> {
         _locationPermissionService = locationPermissionService,
         super(const AuthPermissionState());
 
-  final AuthLocalDataSource _authJourney;
+  final AuthJourneyRepository _authJourney;
   final NotificationService _notificationService;
   final LocationPermissionService _locationPermissionService;
 

@@ -1,38 +1,43 @@
-import '../../../../core/architecture/base_repository.dart';
-import '../../../../core/architecture/result.dart';
+import 'package:fpdart/fpdart.dart';
+
 import '../../../../core/errors/error_mapper.dart';
 import '../../../../core/errors/failures.dart';
+import '../../../../core/use_cases/use_case.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../data_sources/auth_local_data_source.dart';
 import '../data_sources/auth_remote_data_source.dart';
 import '../mappers/auth_mapper.dart';
+import '../models/user_model.dart';
+import '../services/auth_session_service.dart';
 
-class AuthRepositoryImpl extends BaseRepository<User>
-    implements AuthRepository {
-  const AuthRepositoryImpl(this._remoteDataSource, this._localDataSource);
+class AuthRepositoryImpl implements AuthRepository {
+  const AuthRepositoryImpl(
+    this._remoteDataSource,
+    this._localDataSource,
+    this._sessionService,
+  );
 
   final AuthRemoteDataSource _remoteDataSource;
   final AuthLocalDataSource _localDataSource;
+  final AuthSessionService _sessionService;
 
   @override
-  Future<Result<User>> login({
+  FutureEither<User> login({
     required String phoneNumber,
     required String password,
-  }) async {
-    try {
-      final response = await _remoteDataSource.login(
+  }) {
+    return _guard(() async {
+      final Map<String, Object?> response = await _remoteDataSource.login(
         phoneNumber: phoneNumber,
         password: password,
       );
-      return Success(AuthMapper.fromJson(response));
-    } catch (error) {
-      return _mapError(error);
-    }
+      return _signIn(AuthMapper.fromJson(response), phoneNumber: phoneNumber);
+    });
   }
 
   @override
-  Future<Result<User>> register({
+  FutureEither<User> register({
     String? firstName,
     String? lastName,
     String? phoneNumber,
@@ -40,9 +45,9 @@ class AuthRepositoryImpl extends BaseRepository<User>
     int? gender,
     String? dateOfBirth,
     List<String>? categoryIds,
-  }) async {
-    try {
-      final response = await _remoteDataSource.register(
+  }) {
+    return _guard(() async {
+      final Map<String, Object?> response = await _remoteDataSource.register(
         firstName: firstName,
         lastName: lastName,
         phoneNumber: phoneNumber,
@@ -51,117 +56,129 @@ class AuthRepositoryImpl extends BaseRepository<User>
         dateOfBirth: dateOfBirth,
         categoryIds: categoryIds,
       );
-      return Success(AuthMapper.fromJson(response));
-    } catch (error) {
-      return _mapError(error);
-    }
+      return AuthMapper.fromJson(response).toEntity();
+    });
   }
 
   @override
-  Future<Result<User>> refreshToken({required String refreshToken}) async {
-    try {
-      final response = await _remoteDataSource.refreshToken(
-        refreshToken: refreshToken,
-      );
-      return Success(AuthMapper.fromJson(response));
-    } catch (error) {
-      return _mapError(error);
-    }
+  FutureEither<String> refreshSession() {
+    return _guard(() async {
+      final String? refreshToken = await _localDataSource.getRefreshToken();
+      if (refreshToken == null || refreshToken.isEmpty) {
+        throw const _SessionRefreshUnavailable('No refresh token stored.');
+      }
+      final Map<String, Object?> response = await _remoteDataSource
+          .refreshToken(refreshToken: refreshToken);
+      final String? accessToken = await _sessionService
+          .refreshAuthenticatedSession(
+            AuthMapper.fromJson(response),
+            previousRefreshToken: refreshToken,
+          );
+      if (accessToken == null) {
+        throw const _SessionRefreshUnavailable(
+          'Refresh response carried no access token.',
+        );
+      }
+      return accessToken;
+    });
   }
 
   @override
-  Future<Result<bool>> logout() async {
-    try {
+  FutureEither<bool> logout() {
+    return _guard(() async {
       final String? refreshToken = await _localDataSource.getRefreshToken();
       await _remoteDataSource.logout(refreshToken: refreshToken);
-      return const Success<bool>(true);
-    } catch (error) {
-      return _mapError<bool>(error);
-    }
+      return true;
+    });
   }
 
   @override
-  Future<Result<User>> verifyOtp({
+  FutureEither<User> verifyOtp({
     required String phoneNumber,
     required String code,
-  }) async {
-    try {
-      final response = await _remoteDataSource.verifyOtp(
+  }) {
+    return _guard(() async {
+      final Map<String, Object?> response = await _remoteDataSource.verifyOtp(
         phoneNumber: phoneNumber,
         code: code,
       );
-      return Success(AuthMapper.fromJson(response));
-    } catch (error) {
-      return _mapError(error);
-    }
+      return _signIn(AuthMapper.fromJson(response), phoneNumber: phoneNumber);
+    });
   }
 
   @override
-  Future<Result<bool>> sendOtp({required String phoneNumber}) async {
-    try {
+  FutureEither<bool> sendOtp({required String phoneNumber}) {
+    return _guard(() async {
       await _remoteDataSource.sendOtp(phoneNumber: phoneNumber);
-      return const Success<bool>(true);
-    } catch (error) {
-      return _mapError<bool>(error);
-    }
+      return true;
+    });
   }
 
   @override
-  Future<Result<bool>> forgotPassword({required String phoneNumber}) async {
-    try {
+  FutureEither<bool> forgotPassword({required String phoneNumber}) {
+    return _guard(() async {
       await _remoteDataSource.forgotPassword(phoneNumber: phoneNumber);
-      return const Success(true);
-    } catch (error) {
-      return _mapError(error);
-    }
+      return true;
+    });
   }
 
   @override
-  Future<Result<bool>> resetPassword({
+  FutureEither<bool> resetPassword({
     required String phoneNumber,
     required String code,
     required String newPassword,
-  }) async {
-    try {
+  }) {
+    return _guard(() async {
       await _remoteDataSource.resetPassword(
         phoneNumber: phoneNumber,
         code: code,
         newPassword: newPassword,
       );
-      return const Success(true);
-    } catch (error) {
-      return _mapError(error);
-    }
+      return true;
+    });
   }
 
   @override
-  Future<Result<bool>> changePassword({
+  FutureEither<bool> changePassword({
     required String oldPassword,
     required String newPassword,
-  }) async {
-    try {
+  }) {
+    return _guard(() async {
       await _remoteDataSource.changePassword(
         oldPassword: oldPassword,
         newPassword: newPassword,
       );
-      return const Success(true);
+      return true;
+    });
+  }
+
+  /// Persists the session for a freshly signed-in user, then hands back the
+  /// token-free entity. The phone number the user typed is the fallback
+  /// identity when the backend omits id or phone.
+  Future<User> _signIn(UserModel model, {required String phoneNumber}) async {
+    await _sessionService.completeAuthenticatedSession(
+      model,
+      fallbackId: phoneNumber,
+      fallbackPhone: phoneNumber,
+    );
+    return model.toEntity();
+  }
+
+  /// One try/catch for every call: anything thrown below the domain boundary
+  /// becomes a typed [Failure] via [ErrorMapper].
+  Future<Either<Failure, T>> _guard<T>(Future<T> Function() body) async {
+    try {
+      return Right(await body());
+    } on _SessionRefreshUnavailable catch (e) {
+      return Left(TokenExpiredFailure(message: e.message));
     } catch (error) {
-      return _mapError(error);
+      return Left(ErrorMapper.map(error));
     }
   }
+}
 
-  @override
-  Future<User> getCached() async {
-    return const User();
-  }
+class _SessionRefreshUnavailable implements Exception {
+  const _SessionRefreshUnavailable(this.message);
 
-  @override
-  Future<User> sync() async {
-    return const User();
-  }
-
-  ResultFailure<T> _mapError<T>(Object error) {
-    final Failure failure = ErrorMapper.map(error);
-    return ResultFailure(failure.message, cause: failure);
-  }
+  final String message;
 }

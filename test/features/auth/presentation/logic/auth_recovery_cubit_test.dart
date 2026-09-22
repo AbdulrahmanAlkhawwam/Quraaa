@@ -1,25 +1,19 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:quraaa/core/constants/app_routes.dart';
-import 'package:quraaa/core/architecture/result.dart';
-import 'package:quraaa/features/auth/data/data_sources/auth_local_data_source.dart';
-import 'package:quraaa/features/auth/data/services/auth_session_service.dart';
+import 'package:quraaa/core/errors/failures.dart';
+import 'package:quraaa/core/use_cases/use_case.dart';
 import 'package:quraaa/features/auth/domain/domain.dart';
 import 'package:quraaa/features/auth/presentation/logic/auth_recovery_cubit.dart';
 
 void main() {
-  setUpAll(() => registerFallbackValue(const User()));
-
   test(
     'requestPasswordReset saves phone and navigates to reset password',
     () async {
       final _FakeAuthRepository repository = _FakeAuthRepository();
-      final _FakeAuthLocalDataSource authJourney = _FakeAuthLocalDataSource();
-      final AuthRecoveryCubit cubit = _createCubit(
-        repository,
-        authJourney,
-        _MockAuthSessionService(),
-      );
+      final _FakeAuthJourneyRepository authJourney =
+          _FakeAuthJourneyRepository();
+      final AuthRecoveryCubit cubit = _createCubit(repository, authJourney);
       addTearDown(cubit.close);
 
       await cubit.requestPasswordReset(
@@ -37,14 +31,14 @@ void main() {
     },
   );
 
-  test('resetPassword emits failure when repository fails', () async {
+  test('resetPassword emits the typed failure when repository fails', () async {
+    const Failure failure = UnknownFailure(message: 'reset failed');
     final _FakeAuthRepository repository = _FakeAuthRepository(
-      resetPasswordResult: const ResultFailure<bool>('reset failed'),
+      resetPasswordResult: const Left(failure),
     );
     final AuthRecoveryCubit cubit = _createCubit(
       repository,
-      _FakeAuthLocalDataSource(),
-      _MockAuthSessionService(),
+      _FakeAuthJourneyRepository(),
     );
     addTearDown(cubit.close);
 
@@ -55,25 +49,14 @@ void main() {
     );
 
     expect(cubit.state.status, AuthRecoveryStatus.failure);
-    expect(cubit.state.error, 'reset failed');
+    expect(cubit.state.error, failure);
   });
 
-  test('verifyOtp marks authenticated session and navigates home', () async {
+  test('verifyOtp navigates home once the repository signs in', () async {
     final _FakeAuthRepository repository = _FakeAuthRepository();
-    final _FakeAuthLocalDataSource authJourney = _FakeAuthLocalDataSource();
-    final _MockAuthSessionService authSessionService =
-        _MockAuthSessionService();
-    when(
-      () => authSessionService.completeAuthenticatedSession(
-        any(),
-        fallbackId: any(named: 'fallbackId'),
-        fallbackPhone: any(named: 'fallbackPhone'),
-      ),
-    ).thenAnswer((_) async {});
     final AuthRecoveryCubit cubit = _createCubit(
       repository,
-      authJourney,
-      authSessionService,
+      _FakeAuthJourneyRepository(),
     );
     addTearDown(cubit.close);
 
@@ -82,20 +65,31 @@ void main() {
     expect(cubit.state.status, AuthRecoveryStatus.navigate);
     expect(cubit.state.success, AuthRecoverySuccess.otpVerified);
     expect(cubit.state.nextRoute, AppRoutes.home);
-    verify(
-      () => authSessionService.completeAuthenticatedSession(
-        const User(accessToken: 'access', refreshToken: 'refresh'),
-        fallbackId: '+963999111222',
-        fallbackPhone: '+963999111222',
-      ),
-    ).called(1);
+    expect(repository.verifiedPhoneNumber, '+963999111222');
+  });
+
+  test('verifyOtp surfaces the failure and stays put on error', () async {
+    const Failure failure = UnauthorizedFailure(message: 'bad code');
+    final _FakeAuthRepository repository = _FakeAuthRepository(
+      verifyOtpResult: const Left(failure),
+    );
+    final AuthRecoveryCubit cubit = _createCubit(
+      repository,
+      _FakeAuthJourneyRepository(),
+    );
+    addTearDown(cubit.close);
+
+    await cubit.verifyOtp(phoneNumber: '+963999111222', code: '000000');
+
+    expect(cubit.state.status, AuthRecoveryStatus.failure);
+    expect(cubit.state.error, failure);
+    expect(cubit.state.nextRoute, isNull);
   });
 }
 
 AuthRecoveryCubit _createCubit(
   _FakeAuthRepository repository,
-  _FakeAuthLocalDataSource authJourney,
-  AuthSessionService authSessionService,
+  _FakeAuthJourneyRepository authJourney,
 ) {
   return AuthRecoveryCubit(
     forgotPasswordUseCase: ForgotPasswordUseCase(repository),
@@ -103,70 +97,67 @@ AuthRecoveryCubit _createCubit(
     verifyOtpUseCase: VerifyOtpUseCase(repository),
     sendOtpUseCase: SendOtpUseCase(repository),
     authJourney: authJourney,
-    authSessionService: authSessionService,
   );
 }
 
-class _MockAuthSessionService extends Mock implements AuthSessionService {}
-
 class _FakeAuthRepository implements AuthRepository {
-  _FakeAuthRepository({this.resetPasswordResult = const Success<bool>(true)});
+  _FakeAuthRepository({
+    this.resetPasswordResult = const Right(true),
+    this.verifyOtpResult = const Right(User(phoneNumber: '+963999111222')),
+  });
 
-  final Result<bool> resetPasswordResult;
+  final Either<Failure, bool> resetPasswordResult;
+  final Either<Failure, User> verifyOtpResult;
+  String? verifiedPhoneNumber;
+
+  static const Failure _unused = UnknownFailure(
+    message: 'not used in recovery tests',
+  );
 
   @override
-  Future<Result<bool>> sendOtp({required String phoneNumber}) async {
-    return const Success<bool>(true);
-  }
+  FutureEither<bool> sendOtp({required String phoneNumber}) async =>
+      const Right(true);
 
   @override
-  Future<Result<bool>> logout() async => const Success<bool>(true);
+  FutureEither<bool> logout() async => const Right(true);
 
   @override
-  Future<Result<bool>> changePassword({
+  FutureEither<bool> changePassword({
     required String oldPassword,
     required String newPassword,
-  }) async => const Success<bool>(true);
+  }) async => const Right(true);
 
   @override
-  Future<Result<bool>> forgotPassword({required String phoneNumber}) async {
-    return const Success<bool>(true);
-  }
+  FutureEither<bool> forgotPassword({required String phoneNumber}) async =>
+      const Right(true);
 
   @override
-  Future<Result<bool>> resetPassword({
+  FutureEither<bool> resetPassword({
     required String phoneNumber,
     required String code,
     required String newPassword,
-  }) async {
-    return resetPasswordResult;
-  }
+  }) async => resetPasswordResult;
 
   @override
-  Future<Result<User>> verifyOtp({
+  FutureEither<User> verifyOtp({
     required String phoneNumber,
     required String code,
   }) async {
-    return const Success<User>(
-      User(accessToken: 'access', refreshToken: 'refresh'),
-    );
+    verifiedPhoneNumber = phoneNumber;
+    return verifyOtpResult;
   }
 
   @override
-  Future<Result<User>> login({
+  FutureEither<User> login({
     required String phoneNumber,
     required String password,
-  }) async {
-    return const ResultFailure<User>('not used in recovery tests');
-  }
+  }) async => const Left(_unused);
 
   @override
-  Future<Result<User>> refreshToken({required String refreshToken}) async {
-    return const ResultFailure<User>('not used in recovery tests');
-  }
+  FutureEither<String> refreshSession() async => const Left(_unused);
 
   @override
-  Future<Result<User>> register({
+  FutureEither<User> register({
     String? firstName,
     String? lastName,
     String? phoneNumber,
@@ -174,16 +165,12 @@ class _FakeAuthRepository implements AuthRepository {
     int? gender,
     String? dateOfBirth,
     List<String>? categoryIds,
-  }) async {
-    return const ResultFailure<User>('not used in recovery tests');
-  }
+  }) async => const Left(_unused);
 }
 
-class _FakeAuthLocalDataSource implements AuthLocalDataSource {
+class _FakeAuthJourneyRepository implements AuthJourneyRepository {
   String? lastPhoneNumber;
   String? lastPhoneIsoCode;
-  String? accessToken;
-  String? refreshToken;
   AuthJourneyStage? currentStage;
   AuthJourneyStage? previousStage;
 
@@ -191,16 +178,6 @@ class _FakeAuthLocalDataSource implements AuthLocalDataSource {
   Future<void> saveLastPhoneNumber(String phoneNumber, String isoCode) async {
     lastPhoneNumber = phoneNumber;
     lastPhoneIsoCode = isoCode;
-  }
-
-  @override
-  Future<void> markAuthenticatedSession({
-    String? accessToken,
-    String? refreshToken,
-    DateTime? accessTokenExpiration,
-  }) async {
-    this.accessToken = accessToken;
-    this.refreshToken = refreshToken;
   }
 
   @override
@@ -213,55 +190,16 @@ class _FakeAuthLocalDataSource implements AuthLocalDataSource {
   }
 
   @override
-  Future<void> clearSession() async {}
-
-  @override
-  Future<String?> getAccessToken() async => accessToken;
-
-  @override
-  Future<Map<String, Object?>> getCachedUser() async => <String, Object?>{};
-
-  @override
-  Future<AuthJourneyStage?> getCurrentStage() async => currentStage;
-
-  @override
   Future<String?> getLastPhoneIsoCode() async => lastPhoneIsoCode;
 
   @override
   Future<String?> getLastPhoneNumber() async => lastPhoneNumber;
 
   @override
-  Future<AuthJourneyStage?> getPreviousStage() async => previousStage;
-
-  @override
-  Future<String?> getRefreshToken() async => refreshToken;
-
-  @override
-  Future<AuthSessionMode?> getSessionMode() async => null;
-
-  @override
-  Future<DateTime?> getAccessTokenExpiration() async => null;
-
-  @override
-  Future<bool> isAuthSeen() async => false;
-
-  @override
-  Future<bool> isAuthenticatedSession() async => accessToken != null;
-
-  @override
-  Future<bool> isGuestSession() async => false;
-
-  @override
   Future<bool> isLocationPermissionSeen() async => false;
 
   @override
-  Future<bool> isLoginSeen() async => false;
-
-  @override
   Future<bool> isNotificationPermissionSeen() async => false;
-
-  @override
-  Future<bool> isRegisterSeen() async => false;
 
   @override
   Future<void> markAuthSeen() async {}

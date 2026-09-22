@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fpdart/fpdart.dart';
 
-import '../../../../core/architecture/result.dart';
+import '../../../../core/errors/failures.dart';
 import '../../domain/use_cases/change_password_use_case.dart';
 
 enum ChangePasswordStatus { initial, loading, success, failure }
@@ -30,15 +31,15 @@ class ChangePasswordCubit extends Cubit<ChangePasswordState> {
     if (state.isLoading) return;
 
     emit(const ChangePasswordState(status: ChangePasswordStatus.loading));
-    final Result<bool> result = await _changePasswordUseCase(
+    final Either<Failure, bool> result = await _changePasswordUseCase(
       ChangePasswordParams(oldPassword: oldPassword, newPassword: newPassword),
     );
 
     result.fold(
-      (ResultFailure<bool> failure) => emit(
+      (Failure failure) => emit(
         ChangePasswordState(
           status: ChangePasswordStatus.failure,
-          error: failure.cause ?? failure.message,
+          error: failure,
         ),
       ),
       (_) =>

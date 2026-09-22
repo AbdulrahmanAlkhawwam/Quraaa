@@ -6,8 +6,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/auth/data/data_sources/auth_local_data_source.dart';
 import '../../features/auth/data/data_sources/user_local_data_source.dart';
 import '../../features/auth/data/data_sources/auth_remote_data_source.dart';
+import '../../features/auth/data/repositories/auth_journey_repository_impl.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/data/services/auth_session_service.dart';
+import '../../features/auth/domain/repositories/auth_journey_repository.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/onboarding/data/data_sources/onboarding_local_data_source.dart';
 import '../../features/onboarding/data/repositories/onboarding_repository_impl.dart';
@@ -176,6 +178,9 @@ void registerCoreDependencies() {
   sl.registerLazySingleton<AuthLocalDataSource>(
     () => AuthLocalDataSourceImpl(sl<StorageService>()),
   );
+  sl.registerLazySingleton<AuthJourneyRepository>(
+    () => AuthJourneyRepositoryImpl(sl<AuthLocalDataSource>()),
+  );
 
   sl.registerLazySingleton<UserLocalDataSource>(
     () => UserLocalDataSourceImpl(sl<StorageService>()),
@@ -244,23 +249,11 @@ void registerCoreDependencies() {
     () => AuthInterceptor(
       sl<AuthLocalDataSource>(),
       baseUrl: AppConfig.apiBaseUrl,
+      // Reads the stored refresh token, rotates the session and returns the
+      // new access token; null tells the interceptor to expire the session.
       onRefreshSession: () async {
-        final String? refreshToken =
-            await sl<AuthLocalDataSource>().getRefreshToken();
-        if (refreshToken == null || refreshToken.isEmpty) {
-          return null;
-        }
-
-        final result = await sl<AuthRepository>().refreshToken(
-          refreshToken: refreshToken,
-        );
-        return result.fold<Future<String?>>(
-          (_) async => null,
-          (user) => sl<AuthSessionService>().refreshAuthenticatedSession(
-            user,
-            previousRefreshToken: refreshToken,
-          ),
-        );
+        final result = await sl<AuthRepository>().refreshSession();
+        return result.fold((_) => null, (String accessToken) => accessToken);
       },
       onRetryRequest: (RequestOptions options) =>
           sl<Dio>().fetch<dynamic>(options),
@@ -380,6 +373,7 @@ void registerFeatureDependencies() {
     () => AuthRepositoryImpl(
       sl<AuthRemoteDataSource>(),
       sl<AuthLocalDataSource>(),
+      sl<AuthSessionService>(),
     ),
   );
 
@@ -444,22 +438,21 @@ void registerFeatureDependencies() {
     () => AuthBloc(
       loginUseCase: sl<LoginUseCase>(),
       registerUseCase: sl<RegisterUseCase>(),
-      authJourney: sl<AuthLocalDataSource>(),
-      authSessionService: sl<AuthSessionService>(),
+      authJourney: sl<AuthJourneyRepository>(),
       userContext: sl<UserContextProvider>(),
     ),
   );
 
   sl.registerFactory<AuthPermissionCubit>(
     () => AuthPermissionCubit(
-      authJourney: sl<AuthLocalDataSource>(),
+      authJourney: sl<AuthJourneyRepository>(),
       notificationService: sl<NotificationService>(),
       locationPermissionService: sl<LocationPermissionService>(),
     ),
   );
 
   sl.registerFactory<AuthJourneyCubit>(
-    () => AuthJourneyCubit(authJourney: sl<AuthLocalDataSource>()),
+    () => AuthJourneyCubit(authJourney: sl<AuthJourneyRepository>()),
   );
 
   sl.registerFactory<AuthRegistrationCubit>(
@@ -479,8 +472,7 @@ void registerFeatureDependencies() {
       resetPasswordUseCase: sl<ResetPasswordUseCase>(),
       verifyOtpUseCase: sl<VerifyOtpUseCase>(),
       sendOtpUseCase: sl<SendOtpUseCase>(),
-      authJourney: sl<AuthLocalDataSource>(),
-      authSessionService: sl<AuthSessionService>(),
+      authJourney: sl<AuthJourneyRepository>(),
     ),
   );
 

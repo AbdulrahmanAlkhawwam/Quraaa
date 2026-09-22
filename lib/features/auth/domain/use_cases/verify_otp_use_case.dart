@@ -1,5 +1,4 @@
-import '../../../../core/architecture/result.dart';
-import '../../../../core/architecture/use_case.dart';
+import '../../../../core/use_cases/use_case.dart';
 import '../entities/user.dart';
 import '../repositories/auth_repository.dart';
 
@@ -10,13 +9,13 @@ class VerifyOtpParams {
   final String code;
 }
 
-class VerifyOtpUseCase extends UseCase<Result<User>, VerifyOtpParams> {
+class VerifyOtpUseCase extends UseCase<User, VerifyOtpParams> {
   const VerifyOtpUseCase(this._repository);
 
   final AuthRepository _repository;
 
   @override
-  Future<Result<User>> call(VerifyOtpParams params) {
+  FutureEither<User> call(VerifyOtpParams params) {
     return _repository.verifyOtp(
       phoneNumber: params.phoneNumber,
       code: params.code,

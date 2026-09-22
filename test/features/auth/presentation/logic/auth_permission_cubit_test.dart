@@ -13,13 +13,13 @@ class MockLocationPermissionService extends Mock
     implements LocationPermissionService {}
 
 void main() {
-  late MockAuthLocalDataSource authJourney;
+  late MockAuthJourneyRepository authJourney;
   late MockNotificationService notificationService;
   late MockLocationPermissionService locationPermissionService;
   late AuthPermissionCubit cubit;
 
   setUp(() {
-    authJourney = MockAuthLocalDataSource();
+    authJourney = MockAuthJourneyRepository();
     notificationService = MockNotificationService();
     locationPermissionService = MockLocationPermissionService();
     cubit = AuthPermissionCubit(

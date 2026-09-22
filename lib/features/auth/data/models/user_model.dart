@@ -3,6 +3,8 @@ import 'dart:convert';
 import '../../../../core/domain/entities/location.dart';
 import '../../domain/entities/user.dart';
 
+/// Wire and cache shape of [User]. Carries the session tokens the backend
+/// returns on sign-in, which the entity intentionally does not expose.
 class UserModel extends User {
   const UserModel({
     super.id,
@@ -10,17 +12,20 @@ class UserModel extends User {
     super.lastName,
     super.phoneNumber,
     super.country,
-    super.password,
     super.interests,
     super.birthday,
     super.gender,
     super.location,
     super.language,
     super.deviceAndroidVersion,
-    super.accessToken,
-    super.refreshToken,
-    super.accessTokenExpiration,
+    this.accessToken,
+    this.refreshToken,
+    this.accessTokenExpiration,
   });
+
+  final String? accessToken;
+  final String? refreshToken;
+  final DateTime? accessTokenExpiration;
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
@@ -29,7 +34,6 @@ class UserModel extends User {
       lastName: json['lastName'] as String?,
       phoneNumber: json['phoneNumber'] as String?,
       country: json['country'] as String?,
-      password: json['password'] as String?,
       interests: (json['interests'] as List<dynamic>?)?.cast<String>(),
       birthday: json['birthday'] as String? ?? json['dateOfBirth'] as String?,
       gender: json['gender'] as String?,
@@ -46,6 +50,24 @@ class UserModel extends User {
     );
   }
 
+  /// Plain entity with the session tokens stripped, for everything above the
+  /// data layer.
+  User toEntity() {
+    return User(
+      id: id,
+      firstName: firstName,
+      lastName: lastName,
+      phoneNumber: phoneNumber,
+      country: country,
+      interests: interests,
+      birthday: birthday,
+      gender: gender,
+      location: location,
+      language: language,
+      deviceAndroidVersion: deviceAndroidVersion,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'id': id,
@@ -53,7 +75,6 @@ class UserModel extends User {
       'lastName': lastName,
       'phoneNumber': phoneNumber,
       'country': country,
-      'password': password,
       'interests': interests,
       'birthday': birthday,
       'gender': gender,
@@ -81,7 +102,6 @@ class UserModel extends User {
     String? lastName,
     String? phoneNumber,
     String? country,
-    String? password,
     List<String>? interests,
     String? birthday,
     String? gender,
@@ -98,7 +118,6 @@ class UserModel extends User {
       lastName: lastName ?? this.lastName,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       country: country ?? this.country,
-      password: password ?? this.password,
       interests: interests ?? this.interests,
       birthday: birthday ?? this.birthday,
       gender: gender ?? this.gender,
@@ -111,4 +130,12 @@ class UserModel extends User {
           accessTokenExpiration ?? this.accessTokenExpiration,
     );
   }
+
+  @override
+  List<Object?> get props => <Object?>[
+    ...super.props,
+    accessToken,
+    refreshToken,
+    accessTokenExpiration,
+  ];
 }

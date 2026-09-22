@@ -1,5 +1,4 @@
-import '../../../../core/architecture/result.dart';
-import '../../../../core/architecture/use_case.dart';
+import '../../../../core/use_cases/use_case.dart';
 import '../entities/user.dart';
 import '../repositories/auth_repository.dart';
 
@@ -23,13 +22,13 @@ class RegisterParams {
   final List<String>? categoryIds;
 }
 
-class RegisterUseCase extends UseCase<Result<User>, RegisterParams> {
+class RegisterUseCase extends UseCase<User, RegisterParams> {
   const RegisterUseCase(this._repository);
 
   final AuthRepository _repository;
 
   @override
-  Future<Result<User>> call(RegisterParams params) {
+  FutureEither<User> call(RegisterParams params) {
     return _repository.register(
       firstName: params.firstName,
       lastName: params.lastName,

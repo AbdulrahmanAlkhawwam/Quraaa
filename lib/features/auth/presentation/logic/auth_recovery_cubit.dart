@@ -1,13 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:meta/meta.dart';
 
 import '../../../../core/constants/app_routes.dart';
-import '../../../../core/architecture/result.dart';
-import '../../data/data_sources/auth_local_data_source.dart';
-import '../../data/services/auth_session_service.dart';
+import '../../../../core/errors/failures.dart';
+import '../../domain/entities/auth_journey.dart';
 import '../../domain/entities/user.dart';
+import '../../domain/repositories/auth_journey_repository.dart';
 import '../../domain/use_cases/forgot_password_use_case.dart';
 import '../../domain/use_cases/reset_password_use_case.dart';
 import '../../domain/use_cases/send_otp_use_case.dart';
@@ -75,22 +76,19 @@ class AuthRecoveryCubit extends Cubit<AuthRecoveryState> {
     required ResetPasswordUseCase resetPasswordUseCase,
     required VerifyOtpUseCase verifyOtpUseCase,
     required SendOtpUseCase sendOtpUseCase,
-    required AuthLocalDataSource authJourney,
-    required AuthSessionService authSessionService,
+    required AuthJourneyRepository authJourney,
   })  : _forgotPasswordUseCase = forgotPasswordUseCase,
         _resetPasswordUseCase = resetPasswordUseCase,
         _verifyOtpUseCase = verifyOtpUseCase,
         _sendOtpUseCase = sendOtpUseCase,
         _authJourney = authJourney,
-        _authSessionService = authSessionService,
         super(const AuthRecoveryState());
 
   final ForgotPasswordUseCase _forgotPasswordUseCase;
   final ResetPasswordUseCase _resetPasswordUseCase;
   final VerifyOtpUseCase _verifyOtpUseCase;
   final SendOtpUseCase _sendOtpUseCase;
-  final AuthLocalDataSource _authJourney;
-  final AuthSessionService _authSessionService;
+  final AuthJourneyRepository _authJourney;
   Timer? _resendTimer;
 
   Future<void> requestPasswordReset({
@@ -105,12 +103,12 @@ class AuthRecoveryCubit extends Cubit<AuthRecoveryState> {
       ),
     );
 
-    final Result<bool> result = await _forgotPasswordUseCase(
+    final Either<Failure, bool> result = await _forgotPasswordUseCase(
       ForgotPasswordParams(phoneNumber: phoneNumber),
     );
 
     await result.fold(
-      (ResultFailure<bool> failure) async => _emitFailure(failure),
+      (Failure failure) async => _emitFailure(failure),
       (_) async {
         try {
           await _authJourney.saveLastPhoneNumber(phoneNumber, phoneIsoCode);
@@ -141,7 +139,7 @@ class AuthRecoveryCubit extends Cubit<AuthRecoveryState> {
       ),
     );
 
-    final Result<bool> result = await _resetPasswordUseCase(
+    final Either<Failure, bool> result = await _resetPasswordUseCase(
       ResetPasswordParams(
         phoneNumber: phoneNumber,
         code: code,
@@ -150,7 +148,7 @@ class AuthRecoveryCubit extends Cubit<AuthRecoveryState> {
     );
 
     await result.fold(
-      (ResultFailure<bool> failure) async => _emitFailure(failure),
+      (Failure failure) async => _emitFailure(failure),
       (_) async {
         try {
           await _authJourney.saveJourneyStage(
@@ -179,34 +177,17 @@ class AuthRecoveryCubit extends Cubit<AuthRecoveryState> {
       ),
     );
 
-    final Result<User> result = await _verifyOtpUseCase(
+    // On success the repository has already persisted the session.
+    final Either<Failure, User> result = await _verifyOtpUseCase(
       VerifyOtpParams(phoneNumber: phoneNumber, code: code),
     );
 
-    await result.fold(
-      (ResultFailure<User> failure) async => _emitFailure(failure),
-      (User user) async {
-        try {
-          await _authSessionService.completeAuthenticatedSession(
-            user,
-            fallbackId: phoneNumber,
-            fallbackPhone: phoneNumber,
-          );
-        } catch (error) {
-          emit(
-            state.copyWith(
-              status: AuthRecoveryStatus.failure,
-              success: AuthRecoverySuccess.none,
-              error: error,
-            ),
-          );
-          return;
-        }
-        _emitNavigation(
-          AppRoutes.home,
-          success: AuthRecoverySuccess.otpVerified,
-        );
-      },
+    result.fold(
+      _emitFailure,
+      (_) => _emitNavigation(
+        AppRoutes.home,
+        success: AuthRecoverySuccess.otpVerified,
+      ),
     );
   }
 
@@ -227,7 +208,9 @@ class AuthRecoveryCubit extends Cubit<AuthRecoveryState> {
         error: null,
       ),
     );
-    final Result<bool> result = await _sendOtpUseCase(phoneNumber.trim());
+    final Either<Failure, bool> result = await _sendOtpUseCase(
+      phoneNumber.trim(),
+    );
     result.fold(_emitFailure, (_) {
       emit(
         state.copyWith(
@@ -255,12 +238,12 @@ class AuthRecoveryCubit extends Cubit<AuthRecoveryState> {
     });
   }
 
-  void _emitFailure<T>(ResultFailure<T> failure) {
+  void _emitFailure(Failure failure) {
     emit(
       state.copyWith(
         status: AuthRecoveryStatus.failure,
         success: AuthRecoverySuccess.none,
-        error: failure.cause ?? failure.message,
+        error: failure,
       ),
     );
   }

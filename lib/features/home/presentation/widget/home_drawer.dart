@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/constants/app_routes.dart';
-import '../../../../core/architecture/use_case.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/services/storage_service.dart';
@@ -186,7 +185,7 @@ class HomeDrawer extends StatelessWidget {
   }
 
   Future<void> _logout(BuildContext context) async {
-    await sl<LogoutUseCase>()(const NoParams());
+    await sl<LogoutUseCase>()();
     await sl<StorageService>().clearAll();
     if (context.mounted) {
       context.goTo(AppRoutes.auth);

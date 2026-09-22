@@ -1,16 +1,9 @@
 import '../../../../core/services/storage_service.dart';
+import '../../domain/entities/auth_journey.dart';
 
-enum AuthJourneyStage {
-  auth,
-  login,
-  register,
-  onboarding,
-  onboardingAge,
-  onboardingInterests,
-  otpVerification,
-  resetPassword,
-  home,
-}
+// Existing importers of this file (router, startup resolver, interceptor) get
+// the enums from here; the persisted keys below stay a data-layer concern.
+export '../../domain/entities/auth_journey.dart';
 
 extension AuthJourneyStageX on AuthJourneyStage {
   String get key => switch (this) {
@@ -25,8 +18,6 @@ extension AuthJourneyStageX on AuthJourneyStage {
     AuthJourneyStage.home => 'home',
   };
 }
-
-enum AuthSessionMode { guest, authenticated }
 
 extension AuthSessionModeX on AuthSessionMode {
   String get key => switch (this) {

@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:quraaa/core/architecture/result.dart';
+import 'package:quraaa/core/errors/failures.dart';
 import 'package:quraaa/features/auth/domain/domain.dart';
 import 'package:quraaa/features/settings/domain/entities/appearance_option.dart';
 import 'package:quraaa/features/settings/domain/entities/language_option.dart';
@@ -36,7 +38,7 @@ void main() {
       authRepository = _MockAuthRepository();
       when(
         () => authRepository.logout(),
-      ).thenAnswer((_) async => const Success<bool>(true));
+      ).thenAnswer((_) async => const Right<Failure, bool>(true));
       when(() => storageService.clearAll()).thenAnswer((_) async => true);
 
       when(() => repository.getSettingsTabs()).thenAnswer(

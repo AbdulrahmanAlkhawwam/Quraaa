@@ -18,20 +18,16 @@ class UserMapper {
       lastName: entity.lastName,
       phoneNumber: entity.phoneNumber,
       country: entity.country,
-      password: entity.password,
       interests: entity.interests,
       birthday: entity.birthday,
       gender: entity.gender,
       location: entity.location,
       language: entity.language,
       deviceAndroidVersion: entity.deviceAndroidVersion,
-      accessToken: entity.accessToken,
-      refreshToken: entity.refreshToken,
-      accessTokenExpiration: entity.accessTokenExpiration,
     );
   }
 
-  static User toEntity(UserModel model) => model;
+  static User toEntity(UserModel model) => model.toEntity();
 
   static String toRawJson(UserModel model) => model.toRawJson();
 

@@ -1,13 +1,19 @@
-import '../../../../core/architecture/result.dart';
+import '../../../../core/use_cases/use_case.dart';
 import '../entities/user.dart';
 
+/// Account operations against the backend.
+///
+/// Every method that signs the user in ([login], [verifyOtp]) also persists the
+/// session before returning, so a `Right` means the user is fully signed in.
 abstract class AuthRepository {
-  Future<Result<User>> login({
+  FutureEither<User> login({
     required String phoneNumber,
     required String password,
   });
 
-  Future<Result<User>> register({
+  /// Creates the account. The backend then requires OTP verification, which
+  /// surfaces as an `OtpVerificationRequiredFailure` on the left.
+  FutureEither<User> register({
     String? firstName,
     String? lastName,
     String? phoneNumber,
@@ -17,26 +23,28 @@ abstract class AuthRepository {
     List<String>? categoryIds,
   });
 
-  Future<Result<User>> refreshToken({required String refreshToken});
+  /// Exchanges the stored refresh token for a new session and persists it.
+  /// Returns the new access token.
+  FutureEither<String> refreshSession();
 
-  Future<Result<bool>> logout();
+  FutureEither<bool> logout();
 
-  Future<Result<User>> verifyOtp({
+  FutureEither<User> verifyOtp({
     required String phoneNumber,
     required String code,
   });
 
-  Future<Result<bool>> sendOtp({required String phoneNumber});
+  FutureEither<bool> sendOtp({required String phoneNumber});
 
-  Future<Result<bool>> forgotPassword({required String phoneNumber});
+  FutureEither<bool> forgotPassword({required String phoneNumber});
 
-  Future<Result<bool>> resetPassword({
+  FutureEither<bool> resetPassword({
     required String phoneNumber,
     required String code,
     required String newPassword,
   });
 
-  Future<Result<bool>> changePassword({
+  FutureEither<bool> changePassword({
     required String oldPassword,
     required String newPassword,
   });

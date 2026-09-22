@@ -72,5 +72,5 @@ class AuthMapper {
     return UserModel.fromJson(json);
   }
 
-  static User toEntity(UserModel model) => model;
+  static User toEntity(UserModel model) => model.toEntity();
 }

@@ -7,7 +7,6 @@ import '../../../../core/errors/exceptions.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../auth/data/data_sources/auth_local_data_source.dart';
 import '../../../auth/data/data_sources/user_local_data_source.dart';
-import '../../../auth/domain/entities/user.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../data/data_sources/profile_local_data_source.dart';
 import '../../domain/entities/profile.dart';
@@ -79,10 +78,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       return;
     }
 
-    await _fetchProfileWithRefreshRetry(
-      emit: emit,
-      refreshToken: refreshToken!,
-    );
+    await _fetchProfileWithRefreshRetry(emit: emit);
   }
 
   Future<void> _loadCachedProfile(Emitter<ProfileState> emit) async {
@@ -97,23 +93,14 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
   Future<void> _fetchProfileWithRefreshRetry({
     required Emitter<ProfileState> emit,
-    required String refreshToken,
   }) async {
     try {
       final Profile profile = await profileRepository.getMyProfile();
       emit(state.copyWith(loading: false, profile: profile));
     } on UnauthorizedException catch (error) {
-      await _handleUnauthorized(
-        emit: emit,
-        error: error,
-        refreshToken: refreshToken,
-      );
+      await _handleUnauthorized(emit: emit, error: error);
     } on TokenExpiredException catch (error) {
-      await _handleUnauthorized(
-        emit: emit,
-        error: error,
-        refreshToken: refreshToken,
-      );
+      await _handleUnauthorized(emit: emit, error: error);
     } on ForbiddenException catch (error) {
       emit(
         state.copyWith(
@@ -147,7 +134,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   Future<void> _handleUnauthorized({
     required Emitter<ProfileState> emit,
     required AppException error,
-    required String refreshToken,
   }) async {
     // The global auth interceptor already attempted a refresh. If it cleared
     // the session, do not send a second refresh request with the old token.
@@ -163,38 +149,24 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     }
 
     try {
-      final result = await authRepository.refreshToken(
-        refreshToken: refreshToken,
-      );
-      User? refreshedUser;
+      // refreshSession persists the rotated tokens itself.
+      final result = await authRepository.refreshSession();
       final String? refreshFailureMessage = result.fold<String?>(
         (failure) => failure.message,
-        (user) {
-          refreshedUser = user;
-          return null;
-        },
+        (_) => null,
       );
 
-      final User? user = refreshedUser;
-      if (user == null) {
+      if (refreshFailureMessage != null) {
         await _logout();
         emit(
           state.copyWith(
             loading: false,
-            error: UnauthorizedFailure(
-              message: refreshFailureMessage ?? error.message,
-            ),
+            error: UnauthorizedFailure(message: refreshFailureMessage),
             requiresLogin: true,
           ),
         );
         return;
       }
-
-      // Persist the new tokens so subsequent requests use them.
-      await authLocalDataSource.markAuthenticatedSession(
-        accessToken: user.accessToken,
-        refreshToken: user.refreshToken,
-      );
 
       // Retry the profile request once.
       final Profile profile = await profileRepository.getMyProfile();

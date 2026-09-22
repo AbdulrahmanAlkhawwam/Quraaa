@@ -1,5 +1,4 @@
-import '../../../../core/architecture/result.dart';
-import '../../../../core/architecture/use_case.dart';
+import '../../../../core/use_cases/use_case.dart';
 import '../repositories/auth_repository.dart';
 
 class ResetPasswordParams {
@@ -14,13 +13,13 @@ class ResetPasswordParams {
   final String newPassword;
 }
 
-class ResetPasswordUseCase extends UseCase<Result<bool>, ResetPasswordParams> {
+class ResetPasswordUseCase extends UseCase<bool, ResetPasswordParams> {
   const ResetPasswordUseCase(this._repository);
 
   final AuthRepository _repository;
 
   @override
-  Future<Result<bool>> call(ResetPasswordParams params) {
+  FutureEither<bool> call(ResetPasswordParams params) {
     return _repository.resetPassword(
       phoneNumber: params.phoneNumber,
       code: params.code,

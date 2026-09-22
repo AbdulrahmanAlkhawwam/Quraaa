@@ -7,8 +7,8 @@ import 'package:meta/meta.dart';
 import '../../../../core/constants/app_routes.dart';
 import '../../../../core/error_monitoring/user_context_provider.dart';
 import '../../../../core/errors/failures.dart';
-import '../../data/data_sources/auth_local_data_source.dart';
-import '../../data/services/auth_session_service.dart';
+import '../../domain/entities/auth_journey.dart';
+import '../../domain/repositories/auth_journey_repository.dart';
 import '../../domain/use_cases/login_use_case.dart';
 import '../../domain/use_cases/register_use_case.dart';
 
@@ -20,7 +20,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this._loginUseCase,
     required this._registerUseCase,
     required this._authJourney,
-    required this._authSessionService,
     required this._userContext,
   }) : super(const AuthState()) {
     on<AuthLoginScreenStarted>(_onLoginScreenStarted);
@@ -36,8 +35,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   final LoginUseCase _loginUseCase;
   final RegisterUseCase _registerUseCase;
-  final AuthLocalDataSource _authJourney;
-  final AuthSessionService _authSessionService;
+  final AuthJourneyRepository _authJourney;
   final UserContextProvider _userContext;
 
   static const String _defaultPhoneIsoCode = 'SY';
@@ -68,26 +66,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final response = await _loginUseCase(
       LoginParams(phoneNumber: event.phoneNumber, password: event.password),
     );
+    // The repository has already persisted the session on success.
     await response.fold(
-      (failure) async => emit(
-        state.copyWith(
-          status: AuthStatus.error,
-          error: failure.cause ?? failure.message,
-        ),
-      ),
-      (user) async {
-        final phone = user.phoneNumber ?? event.phoneNumber;
-        try {
-          await _authSessionService.completeAuthenticatedSession(
-            user,
-            fallbackId: phone,
-            fallbackName: user.fullName.isNotEmpty ? user.fullName : phone,
-            fallbackPhone: phone,
-          );
-        } catch (error) {
-          emit(state.copyWith(status: AuthStatus.error, error: error));
-          return;
-        }
+      (Failure failure) async =>
+          emit(state.copyWith(status: AuthStatus.error, error: failure)),
+      (_) async {
         emit(state.copyWith(status: AuthStatus.success));
         _emitNavigation(emit, await _resolvePostAuthRoute());
       },
@@ -112,17 +95,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         categoryIds: event.categoryIds,
       ),
     );
-    await response.fold((failure) async {
-      if (failure.cause is OtpVerificationRequiredFailure) {
+    await response.fold((Failure failure) async {
+      if (failure is OtpVerificationRequiredFailure) {
         await _continueRegistrationWithOtp(emit, event.phoneNumber);
         return;
       }
-      emit(
-        state.copyWith(
-          status: AuthStatus.error,
-          error: failure.cause ?? failure.message,
-        ),
-      );
+      emit(state.copyWith(status: AuthStatus.error, error: failure));
     }, (_) => _continueRegistrationWithOtp(emit, event.phoneNumber));
   }
 
