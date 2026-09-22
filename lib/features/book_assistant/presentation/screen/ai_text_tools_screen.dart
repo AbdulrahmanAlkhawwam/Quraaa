@@ -1,8 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart' show Either;
 
 import '../../../../core/architecture/result.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/errors/failures.dart';
 import '../../../../core/shared.dart';
 import '../../../purchases/purchases.dart';
 import '../../domain/repositories/book_assistant_repository.dart';
@@ -17,8 +19,8 @@ class AiTextToolsScreen extends StatefulWidget {
 class _AiTextToolsScreenState extends State<AiTextToolsScreen> {
   final TextEditingController _text = TextEditingController();
   final TextEditingController _page = TextEditingController(text: '1');
-  late final Future<Result<List<PurchasedBook>>> _books =
-      sl<PurchasesRepository>().getLibrary();
+  late final Future<Either<Failure, List<PurchasedBook>>> _books =
+      sl<GetPurchasedBooksUseCase>()('');
   PurchasedBook? _selected;
   bool _loading = false;
   String? _answer;
@@ -39,7 +41,7 @@ class _AiTextToolsScreenState extends State<AiTextToolsScreen> {
         backgroundColor: context.appBackground,
         title: Text('ai_tools.title'.tr()),
       ),
-      body: FutureBuilder<Result<List<PurchasedBook>>>(
+      body: FutureBuilder<Either<Failure, List<PurchasedBook>>>(
         future: _books,
         builder: (BuildContext context, snapshot) {
           if (!snapshot.hasData) {

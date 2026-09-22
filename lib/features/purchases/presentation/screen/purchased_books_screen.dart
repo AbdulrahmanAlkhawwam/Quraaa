@@ -7,8 +7,8 @@ import '../../../../core/constants/app_routes.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/shared.dart';
 import '../../../libraries/libraries.dart';
-import '../../domain/purchases.dart';
-import '../purchases_cubit.dart';
+import '../../domain/entities/purchased_book.dart';
+import '../logic/purchases_cubit.dart';
 
 class PurchasedBooksScreen extends StatelessWidget {
   const PurchasedBooksScreen({super.key});

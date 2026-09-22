@@ -9,8 +9,7 @@ import 'package:quraaa/core/connectivity/connection_status.dart';
 import 'package:quraaa/core/connectivity/connectivity_service.dart';
 import 'package:quraaa/core/network/http_helper.dart';
 import 'package:quraaa/core/services/storage_service.dart';
-import 'package:quraaa/features/purchases/data/secure_purchase_book_data_source.dart';
-import 'package:quraaa/features/purchases/domain/purchases.dart';
+import 'package:quraaa/features/purchases/purchases.dart';
 
 void main() {
   late Directory supportDirectory;
@@ -45,7 +44,7 @@ void main() {
     required PurchaseCacheKeyStore keyStore,
     required ConnectionStatus status,
   }) {
-    return SecurePurchaseBookDataSource(
+    return SecurePurchaseBookDataSourceImpl(
       http: http,
       storage: storage,
       connectivity: _FixedConnectivity(status),

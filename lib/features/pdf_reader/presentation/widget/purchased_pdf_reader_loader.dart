@@ -2,9 +2,10 @@ import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart' show Either;
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/architecture/result.dart';
+import '../../../../core/errors/failures.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/utils/extensions/app_context.dart';
 import '../../../purchases/purchases.dart';
@@ -30,7 +31,7 @@ class PurchasedPdfReaderLoader extends StatefulWidget {
 }
 
 class _PurchasedPdfReaderLoaderState extends State<PurchasedPdfReaderLoader> {
-  late Future<Result<PreparedPurchaseBook>> _preparation;
+  late Future<Either<Failure, PreparedPurchaseBook>> _preparation;
   PreparedPurchaseBook? _preparedBook;
 
   @override
@@ -39,9 +40,9 @@ class _PurchasedPdfReaderLoaderState extends State<PurchasedPdfReaderLoader> {
     _preparation = _prepare();
   }
 
-  Future<Result<PreparedPurchaseBook>> _prepare() async {
-    final Result<PreparedPurchaseBook> result = await sl<PurchasesRepository>()
-        .prepareForReading(widget.purchaseId);
+  Future<Either<Failure, PreparedPurchaseBook>> _prepare() async {
+    final Either<Failure, PreparedPurchaseBook> result =
+        await sl<PreparePurchaseForReadingUseCase>()(widget.purchaseId);
     await result.fold((_) async {}, (PreparedPurchaseBook preparedBook) async {
       if (!mounted) {
         await preparedBook.dispose();
@@ -67,7 +68,7 @@ class _PurchasedPdfReaderLoaderState extends State<PurchasedPdfReaderLoader> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Result<PreparedPurchaseBook>>(
+    return FutureBuilder<Either<Failure, PreparedPurchaseBook>>(
       future: _preparation,
       builder: (BuildContext context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
@@ -78,7 +79,7 @@ class _PurchasedPdfReaderLoaderState extends State<PurchasedPdfReaderLoader> {
           );
         }
 
-        final Result<PreparedPurchaseBook>? result = snapshot.data;
+        final Either<Failure, PreparedPurchaseBook>? result = snapshot.data;
         if (result == null) {
           return _StatusScaffold(
             name: widget.name,

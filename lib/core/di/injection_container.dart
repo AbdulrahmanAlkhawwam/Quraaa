@@ -69,7 +69,6 @@ import '../../features/profile/domain/entities/profile.dart';
 import '../../features/home/home.dart';
 import '../../features/book_engagement/book_engagement.dart';
 import '../../features/purchases/purchases.dart';
-import '../../features/purchases/data/purchases_local_data_source.dart';
 import '../../features/libraries/data/data_sources/authors_remote_data_source.dart';
 import '../../features/libraries/data/repositories/authors_repository_impl.dart';
 import '../../features/libraries/domain/repositories/authors_repository.dart';
@@ -886,7 +885,7 @@ void registerFeatureDependencies() {
       ),
     );
     sl.registerLazySingleton<SecurePurchaseBookDataSource>(
-      () => SecurePurchaseBookDataSource(
+      () => SecurePurchaseBookDataSourceImpl(
         http: sl<HttpHelper>(),
         storage: sl<StorageService>(),
         connectivity: sl<ConnectivityService>(),
@@ -894,10 +893,10 @@ void registerFeatureDependencies() {
       ),
     );
     sl.registerLazySingleton<PurchasesRemoteDataSource>(
-      () => PurchasesRemoteDataSource(sl<HttpHelper>()),
+      () => PurchasesRemoteDataSourceImpl(sl<HttpHelper>()),
     );
     sl.registerLazySingleton<PurchasesLocalDataSource>(
-      () => PurchasesLocalDataSource(
+      () => PurchasesLocalDataSourceImpl(
         sl<StorageService>(),
         () => sl<UserContextProvider>().snapshot.userId ?? '',
       ),
@@ -909,8 +908,24 @@ void registerFeatureDependencies() {
         sl<SecurePurchaseBookDataSource>(),
       ),
     );
+    sl.registerLazySingleton<GetPurchasedBooksUseCase>(
+      () => GetPurchasedBooksUseCase(sl<PurchasesRepository>()),
+    );
+    sl.registerLazySingleton<IsPurchaseAvailableOfflineUseCase>(
+      () => IsPurchaseAvailableOfflineUseCase(sl<PurchasesRepository>()),
+    );
+    sl.registerLazySingleton<DownloadPurchaseForOfflineUseCase>(
+      () => DownloadPurchaseForOfflineUseCase(sl<PurchasesRepository>()),
+    );
+    sl.registerLazySingleton<PreparePurchaseForReadingUseCase>(
+      () => PreparePurchaseForReadingUseCase(sl<PurchasesRepository>()),
+    );
     sl.registerFactory<PurchasesCubit>(
-      () => PurchasesCubit(sl<PurchasesRepository>()),
+      () => PurchasesCubit(
+        getPurchasedBooks: sl<GetPurchasedBooksUseCase>(),
+        isAvailableOffline: sl<IsPurchaseAvailableOfflineUseCase>(),
+        downloadForOffline: sl<DownloadPurchaseForOfflineUseCase>(),
+      ),
     );
   }
 

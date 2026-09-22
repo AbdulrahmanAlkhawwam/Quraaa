@@ -9,12 +9,13 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '../../../core/connectivity/connection_status.dart';
-import '../../../core/connectivity/connectivity_service.dart';
-import '../../../core/constants/api_endpoints.dart';
-import '../../../core/network/http_helper.dart';
-import '../../../core/services/storage_service.dart';
-import '../domain/purchases.dart';
+import '../../../../core/connectivity/connection_status.dart';
+import '../../../../core/connectivity/connectivity_service.dart';
+import '../../../../core/constants/api_endpoints.dart';
+import '../../../../core/network/http_helper.dart';
+import '../../../../core/services/storage_service.dart';
+import '../../domain/entities/prepared_purchase_book.dart';
+import '../../domain/entities/purchase_book_session.dart';
 
 typedef ApplicationSupportDirectoryProvider = Future<Directory> Function();
 
@@ -49,12 +50,23 @@ class FlutterSecurePurchaseCacheKeyStore implements PurchaseCacheKeyStore {
   }
 }
 
-/// Provides authenticated random-access ranges for purchased PDFs.
-///
+/// Authenticated random-access ranges for purchased PDFs, with an encrypted
+/// offline cache.
+abstract class SecurePurchaseBookDataSource {
+  Future<PurchaseBookSession> open(String purchaseId);
+
+  Future<bool> isAvailableOffline(String purchaseId);
+
+  Future<void> downloadForOffline(String purchaseId);
+
+  /// Writes a short-lived clear-text copy for the native PDF renderer.
+  Future<PreparedPurchaseBook> prepareForNativeReader(String purchaseId);
+}
+
 /// Each range is cached as an independent AES-256-GCM block under
 /// [getApplicationSupportDirectory]. PDF bytes are only clear-text in RAM.
-class SecurePurchaseBookDataSource {
-  SecurePurchaseBookDataSource({
+class SecurePurchaseBookDataSourceImpl implements SecurePurchaseBookDataSource {
+  SecurePurchaseBookDataSourceImpl({
     required HttpHelper http,
     required StorageService storage,
     required ConnectivityService connectivity,
@@ -88,6 +100,7 @@ class SecurePurchaseBookDataSource {
       <String, Future<Uint8List>>{};
   Future<SecretKey>? _secretKey;
 
+  @override
   Future<PurchaseBookSession> open(String purchaseId) async {
     final String normalizedId = purchaseId.trim();
     if (normalizedId.isEmpty) {
@@ -219,6 +232,7 @@ class SecurePurchaseBookDataSource {
     }
   }
 
+  @override
   Future<bool> isAvailableOffline(String purchaseId) async {
     final String normalizedId = purchaseId.trim();
     if (normalizedId.isEmpty) return false;
@@ -234,6 +248,7 @@ class SecurePurchaseBookDataSource {
     );
   }
 
+  @override
   Future<void> downloadForOffline(String purchaseId) async {
     final PurchaseBookSession session = await open(purchaseId);
     try {
@@ -243,6 +258,7 @@ class SecurePurchaseBookDataSource {
     }
   }
 
+  @override
   Future<PreparedPurchaseBook> prepareForNativeReader(String purchaseId) async {
     final PurchaseBookSession session = await open(purchaseId);
     File? clearFile;
@@ -747,7 +763,7 @@ class SecurePurchaseBookDataSource {
 
 class _SecurePurchaseBookSession implements PurchaseBookSession {
   const _SecurePurchaseBookSession({
-    required SecurePurchaseBookDataSource source,
+    required SecurePurchaseBookDataSourceImpl source,
     required _PurchaseCacheMetadata metadata,
     required Directory directory,
     required bool remoteEnabled,
@@ -757,7 +773,7 @@ class _SecurePurchaseBookSession implements PurchaseBookSession {
         _directory = directory,
         _remoteEnabled = remoteEnabled;
 
-  final SecurePurchaseBookDataSource _source;
+  final SecurePurchaseBookDataSourceImpl _source;
   final _PurchaseCacheMetadata _metadata;
   final Directory _directory;
   final bool _remoteEnabled;

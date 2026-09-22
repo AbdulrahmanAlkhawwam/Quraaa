@@ -1,8 +1,12 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fpdart/fpdart.dart';
 
-import '../../../core/architecture/result.dart';
-import '../domain/purchases.dart';
+import '../../../../core/errors/failures.dart';
+import '../../domain/entities/purchased_book.dart';
+import '../../domain/use_cases/download_purchase_for_offline_use_case.dart';
+import '../../domain/use_cases/get_purchased_books_use_case.dart';
+import '../../domain/use_cases/is_purchase_available_offline_use_case.dart';
 
 class PurchasesState extends Equatable {
   const PurchasesState({
@@ -68,17 +72,23 @@ class PurchasesState extends Equatable {
 }
 
 class PurchasesCubit extends Cubit<PurchasesState> {
-  PurchasesCubit(this._repository) : super(const PurchasesState());
+  PurchasesCubit({
+    required this._getPurchasedBooks,
+    required this._isAvailableOffline,
+    required this._downloadForOffline,
+  }) : super(const PurchasesState());
 
-  final PurchasesRepository _repository;
+  final GetPurchasedBooksUseCase _getPurchasedBooks;
+  final IsPurchaseAvailableOfflineUseCase _isAvailableOffline;
+  final DownloadPurchaseForOfflineUseCase _downloadForOffline;
 
   Future<void> load({String query = ''}) async {
     emit(state.copyWith(loading: true, clearError: true));
-    final Result<List<PurchasedBook>> result =
-        await _repository.getLibrary(query: query);
+    final Either<Failure, List<PurchasedBook>> result =
+        await _getPurchasedBooks(query);
     if (isClosed) return;
     await result.fold(
-      (failure) async {
+      (Failure failure) async {
         emit(state.copyWith(loading: false, error: failure.message));
       },
       (List<PurchasedBook> books) async {
@@ -88,10 +98,9 @@ class PurchasesCubit extends Cubit<PurchasesState> {
                   book.digital && book.purchaseId.trim().isNotEmpty,
             )
             .toList(growable: false);
-        final List<Result<bool>> availability = await Future.wait(
+        final List<Either<Failure, bool>> availability = await Future.wait(
           digitalBooks.map(
-            (PurchasedBook book) =>
-                _repository.isAvailableOffline(book.purchaseId),
+            (PurchasedBook book) => _isAvailableOffline(book.purchaseId),
           ),
         );
         if (isClosed) return;
@@ -133,15 +142,10 @@ class PurchasesCubit extends Cubit<PurchasesState> {
         clearError: true,
       ),
     );
-    final Result<void> result =
-        await _repository.downloadForOffline(purchaseId);
+    final Either<Failure, Unit> result = await _downloadForOffline(purchaseId);
     if (isClosed) return false;
-    bool success = false;
-    String? error;
-    result.fold(
-      (failure) => error = failure.message,
-      (_) => success = true,
-    );
+    final bool success = result.isRight();
+    final String? error = result.getLeft().toNullable()?.message;
     final Set<String> remaining = <String>{...state.downloadingPurchaseIds}
       ..remove(purchaseId);
     final Set<String> offline = <String>{...state.offlinePurchaseIds};

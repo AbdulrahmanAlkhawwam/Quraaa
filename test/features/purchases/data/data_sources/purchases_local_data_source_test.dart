@@ -1,13 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quraaa/core/services/storage_service.dart';
-import 'package:quraaa/features/purchases/data/purchases_local_data_source.dart';
-import 'package:quraaa/features/purchases/domain/purchases.dart';
+import 'package:quraaa/features/purchases/purchases.dart';
 
 void main() {
   test('caches purchased-book metadata per user for offline listing', () async {
     final _MemoryStorage storage = _MemoryStorage();
     String userId = 'user-1';
-    final PurchasesLocalDataSource local = PurchasesLocalDataSource(
+    final PurchasesLocalDataSource local = PurchasesLocalDataSourceImpl(
       storage,
       () => userId,
     );
@@ -26,7 +25,8 @@ void main() {
     await local.save(books);
 
     expect(local.hasCache, isTrue);
-    expect(local.load().single, books.single);
+    // The data source reads models back; the repository maps them to entities.
+    expect(local.load().single.toEntity(), books.single);
     expect(local.load(query: 'author').single.purchaseId, 'purchase-1');
 
     userId = 'user-2';
