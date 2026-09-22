@@ -912,10 +912,27 @@ void registerFeatureDependencies() {
 
   if (!sl.isRegistered<BookEngagementRemoteDataSource>()) {
     sl.registerLazySingleton<BookEngagementRemoteDataSource>(
-      () => BookEngagementRemoteDataSource(sl<HttpHelper>()),
+      () => BookEngagementRemoteDataSourceImpl(sl<HttpHelper>()),
     );
     sl.registerLazySingleton<BookEngagementRepository>(
       () => BookEngagementRepositoryImpl(sl<BookEngagementRemoteDataSource>()),
+    );
+    sl.registerFactoryParam<BookEngagementCubit, String, void>(
+      (String bookId, _) {
+        final BookEngagementRepository repository =
+            sl<BookEngagementRepository>();
+        return BookEngagementCubit(
+          bookId: bookId,
+          getComments: GetBookCommentsUseCase(repository),
+          getRating: GetBookRatingUseCase(repository),
+          getReportReasons: GetBookReportReasonsUseCase(repository),
+          getMyReview: GetMyBookReviewUseCase(repository),
+          addReview: AddBookReviewUseCase(repository),
+          updateReview: UpdateBookReviewUseCase(repository),
+          deleteReview: DeleteBookReviewUseCase(repository),
+          reportBook: ReportBookUseCase(repository),
+        );
+      },
     );
   }
 

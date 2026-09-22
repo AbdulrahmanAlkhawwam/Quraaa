@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quraaa/core/network/http_helper.dart';
-import 'package:quraaa/features/book_engagement/data/book_engagement_remote_data_source.dart';
-import 'package:quraaa/features/book_engagement/domain/book_engagement.dart';
+import 'package:quraaa/features/book_engagement/data/data_sources/book_engagement_remote_data_source.dart';
+import 'package:quraaa/features/book_engagement/domain/entities/book_comment.dart';
 
 void main() {
   late _RecordingHttpHelper http;
@@ -10,7 +10,7 @@ void main() {
 
   setUp(() {
     http = _RecordingHttpHelper();
-    dataSource = BookEngagementRemoteDataSource(http);
+    dataSource = BookEngagementRemoteDataSourceImpl(http);
   });
 
   test('loads reviews from the OpenAPI reviews endpoint', () async {
