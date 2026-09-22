@@ -9,7 +9,7 @@ import '../constants/app_routes.dart';
 import '../di/injection_container.dart';
 import '../localization/localization_constants.dart';
 import '../services/storage_service.dart';
-import '../../features/account/data/user_data_local_data_source.dart';
+import '../../features/account/data/data_sources/user_data_local_data_source.dart';
 import '../../features/auth/data/data_sources/user_local_data_source.dart';
 import '../../features/auth/data/models/user_model.dart';
 import '../../features/profile/domain/entities/profile.dart';

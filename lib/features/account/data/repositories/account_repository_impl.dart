@@ -1,39 +1,52 @@
+import 'package:fpdart/fpdart.dart';
+
 import '../../../../core/config/app_config.dart';
-import '../../../auth/auth.dart';
-import '../../../profile/data/data_sources/profile_local_data_source.dart';
+import '../../../../core/errors/error_mapper.dart';
+import '../../../../core/use_cases/use_case.dart';
+import '../../../auth/domain/repositories/auth_session_repository.dart';
 import '../../../profile/domain/entities/profile.dart';
+import '../../../profile/domain/repositories/profile_repository.dart';
 import '../../domain/entities/account_user_snapshot.dart';
 import '../../domain/repositories/account_repository.dart';
-import '../user_data_local_data_source.dart';
+import '../data_sources/user_data_local_data_source.dart';
 
 class AccountRepositoryImpl implements AccountRepository {
   const AccountRepositoryImpl(
     this._localDataSource,
-    this._authLocalDataSource,
-    this._profileLocalDataSource,
+    this._authSession,
+    this._profileRepository,
   );
 
   final UserDataLocalDataSource _localDataSource;
-  final AuthLocalDataSource _authLocalDataSource;
-  final ProfileLocalDataSource _profileLocalDataSource;
+  final AuthSessionRepository _authSession;
+  final ProfileRepository _profileRepository;
 
   @override
-  Future<AccountUserSnapshot> loadUserSnapshot() async {
-    final UserDataSnapshot localSnapshot = await _localDataSource.load();
-    final bool isAuthenticated = await _authLocalDataSource
-        .isAuthenticatedSession();
-    if (!isAuthenticated) {
-      return AccountUserSnapshot(
-        fullName: AppConfig.appName,
-        profileImage: localSnapshot.profileImage,
-      );
-    }
+  FutureEither<AccountUserSnapshot> loadUserSnapshot() async {
+    try {
+      final UserDataSnapshot localSnapshot = await _localDataSource.load();
+      if (!await _authSession.isAuthenticatedSession()) {
+        return Right(
+          AccountUserSnapshot(
+            fullName: AppConfig.appName,
+            profileImage: localSnapshot.profileImage,
+          ),
+        );
+      }
 
-    final Profile? profile = await _profileLocalDataSource.getCachedProfile();
-    final String fullName = profile?.fullName.trim() ?? '';
-    return AccountUserSnapshot(
-      fullName: fullName.isEmpty ? AppConfig.appName : fullName,
-      profileImage: profile?.profileImageUrl ?? localSnapshot.profileImage,
-    );
+      // A missing or unreadable cached profile falls back to the app name and
+      // local avatar, exactly like a profile that was never cached.
+      final Profile? profile = (await _profileRepository.getCachedProfile())
+          .getOrElse((_) => null);
+      final String fullName = profile?.fullName.trim() ?? '';
+      return Right(
+        AccountUserSnapshot(
+          fullName: fullName.isEmpty ? AppConfig.appName : fullName,
+          profileImage: profile?.profileImageUrl ?? localSnapshot.profileImage,
+        ),
+      );
+    } catch (error) {
+      return Left(ErrorMapper.map(error));
+    }
   }
 }

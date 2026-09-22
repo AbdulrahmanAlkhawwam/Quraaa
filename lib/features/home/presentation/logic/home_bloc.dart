@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 
 import '../../../../core/architecture/result.dart';
 import '../../../../core/architecture/use_case.dart';
+import '../../../../core/errors/failures.dart';
 import '../../../../core/services/app_permission_service.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../../account/account.dart';
@@ -120,13 +121,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }
 
   Future<_HomeUserLoadResult> _loadUser() async {
-    try {
-      return _HomeUserLoadResult(
-        snapshot: await _loadUserSnapshot(const NoParams()),
-      );
-    } catch (error) {
-      return _HomeUserLoadResult(error: error);
-    }
+    return (await _loadUserSnapshot()).fold(
+      (Failure failure) => _HomeUserLoadResult(error: failure.message),
+      (AccountUserSnapshot snapshot) => _HomeUserLoadResult(snapshot: snapshot),
+    );
   }
 
   Future<Result<HomeBooksPage>> _loadBooksSafely(

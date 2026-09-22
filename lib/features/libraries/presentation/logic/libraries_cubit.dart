@@ -4,7 +4,6 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:meta/meta.dart';
 
 import '../../../../core/architecture/result.dart';
-import '../../../../core/architecture/use_case.dart';
 import '../../../account/account.dart';
 import '../../domain/entities/library_entity.dart';
 import '../../domain/repositories/libraries_repository.dart';
@@ -39,15 +38,11 @@ class LibrariesCubit extends Cubit<LibrariesState> {
   int _requestGeneration = 0;
 
   Future<void> loadUserSnapshot() async {
-    try {
-      final AccountUserSnapshot userSnapshot = await _loadUserSnapshotUseCase(
-        const NoParams(),
-      );
-      if (isClosed) return;
-      emit(state.copyWith(userSnapshot: userSnapshot));
-    } catch (_) {
-      // The header profile is optional; library paging should remain usable.
-    }
+    // The header profile is optional; on failure library paging stays usable.
+    final AccountUserSnapshot? userSnapshot = (await _loadUserSnapshotUseCase())
+        .toNullable();
+    if (userSnapshot == null || isClosed) return;
+    emit(state.copyWith(userSnapshot: userSnapshot));
   }
 
   void updateSearchTerm(String searchTerm) {

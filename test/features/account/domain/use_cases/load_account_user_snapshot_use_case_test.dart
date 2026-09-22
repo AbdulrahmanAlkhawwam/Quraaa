@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:quraaa/core/architecture/use_case.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:quraaa/core/errors/failures.dart';
+import 'package:quraaa/core/use_cases/use_case.dart';
 import 'package:quraaa/features/account/account.dart';
 
 void main() {
@@ -9,21 +11,34 @@ void main() {
       profileImage: '/tmp/avatar.png',
     );
     final LoadAccountUserSnapshotUseCase useCase =
-        LoadAccountUserSnapshotUseCase(_FakeAccountRepository(snapshot));
+        LoadAccountUserSnapshotUseCase(
+          const _FakeAccountRepository(Right(snapshot)),
+        );
 
-    final AccountUserSnapshot result = await useCase(const NoParams());
+    final AccountUserSnapshot result = (await useCase()).getOrElse(
+      (_) => fail('expected Right'),
+    );
 
     expect(result.fullName, snapshot.fullName);
     expect(result.firstName, 'Test');
     expect(result.profileImage, snapshot.profileImage);
   });
+
+  test('passes the repository failure through', () async {
+    final LoadAccountUserSnapshotUseCase useCase =
+        LoadAccountUserSnapshotUseCase(
+          const _FakeAccountRepository(Left(CacheReadFailure())),
+        );
+
+    expect((await useCase()).getLeft().toNullable(), isA<CacheReadFailure>());
+  });
 }
 
 class _FakeAccountRepository implements AccountRepository {
-  const _FakeAccountRepository(this.snapshot);
+  const _FakeAccountRepository(this.result);
 
-  final AccountUserSnapshot snapshot;
+  final Either<Failure, AccountUserSnapshot> result;
 
   @override
-  Future<AccountUserSnapshot> loadUserSnapshot() async => snapshot;
+  FutureEither<AccountUserSnapshot> loadUserSnapshot() async => result;
 }

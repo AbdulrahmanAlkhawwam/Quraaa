@@ -571,8 +571,8 @@ void registerFeatureDependencies() {
   sl.registerLazySingleton<AccountRepository>(
     () => AccountRepositoryImpl(
       sl<UserDataLocalDataSource>(),
-      sl<AuthLocalDataSource>(),
-      sl<ProfileLocalDataSource>(),
+      sl<AuthSessionRepository>(),
+      sl<ProfileRepository>(),
     ),
   );
 

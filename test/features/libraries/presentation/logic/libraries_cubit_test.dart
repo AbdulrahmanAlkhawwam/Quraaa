@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:quraaa/core/architecture/result.dart';
 import 'package:quraaa/core/architecture/use_case.dart';
@@ -63,10 +64,12 @@ void main() {
     });
 
     test('loadUserSnapshot stores the account header snapshot', () async {
-      when(() => loadUserSnapshotUseCase(any())).thenAnswer(
-        (_) async => const AccountUserSnapshot(
-          fullName: 'Test User',
-          profileImage: '/tmp/avatar.png',
+      when(() => loadUserSnapshotUseCase()).thenAnswer(
+        (_) async => const Right(
+          AccountUserSnapshot(
+            fullName: 'Test User',
+            profileImage: '/tmp/avatar.png',
+          ),
         ),
       );
 
@@ -74,7 +77,7 @@ void main() {
 
       expect(cubit.state.firstName, 'Test');
       expect(cubit.state.profileImage, '/tmp/avatar.png');
-      verify(() => loadUserSnapshotUseCase(any())).called(1);
+      verify(() => loadUserSnapshotUseCase()).called(1);
     });
 
     test('fetching first page appends items and emits success', () async {

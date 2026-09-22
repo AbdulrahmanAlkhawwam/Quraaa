@@ -2,8 +2,11 @@ import 'dart:async';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:quraaa/core/architecture/result.dart';
+import 'package:quraaa/core/errors/failures.dart';
+import 'package:quraaa/core/use_cases/use_case.dart';
 import 'package:quraaa/core/services/app_permission_service.dart';
 import 'package:quraaa/core/services/notification_service.dart';
 import 'package:quraaa/features/account/account.dart';
@@ -177,15 +180,15 @@ class _FakeHomeRepository implements AccountRepository {
   final AccountUserSnapshot snapshot;
 
   @override
-  Future<AccountUserSnapshot> loadUserSnapshot() async => snapshot;
+  FutureEither<AccountUserSnapshot> loadUserSnapshot() async => Right(snapshot);
 }
 
 class _ThrowingHomeRepository implements AccountRepository {
   const _ThrowingHomeRepository();
 
   @override
-  Future<AccountUserSnapshot> loadUserSnapshot() async {
-    throw StateError('cannot load user');
+  FutureEither<AccountUserSnapshot> loadUserSnapshot() async {
+    return const Left(UnknownFailure(message: 'cannot load user'));
   }
 }
 
