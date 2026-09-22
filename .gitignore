@@ -23,7 +23,12 @@ migrate_working_dir/
 # is commented out by default.
 .vscode/
 .env
+.dev-env
 key.properties
+
+# Firebase platform config: provided per machine and written from secrets in CI
+google-services.json
+GoogleService-Info.plist
 *.jks
 *.keystore
 
