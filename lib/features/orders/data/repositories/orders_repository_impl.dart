@@ -6,7 +6,7 @@ import '../../domain/entities/checkout_confirmation.dart';
 import '../../domain/entities/order_checkout.dart';
 import '../../domain/entities/order_checkout_context.dart';
 import '../../domain/repositories/orders_repository.dart';
-import '../datasources/orders_remote_data_source.dart';
+import '../data_sources/orders_remote_data_source.dart';
 import '../models/checkout_confirmation_model.dart';
 import '../models/order_checkout_model.dart';
 

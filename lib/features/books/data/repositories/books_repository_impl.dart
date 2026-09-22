@@ -1,7 +1,7 @@
 import '../../domain/entities/book.dart';
 import '../../domain/entities/book_catalog_filter.dart';
 import '../../domain/repositories/books_repository.dart';
-import '../datasources/books_remote_data_source.dart';
+import '../data_sources/books_remote_data_source.dart';
 import '../models/home_catalog_book_model.dart';
 
 class BooksRepositoryImpl implements BooksRepository {

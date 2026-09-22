@@ -44,7 +44,7 @@ Apply SOLID by separating UI, business logic, and data access into distinct laye
 - Use `flutter_bloc` for state management; keep business logic out of widgets.
 - Prefer `const` constructors and widgets to reduce rebuilds.
 - Build responsive layouts using layout builders, constraints, and design tokens.
-- Separate reusable UI into shared widgets under `lib/shared/` or the appropriate feature folder.
+- Separate reusable UI into shared widgets under `lib/core/widgets/` or the appropriate feature folder.
 - Use the existing navigation, theming, and localization systems.
 - Avoid hardcoding values; always reference design tokens.
 
@@ -76,8 +76,8 @@ Apply SOLID by separating UI, business logic, and data access into distinct laye
 
 - Feature-first folder structure under `lib/features/`.
 - Clean Architecture layers: `presentation/`, `domain/`, and `data/` inside each feature where applicable.
-- Shared code lives in `lib/shared/` or `lib/core/`.
-- Configuration, routing, and DI setup live in `lib/config/` and `lib/app/`.
+- Shared code lives in `lib/core/`.
+- Configuration lives in `lib/core/config/`, routing in `lib/core/routing/`, DI in `lib/core/di/`, and the app widget in `lib/app.dart`.
 - Keep tests mirror the `lib/` structure under `test/`.
 
 ## Naming Conventions

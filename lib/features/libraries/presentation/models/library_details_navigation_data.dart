@@ -1,5 +1,5 @@
 import '../../domain/entities/library_book_entity.dart';
-import '../cubit/library_details_state.dart';
+import '../logic/library_details_state.dart';
 
 /// UI data passed to the author details screen until its API is connected.
 class AuthorDetailsNavigationData {

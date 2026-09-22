@@ -4,7 +4,7 @@ import '../../../../core/errors/error_mapper.dart';
 import '../../../../core/errors/failures.dart';
 import '../../domain/entities/library_book_entity.dart';
 import '../../domain/repositories/library_details_repository.dart';
-import '../datasources/library_details_remote_data_source.dart';
+import '../data_sources/library_details_remote_data_source.dart';
 
 class LibraryDetailsRepositoryImpl extends BaseRepository<LibraryBooksPage>
     implements LibraryDetailsRepository {

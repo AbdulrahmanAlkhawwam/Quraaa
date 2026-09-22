@@ -4,8 +4,8 @@ import '../../../../core/errors/error_mapper.dart';
 import '../../../../core/errors/failures.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
-import '../datasources/auth_local_datasource.dart';
-import '../datasources/auth_remote_datasource.dart';
+import '../data_sources/auth_local_data_source.dart';
+import '../data_sources/auth_remote_data_source.dart';
 import '../mappers/auth_mapper.dart';
 
 class AuthRepositoryImpl extends BaseRepository<User>

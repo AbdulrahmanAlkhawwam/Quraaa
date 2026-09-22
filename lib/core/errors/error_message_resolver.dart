@@ -1,6 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 
-import '../../../shared/models/message.dart';
+import '../messages/message.dart';
 import 'error_codes.dart';
 import 'error_mapper.dart';
 import 'error_response_model.dart';

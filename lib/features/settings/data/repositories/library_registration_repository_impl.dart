@@ -4,7 +4,7 @@ import '../../../../core/errors/failures.dart';
 import '../../domain/entities/library_registration.dart';
 import '../../domain/entities/library_profile.dart';
 import '../../domain/repositories/library_registration_repository.dart';
-import '../datasources/library_registration_remote_data_source.dart';
+import '../data_sources/library_registration_remote_data_source.dart';
 import '../models/library_registration_model.dart';
 
 class LibraryRegistrationRepositoryImpl

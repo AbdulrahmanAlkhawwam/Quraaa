@@ -4,7 +4,7 @@ import '../../../../core/errors/failures.dart';
 import '../../domain/entities/assistant_book.dart';
 import '../../domain/entities/assistant_response.dart';
 import '../../domain/repositories/book_assistant_repository.dart';
-import '../datasources/book_assistant_remote_data_source.dart';
+import '../data_sources/book_assistant_remote_data_source.dart';
 import '../models/book_summary_model.dart';
 
 class BookAssistantRepositoryImpl extends BookAssistantRepository {

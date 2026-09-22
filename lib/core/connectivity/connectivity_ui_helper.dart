@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../shared/shared.dart';
+import '../shared.dart';
 import '../di/injection_container.dart';
 import '../errors/failures.dart';
 import 'connection_status.dart';

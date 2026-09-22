@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:quraaa/core/errors/error_codes.dart';
 import 'package:quraaa/core/errors/error_message_resolver.dart';
 import 'package:quraaa/core/errors/failures.dart';
-import 'package:quraaa/shared/models/message.dart';
+import 'package:quraaa/core/messages/message.dart';
 
 void main() {
   setUpAll(() {

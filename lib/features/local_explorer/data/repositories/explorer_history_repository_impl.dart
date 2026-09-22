@@ -5,7 +5,7 @@ import '../../../../core/services/storage_service.dart';
 import '../../domain/entities/explorer_history_entry.dart';
 import '../../domain/entities/local_file_entry.dart';
 import '../../domain/repositories/explorer_history_repository.dart';
-import '../datasources/local/local_file_system_datasource.dart';
+import '../data_sources/local/local_file_system_data_source.dart';
 import '../models/explorer_history_entry_model.dart';
 
 class ExplorerHistoryRepositoryImpl implements ExplorerHistoryRepository {

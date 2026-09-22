@@ -3,8 +3,8 @@ import '../../../../core/errors/failures.dart';
 import '../../domain/entities/local_directory_snapshot.dart';
 import '../../domain/repositories/local_file_repository.dart';
 import '../../domain/value_objects/result.dart';
-import '../datasources/local/local_explorer_platform_datasource.dart';
-import '../datasources/local/local_file_system_datasource.dart';
+import '../data_sources/local/local_explorer_platform_data_source.dart';
+import '../data_sources/local/local_file_system_data_source.dart';
 import '../mappers/local_directory_snapshot_mapper.dart';
 import '../models/local_directory_snapshot_model.dart';
 

@@ -1,4 +1,4 @@
-export 'bloc/onboarding_bloc.dart';
-export 'pages/age_onboarding_page.dart';
-export 'pages/gender_onboarding_page.dart';
-export 'pages/interests_onboarding_page.dart';
+export 'logic/onboarding_bloc.dart';
+export 'screen/age_onboarding_screen.dart';
+export 'screen/gender_onboarding_screen.dart';
+export 'screen/interests_onboarding_screen.dart';

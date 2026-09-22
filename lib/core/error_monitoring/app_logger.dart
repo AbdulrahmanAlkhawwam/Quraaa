@@ -3,7 +3,7 @@ import 'dart:developer' as developer;
 
 import 'package:flutter/foundation.dart';
 
-import '../../config/env/env.dart';
+import '../config/env.dart';
 import 'crashlytics_service.dart';
 import 'device_info_provider.dart';
 import 'error_report.dart';

@@ -1,0 +1,71 @@
+import 'package:flutter/material.dart';
+
+import '../../../../core/shared.dart';
+
+/// A labeled field used on auth screens.
+class AuthLabeledField extends StatelessWidget {
+  const AuthLabeledField({required this.label, required this.child, super.key});
+
+  final String label;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: AppTextStyles.bodySmall.copyWith(
+            color:
+                context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.spacing12),
+        child,
+      ],
+    );
+  }
+}
+
+/// A reusable rounded text field used on auth screens.
+class AuthTextField extends StatelessWidget {
+  const AuthTextField({
+    required this.controller,
+    required this.hintText,
+    required this.textInputAction,
+    this.obscureText = false,
+    this.suffixIcon,
+    this.onSubmitted,
+    this.validator,
+    this.textCapitalization = TextCapitalization.none,
+    this.autovalidateMode,
+    super.key,
+  });
+
+  final TextEditingController controller;
+  final String hintText;
+  final TextInputAction textInputAction;
+  final bool obscureText;
+  final Widget? suffixIcon;
+  final ValueChanged<String>? onSubmitted;
+  final String? Function(String?)? validator;
+  final TextCapitalization textCapitalization;
+  final AutovalidateMode? autovalidateMode;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppTextField(
+      controller: controller,
+      hintText: hintText,
+      textInputAction: textInputAction,
+      obscureText: obscureText,
+      suffixIcon: suffixIcon,
+      onSubmitted: onSubmitted,
+      validator: validator,
+      textCapitalization: textCapitalization,
+      autovalidateMode: autovalidateMode,
+      height: AppDimensions.onboardingInputHeight,
+    );
+  }
+}

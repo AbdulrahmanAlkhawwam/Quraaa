@@ -3,7 +3,7 @@ import '../../../../core/errors/error_mapper.dart';
 import '../../../../core/errors/failures.dart';
 import '../../domain/entities/favorite_book.dart';
 import '../../domain/repositories/favorite_books_repository.dart';
-import '../datasources/favorite_books_remote_data_source.dart';
+import '../data_sources/favorite_books_remote_data_source.dart';
 import '../models/favorite_book_model.dart';
 
 class FavoriteBooksRepositoryImpl implements FavoriteBooksRepository {

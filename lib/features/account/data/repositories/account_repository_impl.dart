@@ -1,6 +1,6 @@
-import '../../../../config/env/env.dart';
+import '../../../../core/config/env.dart';
 import '../../../auth/auth.dart';
-import '../../../profile/data/datasources/profile_local_data_source.dart';
+import '../../../profile/data/data_sources/profile_local_data_source.dart';
 import '../../../profile/domain/entities/profile.dart';
 import '../../domain/entities/account_user_snapshot.dart';
 import '../../domain/repositories/account_repository.dart';

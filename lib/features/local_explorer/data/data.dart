@@ -1,6 +1,6 @@
-export 'datasources/local/local_explorer_platform_datasource.dart';
-export 'datasources/local/local_file_system_datasource.dart';
-export 'datasources/local/local_file_system_datasource_factory.dart';
+export 'data_sources/local/local_explorer_platform_data_source.dart';
+export 'data_sources/local/local_file_system_data_source.dart';
+export 'data_sources/local/local_file_system_data_source_factory.dart';
 export 'mappers/local_directory_snapshot_mapper.dart';
 export 'mappers/local_file_entry_mapper.dart';
 export 'mappers/local_path_segment_mapper.dart';

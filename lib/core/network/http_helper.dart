@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 
-import '../../config/env/env.dart';
+import '../config/env.dart';
 
 class HttpHelper {
   HttpHelper(this._dio);

@@ -1,9 +1,9 @@
-export 'data/datasources/books_remote_data_source.dart';
+export 'data/data_sources/books_remote_data_source.dart';
 export 'data/models/home_catalog_book_model.dart';
 export 'data/repositories/books_repository_impl.dart';
 export 'domain/entities/book.dart';
 export 'domain/entities/book_catalog_filter.dart';
 export 'domain/repositories/books_repository.dart';
 export 'domain/use_cases/get_books_use_case.dart';
-export 'presentation/bloc/books_bloc.dart';
-export 'presentation/pages/books_screen.dart';
+export 'presentation/logic/books_bloc.dart';
+export 'presentation/screen/books_screen.dart';

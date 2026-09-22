@@ -4,7 +4,7 @@ import '../../../../core/errors/failures.dart';
 import '../../domain/entities/cart_item.dart';
 import '../../domain/entities/cart_summary.dart';
 import '../../domain/repositories/cart_repository.dart';
-import '../datasources/cart_remote_data_source.dart';
+import '../data_sources/cart_remote_data_source.dart';
 import '../models/cart_response_model.dart';
 
 class CartRepositoryImpl implements CartRepository {

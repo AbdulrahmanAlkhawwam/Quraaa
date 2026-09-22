@@ -1,3 +1,3 @@
-export 'presentation/pages/search_screen.dart';
-export 'presentation/widgets/search_widget.dart';
-export 'presentation/widgets/home_search_bar.dart';
+export 'presentation/screen/search_screen.dart';
+export 'presentation/widget/search_widget.dart';
+export 'presentation/widget/home_search_bar.dart';

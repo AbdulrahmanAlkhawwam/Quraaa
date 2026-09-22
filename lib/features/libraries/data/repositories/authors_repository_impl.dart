@@ -3,7 +3,7 @@ import '../../../../core/errors/error_mapper.dart';
 import '../../../../core/errors/failures.dart';
 import '../../domain/entities/author_entity.dart';
 import '../../domain/repositories/authors_repository.dart';
-import '../datasources/authors_remote_data_source.dart';
+import '../data_sources/authors_remote_data_source.dart';
 
 class AuthorsRepositoryImpl implements AuthorsRepository {
   const AuthorsRepositoryImpl(this._remote);

@@ -3,7 +3,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 
-import '../../config/env/env.dart';
+import '../config/env.dart';
 import '../error_monitoring/app_logger.dart';
 
 class AppDiagnosticsService {

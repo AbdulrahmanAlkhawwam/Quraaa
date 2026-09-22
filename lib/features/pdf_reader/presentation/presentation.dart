@@ -1,2 +1,2 @@
-export 'bloc/pdf_reader_bloc.dart';
-export 'pages/pdf_reader_page.dart';
+export 'logic/pdf_reader_bloc.dart';
+export 'screen/pdf_reader_screen.dart';

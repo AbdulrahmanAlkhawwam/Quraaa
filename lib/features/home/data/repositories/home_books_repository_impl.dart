@@ -4,7 +4,7 @@ import '../../../../core/errors/error_mapper.dart';
 import '../../../../core/errors/failures.dart';
 import '../../domain/entities/home_book_entity.dart';
 import '../../domain/repositories/home_books_repository.dart';
-import '../datasources/home_books_remote_data_source.dart';
+import '../data_sources/home_books_remote_data_source.dart';
 import '../models/paginated_home_books_response_model.dart';
 
 class HomeBooksRepositoryImpl extends BaseRepository<HomeBooksPage>

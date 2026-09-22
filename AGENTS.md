@@ -27,7 +27,7 @@ Key facts:
 | Framework | Flutter + Dart | Cross-platform UI (`lib/main.dart` entry point) |
 | State management | `flutter_bloc` | BLoC/Cubit pattern |
 | Dependency injection | `get_it` | Global service locator exposed as `sl` in `lib/core/di/injection_container.dart` |
-| Navigation | `go_router` | Declarative routing in `lib/config/routes/app_router.dart` |
+| Navigation | `go_router` | Declarative routing in `lib/core/routing/app_router.dart` |
 | Networking | `dio` | Listed as a dependency, but no concrete API client exists yet |
 | Localization | `easy_localization` | English (`en`) and Arabic (`ar`), RTL-aware |
 | Value equality | `equatable` | Used for `Failure` and model classes |
@@ -121,7 +121,7 @@ Be aware that much of the code is scaffolding rather than working implementation
 - Most core services (`StorageService`, `DatabaseService`, `ConnectivityService`, `LoggerService`, etc.) are abstract contracts only. `FirebaseService`, `NotificationService`, and `FirebaseMessagingService` are concrete; the Firebase services are called from `main.dart` and the notification services are wired through DI.
 - No concrete Dio API client, interceptors, or remote endpoints exist.
 - No CI/CD configuration (no `.github/workflows/`, no fastlane, etc.).
-- `.env` exists but `lib/config/env/env.dart` is a simple hard-coded class, not using `envied`.
+- `.env` exists but `lib/core/config/env.dart` is a simple hard-coded class, not using `envied`.
 - Core library desugaring is enabled in `android/app/build.gradle.kts` to satisfy `flutter_local_notifications` requirements.
 
 When adding new functionality, you will usually need to:
@@ -239,12 +239,12 @@ flutter test test/core/errors/error_mapper_test.dart
 ## Useful References
 
 - Entry point: `lib/main.dart`
-- App widget: `lib/app/app.dart`
-- Routes: `lib/config/routes/app_router.dart`
+- App widget: `lib/app.dart`
+- Routes: `lib/core/routing/app_router.dart`
 - DI container: `lib/core/di/injection_container.dart`
 - Error handling: `lib/core/errors/error_mapper.dart`, `lib/core/errors/failures.dart`
 - Localization: `lib/core/localization/localization_service.dart`
-- Design tokens: `lib/shared/theme/`
+- Design tokens: `lib/core/theme/`
 - Feature example: `lib/features/auth/`
 - Tests: `test/`
 - Human-readable project docs: `docs/README.md`, `docs/architecture/architecture.md`

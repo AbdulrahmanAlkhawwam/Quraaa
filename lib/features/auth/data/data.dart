@@ -1,6 +1,6 @@
-export './datasources/auth_local_datasource.dart';
-export './datasources/user_local_datasource.dart';
-export './datasources/auth_remote_datasource.dart';
+export 'data_sources/auth_local_data_source.dart';
+export 'data_sources/user_local_data_source.dart';
+export 'data_sources/auth_remote_data_source.dart';
 export './models/user_model.dart';
 export './mappers/auth_mapper.dart';
 export './mappers/user_mapper.dart';

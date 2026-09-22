@@ -3,8 +3,8 @@ import 'package:mocktail/mocktail.dart';
 import 'package:quraaa/features/account/data/repositories/account_repository_impl.dart';
 import 'package:quraaa/features/account/data/user_data_local_data_source.dart';
 import 'package:quraaa/features/account/domain/entities/account_user_snapshot.dart';
-import 'package:quraaa/features/auth/data/datasources/auth_local_datasource.dart';
-import 'package:quraaa/features/profile/data/datasources/profile_local_data_source.dart';
+import 'package:quraaa/features/auth/data/data_sources/auth_local_data_source.dart';
+import 'package:quraaa/features/profile/data/data_sources/profile_local_data_source.dart';
 import 'package:quraaa/features/profile/data/models/profile_model.dart';
 
 class _MockUserDataLocalDataSource extends Mock

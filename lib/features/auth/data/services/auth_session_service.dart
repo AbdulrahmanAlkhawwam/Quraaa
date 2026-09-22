@@ -1,7 +1,7 @@
 import '../../../../core/error_monitoring/user_context_provider.dart';
 import '../../domain/entities/user.dart';
-import '../datasources/auth_local_datasource.dart';
-import '../datasources/user_local_datasource.dart';
+import '../data_sources/auth_local_data_source.dart';
+import '../data_sources/user_local_data_source.dart';
 import '../models/user_model.dart';
 
 /// Finalizes a successful authentication operation as one local transaction.

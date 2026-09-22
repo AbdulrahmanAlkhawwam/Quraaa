@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:quraaa/core/architecture/result.dart';
-import 'package:quraaa/features/cart/data/datasources/cart_remote_data_source.dart';
+import 'package:quraaa/features/cart/data/data_sources/cart_remote_data_source.dart';
 import 'package:quraaa/features/cart/data/models/cart_response_model.dart';
 import 'package:quraaa/features/cart/data/repositories/cart_repository_impl.dart';
 import 'package:quraaa/features/cart/domain/entities/cart_item.dart';

@@ -1,0 +1,279 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/material.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../config/env.dart';
+import '../di/injection_container.dart';
+import '../error_monitoring/device_info_provider.dart';
+import '../utils/extensions/app_context.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_radius.dart';
+import '../theme/app_spacing.dart';
+
+/// A floating debug button that only appears in development mode.
+///
+/// Tapping it opens a bottom sheet showing:
+/// - Cached SharedPreferences data
+/// - Device information
+/// - Connectivity / online status
+///
+/// Intended for [Scaffold.floatingActionButton]. Its layout must remain
+/// tightly constrained so floating SnackBars stay inside the visible screen.
+class DevDebugOverlay extends StatelessWidget {
+  const DevDebugOverlay({super.key, this.navigatorKey});
+
+  final GlobalKey<NavigatorState>? navigatorKey;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!Env.isDev) {
+      return const SizedBox.shrink();
+    }
+
+    return Material(
+      color: Colors.transparent,
+      child: GestureDetector(
+        onTap: () => _showDebugSheet(context),
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: AppColors.error500.withValues(alpha: 0.9),
+            shape: BoxShape.circle,
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.25),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: const Center(
+            child: Icon(Icons.bug_report, color: Colors.white, size: 20),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showDebugSheet(BuildContext context) {
+    final BuildContext? navContext = navigatorKey?.currentContext;
+    showModalBottomSheet(
+      context: navContext ?? context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) => const _DebugInfoSheet(),
+    );
+  }
+}
+
+class _DebugInfoSheet extends StatefulWidget {
+  const _DebugInfoSheet();
+
+  @override
+  State<_DebugInfoSheet> createState() => _DebugInfoSheetState();
+}
+
+class _DebugInfoSheetState extends State<_DebugInfoSheet> {
+  Map<String, dynamic>? _cacheData;
+  Map<String, String>? _deviceData;
+  String? _connectivityStatus;
+  bool? _hasInternet;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    try {
+      // Cache
+      final SharedPreferences prefs = sl<SharedPreferences>();
+      final Set<String> keys = prefs.getKeys();
+      final Map<String, dynamic> cache = <String, dynamic>{};
+      for (final String key in keys) {
+        cache[key] = prefs.get(key);
+      }
+
+      // Device
+      final DeviceInfoProvider deviceInfo = sl<DeviceInfoProvider>();
+      await deviceInfo.initialize();
+      final DeviceSnapshot snapshot = deviceInfo.snapshot;
+      final Map<String, String> device = <String, String>{
+        'Platform': snapshot.platform,
+        'Model': snapshot.deviceModel,
+        'Manufacturer': snapshot.manufacturer,
+        'OS Version': snapshot.osVersion,
+        'Locale': snapshot.locale,
+        'App Version': snapshot.appVersion,
+        'Build Number': snapshot.buildNumber,
+        'App Name': snapshot.appName,
+        'Environment': snapshot.environment,
+      };
+
+      // Connectivity
+      final List<ConnectivityResult> results = await Connectivity()
+          .checkConnectivity();
+      final String connectivityStatus =
+          results.isEmpty ||
+              results.every(
+                (ConnectivityResult r) => r == ConnectivityResult.none,
+              )
+          ? 'Disconnected'
+          : 'Connected (${results.map((ConnectivityResult r) => r.name).join(', ')})';
+      final bool hasInternet = await InternetConnection().hasInternetAccess;
+
+      if (!mounted) return;
+
+      setState(() {
+        _cacheData = cache;
+        _deviceData = device;
+        _connectivityStatus = connectivityStatus;
+        _hasInternet = hasInternet;
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(AppSpacing.spacing16),
+      padding: const EdgeInsets.all(AppSpacing.spacing20),
+      decoration: BoxDecoration(
+        color: context.appCard,
+        borderRadius: BorderRadius.circular(AppRadius.radius32),
+      ),
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.sizeOf(context).height * 0.75,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              const Icon(Icons.bug_report, color: AppColors.error500),
+              const SizedBox(width: AppSpacing.spacing12),
+              Expanded(
+                child: Text(
+                  'Dev Debug Info',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: context.appTextPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              IconButton(
+                onPressed: () => Navigator.of(context).pop(),
+                icon: Icon(Icons.close, color: context.appTextSecondary),
+              ),
+            ],
+          ),
+          const Divider(height: 24),
+          Flexible(
+            child: _loading
+                ? const Center(child: CircularProgressIndicator())
+                : SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        _buildSectionTitle(context, 'Connectivity'),
+                        _buildInfoRow(
+                          context,
+                          'Status',
+                          _connectivityStatus ?? 'Unknown',
+                        ),
+                        _buildInfoRow(
+                          context,
+                          'Internet Access',
+                          _hasInternet == true ? 'Yes' : 'No',
+                        ),
+                        const SizedBox(height: 16),
+                        _buildSectionTitle(context, 'Device'),
+                        ..._deviceData!.entries.map(
+                          (MapEntry<String, String> e) =>
+                              _buildInfoRow(context, e.key, e.value),
+                        ),
+                        const SizedBox(height: 16),
+                        _buildSectionTitle(
+                          context,
+                          'Cache (SharedPreferences)',
+                        ),
+                        if (_cacheData == null || _cacheData!.isEmpty)
+                          Text(
+                            'No cached data',
+                            style: TextStyle(color: context.appTextSecondary),
+                          )
+                        else
+                          ..._cacheData!.entries.map(
+                            (MapEntry<String, dynamic> e) => _buildInfoRow(
+                              context,
+                              e.key,
+                              _formatValue(e.value),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(BuildContext context, String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontWeight: FontWeight.w700,
+          fontSize: 16,
+          color: context.isDark ? AppColors.primary300 : AppColors.libraryGreen,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(BuildContext context, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          SizedBox(
+            width: 120,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+                color: context.appTextSecondary,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(fontSize: 13, color: context.appTextPrimary),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatValue(dynamic value) {
+    if (value == null) return 'null';
+    if (value is List) return value.toString();
+    return value.toString();
+  }
+}

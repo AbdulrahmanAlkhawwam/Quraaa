@@ -1,0 +1,210 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hugeicons/hugeicons.dart';
+
+import '../../routing/route_names.dart';
+import '../../di/injection_container.dart';
+import '../../error_monitoring/user_context_provider.dart';
+import '../../errors/error_message_resolver.dart';
+import '../../messages/message.dart';
+import '../../theme/app_colors.dart';
+
+extension AppNavigation on BuildContext {
+  Future<T?> pushTo<T extends Object?>(String route, {Object? extra}) {
+    unawaited(sl<UserContextProvider>().recordAction('Push route: $route'));
+    return GoRouter.of(this).push<T>(route, extra: extra);
+  }
+
+  void goTo(String route, {Object? extra}) {
+    unawaited(sl<UserContextProvider>().recordAction('Go route: $route'));
+    GoRouter.of(this).go(route, extra: extra);
+  }
+
+  // Future<T?> replaceWith<T extends Object?>(
+  //   String route, {
+  //   Object? extra,
+  // }) {
+  //   return pushReplacement<T, T>(route, extra: extra);
+  // }
+
+  void back<T extends Object?>([T? result]) {
+    unawaited(sl<UserContextProvider>().recordAction('Back navigation'));
+    if (GoRouter.of(this).canPop()) {
+      GoRouter.of(this).pop(result);
+    } else {
+      goTo(RouteNames.home);
+    }
+  }
+}
+
+extension AppThemeX on BuildContext {
+  ColorScheme get colors => Theme.of(this).colorScheme;
+
+  bool get isDark => Theme.of(this).brightness == Brightness.dark;
+
+  TextTheme get textTheme => Theme.of(this).textTheme;
+
+  Color get appBackground => Theme.of(this).scaffoldBackgroundColor;
+
+  Color get appSurface => colors.surface;
+
+  Color get appCard => Theme.of(this).cardColor;
+
+  Color get appSubtleSurface =>
+      isDark ? AppColors.surfaceDark : AppColors.primary50;
+
+  Color get appBorder => isDark ? AppColors.outlineDark : AppColors.primary100;
+
+  Color get appTextPrimary => colors.onSurface;
+
+  Color get appTextSecondary => colors.onSurfaceVariant;
+
+  Color get appTextTertiary =>
+      isDark ? AppColors.textTertiaryDark : AppColors.textTertiary;
+}
+
+extension AppResponsive on BuildContext {
+  double get height => MediaQuery.sizeOf(this).height;
+
+  double get width => MediaQuery.sizeOf(this).width;
+
+  double get bottomPadding => MediaQuery.paddingOf(this).bottom;
+
+  double get bottomInsets => MediaQuery.viewInsetsOf(this).bottom;
+
+  double get compactFeatureScale => (width / 520).clamp(0.78, 0.9).toDouble();
+}
+
+extension AppConstraintResponsive on BoxConstraints {
+  double get compactFeatureScale =>
+      (maxWidth / 520).clamp(0.78, 0.9).toDouble();
+}
+
+extension AppDirectionality on BuildContext {
+  TextDirection get textDirection => Directionality.of(this);
+
+  bool get isRTL => textDirection == TextDirection.rtl;
+
+  bool get isLTR => textDirection == TextDirection.ltr;
+}
+
+extension AppSnackbar on BuildContext {
+  void showSuccessSnackBar({Message? message}) {
+    ScaffoldMessenger.of(this).clearSnackBars();
+    ScaffoldMessenger.of(this).showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: colors.primaryContainer,
+        shape: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: colors.primary),
+        ),
+        duration: const Duration(milliseconds: 2500),
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                HugeIcon(
+                  icon: HugeIcons.strokeRoundedBookCheck,
+                  color: colors.primary,
+                  size: 22,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  message?.title ?? '',
+                  textAlign: TextAlign.start,
+                  style: textTheme.titleMedium?.copyWith(color: colors.primary),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message?.value ?? '',
+              textAlign: TextAlign.start,
+              style: textTheme.bodyMedium?.copyWith(
+                color: colors.onPrimaryContainer,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void showErrorSnackBar({Message? message}) {
+    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(this);
+    final String title = message?.title.trim() ?? '';
+    final String details = message?.value.trim() ?? '';
+
+    messenger.clearSnackBars();
+    messenger.showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: colors.errorContainer,
+        elevation: 6,
+        margin: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 16),
+        padding: const EdgeInsetsDirectional.fromSTEB(16, 14, 8, 14),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: colors.error, width: 1.2),
+        ),
+        duration: const Duration(seconds: 6),
+        dismissDirection: DismissDirection.horizontal,
+        showCloseIcon: true,
+        closeIconColor: colors.onErrorContainer,
+        content: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            HugeIcon(
+              icon: HugeIcons.strokeRoundedAlertCircle,
+              color: colors.error,
+              size: 24,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (title.isNotEmpty)
+                    Text(
+                      title,
+                      textAlign: TextAlign.start,
+                      style: textTheme.titleMedium?.copyWith(
+                        color: colors.onErrorContainer,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  if (title.isNotEmpty && details.isNotEmpty)
+                    const SizedBox(height: 6),
+                  Text(
+                    details,
+                    textAlign: TextAlign.start,
+                    softWrap: true,
+                    maxLines: 6,
+                    overflow: TextOverflow.ellipsis,
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: colors.onErrorContainer,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Shows an error SnackBar whose title and message are automatically
+  /// resolved from the error object.
+  ///
+  /// The title is localized and the concrete server reason is preserved.
+  void showResolvedErrorSnackBar(Object? error) {
+    showErrorSnackBar(message: ErrorMessageResolver.resolve(error));
+  }
+}

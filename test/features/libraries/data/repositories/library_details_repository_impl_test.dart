@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:quraaa/core/architecture/result.dart';
 import 'package:quraaa/core/errors/exceptions.dart';
-import 'package:quraaa/features/libraries/data/datasources/library_details_remote_data_source.dart';
+import 'package:quraaa/features/libraries/data/data_sources/library_details_remote_data_source.dart';
 import 'package:quraaa/features/libraries/data/models/library_book_model.dart';
 import 'package:quraaa/features/libraries/data/models/paginated_library_books_response_model.dart';
 import 'package:quraaa/features/libraries/data/repositories/library_details_repository_impl.dart';

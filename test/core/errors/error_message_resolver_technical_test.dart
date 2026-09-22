@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:quraaa/core/errors/error_message_resolver.dart';
-import 'package:quraaa/shared/models/message.dart';
+import 'package:quraaa/core/messages/message.dart';
 
 void main() {
   setUpAll(() => EasyLocalization.logger.enableLevels = const []);

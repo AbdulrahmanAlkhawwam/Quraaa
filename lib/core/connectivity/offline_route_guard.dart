@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../config/routes/route_names.dart';
-import '../../shared/extensions/app_context.dart';
+import '../routing/route_names.dart';
+import '../utils/extensions/app_context.dart';
 import '../di/injection_container.dart';
 import 'connection_status.dart';
 import 'connectivity_service.dart';

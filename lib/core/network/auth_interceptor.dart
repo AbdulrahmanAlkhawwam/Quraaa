@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 
-import '../../features/auth/data/datasources/auth_local_datasource.dart';
+import '../../features/auth/data/data_sources/auth_local_data_source.dart';
 import '../constants/api_endpoints.dart';
 
 /// Called after an authenticated backend request proves that the session is no

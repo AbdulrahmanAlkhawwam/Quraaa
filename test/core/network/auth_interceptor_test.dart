@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:quraaa/core/constants/api_endpoints.dart';
 import 'package:quraaa/core/network/auth_interceptor.dart';
-import 'package:quraaa/features/auth/data/datasources/auth_local_datasource.dart';
+import 'package:quraaa/features/auth/data/data_sources/auth_local_data_source.dart';
 
 class _MockAuthLocalDataSource extends Mock implements AuthLocalDataSource {}
 

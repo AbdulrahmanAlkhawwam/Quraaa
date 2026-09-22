@@ -2,8 +2,8 @@ import '../../domain/entities/category.dart';
 import '../../domain/entities/gender_selection.dart';
 import '../../domain/entities/onboarding_draft.dart';
 import '../../domain/repositories/onboarding_repository.dart';
-import '../datasources/onboarding_local_datasource.dart';
-import '../datasources/onboarding_remote_datasource.dart';
+import '../data_sources/onboarding_local_data_source.dart';
+import '../data_sources/onboarding_remote_data_source.dart';
 
 class OnboardingRepositoryImpl implements OnboardingRepository {
   const OnboardingRepositoryImpl(this._localDataSource, this._remoteDataSource);

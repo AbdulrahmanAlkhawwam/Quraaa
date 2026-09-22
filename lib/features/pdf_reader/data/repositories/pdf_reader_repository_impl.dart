@@ -5,8 +5,8 @@ import '../../domain/entities/pdf_text_layer.dart';
 import '../../domain/entities/pdf_text_note.dart';
 import '../../domain/repositories/pdf_reader_repository.dart';
 import '../../domain/value_objects/pdf_reader_result.dart';
-import '../datasources/local/pdf_note_datasource.dart';
-import '../datasources/local/pdf_render_datasource.dart';
+import '../data_sources/local/pdf_note_data_source.dart';
+import '../data_sources/local/pdf_render_data_source.dart';
 
 class PdfReaderRepositoryImpl implements PdfReaderRepository {
   const PdfReaderRepositoryImpl({

@@ -3,7 +3,7 @@ import '../../../../core/architecture/result.dart';
 import '../../../../core/errors/error_mapper.dart';
 import '../../../../core/errors/failures.dart';
 import '../../domain/repositories/libraries_repository.dart';
-import '../datasources/libraries_remote_data_source.dart';
+import '../data_sources/libraries_remote_data_source.dart';
 
 class LibrariesRepositoryImpl extends BaseRepository<LibrariesPage>
     implements LibrariesRepository {

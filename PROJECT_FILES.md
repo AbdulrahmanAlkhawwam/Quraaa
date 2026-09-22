@@ -37,15 +37,15 @@ Generated file index for quick project navigation.
 
 ### App Entry
 
-- `lib/app/app.dart`
+- `lib/app.dart`
 - `lib/main.dart`
 
 ### Config
 
-- `lib/config/env/env.dart`
-- `lib/config/routes/app_router.dart`
-- `lib/config/routes/route_names.dart`
-- `lib/config/routes/route_resolver.dart`
+- `lib/core/config/env.dart`
+- `lib/core/routing/app_router.dart`
+- `lib/core/routing/route_names.dart`
+- `lib/core/routing/route_resolver.dart`
 
 ### Core
 
@@ -89,7 +89,6 @@ Generated file index for quick project navigation.
 - `lib/core/localization/localization_service.dart`
 - `lib/core/localization/supported_locales.dart`
 - `lib/core/network/auth_interceptor.dart`
-- `lib/core/network/endpoints.dart`
 - `lib/core/network/http_helper.dart`
 - `lib/core/services/app_diagnostics_service.dart`
 - `lib/core/services/file_service.dart`
@@ -118,9 +117,9 @@ Generated file index for quick project navigation.
 
 - `lib/features/auth/auth.dart`
 - `lib/features/auth/data/data.dart`
-- `lib/features/auth/data/datasources/auth_local_datasource.dart`
-- `lib/features/auth/data/datasources/auth_remote_datasource.dart`
-- `lib/features/auth/data/datasources/user_local_datasource.dart`
+- `lib/features/auth/data/data_sources/auth_local_data_source.dart`
+- `lib/features/auth/data/data_sources/auth_remote_data_source.dart`
+- `lib/features/auth/data/data_sources/user_local_data_source.dart`
 - `lib/features/auth/data/mappers/auth_mapper.dart`
 - `lib/features/auth/data/mappers/user_mapper.dart`
 - `lib/features/auth/data/models/user_model.dart`
@@ -130,36 +129,35 @@ Generated file index for quick project navigation.
 - `lib/features/auth/domain/repositories/auth_repository.dart`
 - `lib/features/auth/domain/use_cases/login_use_case.dart`
 - `lib/features/auth/domain/use_cases/register_use_case.dart`
-- ✅ `lib/features/auth/presentation/bloc/auth_bloc.dart`
-- ✅ `lib/features/auth/presentation/bloc/auth_event.dart`
-- ✅ `lib/features/auth/presentation/bloc/auth_state.dart`
-- ✅ `lib/features/auth/presentation/pages/landing_page.dart`
-- `lib/features/auth/presentation/pages/location_permission_screen.dart`
-- `lib/features/auth/presentation/pages/login_screen.dart`
-- `lib/features/auth/presentation/pages/notification_permission_screen.dart`
-- `lib/features/auth/presentation/pages/otp_verification_screen.dart`
-- `lib/features/auth/presentation/pages/register_screen.dart`
+- ✅ `lib/features/auth/presentation/logic/auth_bloc.dart`
+- ✅ `lib/features/auth/presentation/logic/auth_event.dart`
+- ✅ `lib/features/auth/presentation/logic/auth_state.dart`
+- ✅ `lib/features/auth/presentation/screen/landing_screen.dart`
+- `lib/features/auth/presentation/screen/location_permission_screen.dart`
+- `lib/features/auth/presentation/screen/login_screen.dart`
+- `lib/features/auth/presentation/screen/notification_permission_screen.dart`
+- `lib/features/auth/presentation/screen/otp_verification_screen.dart`
+- `lib/features/auth/presentation/screen/register_screen.dart`
 - `lib/features/auth/presentation/presentation.dart`
-- `lib/features/auth/presentation/widgets/auth_form_fields.dart`
+- `lib/features/auth/presentation/widget/auth_form_fields.dart`
 
 #### Home
 
 - `lib/features/home/home.dart`
-- `lib/features/home/presentation/pages/audio_books_screen.dart`
-- `lib/features/home/presentation/pages/cart_screen.dart`
-- `lib/features/home/presentation/pages/home_screen.dart`
-- `lib/features/home/presentation/pages/stores_screen.dart`
-- `lib/features/home/presentation/pages/user_books_screen.dart`
-- `lib/features/home/presentation/widgets/home_bottom_nav.dart`
-- `lib/features/home/presentation/widgets/home_drawer.dart`
-- `lib/features/home/presentation/widgets/home_feature_screen.dart`
+- `lib/features/home/presentation/screen/audio_books_screen.dart`
+- `lib/features/home/presentation/screen/home_screen.dart`
+- `lib/features/home/presentation/screen/stores_screen.dart`
+- `lib/features/home/presentation/screen/user_books_screen.dart`
+- `lib/features/home/presentation/widget/home_bottom_nav.dart`
+- `lib/features/home/presentation/widget/home_drawer.dart`
+- `lib/features/home/presentation/widget/home_feature_screen.dart`
 
 #### Onboarding
 
 - `lib/features/onboarding/onboarding.dart`
 - `lib/features/onboarding/data/data.dart`
-- `lib/features/onboarding/data/datasources/onboarding_local_datasource.dart`
-- `lib/features/onboarding/data/datasources/onboarding_remote_datasource.dart`
+- `lib/features/onboarding/data/data_sources/onboarding_local_data_source.dart`
+- `lib/features/onboarding/data/data_sources/onboarding_remote_data_source.dart`
 - `lib/features/onboarding/data/models/category_model.dart`
 - `lib/features/onboarding/data/repositories/onboarding_repository_impl.dart`
 - `lib/features/onboarding/domain/domain.dart`
@@ -173,43 +171,43 @@ Generated file index for quick project navigation.
 - `lib/features/onboarding/domain/use_cases/save_birth_date_use_case.dart`
 - `lib/features/onboarding/domain/use_cases/save_category_id_use_case.dart`
 - `lib/features/onboarding/domain/use_cases/save_gender_use_case.dart`
-- `lib/features/onboarding/presentation/bloc/onboarding_bloc.dart`
-- `lib/features/onboarding/presentation/pages/age_onboarding_page.dart`
-- `lib/features/onboarding/presentation/pages/gender_onboarding_page.dart`
-- `lib/features/onboarding/presentation/pages/interests_onboarding_page.dart`
+- `lib/features/onboarding/presentation/logic/onboarding_bloc.dart`
+- `lib/features/onboarding/presentation/screen/age_onboarding_screen.dart`
+- `lib/features/onboarding/presentation/screen/gender_onboarding_screen.dart`
+- `lib/features/onboarding/presentation/screen/interests_onboarding_screen.dart`
 - `lib/features/onboarding/presentation/presentation.dart`
 
 #### Profile
 
 - `lib/features/account/data/user_data_local_data_source.dart`
-- `lib/features/profile/data/datasources/profile_local_data_source.dart`
-- `lib/features/profile/data/datasources/profile_remote_data_source.dart`
+- `lib/features/profile/data/data_sources/profile_local_data_source.dart`
+- `lib/features/profile/data/data_sources/profile_remote_data_source.dart`
 - `lib/features/profile/data/models/profile_model.dart`
 - `lib/features/profile/data/repositories/profile_repository_impl.dart`
 - `lib/features/profile/domain/repositories/profile_repository.dart`
-- `lib/features/profile/presentation/bloc/profile_bloc.dart`
-- `lib/features/profile/presentation/bloc/profile_event.dart`
-- `lib/features/profile/presentation/bloc/profile_state.dart`
-- `lib/features/profile/presentation/bloc/edit_profile_bloc.dart`
-- `lib/features/profile/presentation/bloc/edit_profile_event.dart`
-- `lib/features/profile/presentation/bloc/edit_profile_state.dart`
+- `lib/features/profile/presentation/logic/profile_bloc.dart`
+- `lib/features/profile/presentation/logic/profile_event.dart`
+- `lib/features/profile/presentation/logic/profile_state.dart`
+- `lib/features/profile/presentation/logic/edit_profile_bloc.dart`
+- `lib/features/profile/presentation/logic/edit_profile_event.dart`
+- `lib/features/profile/presentation/logic/edit_profile_state.dart`
 - `lib/features/profile/presentation/extensions/profile_model_ui_extensions.dart`
-- `lib/features/profile/presentation/pages/edit_profile_screen.dart`
-- `lib/features/profile/presentation/widgets/avatar_customization_tabs.dart`
-- `lib/features/profile/presentation/widgets/color_palette.dart`
-- `lib/features/profile/presentation/widgets/gender_dropdown.dart`
-- `lib/features/profile/presentation/widgets/phone_number_field.dart`
-- `lib/features/profile/presentation/widgets/profile_avatar_illustration.dart`
-- `lib/features/profile/presentation/widgets/profile_info_shimmer.dart`
-- `lib/features/profile/presentation/widgets/profile_preview_card.dart`
-- `lib/features/profile/presentation/widgets/profile_text_field.dart`
+- `lib/features/profile/presentation/screen/edit_profile_screen.dart`
+- `lib/features/profile/presentation/widget/avatar_customization_tabs.dart`
+- `lib/features/profile/presentation/widget/color_palette.dart`
+- `lib/features/profile/presentation/widget/gender_dropdown.dart`
+- `lib/features/profile/presentation/widget/phone_number_field.dart`
+- `lib/features/profile/presentation/widget/profile_avatar_illustration.dart`
+- `lib/features/profile/presentation/widget/profile_info_shimmer.dart`
+- `lib/features/profile/presentation/widget/profile_preview_card.dart`
+- `lib/features/profile/presentation/widget/profile_text_field.dart`
 
 #### Search
 
 - `lib/features/search/search.dart`
-- `lib/features/search/presentation/pages/search_screen.dart`
-- `lib/features/search/presentation/widgets/home_search_bar.dart`
-- `lib/features/search/presentation/widgets/search_widget.dart`
+- `lib/features/search/presentation/screen/search_screen.dart`
+- `lib/features/search/presentation/widget/home_search_bar.dart`
+- `lib/features/search/presentation/widget/search_widget.dart`
 
 #### Settings
 
@@ -217,70 +215,62 @@ Generated file index for quick project navigation.
 - `lib/features/settings/data/.gitkeep`
 - `lib/features/settings/domain/.gitkeep`
 - `lib/features/settings/domain/entities/personal_information.dart`
-- `lib/features/settings/presentation/pages/personal_information_screen.dart`
-- `lib/features/settings/presentation/pages/settings_screen.dart`
-- `lib/features/settings/presentation/pages/settings_search_screen.dart`
-- `lib/features/settings/presentation/widgets/personal_data_card.dart`
-- `lib/features/settings/presentation/widgets/personal_data_row.dart`
-- `lib/features/settings/presentation/widgets/personal_data_section.dart`
-- `lib/features/settings/presentation/widgets/personal_information_header.dart`
-- `lib/features/settings/presentation/widgets/profile_avatar.dart`
-- `lib/features/settings/presentation/widgets/profile_image_card.dart`
+- `lib/features/settings/presentation/screen/personal_information_screen.dart`
+- `lib/features/settings/presentation/screen/settings_screen.dart`
+- `lib/features/settings/presentation/widget/personal_data_card.dart`
+- `lib/features/settings/presentation/widget/personal_data_row.dart`
+- `lib/features/settings/presentation/widget/personal_data_section.dart`
+- `lib/features/settings/presentation/widget/personal_information_header.dart`
+- `lib/features/settings/presentation/widget/profile_avatar.dart`
+- `lib/features/settings/presentation/widget/profile_image_card.dart`
 
 #### Splash
 
-- `lib/features/splash/presentation/pages/splash_screen.dart`
+- `lib/features/splash/presentation/screen/splash_screen.dart`
 
 #### Subscription
 
-- `lib/features/subscription/presentation/pages/account_type_screen.dart`
-- `lib/features/subscription/presentation/widgets/subscription_plan_card.dart`
+- `lib/features/subscription/presentation/screen/account_type_screen.dart`
+- `lib/features/subscription/presentation/widget/subscription_plan_card.dart`
 
 ### Shared
 
-- `lib/shared/shared.dart`
-- `lib/shared/constants/.gitkeep`
-- `lib/shared/enums/.gitkeep`
-- `lib/shared/extensions/.gitkeep`
-- `lib/shared/extensions/app_context.dart`
-- `lib/shared/models/.gitkeep`
-- `lib/shared/models/message.dart`
-- `lib/shared/theme/app_colors.dart`
-- ✅ `lib/shared/theme/app_dimensions.dart`
-- `lib/shared/theme/app_durations.dart`
-- `lib/shared/theme/app_radius.dart`
-- `lib/shared/theme/app_shadows.dart`
-- `lib/shared/theme/app_spacing.dart`
-- `lib/shared/theme/app_theme.dart`
-- `lib/shared/theme/app_theme_cubit.dart`
-- `lib/shared/theme/styles/app_bar.dart`
-- ✅ `lib/shared/theme/styles/filled_button.dart`
-- ✅ `lib/shared/theme/styles/outlined_button.dart`
-- ✅ `lib/shared/theme/styles/text_button.dart`
-- `lib/shared/theme/styles/text_input_feild.dart`
-- `lib/shared/theme/styles/text_styles.dart`
-- `lib/shared/widgets/animated_search_bar.dart`
-- `lib/shared/widgets/app_shell.dart`
-- `lib/shared/widgets/bottom_sheet_drag_handle.dart`
-- `lib/shared/widgets/dev_debug_overlay.dart`
-- `lib/shared/widgets/expandable_search_bar.dart`
-- ✅ `lib/shared/widgets/app_image.dart`
-- ✅ `lib/shared/widgets/app_layout.dart`
-- `lib/shared/widgets/language_bottom_sheet.dart`
-- `lib/shared/widgets/notification_bottom_sheet.dart`
-- `lib/shared/widgets/onboarding_progress_indicator.dart`
-- `lib/shared/widgets/onboarding_scaffold.dart`
-- `lib/shared/widgets/phone_number_input.dart`
-- `lib/shared/widgets/preference_selection_bottom_sheet.dart`
-- `lib/shared/widgets/settings_action_button.dart`
-- `lib/shared/widgets/settings_action_group.dart`
-- `lib/shared/widgets/steps_indicator.dart`
-- `lib/shared/widgets/terms_privacy_bottom_sheet.dart`
-- `lib/shared/widgets/theme_bottom_sheet.dart`
+- `lib/core/shared.dart`
+- `lib/core/utils/extensions/app_context.dart`
+- `lib/core/messages/message.dart`
+- `lib/core/theme/app_colors.dart`
+- ✅ `lib/core/theme/app_dimensions.dart`
+- `lib/core/theme/app_durations.dart`
+- `lib/core/theme/app_radius.dart`
+- `lib/core/theme/app_shadows.dart`
+- `lib/core/theme/app_spacing.dart`
+- `lib/core/theme/app_theme.dart`
+- `lib/core/theme/app_theme_cubit.dart`
+- `lib/core/theme/styles/app_bar.dart`
+- ✅ `lib/core/theme/styles/filled_button.dart`
+- ✅ `lib/core/theme/styles/outlined_button.dart`
+- ✅ `lib/core/theme/styles/text_button.dart`
+- `lib/core/theme/styles/text_input_feild.dart`
+- `lib/core/theme/styles/text_styles.dart`
+- `lib/core/widgets/animated_search_bar.dart`
+- `lib/core/widgets/app_shell.dart`
+- `lib/core/widgets/bottom_sheet_drag_handle.dart`
+- `lib/core/widgets/dev_debug_overlay.dart`
+- `lib/core/widgets/expandable_search_bar.dart`
+- ✅ `lib/core/widgets/app_image.dart`
+- ✅ `lib/core/widgets/app_layout.dart`
+- `lib/core/widgets/language_bottom_sheet.dart`
+- `lib/core/widgets/notification_bottom_sheet.dart`
+- `lib/core/widgets/onboarding_progress_indicator.dart`
+- `lib/core/widgets/onboarding_scaffold.dart`
+- `lib/core/widgets/phone_number_input.dart`
+- `lib/core/widgets/preference_selection_bottom_sheet.dart`
+- `lib/core/widgets/steps_indicator.dart`
+- `lib/core/widgets/terms_privacy_bottom_sheet.dart`
+- `lib/core/widgets/theme_bottom_sheet.dart`
 
 ### Test Helpers
 
-- `lib/test_helpers/.gitkeep`
 
 ## Assets
 
@@ -312,15 +302,15 @@ Generated file index for quick project navigation.
 - `test/core/utils/validators_test.dart`
 - `test/features/auth/data/repositories/auth_repository_impl_test.dart`
 - `test/features/auth/domain/use_cases/login_use_case_test.dart`
-- ✅ `test/features/auth/presentation/bloc/auth_bloc_test.dart`
+- ✅ `test/features/auth/presentation/logic/auth_bloc_test.dart`
 - `test/fixtures/.gitkeep`
 - `test/helpers/.gitkeep`
 - `test/mocks/.gitkeep`
 - `test/mocks/mock_classes.dart`
-- ✅ `test/shared/theme/styles/filled_button_test.dart`
-- ✅ `test/shared/theme/styles/outlined_button_test.dart`
-- ✅ `test/shared/theme/styles/text_button_test.dart`
-- ✅ `test/shared/widgets/app_image_test.dart`
+- ✅ `test/core/theme/styles/filled_button_test.dart`
+- ✅ `test/core/theme/styles/outlined_button_test.dart`
+- ✅ `test/core/theme/styles/text_button_test.dart`
+- ✅ `test/core/widgets/app_image_test.dart`
 - `test/widget_test.dart`
 
 ## Android — `android/`

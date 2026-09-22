@@ -1,4 +1,4 @@
-export 'datasources/library_registration_remote_data_source.dart';
+export 'data_sources/library_registration_remote_data_source.dart';
 export 'models/library_registration_model.dart';
 export 'models/library_profile_model.dart';
 export 'repositories/library_registration_repository_impl.dart';
