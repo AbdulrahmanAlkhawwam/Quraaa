@@ -1,6 +1,8 @@
-import '../../../../core/architecture/result.dart';
+import 'package:fpdart/fpdart.dart';
+
 import '../../../../core/errors/error_mapper.dart';
 import '../../../../core/errors/failures.dart';
+import '../../../../core/use_cases/use_case.dart';
 import '../../domain/entities/favorite_book.dart';
 import '../../domain/repositories/favorite_books_repository.dart';
 import '../data_sources/favorite_books_remote_data_source.dart';
@@ -13,12 +15,12 @@ class FavoriteBooksRepositoryImpl implements FavoriteBooksRepository {
   final Set<String> _knownBookIds = <String>{};
 
   @override
-  Future<Result<FavoriteBooksPage>> getFavoriteBooks({
+  FutureEither<FavoriteBooksPage> getFavoriteBooks({
     required int pageNumber,
     required int pageSize,
     String searchTerm = '',
-  }) async {
-    try {
+  }) {
+    return _guard(() async {
       final FavoriteBooksPageModel model = await _remoteDataSource
           .getFavoriteBooks(
             pageNumber: pageNumber,
@@ -27,41 +29,37 @@ class FavoriteBooksRepositoryImpl implements FavoriteBooksRepository {
           );
       final FavoriteBooksPage page = _toPage(model);
       _knownBookIds.addAll(page.items.map((item) => item.bookId));
-      return Success<FavoriteBooksPage>(page);
-    } catch (error) {
-      return _failure<FavoriteBooksPage>(error);
-    }
+      return page;
+    });
   }
 
   @override
-  Future<Result<FavoriteBook>> addFavorite(String bookId) async {
-    try {
+  FutureEither<FavoriteBook> addFavorite(String bookId) {
+    return _guard(() async {
       final FavoriteBook favorite = (await _remoteDataSource.addFavorite(
         bookId,
       )).toEntity();
       _knownBookIds.add(bookId);
-      return Success<FavoriteBook>(favorite);
-    } catch (error) {
-      return _failure<FavoriteBook>(error);
-    }
+      return favorite;
+    });
   }
 
   @override
-  Future<Result<bool>> removeFavorite(String bookId) async {
-    try {
+  FutureEither<bool> removeFavorite(String bookId) {
+    return _guard(() async {
       await _remoteDataSource.removeFavorite(bookId);
       _knownBookIds.remove(bookId);
-      return const Success<bool>(true);
-    } catch (error) {
-      return _failure<bool>(error);
-    }
+      return true;
+    });
   }
 
+  /// Answers from the ids seen so far, otherwise pages through the whole
+  /// favorites list once and remembers every id it passes.
   @override
-  Future<Result<bool>> isFavorite(String bookId) async {
-    if (_knownBookIds.contains(bookId)) return const Success<bool>(true);
-    int pageNumber = 1;
-    try {
+  FutureEither<bool> isFavorite(String bookId) {
+    return _guard(() async {
+      if (_knownBookIds.contains(bookId)) return true;
+      int pageNumber = 1;
       while (true) {
         final FavoriteBooksPageModel model = await _remoteDataSource
             .getFavoriteBooks(
@@ -69,17 +67,12 @@ class FavoriteBooksRepositoryImpl implements FavoriteBooksRepository {
               pageSize: 100,
               searchTerm: '',
             );
-        final Iterable<String> ids = model.items.map((item) => item.bookId);
-        _knownBookIds.addAll(ids);
-        if (_knownBookIds.contains(bookId)) return const Success<bool>(true);
-        if (!model.hasNextPage || model.items.isEmpty) {
-          return const Success<bool>(false);
-        }
+        _knownBookIds.addAll(model.items.map((item) => item.bookId));
+        if (_knownBookIds.contains(bookId)) return true;
+        if (!model.hasNextPage || model.items.isEmpty) return false;
         pageNumber++;
       }
-    } catch (error) {
-      return _failure<bool>(error);
-    }
+    });
   }
 
   FavoriteBooksPage _toPage(FavoriteBooksPageModel model) => FavoriteBooksPage(
@@ -92,8 +85,11 @@ class FavoriteBooksRepositoryImpl implements FavoriteBooksRepository {
     hasPreviousPage: model.hasPreviousPage,
   );
 
-  ResultFailure<T> _failure<T>(Object error) {
-    final Failure failure = ErrorMapper.map(error);
-    return ResultFailure<T>(failure.message, cause: failure);
+  Future<Either<Failure, T>> _guard<T>(Future<T> Function() body) async {
+    try {
+      return Right(await body());
+    } catch (error) {
+      return Left(ErrorMapper.map(error));
+    }
   }
 }

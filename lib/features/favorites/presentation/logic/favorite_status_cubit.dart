@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/architecture/result.dart';
-import '../../domain/entities/favorite_book.dart';
+import '../../../../core/errors/failures.dart';
 import '../../domain/use_cases/add_favorite_book_use_case.dart';
 import '../../domain/use_cases/is_favorite_book_use_case.dart';
 import '../../domain/use_cases/remove_favorite_book_use_case.dart';
@@ -31,13 +30,13 @@ class FavoriteStatusCubit extends Cubit<FavoriteStatusState> {
 
   Future<void> load(String bookId) async {
     emit(FavoriteStatusState(isLoading: true, isFavorite: state.isFavorite));
-    final Result<bool> result = await isFavoriteBook(bookId);
-    switch (result) {
-      case Success<bool>(value: final value):
-        emit(FavoriteStatusState(isFavorite: value));
-      case ResultFailure<bool>(message: final message):
-        emit(FavoriteStatusState(error: message));
-    }
+    final result = await isFavoriteBook(bookId);
+    emit(
+      result.fold(
+        (Failure failure) => FavoriteStatusState(error: failure.message),
+        (bool value) => FavoriteStatusState(isFavorite: value),
+      ),
+    );
   }
 
   Future<void> toggle(String bookId) async {
@@ -45,22 +44,23 @@ class FavoriteStatusCubit extends Cubit<FavoriteStatusState> {
     final bool wasFavorite = state.isFavorite;
     emit(FavoriteStatusState(isFavorite: wasFavorite, isLoading: true));
     if (wasFavorite) {
-      final Result<bool> result = await removeFavorite(bookId);
-      switch (result) {
-        case Success<bool>():
-          emit(const FavoriteStatusState(isFavorite: false));
-        case ResultFailure<bool>(message: final message):
-          emit(FavoriteStatusState(isFavorite: true, error: message));
-      }
+      final result = await removeFavorite(bookId);
+      emit(
+        result.fold(
+          (Failure failure) =>
+              FavoriteStatusState(isFavorite: true, error: failure.message),
+          (_) => const FavoriteStatusState(isFavorite: false),
+        ),
+      );
       return;
     }
 
-    final Result<FavoriteBook> result = await addFavorite(bookId);
-    switch (result) {
-      case Success<FavoriteBook>():
-        emit(const FavoriteStatusState(isFavorite: true));
-      case ResultFailure<FavoriteBook>(message: final message):
-        emit(FavoriteStatusState(error: message));
-    }
+    final result = await addFavorite(bookId);
+    emit(
+      result.fold(
+        (Failure failure) => FavoriteStatusState(error: failure.message),
+        (_) => const FavoriteStatusState(isFavorite: true),
+      ),
+    );
   }
 }

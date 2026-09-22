@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/architecture/result.dart';
+import '../../../../core/errors/failures.dart';
 import '../../domain/entities/favorite_book.dart';
 import '../../domain/use_cases/get_favorite_books_use_case.dart';
 import '../../domain/use_cases/remove_favorite_book_use_case.dart';
@@ -36,30 +36,26 @@ class FavoriteBooksCubit extends Cubit<FavoriteBooksState> {
 
   Future<void> load() async {
     emit(const FavoriteBooksLoading());
-    final Result<FavoriteBooksPage> result = await getFavorites(
-      const GetFavoriteBooksParams(),
+    final result = await getFavorites(const GetFavoriteBooksParams());
+    emit(
+      result.fold(
+        (Failure failure) => FavoriteBooksFailure(failure.message),
+        (FavoriteBooksPage page) => FavoriteBooksLoaded(page.items),
+      ),
     );
-    switch (result) {
-      case Success<FavoriteBooksPage>(value: final page):
-        emit(FavoriteBooksLoaded(page.items));
-      case ResultFailure<FavoriteBooksPage>(message: final message):
-        emit(FavoriteBooksFailure(message));
-    }
   }
 
   Future<void> remove(String bookId) async {
     final FavoriteBooksState current = state;
     if (current is! FavoriteBooksLoaded) return;
-    final Result<bool> result = await removeFavorite(bookId);
-    switch (result) {
-      case Success<bool>():
-        emit(
-          FavoriteBooksLoaded(
-            current.items.where((item) => item.bookId != bookId).toList(),
-          ),
-        );
-      case ResultFailure<bool>(message: final message):
-        emit(FavoriteBooksFailure(message));
-    }
+    final result = await removeFavorite(bookId);
+    emit(
+      result.fold(
+        (Failure failure) => FavoriteBooksFailure(failure.message),
+        (_) => FavoriteBooksLoaded(
+          current.items.where((item) => item.bookId != bookId).toList(),
+        ),
+      ),
+    );
   }
 }

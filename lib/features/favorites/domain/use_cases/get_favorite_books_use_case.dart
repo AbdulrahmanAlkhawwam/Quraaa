@@ -1,18 +1,17 @@
 import 'package:equatable/equatable.dart';
 
-import '../../../../core/architecture/result.dart';
-import '../../../../core/architecture/use_case.dart';
+import '../../../../core/use_cases/use_case.dart';
 import '../entities/favorite_book.dart';
 import '../repositories/favorite_books_repository.dart';
 
 class GetFavoriteBooksUseCase
-    extends UseCase<Result<FavoriteBooksPage>, GetFavoriteBooksParams> {
+    extends UseCase<FavoriteBooksPage, GetFavoriteBooksParams> {
   const GetFavoriteBooksUseCase(this._repository);
 
   final FavoriteBooksRepository _repository;
 
   @override
-  Future<Result<FavoriteBooksPage>> call(GetFavoriteBooksParams params) {
+  FutureEither<FavoriteBooksPage> call(GetFavoriteBooksParams params) {
     return _repository.getFavoriteBooks(
       pageNumber: params.pageNumber,
       pageSize: params.pageSize,
