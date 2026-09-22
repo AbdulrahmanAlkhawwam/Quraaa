@@ -1,8 +1,13 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fpdart/fpdart.dart';
 
+import '../../../../core/errors/failures.dart';
 import '../../domain/entities/profile.dart';
-import '../../domain/repositories/profile_repository.dart';
+import '../../domain/use_cases/delete_profile_location_use_case.dart';
+import '../../domain/use_cases/get_profile_locations_use_case.dart';
+import '../../domain/use_cases/save_profile_location_use_case.dart';
+import '../../domain/use_cases/set_default_profile_location_use_case.dart';
 
 class ProfileLocationState extends Equatable {
   const ProfileLocationState({
@@ -47,85 +52,65 @@ class ProfileLocationState extends Equatable {
 }
 
 class ProfileLocationCubit extends Cubit<ProfileLocationState> {
-  ProfileLocationCubit(this._repository) : super(const ProfileLocationState());
+  ProfileLocationCubit({
+    required this._getLocations,
+    required this._saveLocation,
+    required this._deleteLocation,
+    required this._setDefaultLocation,
+  }) : super(const ProfileLocationState());
 
-  final ProfileRepository _repository;
+  final GetProfileLocationsUseCase _getLocations;
+  final SaveProfileLocationUseCase _saveLocation;
+  final DeleteProfileLocationUseCase _deleteLocation;
+  final SetDefaultProfileLocationUseCase _setDefaultLocation;
 
   Future<void> load() async {
     emit(state.copyWith(loading: true, clearError: true));
-    try {
-      final List<ProfileLocation> locations = await _repository.getLocations();
-      emit(
-        state.copyWith(
+    final Either<Failure, List<ProfileLocation>> result = await _getLocations();
+    emit(
+      result.fold(
+        (Failure failure) => state.copyWith(loading: false, error: failure),
+        (List<ProfileLocation> locations) => state.copyWith(
           locations: locations,
           loading: false,
           clearError: true,
         ),
-      );
-    } catch (error) {
-      emit(state.copyWith(loading: false, error: error));
-    }
+      ),
+    );
   }
 
   Future<void> setDefault(ProfileLocation location) async {
     if (state.saving || location.isDefault) return;
     emit(state.copyWith(saving: true, clearError: true));
-    try {
-      final List<ProfileLocation> locations =
-          await _repository.setDefaultLocation(location);
-      emit(
-        state.copyWith(
-          locations: locations,
-          saving: false,
-          changeSerial: state.changeSerial + 1,
-          clearError: true,
-        ),
-      );
-    } catch (error) {
-      emit(state.copyWith(saving: false, error: error));
-    }
+    _emitMutation(await _setDefaultLocation(location));
   }
 
   Future<void> save(ProfileLocation location) async {
     if (state.saving) return;
     emit(state.copyWith(saving: true, clearError: true));
-    try {
-      final ProfileLocation effectiveLocation = location.id == null
-          ? location.copyWith(isDefault: state.locations.isEmpty)
-          : location;
-      final List<ProfileLocation> locations = await _repository.updateLocation(
-        effectiveLocation,
-      );
-      emit(
-        state.copyWith(
-          locations: locations,
-          saving: false,
-          changeSerial: state.changeSerial + 1,
-          clearError: true,
-        ),
-      );
-    } catch (error) {
-      emit(state.copyWith(saving: false, error: error));
-    }
+    final ProfileLocation effectiveLocation = location.id == null
+        ? location.copyWith(isDefault: state.locations.isEmpty)
+        : location;
+    _emitMutation(await _saveLocation(effectiveLocation));
   }
 
   Future<void> delete(ProfileLocation location) async {
     if (state.saving) return;
     emit(state.copyWith(saving: true, clearError: true));
-    try {
-      final List<ProfileLocation> locations = await _repository.deleteLocation(
-        location,
-      );
-      emit(
-        state.copyWith(
+    _emitMutation(await _deleteLocation(location));
+  }
+
+  void _emitMutation(Either<Failure, List<ProfileLocation>> result) {
+    emit(
+      result.fold(
+        (Failure failure) => state.copyWith(saving: false, error: failure),
+        (List<ProfileLocation> locations) => state.copyWith(
           locations: locations,
           saving: false,
           changeSerial: state.changeSerial + 1,
           clearError: true,
         ),
-      );
-    } catch (error) {
-      emit(state.copyWith(saving: false, error: error));
-    }
+      ),
+    );
   }
 }

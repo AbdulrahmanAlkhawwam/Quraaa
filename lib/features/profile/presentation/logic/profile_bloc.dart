@@ -1,16 +1,14 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fpdart/fpdart.dart';
 
 import '../../../../core/connectivity/connection_status.dart';
 import '../../../../core/connectivity/connectivity_service.dart';
-import '../../../../core/errors/error_mapper.dart';
-import '../../../../core/errors/exceptions.dart';
 import '../../../../core/errors/failures.dart';
-import '../../../auth/data/data_sources/auth_local_data_source.dart';
-import '../../../auth/data/data_sources/user_local_data_source.dart';
-import '../../../auth/domain/repositories/auth_repository.dart';
-import '../../data/data_sources/profile_local_data_source.dart';
+import '../../../auth/domain/repositories/auth_session_repository.dart';
+import '../../../auth/domain/use_cases/refresh_session_use_case.dart';
 import '../../domain/entities/profile.dart';
-import '../../domain/repositories/profile_repository.dart';
+import '../../domain/use_cases/get_cached_profile_use_case.dart';
+import '../../domain/use_cases/get_my_profile_use_case.dart';
 import 'profile_event.dart';
 import 'profile_state.dart';
 
@@ -18,12 +16,11 @@ import 'profile_state.dart';
 /// the latest successful response cached for offline use.
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ProfileBloc({
-    required this.profileRepository,
-    required this.authRepository,
-    required this.authLocalDataSource,
-    required this.userLocalDataSource,
-    required this.connectivityService,
-    required this.profileLocalDataSource,
+    required this._getMyProfile,
+    required this._getCachedProfile,
+    required this._refreshSession,
+    required this._authSession,
+    required this._connectivityService,
   }) : super(const ProfileState()) {
     on<ProfileLoadRequested>(_onLoadRequested);
     on<ProfileCachedLoadRequested>(_onCachedLoadRequested);
@@ -33,24 +30,24 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     );
   }
 
-  final ProfileRepository profileRepository;
-  final AuthRepository authRepository;
-  final AuthLocalDataSource authLocalDataSource;
-  final UserLocalDataSource userLocalDataSource;
-  final ConnectivityService connectivityService;
-  final ProfileLocalDataSource profileLocalDataSource;
+  final GetMyProfileUseCase _getMyProfile;
+  final GetCachedProfileUseCase _getCachedProfile;
+  final RefreshSessionUseCase _refreshSession;
+  final AuthSessionRepository _authSession;
+  final ConnectivityService _connectivityService;
 
   Future<void> _onCachedLoadRequested(
     ProfileCachedLoadRequested event,
     Emitter<ProfileState> emit,
   ) async {
     emit(state.copyWith(loading: true, clearError: true));
-    try {
-      final Profile? profile = await profileRepository.getCachedProfile();
-      emit(state.copyWith(loading: false, profile: profile));
-    } catch (error) {
-      emit(state.copyWith(loading: false, error: _mapToFailure(error)));
-    }
+    final Either<Failure, Profile?> result = await _getCachedProfile();
+    emit(
+      result.fold(
+        (Failure failure) => state.copyWith(loading: false, error: failure),
+        (Profile? profile) => state.copyWith(loading: false, profile: profile),
+      ),
+    );
   }
 
   /// Loads the user's profile when the device is online and the user is
@@ -61,16 +58,13 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ) async {
     emit(state.copyWith(loading: true, clearError: true));
 
-    final String? accessToken = await authLocalDataSource.getAccessToken();
-    final String? refreshToken = await authLocalDataSource.getRefreshToken();
-
     // Missing tokens mean the user is not authenticated; stay idle.
-    if (_isNullOrEmpty(accessToken) || _isNullOrEmpty(refreshToken)) {
+    if (!await _authSession.hasStoredTokens()) {
       emit(state.copyWith(loading: false));
       return;
     }
 
-    final ConnectionStatus connectionStatus = await connectivityService
+    final ConnectionStatus connectionStatus = await _connectivityService
         .currentStatus();
 
     if (connectionStatus == ConnectionStatus.disconnected) {
@@ -78,125 +72,70 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       return;
     }
 
-    await _fetchProfileWithRefreshRetry(emit: emit);
+    await _fetchProfileWithRefreshRetry(emit);
   }
 
   Future<void> _loadCachedProfile(Emitter<ProfileState> emit) async {
-    try {
-      final Profile? cachedProfile = await profileLocalDataSource
-          .getCachedProfile();
-      emit(state.copyWith(loading: false, profile: cachedProfile));
-    } catch (error) {
-      emit(state.copyWith(loading: false, error: const NoInternetFailure()));
-    }
+    final Either<Failure, Profile?> result = await _getCachedProfile();
+    emit(
+      result.fold(
+        (_) => state.copyWith(loading: false, error: const NoInternetFailure()),
+        (Profile? profile) => state.copyWith(loading: false, profile: profile),
+      ),
+    );
   }
 
-  Future<void> _fetchProfileWithRefreshRetry({
-    required Emitter<ProfileState> emit,
-  }) async {
-    try {
-      final Profile profile = await profileRepository.getMyProfile();
+  Future<void> _fetchProfileWithRefreshRetry(Emitter<ProfileState> emit) async {
+    final Either<Failure, Profile> result = await _getMyProfile();
+    await result.fold((Failure failure) async {
+      if (failure is UnauthorizedFailure || failure is TokenExpiredFailure) {
+        await _handleUnauthorized(emit, failure);
+        return;
+      }
+      emit(state.copyWith(loading: false, error: failure));
+    }, (Profile profile) async {
       emit(state.copyWith(loading: false, profile: profile));
-    } on UnauthorizedException catch (error) {
-      await _handleUnauthorized(emit: emit, error: error);
-    } on TokenExpiredException catch (error) {
-      await _handleUnauthorized(emit: emit, error: error);
-    } on ForbiddenException catch (error) {
-      emit(
-        state.copyWith(
-          loading: false,
-          error: ForbiddenFailure(message: error.message),
-        ),
-      );
-    } on NotFoundException catch (error) {
-      emit(
-        state.copyWith(
-          loading: false,
-          error: NotFoundFailure(code: error.code, message: error.message),
-        ),
-      );
-    } on ServerException catch (error) {
-      emit(
-        state.copyWith(
-          loading: false,
-          error: ServerFailure(
-            code: error.code,
-            statusCode: error.statusCode,
-            message: error.message,
-          ),
-        ),
-      );
-    } catch (error) {
-      emit(state.copyWith(loading: false, error: _mapToFailure(error)));
-    }
+    });
   }
 
-  Future<void> _handleUnauthorized({
-    required Emitter<ProfileState> emit,
-    required AppException error,
-  }) async {
+  Future<void> _handleUnauthorized(
+    Emitter<ProfileState> emit,
+    Failure original,
+  ) async {
     // The global auth interceptor already attempted a refresh. If it cleared
     // the session, do not send a second refresh request with the old token.
-    if (!await authLocalDataSource.isAuthenticatedSession()) {
-      emit(
-        state.copyWith(
-          loading: false,
-          error: UnauthorizedFailure(message: error.message),
-          requiresLogin: true,
-        ),
-      );
+    if (!await _authSession.isAuthenticatedSession()) {
+      _emitRequiresLogin(emit, original.message);
       return;
     }
 
-    try {
-      // refreshSession persists the rotated tokens itself.
-      final result = await authRepository.refreshSession();
-      final String? refreshFailureMessage = result.fold<String?>(
-        (failure) => failure.message,
-        (_) => null,
-      );
-
-      if (refreshFailureMessage != null) {
-        await _logout();
-        emit(
-          state.copyWith(
-            loading: false,
-            error: UnauthorizedFailure(message: refreshFailureMessage),
-            requiresLogin: true,
-          ),
-        );
-        return;
-      }
-
-      // Retry the profile request once.
-      final Profile profile = await profileRepository.getMyProfile();
-      emit(state.copyWith(loading: false, profile: profile));
-    } catch (_) {
-      await _logout();
-      emit(
-        state.copyWith(
-          loading: false,
-          error: UnauthorizedFailure(message: error.message),
-          requiresLogin: true,
-        ),
-      );
+    // refreshSession persists the rotated tokens itself.
+    final Either<Failure, String> refreshed = await _refreshSession();
+    final Failure? refreshFailure = refreshed.getLeft().toNullable();
+    if (refreshFailure != null) {
+      await _authSession.signOutLocally();
+      _emitRequiresLogin(emit, refreshFailure.message);
+      return;
     }
+
+    // Retry the profile request once; any failure now ends the session.
+    final Either<Failure, Profile> retry = await _getMyProfile();
+    final Profile? profile = retry.toNullable();
+    if (profile == null) {
+      await _authSession.signOutLocally();
+      _emitRequiresLogin(emit, original.message);
+      return;
+    }
+    emit(state.copyWith(loading: false, profile: profile));
   }
 
-  Future<void> _logout() async {
-    await authLocalDataSource.clearSession();
-    await userLocalDataSource.clearUser();
+  void _emitRequiresLogin(Emitter<ProfileState> emit, String message) {
+    emit(
+      state.copyWith(
+        loading: false,
+        error: UnauthorizedFailure(message: message),
+        requiresLogin: true,
+      ),
+    );
   }
-
-  Failure _mapToFailure(Object? error) {
-    if (error is Failure) {
-      return error;
-    }
-    if (error is AppException) {
-      return ErrorMapper.mapExceptionToFailure(error);
-    }
-    return UnknownFailure(message: error?.toString());
-  }
-
-  bool _isNullOrEmpty(String? value) => value == null || value.isEmpty;
 }

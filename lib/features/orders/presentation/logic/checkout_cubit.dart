@@ -127,13 +127,13 @@ class CheckoutCubit extends Cubit<CheckoutState> {
     Profile? profile;
     if (checkoutContext.requiresShippingLocation &&
         effectiveLocationId == null) {
-      try {
-        profile = await _profileRepository.getCachedProfile();
-        profile ??= await _profileRepository.getMyProfile();
-      } catch (_) {
-        // The backend returns a validation error if a physical order still
-        // has no usable shipping location.
-      }
+      // Failures are ignored on purpose: the backend returns a validation
+      // error if a physical order still has no usable shipping location.
+      profile = await (await _profileRepository.getCachedProfile()).fold(
+        (_) async => null,
+        (Profile? cached) async =>
+            cached ?? (await _profileRepository.getMyProfile()).toNullable(),
+      );
     }
 
     final ProfileLocation? location = profile?.location;

@@ -1,3 +1,10 @@
 export 'entities/profile.dart';
 export 'entities/update_profile_input.dart';
 export 'repositories/profile_repository.dart';
+export 'use_cases/delete_profile_location_use_case.dart';
+export 'use_cases/get_cached_profile_use_case.dart';
+export 'use_cases/get_my_profile_use_case.dart';
+export 'use_cases/get_profile_locations_use_case.dart';
+export 'use_cases/save_profile_location_use_case.dart';
+export 'use_cases/set_default_profile_location_use_case.dart';
+export 'use_cases/update_my_profile_use_case.dart';

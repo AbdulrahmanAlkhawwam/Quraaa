@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:quraaa/features/profile/domain/entities/profile.dart';
-import 'package:quraaa/features/profile/domain/repositories/profile_repository.dart';
+import 'package:quraaa/features/profile/domain/domain.dart';
 import 'package:quraaa/features/profile/presentation/logic/profile_location_cubit.dart';
 
 class _MockProfileRepository extends Mock implements ProfileRepository {}
@@ -26,10 +26,15 @@ void main() {
 
   setUp(() {
     repository = _MockProfileRepository();
-    cubit = ProfileLocationCubit(repository);
+    cubit = ProfileLocationCubit(
+      getLocations: GetProfileLocationsUseCase(repository),
+      saveLocation: SaveProfileLocationUseCase(repository),
+      deleteLocation: DeleteProfileLocationUseCase(repository),
+      setDefaultLocation: SetDefaultProfileLocationUseCase(repository),
+    );
     when(
       () => repository.getLocations(),
-    ).thenAnswer((_) async => <ProfileLocation>[first, second]);
+    ).thenAnswer((_) async => const Right(<ProfileLocation>[first, second]));
   });
 
   tearDown(() => cubit.close());

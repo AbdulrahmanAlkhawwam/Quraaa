@@ -8,9 +8,12 @@ import '../../features/auth/data/data_sources/user_local_data_source.dart';
 import '../../features/auth/data/data_sources/auth_remote_data_source.dart';
 import '../../features/auth/data/repositories/auth_journey_repository_impl.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
+import '../../features/auth/data/repositories/auth_session_repository_impl.dart';
 import '../../features/auth/data/services/auth_session_service.dart';
 import '../../features/auth/domain/repositories/auth_journey_repository.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../features/auth/domain/repositories/auth_session_repository.dart';
+import '../../features/auth/domain/use_cases/refresh_session_use_case.dart';
 import '../../features/onboarding/data/data_sources/onboarding_local_data_source.dart';
 import '../../features/onboarding/data/repositories/onboarding_repository_impl.dart';
 import '../../features/onboarding/domain/repositories/onboarding_repository.dart';
@@ -51,6 +54,13 @@ import '../../features/profile/data/data_sources/profile_remote_data_source.dart
 import '../../features/profile/data/repositories/profile_repository_impl.dart';
 import '../../features/profile/data/services/profile_bootstrap_service.dart';
 import '../../features/profile/domain/repositories/profile_repository.dart';
+import '../../features/profile/domain/use_cases/delete_profile_location_use_case.dart';
+import '../../features/profile/domain/use_cases/get_cached_profile_use_case.dart';
+import '../../features/profile/domain/use_cases/get_my_profile_use_case.dart';
+import '../../features/profile/domain/use_cases/get_profile_locations_use_case.dart';
+import '../../features/profile/domain/use_cases/save_profile_location_use_case.dart';
+import '../../features/profile/domain/use_cases/set_default_profile_location_use_case.dart';
+import '../../features/profile/domain/use_cases/update_my_profile_use_case.dart';
 import '../../features/profile/presentation/logic/profile_bloc.dart';
 import '../../features/profile/presentation/logic/edit_profile_bloc.dart';
 import '../../features/profile/presentation/logic/profile_edit_cubit.dart';
@@ -180,6 +190,12 @@ void registerCoreDependencies() {
   );
   sl.registerLazySingleton<AuthJourneyRepository>(
     () => AuthJourneyRepositoryImpl(sl<AuthLocalDataSource>()),
+  );
+  sl.registerLazySingleton<AuthSessionRepository>(
+    () => AuthSessionRepositoryImpl(
+      sl<AuthLocalDataSource>(),
+      sl<AuthSessionService>(),
+    ),
   );
 
   sl.registerLazySingleton<UserLocalDataSource>(
@@ -378,6 +394,9 @@ void registerFeatureDependencies() {
   );
 
   sl.registerFactory<LogoutUseCase>(() => LogoutUseCase(sl<AuthRepository>()));
+  sl.registerFactory<RefreshSessionUseCase>(
+    () => RefreshSessionUseCase(sl<AuthRepository>()),
+  );
 
   sl.registerFactory<LoadOnboardingStateUseCase>(
     () => LoadOnboardingStateUseCase(sl<OnboardingRepository>()),
@@ -498,28 +517,54 @@ void registerFeatureDependencies() {
       sl<UserContextProvider>(),
     ),
   );
+  sl.registerFactory<GetMyProfileUseCase>(
+    () => GetMyProfileUseCase(sl<ProfileRepository>()),
+  );
+  sl.registerFactory<GetCachedProfileUseCase>(
+    () => GetCachedProfileUseCase(sl<ProfileRepository>()),
+  );
+  sl.registerFactory<UpdateMyProfileUseCase>(
+    () => UpdateMyProfileUseCase(sl<ProfileRepository>()),
+  );
+  sl.registerFactory<GetProfileLocationsUseCase>(
+    () => GetProfileLocationsUseCase(sl<ProfileRepository>()),
+  );
+  sl.registerFactory<SaveProfileLocationUseCase>(
+    () => SaveProfileLocationUseCase(sl<ProfileRepository>()),
+  );
+  sl.registerFactory<DeleteProfileLocationUseCase>(
+    () => DeleteProfileLocationUseCase(sl<ProfileRepository>()),
+  );
+  sl.registerFactory<SetDefaultProfileLocationUseCase>(
+    () => SetDefaultProfileLocationUseCase(sl<ProfileRepository>()),
+  );
+
   sl.registerFactory<ProfileBloc>(
     () => ProfileBloc(
-      profileRepository: sl<ProfileRepository>(),
-      authRepository: sl<AuthRepository>(),
-      authLocalDataSource: sl<AuthLocalDataSource>(),
-      userLocalDataSource: sl<UserLocalDataSource>(),
+      getMyProfile: sl<GetMyProfileUseCase>(),
+      getCachedProfile: sl<GetCachedProfileUseCase>(),
+      refreshSession: sl<RefreshSessionUseCase>(),
+      authSession: sl<AuthSessionRepository>(),
       connectivityService: sl<ConnectivityService>(),
-      profileLocalDataSource: sl<ProfileLocalDataSource>(),
     ),
   );
 
   sl.registerFactory<EditProfileBloc>(EditProfileBloc.new);
   sl.registerFactoryParam<ProfileEditCubit, Profile, void>(
     (Profile profile, _) => ProfileEditCubit(
-      sl<ProfileRepository>(),
+      sl<UpdateMyProfileUseCase>(),
       sl<UserContextProvider>(),
       profile,
     ),
   );
 
   sl.registerFactory<ProfileLocationCubit>(
-    () => ProfileLocationCubit(sl<ProfileRepository>()),
+    () => ProfileLocationCubit(
+      getLocations: sl<GetProfileLocationsUseCase>(),
+      saveLocation: sl<SaveProfileLocationUseCase>(),
+      deleteLocation: sl<DeleteProfileLocationUseCase>(),
+      setDefaultLocation: sl<SetDefaultProfileLocationUseCase>(),
+    ),
   );
 
   // Account feature
