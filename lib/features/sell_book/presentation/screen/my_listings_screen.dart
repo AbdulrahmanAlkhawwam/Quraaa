@@ -1,13 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart' show Either;
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_routes.dart';
-import '../../../../core/architecture/result.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/errors/failures.dart';
 import '../../../../core/shared.dart';
 import '../../domain/entities/my_listing.dart';
-import '../../domain/repositories/sell_book_repository.dart';
+import '../../domain/use_cases/get_my_listings_use_case.dart';
 
 class MyListingsScreen extends StatefulWidget {
   const MyListingsScreen({super.key});
@@ -17,7 +18,7 @@ class MyListingsScreen extends StatefulWidget {
 }
 
 class _MyListingsScreenState extends State<MyListingsScreen> {
-  late Future<Result<List<MyListing>>> _request;
+  late Future<Either<Failure, List<MyListing>>> _request;
 
   @override
   void initState() {
@@ -26,7 +27,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
   }
 
   void _reload() {
-    _request = sl<SellBookRepository>().getMyListings();
+    _request = sl<GetMyListingsUseCase>()('');
   }
 
   @override
@@ -53,7 +54,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
           ),
         ],
       ),
-      body: FutureBuilder<Result<List<MyListing>>>(
+      body: FutureBuilder<Either<Failure, List<MyListing>>>(
         future: _request,
         builder: (BuildContext context, snapshot) {
           if (!snapshot.hasData) {

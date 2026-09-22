@@ -1,10 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart' show Either;
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/architecture/result.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/errors/failures.dart';
 import '../../../../core/shared.dart';
 import '../../../libraries/domain/entities/library_book_entity.dart';
 import '../../../libraries/domain/entities/library_entity.dart';
@@ -174,7 +176,7 @@ class _SellBookScreenState extends State<SellBookScreen> {
 
     final XFile image = _image!;
     setState(() => _submitting = true);
-    final Result<String> result = await sl<SubmitSellBookUseCase>()(
+    final Either<Failure, String> result = await sl<SubmitSellBookUseCase>()(
       SellBookDraft(
         method: _method,
         isbn: isbn,
@@ -193,15 +195,15 @@ class _SellBookScreenState extends State<SellBookScreen> {
     );
     if (!mounted) return;
     setState(() => _submitting = false);
-    switch (result) {
-      case Success<String>():
+    result.fold(
+      (Failure failure) => setState(() => _error = failure.message),
+      (_) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Book published successfully.')),
         );
         Navigator.of(context).maybePop();
-      case ResultFailure<String>(message: final String message):
-        setState(() => _error = message);
-    }
+      },
+    );
   }
 
   @override

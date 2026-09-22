@@ -89,6 +89,7 @@ import '../../features/libraries/presentation/logic/library_details_cubit.dart';
 import '../../features/sell_book/data/data_sources/sell_book_remote_data_source.dart';
 import '../../features/sell_book/data/repositories/sell_book_repository_impl.dart';
 import '../../features/sell_book/domain/repositories/sell_book_repository.dart';
+import '../../features/sell_book/domain/use_cases/get_my_listings_use_case.dart';
 import '../../features/sell_book/domain/use_cases/submit_sell_book_use_case.dart';
 import '../config/app_config.dart';
 import '../network/auth_interceptor.dart';
@@ -786,6 +787,9 @@ void registerFeatureDependencies() {
   if (!sl.isRegistered<SubmitSellBookUseCase>()) {
     sl.registerLazySingleton<SubmitSellBookUseCase>(
       () => SubmitSellBookUseCase(sl<SellBookRepository>()),
+    );
+    sl.registerLazySingleton<GetMyListingsUseCase>(
+      () => GetMyListingsUseCase(sl<SellBookRepository>()),
     );
   }
   if (!sl.isRegistered<CartRemoteDataSource>()) {
