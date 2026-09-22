@@ -4,7 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/shared.dart';
@@ -64,8 +64,8 @@ class _InterestsOnboardingScreenState extends State<InterestsOnboardingScreen> {
           listener: (context, state) {
             context.goTo(
               state.hasGender
-                  ? RouteNames.onboardingAge
-                  : RouteNames.onboarding,
+                  ? AppRoutes.onboardingAge
+                  : AppRoutes.onboarding,
             );
           },
           child: BlocListener<OnboardingBloc, OnboardingState>(
@@ -92,7 +92,7 @@ class _InterestsOnboardingView extends StatelessWidget {
 
   Future<void> _goBack(BuildContext context) async {
     await context.read<AuthJourneyCubit>().moveFromInterestsToAge();
-    if (context.mounted) context.goTo(RouteNames.onboardingAge);
+    if (context.mounted) context.goTo(AppRoutes.onboardingAge);
   }
 
   void _onCategorySelected(BuildContext context, String categoryId) {

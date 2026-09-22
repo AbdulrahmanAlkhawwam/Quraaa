@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import '../../../../core/constants/app_storage_keys.dart';
+import '../../../../core/constants/storage_keys.dart';
 import '../../../../core/services/storage_service.dart';
 import '../../domain/entities/explorer_history_entry.dart';
 import '../../domain/entities/local_file_entry.dart';
@@ -23,7 +23,7 @@ class ExplorerHistoryRepositoryImpl implements ExplorerHistoryRepository {
   @override
   Future<List<ExplorerHistoryEntry>> loadHistory() async {
     final String? raw = _storageService.getString(
-      AppStorageKeys.explorerHistory,
+      StorageKeys.explorerHistory,
     );
     if (raw == null || raw.trim().isEmpty) {
       return const <ExplorerHistoryEntry>[];
@@ -103,7 +103,7 @@ class ExplorerHistoryRepositoryImpl implements ExplorerHistoryRepository {
 
   Future<void> _persist(List<ExplorerHistoryEntryModel> entries) async {
     await _storageService.setString(
-      AppStorageKeys.explorerHistory,
+      StorageKeys.explorerHistory,
       jsonEncode(
         entries
             .map((ExplorerHistoryEntryModel entry) => entry.toJson())

@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/shared.dart';
 
@@ -16,31 +16,31 @@ class CartBottomNav extends StatelessWidget {
       icon: HugeIcons.strokeRoundedHome04,
       activeIcon: HugeIcons.strokeRoundedHome01,
       labelKey: LocalizationConstants.cartNavHomeKey,
-      route: RouteNames.home,
+      route: AppRoutes.home,
     ),
     _CartNavDestination(
       icon: HugeIcons.strokeRoundedStore04,
       activeIcon: HugeIcons.strokeRoundedStore01,
       labelKey: LocalizationConstants.cartNavStoresKey,
-      route: RouteNames.stores,
+      route: AppRoutes.stores,
     ),
     _CartNavDestination(
       icon: HugeIcons.strokeRoundedBooks01,
       activeIcon: HugeIcons.strokeRoundedBooks02,
       labelKey: LocalizationConstants.cartNavLibrariesKey,
-      route: RouteNames.libraries,
+      route: AppRoutes.libraries,
     ),
     _CartNavDestination(
       icon: HugeIcons.strokeRoundedAudioBook04,
       activeIcon: HugeIcons.strokeRoundedAudioBook04,
       labelKey: LocalizationConstants.cartNavAudioKey,
-      route: RouteNames.audioBooks,
+      route: AppRoutes.audioBooks,
     ),
     _CartNavDestination(
       icon: HugeIcons.strokeRoundedShoppingCart01,
       activeIcon: HugeIcons.strokeRoundedShoppingCart01,
       labelKey: LocalizationConstants.cartNavCartKey,
-      route: RouteNames.cart,
+      route: AppRoutes.cart,
     ),
   ];
 

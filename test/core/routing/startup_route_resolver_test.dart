@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:quraaa/core/routing/route_names.dart';
+import 'package:quraaa/core/constants/app_routes.dart';
 import 'package:quraaa/core/routing/route_resolver.dart';
 import 'package:quraaa/core/connectivity/connection_status.dart';
 import 'package:quraaa/core/connectivity/connectivity_service.dart';
@@ -58,7 +58,7 @@ void main() {
       ).thenAnswer((_) async {});
       when(() => userContextProvider.clearUser()).thenAnswer((_) async {});
 
-      expect(await resolveStartupRoute(), RouteNames.home);
+      expect(await resolveStartupRoute(), AppRoutes.home);
       verify(() => authLocalDataSource.markGuestSession()).called(1);
       verify(() => userContextProvider.clearUser()).called(1);
     });
@@ -74,7 +74,7 @@ void main() {
         () => connectivityService.currentStatus(),
       ).thenAnswer((_) async => ConnectionStatus.connected);
 
-      expect(await resolveStartupRoute(), RouteNames.onboarding);
+      expect(await resolveStartupRoute(), AppRoutes.onboarding);
       verifyNever(() => authLocalDataSource.markGuestSession());
     });
 
@@ -86,7 +86,7 @@ void main() {
         () => authLocalDataSource.getCurrentStage(),
       ).thenAnswer((_) async => AuthJourneyStage.home);
 
-      expect(await resolveStartupRoute(), RouteNames.home);
+      expect(await resolveStartupRoute(), AppRoutes.home);
       verifyNever(() => connectivityService.currentStatus());
       verifyNever(() => authLocalDataSource.markGuestSession());
     });

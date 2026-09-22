@@ -1,7 +1,9 @@
+import '../constants/app_assets.dart';
+
 class LocalizationConstants {
   LocalizationConstants._();
 
-  static const String translationsPath = 'assets/translations';
+  static const String translationsPath = AppAssets.translations;
   static const String appNameKey = 'app.name';
   static const String homeGreetingKey = 'home.greeting';
   static const String homeBestSellersKey = 'home.best_sellers';

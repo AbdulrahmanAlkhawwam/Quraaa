@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/connectivity/connectivity_ui_helper.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
@@ -222,7 +222,7 @@ class _LoginViewState extends State<_LoginView> {
                                 'Auth forgot password button',
                               ),
                             );
-                        context.goTo(RouteNames.forgotPassword);
+                        context.goTo(AppRoutes.forgotPassword);
                       },
                       child: Text(
                         LocalizationConstants.authPasswordForgotKey.tr(),
@@ -296,7 +296,7 @@ class _LoginViewState extends State<_LoginView> {
                               'Auth create new account button',
                             ),
                           );
-                      context.goTo(RouteNames.onboarding);
+                      context.goTo(AppRoutes.onboarding);
                     },
                     child: Text(
                       LocalizationConstants.authCreateNewAccountKey.tr(),

@@ -3,7 +3,7 @@ import 'dart:developer' as developer;
 
 import 'package:flutter/foundation.dart';
 
-import '../config/env.dart';
+import '../config/app_config.dart';
 import 'crashlytics_service.dart';
 import 'device_info_provider.dart';
 import 'error_report.dart';
@@ -375,7 +375,7 @@ class AppLoggerImpl implements AppLogger {
       locale: device.locale,
       appVersion: device.appVersion,
       buildNumber: device.buildNumber,
-      environment: Env.environment,
+      environment: AppConfig.environment,
       language: user.language ?? device.locale,
       subscriptionStatus: user.subscriptionStatus,
       source: source,
@@ -430,7 +430,7 @@ class AppLoggerImpl implements AppLogger {
         'navigation_history': navigation.history.join(' -> '),
         'app_version': device.appVersion,
         'build_number': device.buildNumber,
-        'environment': Env.environment,
+        'environment': AppConfig.environment,
         'language': user.language ?? device.locale,
         'subscription_status': user.subscriptionStatus ?? 'unknown',
         'device_model': device.deviceModel,

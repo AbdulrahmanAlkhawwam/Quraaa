@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import '../../../../core/assets/app_icons.dart';
+import '../../../../core/constants/app_icons.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/utils/extensions/app_context.dart';
 import '../../../../core/theme/app_text_styles.dart';

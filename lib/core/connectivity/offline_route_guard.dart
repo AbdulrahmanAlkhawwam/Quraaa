@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../routing/route_names.dart';
+import '../constants/app_routes.dart';
 import '../utils/extensions/app_context.dart';
 import '../di/injection_container.dart';
 import 'connection_status.dart';
@@ -53,7 +53,7 @@ class _OfflineRouteGuardState extends State<OfflineRouteGuard> {
   void _goToAuth() {
     if (!mounted) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) context.goTo(RouteNames.auth);
+      if (mounted) context.goTo(AppRoutes.auth);
     });
   }
 

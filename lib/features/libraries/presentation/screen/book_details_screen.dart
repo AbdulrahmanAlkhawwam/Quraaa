@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/shared.dart';
@@ -249,12 +249,12 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         format.contains('ebook') ||
         format.contains('e-book');
     if (!digital) {
-      context.pushTo(RouteNames.myOrders);
+      context.pushTo(AppRoutes.myOrders);
       return;
     }
 
     context.pushTo(
-      '${RouteNames.pdfReader}'
+      '${AppRoutes.pdfReader}'
       '?name=${Uri.encodeQueryComponent(_bookTitle(book))}'
       '&purchaseId=${Uri.encodeQueryComponent(purchaseId)}',
     );
@@ -269,7 +269,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     final String title = _bookTitle(book);
 
     context.pushTo(
-      RouteNames.bookAssistant,
+      AppRoutes.bookAssistant,
       extra: BookAssistantNavigationData(
         purchaseId: purchaseId,
         question: LocalizationConstants.assistantBookImportantPointsQuestionKey

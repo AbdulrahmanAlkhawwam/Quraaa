@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:dio/dio.dart';
 
-import '../constants/app_storage_keys.dart';
+import '../constants/storage_keys.dart';
 import '../services/storage_service.dart';
 
 /// Adds the app's selected language to every outgoing API request.
@@ -21,7 +21,7 @@ class LanguageInterceptor extends Interceptor {
 
   String get _currentLanguage {
     final String? storedLanguage = _storageService.getString(
-      AppStorageKeys.userLanguage,
+      StorageKeys.userLanguage,
     );
     if (_supportedLanguages.contains(storedLanguage)) {
       return storedLanguage!;

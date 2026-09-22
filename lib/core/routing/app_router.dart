@@ -53,7 +53,7 @@ import '../../features/pdf_reader/presentation/screen/pdf_reader_screen.dart';
 import '../../features/pdf_reader/presentation/widget/purchased_pdf_reader_loader.dart';
 import '../../features/settings/presentation/logic/library_registration_cubit.dart';
 import '../../features/settings/presentation/screen/settings_account_type_screen.dart';
-import 'route_names.dart';
+import '../constants/app_routes.dart';
 import 'route_resolver.dart';
 
 GoRouter buildAppRouter({
@@ -63,93 +63,93 @@ GoRouter buildAppRouter({
 }) {
   return GoRouter(
     navigatorKey: navigatorKey,
-    initialLocation: RouteNames.splash,
+    initialLocation: AppRoutes.splash,
     observers: observers,
     refreshListenable: sessionExpiryController,
     redirect: (context, state) async {
       final String location = state.matchedLocation;
 
       if (sessionExpiryController.consumeSessionExpired()) {
-        return location == RouteNames.login ? null : RouteNames.login;
+        return location == AppRoutes.login ? null : AppRoutes.login;
       }
 
-      if (location == RouteNames.cart) {
+      if (location == AppRoutes.cart) {
         try {
           final bool isAuthenticated =
               await sl<AuthLocalDataSource>().isAuthenticatedSession();
           if (!isAuthenticated) {
-            return RouteNames.home;
+            return AppRoutes.home;
           }
         } catch (_) {
-          return RouteNames.home;
+          return AppRoutes.home;
         }
       }
 
-      if (location == RouteNames.routeBridge) {
+      if (location == AppRoutes.routeBridge) {
         return resolveBridgeRoute(state.uri.queryParameters['route']) ??
-            RouteNames.splash;
+            AppRoutes.splash;
       }
 
-      if (location == RouteNames.splash || _isKnownRoute(location)) {
+      if (location == AppRoutes.splash || _isKnownRoute(location)) {
         return null;
       }
 
-      return RouteNames.splash;
+      return AppRoutes.splash;
     },
     routes: <RouteBase>[
       GoRoute(
-        name: RouteNames.splash,
-        path: RouteNames.splash,
+        name: AppRoutes.splash,
+        path: AppRoutes.splash,
         builder: (context, state) => const SplashScreen(),
       ),
       GoRoute(
-        name: RouteNames.auth,
-        path: RouteNames.auth,
+        name: AppRoutes.auth,
+        path: AppRoutes.auth,
         builder: (context, state) => const LandingScreen(),
       ),
       GoRoute(
-        name: RouteNames.onboarding,
-        path: RouteNames.onboarding,
+        name: AppRoutes.onboarding,
+        path: AppRoutes.onboarding,
         builder: (context, state) => const GenderOnboardingScreen(),
       ),
       GoRoute(
-        name: RouteNames.onboardingAge,
-        path: RouteNames.onboardingAge,
+        name: AppRoutes.onboardingAge,
+        path: AppRoutes.onboardingAge,
         builder: (context, state) => const AgeOnboardingScreen(),
       ),
       GoRoute(
-        name: RouteNames.onboardingInterests,
-        path: RouteNames.onboardingInterests,
+        name: AppRoutes.onboardingInterests,
+        path: AppRoutes.onboardingInterests,
         builder: (context, state) => const InterestsOnboardingScreen(),
       ),
       GoRoute(
-        name: RouteNames.login,
-        path: RouteNames.login,
+        name: AppRoutes.login,
+        path: AppRoutes.login,
         builder: (context, state) => const LoginScreen(),
       ),
       GoRoute(
-        name: RouteNames.register,
-        path: RouteNames.register,
+        name: AppRoutes.register,
+        path: AppRoutes.register,
         builder: (context, state) => const RegisterScreen(),
       ),
       GoRoute(
-        name: RouteNames.routeBridge,
-        path: RouteNames.routeBridge,
+        name: AppRoutes.routeBridge,
+        path: AppRoutes.routeBridge,
         redirect: (context, state) =>
             resolveBridgeRoute(state.uri.queryParameters['route']) ??
-            RouteNames.splash,
+            AppRoutes.splash,
       ),
       GoRoute(
-        path: RouteNames.checkoutSuccess,
-        redirect: (context, state) => RouteNames.cart,
+        path: AppRoutes.checkoutSuccess,
+        redirect: (context, state) => AppRoutes.cart,
       ),
       GoRoute(
-        path: RouteNames.checkoutCancel,
-        redirect: (context, state) => RouteNames.cart,
+        path: AppRoutes.checkoutCancel,
+        redirect: (context, state) => AppRoutes.cart,
       ),
       GoRoute(
-        name: RouteNames.home,
-        path: RouteNames.home,
+        name: AppRoutes.home,
+        path: AppRoutes.home,
         pageBuilder: (context, state) => _buildTabTransitionPage(
           state: state,
           tabIndex: 0,
@@ -174,8 +174,8 @@ GoRouter buildAppRouter({
         ),
       ),
       GoRoute(
-        name: RouteNames.stores,
-        path: RouteNames.stores,
+        name: AppRoutes.stores,
+        path: AppRoutes.stores,
         pageBuilder: (context, state) => _buildTabTransitionPage(
           state: state,
           tabIndex: 1,
@@ -183,8 +183,8 @@ GoRouter buildAppRouter({
         ),
       ),
       GoRoute(
-        name: RouteNames.libraries,
-        path: RouteNames.libraries,
+        name: AppRoutes.libraries,
+        path: AppRoutes.libraries,
         pageBuilder: (context, state) => _buildTabTransitionPage(
           state: state,
           tabIndex: 1,
@@ -192,8 +192,8 @@ GoRouter buildAppRouter({
         ),
       ),
       GoRoute(
-        name: RouteNames.libraryDetails,
-        path: RouteNames.libraryDetails,
+        name: AppRoutes.libraryDetails,
+        path: AppRoutes.libraryDetails,
         builder: (context, state) {
           final String libraryId = state.pathParameters['libraryId']!;
           final LibraryEntity? library = state.extra as LibraryEntity?;
@@ -205,8 +205,8 @@ GoRouter buildAppRouter({
         },
       ),
       GoRoute(
-        name: RouteNames.authorDetails,
-        path: RouteNames.authorDetails,
+        name: AppRoutes.authorDetails,
+        path: AppRoutes.authorDetails,
         builder: (context, state) {
           final String authorId = Uri.decodeComponent(
             state.pathParameters['authorId'] ?? '',
@@ -218,8 +218,8 @@ GoRouter buildAppRouter({
         },
       ),
       GoRoute(
-        name: RouteNames.bookDetails,
-        path: RouteNames.bookDetails,
+        name: AppRoutes.bookDetails,
+        path: AppRoutes.bookDetails,
         builder: (context, state) {
           final String bookId = Uri.decodeComponent(
             state.pathParameters['bookId'] ?? '',
@@ -237,8 +237,8 @@ GoRouter buildAppRouter({
         },
       ),
       GoRoute(
-        name: RouteNames.userBooks,
-        path: RouteNames.userBooks,
+        name: AppRoutes.userBooks,
+        path: AppRoutes.userBooks,
         pageBuilder: (context, state) => _buildTabTransitionPage(
           state: state,
           tabIndex: 2,
@@ -246,13 +246,13 @@ GoRouter buildAppRouter({
         ),
       ),
       GoRoute(
-        name: RouteNames.sellBook,
-        path: RouteNames.sellBook,
+        name: AppRoutes.sellBook,
+        path: AppRoutes.sellBook,
         builder: (context, state) => const SellBookScreen(),
       ),
       GoRoute(
-        name: RouteNames.audioBooks,
-        path: RouteNames.audioBooks,
+        name: AppRoutes.audioBooks,
+        path: AppRoutes.audioBooks,
         pageBuilder: (context, state) => _buildTabTransitionPage(
           state: state,
           tabIndex: 3,
@@ -260,8 +260,8 @@ GoRouter buildAppRouter({
         ),
       ),
       GoRoute(
-        name: RouteNames.cart,
-        path: RouteNames.cart,
+        name: AppRoutes.cart,
+        path: AppRoutes.cart,
         pageBuilder: (context, state) => _buildTabTransitionPage(
           state: state,
           tabIndex: 4,
@@ -269,13 +269,13 @@ GoRouter buildAppRouter({
         ),
       ),
       GoRoute(
-        name: RouteNames.favorites,
-        path: RouteNames.favorites,
+        name: AppRoutes.favorites,
+        path: AppRoutes.favorites,
         builder: (context, state) => const FavoriteBooksScreen(),
       ),
       GoRoute(
-        name: RouteNames.bookAssistant,
-        path: RouteNames.bookAssistant,
+        name: AppRoutes.bookAssistant,
+        path: AppRoutes.bookAssistant,
         pageBuilder: (context, state) => _buildTabTransitionPage(
           state: state,
           tabIndex: 3,
@@ -285,8 +285,8 @@ GoRouter buildAppRouter({
         ),
       ),
       GoRoute(
-        name: RouteNames.profile,
-        path: RouteNames.profile,
+        name: AppRoutes.profile,
+        path: AppRoutes.profile,
         builder: (context, state) => BlocProvider<ProfileBloc>(
           create: (BuildContext context) =>
               sl<ProfileBloc>()..add(const ProfileLoadRequested()),
@@ -294,13 +294,13 @@ GoRouter buildAppRouter({
         ),
       ),
       GoRoute(
-        name: RouteNames.explorer,
-        path: RouteNames.explorer,
+        name: AppRoutes.explorer,
+        path: AppRoutes.explorer,
         builder: (context, state) => const LocalExplorerScreen(),
       ),
       GoRoute(
-        name: RouteNames.pdfReaderName,
-        path: RouteNames.pdfReader,
+        name: AppRoutes.pdfReaderName,
+        path: AppRoutes.pdfReader,
         builder: (context, state) {
           final String? path = state.uri.queryParameters['path'];
           final String? name = state.uri.queryParameters['name'];
@@ -323,13 +323,13 @@ GoRouter buildAppRouter({
         },
       ),
       GoRoute(
-        name: RouteNames.search,
-        path: RouteNames.search,
+        name: AppRoutes.search,
+        path: AppRoutes.search,
         builder: (context, state) => const SearchScreen(),
       ),
       GoRoute(
-        name: RouteNames.settings,
-        path: RouteNames.settings,
+        name: AppRoutes.settings,
+        path: AppRoutes.settings,
         pageBuilder: (context, state) => _buildTabTransitionPage(
           state: state,
           tabIndex: 3,
@@ -337,8 +337,8 @@ GoRouter buildAppRouter({
         ),
       ),
       GoRoute(
-        name: RouteNames.myOrders,
-        path: RouteNames.myOrders,
+        name: AppRoutes.myOrders,
+        path: AppRoutes.myOrders,
         builder: (context, state) => BlocProvider<AccountOrdersCubit>(
           create: (_) => AccountOrdersCubit(
             sl<OrdersRepository>(),
@@ -348,8 +348,8 @@ GoRouter buildAppRouter({
         ),
       ),
       GoRoute(
-        name: RouteNames.mySells,
-        path: RouteNames.mySells,
+        name: AppRoutes.mySells,
+        path: AppRoutes.mySells,
         builder: (context, state) => BlocProvider<AccountOrdersCubit>(
           create: (_) => AccountOrdersCubit(
             sl<OrdersRepository>(),
@@ -359,23 +359,23 @@ GoRouter buildAppRouter({
         ),
       ),
       GoRoute(
-        name: RouteNames.myListings,
-        path: RouteNames.myListings,
+        name: AppRoutes.myListings,
+        path: AppRoutes.myListings,
         builder: (context, state) => const MyListingsScreen(),
       ),
       GoRoute(
-        name: RouteNames.purchasedBooks,
-        path: RouteNames.purchasedBooks,
+        name: AppRoutes.purchasedBooks,
+        path: AppRoutes.purchasedBooks,
         builder: (context, state) => const PurchasedBooksScreen(),
       ),
       GoRoute(
-        name: RouteNames.aiTextTools,
-        path: RouteNames.aiTextTools,
+        name: AppRoutes.aiTextTools,
+        path: AppRoutes.aiTextTools,
         builder: (context, state) => const AiTextToolsScreen(),
       ),
       GoRoute(
-        name: RouteNames.settingsPersonalInformation,
-        path: RouteNames.settingsPersonalInformation,
+        name: AppRoutes.settingsPersonalInformation,
+        path: AppRoutes.settingsPersonalInformation,
         builder: (context, state) => BlocProvider<ProfileBloc>(
           create: (_) =>
               sl<ProfileBloc>()..add(const ProfileCachedLoadRequested()),
@@ -383,58 +383,58 @@ GoRouter buildAppRouter({
         ),
       ),
       GoRoute(
-        name: RouteNames.settingsLocations,
-        path: RouteNames.settingsLocations,
+        name: AppRoutes.settingsLocations,
+        path: AppRoutes.settingsLocations,
         builder: (context, state) => const ProfileLocationsScreen(),
       ),
       GoRoute(
-        name: RouteNames.settingsPersonalFiles,
-        path: RouteNames.settingsPersonalFiles,
+        name: AppRoutes.settingsPersonalFiles,
+        path: AppRoutes.settingsPersonalFiles,
         builder: (context, state) => const ExplorerHistoryScreen(),
       ),
       GoRoute(
-        name: RouteNames.subscriptionAccountType,
-        path: RouteNames.subscriptionAccountType,
+        name: AppRoutes.subscriptionAccountType,
+        path: AppRoutes.subscriptionAccountType,
         builder: (context, state) => const AccountTypeScreen(),
       ),
       GoRoute(
-        name: RouteNames.otpVerification,
-        path: RouteNames.otpVerification,
+        name: AppRoutes.otpVerification,
+        path: AppRoutes.otpVerification,
         builder: (context, state) {
           final String? phoneNumber = state.extra as String?;
           return OtpVerificationScreen(phoneNumber: phoneNumber);
         },
       ),
       GoRoute(
-        name: RouteNames.forgotPassword,
-        path: RouteNames.forgotPassword,
+        name: AppRoutes.forgotPassword,
+        path: AppRoutes.forgotPassword,
         builder: (context, state) => const ForgotPasswordScreen(),
       ),
       GoRoute(
-        name: RouteNames.resetPassword,
-        path: RouteNames.resetPassword,
+        name: AppRoutes.resetPassword,
+        path: AppRoutes.resetPassword,
         builder: (context, state) {
           final String? phoneNumber = state.extra as String?;
           return ResetPasswordScreen(phoneNumber: phoneNumber);
         },
       ),
       GoRoute(
-        name: RouteNames.settingsChangePassword,
-        path: RouteNames.settingsChangePassword,
+        name: AppRoutes.settingsChangePassword,
+        path: AppRoutes.settingsChangePassword,
         builder: (context, state) => const ChangePasswordScreen(),
       ),
       GoRoute(
-        name: RouteNames.notificationPermission,
-        path: RouteNames.notificationPermission,
+        name: AppRoutes.notificationPermission,
+        path: AppRoutes.notificationPermission,
         builder: (context, state) => const NotificationPermissionScreen(),
       ),
       GoRoute(
-        name: RouteNames.locationPermission,
-        path: RouteNames.locationPermission,
+        name: AppRoutes.locationPermission,
+        path: AppRoutes.locationPermission,
         builder: (context, state) => const LocationPermissionScreen(),
       ),
       GoRoute(
-        path: RouteNames.settingsAccountType,
+        path: AppRoutes.settingsAccountType,
         builder: (context, state) => BlocProvider<LibraryRegistrationCubit>(
           create: (_) => sl<LibraryRegistrationCubit>(),
           child: const SettingsAccountTypeScreen(),
@@ -506,53 +506,53 @@ Page<void> _buildSoftTransitionPage({
 
 bool _isKnownRoute(String location) {
   if (<String>{
-    RouteNames.splash,
-    RouteNames.home,
-    RouteNames.profile,
-    RouteNames.stores,
-    RouteNames.libraries,
-    RouteNames.userBooks,
-    RouteNames.sellBook,
-    RouteNames.audioBooks,
-    RouteNames.cart,
-    RouteNames.favorites,
-    RouteNames.bookAssistant,
-    RouteNames.aiTextTools,
-    RouteNames.search,
-    RouteNames.settings,
-    RouteNames.myOrders,
-    RouteNames.mySells,
-    RouteNames.myListings,
-    RouteNames.purchasedBooks,
-    RouteNames.settingsPersonalInformation,
-    RouteNames.settingsLocations,
-    RouteNames.settingsPersonalFiles,
-    RouteNames.settingsChangePassword,
-    RouteNames.settingsAccountType,
-    RouteNames.subscriptionAccountType,
-    RouteNames.explorer,
-    RouteNames.pdfReader,
-    RouteNames.auth,
-    RouteNames.login,
-    RouteNames.register,
-    RouteNames.onboarding,
-    RouteNames.onboardingAge,
-    RouteNames.onboardingInterests,
-    RouteNames.routeBridge,
-    RouteNames.checkoutSuccess,
-    RouteNames.checkoutCancel,
-    RouteNames.notificationPermission,
-    RouteNames.locationPermission,
-    RouteNames.otpVerification,
-    RouteNames.forgotPassword,
-    RouteNames.resetPassword,
+    AppRoutes.splash,
+    AppRoutes.home,
+    AppRoutes.profile,
+    AppRoutes.stores,
+    AppRoutes.libraries,
+    AppRoutes.userBooks,
+    AppRoutes.sellBook,
+    AppRoutes.audioBooks,
+    AppRoutes.cart,
+    AppRoutes.favorites,
+    AppRoutes.bookAssistant,
+    AppRoutes.aiTextTools,
+    AppRoutes.search,
+    AppRoutes.settings,
+    AppRoutes.myOrders,
+    AppRoutes.mySells,
+    AppRoutes.myListings,
+    AppRoutes.purchasedBooks,
+    AppRoutes.settingsPersonalInformation,
+    AppRoutes.settingsLocations,
+    AppRoutes.settingsPersonalFiles,
+    AppRoutes.settingsChangePassword,
+    AppRoutes.settingsAccountType,
+    AppRoutes.subscriptionAccountType,
+    AppRoutes.explorer,
+    AppRoutes.pdfReader,
+    AppRoutes.auth,
+    AppRoutes.login,
+    AppRoutes.register,
+    AppRoutes.onboarding,
+    AppRoutes.onboardingAge,
+    AppRoutes.onboardingInterests,
+    AppRoutes.routeBridge,
+    AppRoutes.checkoutSuccess,
+    AppRoutes.checkoutCancel,
+    AppRoutes.notificationPermission,
+    AppRoutes.locationPermission,
+    AppRoutes.otpVerification,
+    AppRoutes.forgotPassword,
+    AppRoutes.resetPassword,
   }.contains(location)) {
     return true;
   }
 
   // Library details uses a path parameter, so the actual location looks like
   // /libraries/{id} rather than the declared /libraries/:libraryId route.
-  if (location.startsWith('${RouteNames.libraries}/') ||
+  if (location.startsWith('${AppRoutes.libraries}/') ||
       location.startsWith('/authors/') ||
       location.startsWith('/books/')) {
     return true;

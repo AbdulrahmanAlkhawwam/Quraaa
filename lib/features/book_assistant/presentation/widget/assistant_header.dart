@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../core/config/env.dart';
+import '../../../../core/config/app_config.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/error_monitoring/user_context_provider.dart';
 import '../../../../core/localization/localization_constants.dart';
@@ -25,7 +25,7 @@ class AssistantHeader extends StatelessWidget {
     final String storedName =
         sl<UserContextProvider>().snapshot.userName?.trim() ?? '';
     final String displayName = storedName.isEmpty
-        ? Env.appName
+        ? AppConfig.appName
         : storedName.split(RegExp(r'\s+')).first;
 
     return SizedBox(

@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/shared.dart';
@@ -69,9 +69,9 @@ class _LandingScreenView extends StatelessWidget {
   void _handleAuthState(BuildContext context, AuthState state) {
     switch (state.status) {
       case AuthStatus.navigateToOnboarding:
-        context.goTo(RouteNames.onboarding);
+        context.goTo(AppRoutes.onboarding);
       case AuthStatus.navigateToLogin:
-        context.goTo(RouteNames.login);
+        context.goTo(AppRoutes.login);
       case _:
         break;
     }

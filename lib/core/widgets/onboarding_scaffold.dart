@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import '../assets/app_images.dart';
+import '../constants/app_images.dart';
 import '../localization/localization_constants.dart';
 import '../shared.dart';
 import 'onboarding_progress_indicator.dart';

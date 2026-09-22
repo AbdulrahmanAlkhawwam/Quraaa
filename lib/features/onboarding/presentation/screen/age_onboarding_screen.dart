@@ -5,7 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/shared.dart';
@@ -63,7 +63,7 @@ class _AgeOnboardingScreenState extends State<AgeOnboardingScreen> {
               !current.isLoading &&
               current.errorMessage == null &&
               current.selectedGender == null,
-          listener: (context, state) => context.goTo(RouteNames.onboarding),
+          listener: (context, state) => context.goTo(AppRoutes.onboarding),
           child: BlocListener<OnboardingBloc, OnboardingState>(
             listenWhen: (previous, current) =>
                 current.errorMessage != null &&
@@ -105,7 +105,7 @@ class _AgeOnboardingView extends StatelessWidget {
           leading: OnboardingBackButton(
             onPressed: () async {
               await context.read<AuthJourneyCubit>().moveFromAgeToOnboarding();
-              if (context.mounted) context.goTo(RouteNames.onboarding);
+              if (context.mounted) context.goTo(AppRoutes.onboarding);
             },
           ),
           activeIndex: 2,

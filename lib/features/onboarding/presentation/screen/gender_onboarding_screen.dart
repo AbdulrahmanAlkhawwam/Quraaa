@@ -6,8 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:hugeicons/hugeicons.dart';
 
-import '../../../../core/routing/route_names.dart';
-import '../../../../core/assets/app_images.dart';
+import '../../../../core/constants/app_routes.dart';
+import '../../../../core/constants/app_images.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/shared.dart';
@@ -113,7 +113,7 @@ class _GenderOnboardingView extends StatelessWidget {
                               .read<AuthJourneyCubit>()
                               .moveFromOnboardingToAuth(),
                         );
-                        context.goTo(RouteNames.auth);
+                        context.goTo(AppRoutes.auth);
                       },
                       icon: HugeIcon(
                         icon: context.isRTL

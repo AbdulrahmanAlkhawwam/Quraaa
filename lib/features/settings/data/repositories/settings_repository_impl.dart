@@ -1,5 +1,5 @@
 import '../../../../core/architecture/result.dart';
-import '../../../../core/constants/app_storage_keys.dart';
+import '../../../../core/constants/storage_keys.dart';
 import '../../../../core/services/storage_service.dart';
 import '../../domain/entities/appearance_option.dart';
 import '../../domain/entities/language_option.dart';
@@ -294,7 +294,7 @@ class SettingsRepositoryImpl extends SettingsRepository {
     return Success<List<AppearanceOption>>(
       List<AppearanceOption>.unmodifiable(
         _selectedAppearanceOptions(
-          _storageService.getString(AppStorageKeys.appThemeMode),
+          _storageService.getString(StorageKeys.appThemeMode),
         ),
       ),
     );
@@ -312,7 +312,7 @@ class SettingsRepositoryImpl extends SettingsRepository {
     return Success<List<LanguageOption>>(
       List<LanguageOption>.unmodifiable(
         _selectedLanguageOptions(
-          _storageService.getString(AppStorageKeys.userLanguage),
+          _storageService.getString(StorageKeys.userLanguage),
         ),
       ),
     );
@@ -322,7 +322,7 @@ class SettingsRepositoryImpl extends SettingsRepository {
   Future<Result<List<AppearanceOption>>> updateAppearanceOption(
       String id) async {
     final String selectedId = _normalizeAppearanceId(id);
-    await _storageService.setString(AppStorageKeys.appThemeMode, selectedId);
+    await _storageService.setString(StorageKeys.appThemeMode, selectedId);
     return Success<List<AppearanceOption>>(
       List<AppearanceOption>.unmodifiable(
           _selectedAppearanceOptions(selectedId)),
@@ -341,7 +341,7 @@ class SettingsRepositoryImpl extends SettingsRepository {
   @override
   Future<Result<List<LanguageOption>>> updateLanguageOption(String id) async {
     final String selectedId = _normalizeLanguageId(id);
-    await _storageService.setString(AppStorageKeys.userLanguage, selectedId);
+    await _storageService.setString(StorageKeys.userLanguage, selectedId);
     return Success<List<LanguageOption>>(
       List<LanguageOption>.unmodifiable(_selectedLanguageOptions(selectedId)),
     );

@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/architecture/result.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
@@ -52,7 +52,7 @@ class BookPurchaseBottomSheet extends StatelessWidget {
         ),
       );
       if (shouldLogin == true && context.mounted) {
-        context.goTo(RouteNames.login);
+        context.goTo(AppRoutes.login);
       }
       return;
     }
@@ -115,7 +115,7 @@ class BookPurchaseBottomSheet extends StatelessWidget {
     switch (result) {
       case Success<CartSummary>():
         if (checkout) {
-          parentContext.pushTo(RouteNames.cart, extra: true);
+          parentContext.pushTo(AppRoutes.cart, extra: true);
         } else {
           parentContext.showSuccessSnackBar(
             message: Message(

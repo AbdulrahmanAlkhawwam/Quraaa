@@ -1,3 +1,4 @@
+import '../../../../core/constants/app_images.dart';
 import '../../domain/entities/sell_book.dart';
 
 /// Temporary mock endpoint. Replace this datasource when the marketplace API lands.
@@ -20,7 +21,7 @@ class SellBookMockRemoteDataSourceImpl implements SellBookMockRemoteDataSource {
         publisher: 'Cambridge University',
         author: 'Tim Carter & Katia Carter',
         edition: '10th for 2025',
-        coverAsset: 'assets/images/books/global_english_10.png');
+        coverAsset: AppImages.globalEnglish10Cover);
   }
 
   @override

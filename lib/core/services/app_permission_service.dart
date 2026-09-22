@@ -1,4 +1,4 @@
-import '../constants/app_storage_keys.dart';
+import '../constants/storage_keys.dart';
 import 'location_permission_service.dart';
 import 'notification_service.dart';
 import 'storage_permission_service.dart';
@@ -29,7 +29,7 @@ class AppPermissionServiceImpl implements AppPermissionService {
   @override
   Future<void> requestInitialPermissions() async {
     if (_requestInProgress ||
-        _storageService.getBool(AppStorageKeys.initialPermissionsRequested) ==
+        _storageService.getBool(StorageKeys.initialPermissionsRequested) ==
             true) {
       return;
     }
@@ -43,7 +43,7 @@ class AppPermissionServiceImpl implements AppPermissionService {
       });
 
       await _storageService.setBool(
-        AppStorageKeys.initialPermissionsRequested,
+        StorageKeys.initialPermissionsRequested,
         true,
       );
     } finally {

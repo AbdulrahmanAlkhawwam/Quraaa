@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/shared.dart';
 import '../../../auth/auth.dart';
@@ -60,7 +60,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   currentIndex: 3,
                   isGuest: true,
                   onTap: (int index, String route) {
-                    if (route != RouteNames.settings) {
+                    if (route != AppRoutes.settings) {
                       context.goTo(route);
                     }
                   },

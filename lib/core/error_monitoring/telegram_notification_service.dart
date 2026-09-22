@@ -4,6 +4,7 @@ import 'dart:developer' as developer;
 import 'package:dio/dio.dart';
 
 import '../connectivity/connection_status.dart';
+import '../constants/external_urls.dart';
 import '../connectivity/connectivity_service.dart';
 import 'error_report.dart';
 import 'error_report_cache.dart';
@@ -97,7 +98,7 @@ class TelegramNotificationService {
     for (final String chatId in chatIds) {
       try {
         await _dio.post<dynamic>(
-          'https://api.telegram.org/bot$token/sendMessage',
+          ExternalUrls.telegramSendMessage(token),
           data: <String, Object?>{
             'chat_id': chatId,
             'text': report.toTelegramMessage(),

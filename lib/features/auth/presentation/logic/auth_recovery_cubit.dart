@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/architecture/result.dart';
 import '../../data/data_sources/auth_local_data_source.dart';
 import '../../data/services/auth_session_service.dart';
@@ -120,7 +120,7 @@ class AuthRecoveryCubit extends Cubit<AuthRecoveryState> {
           );
         } catch (_) {}
         _emitNavigation(
-          RouteNames.resetPassword,
+          AppRoutes.resetPassword,
           success: AuthRecoverySuccess.forgotPasswordSent,
           routeExtra: phoneNumber,
         );
@@ -159,7 +159,7 @@ class AuthRecoveryCubit extends Cubit<AuthRecoveryState> {
           );
         } catch (_) {}
         _emitNavigation(
-          RouteNames.login,
+          AppRoutes.login,
           success: AuthRecoverySuccess.passwordReset,
         );
       },
@@ -203,7 +203,7 @@ class AuthRecoveryCubit extends Cubit<AuthRecoveryState> {
           return;
         }
         _emitNavigation(
-          RouteNames.home,
+          AppRoutes.home,
           success: AuthRecoverySuccess.otpVerified,
         );
       },

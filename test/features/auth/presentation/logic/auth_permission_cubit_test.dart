@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:quraaa/core/routing/route_names.dart';
+import 'package:quraaa/core/constants/app_routes.dart';
 import 'package:quraaa/core/services/location_permission_service.dart';
 import 'package:quraaa/core/services/notification_service.dart';
 import 'package:quraaa/features/auth/presentation/logic/auth_permission_cubit.dart';
@@ -45,7 +45,7 @@ void main() {
     await cubit.requestNotificationPermission();
 
     expect(cubit.state.status, AuthPermissionStatus.navigate);
-    expect(cubit.state.nextRoute, RouteNames.locationPermission);
+    expect(cubit.state.nextRoute, AppRoutes.locationPermission);
     verify(() => authJourney.markNotificationPermissionSeen()).called(1);
     verify(() => notificationService.requestPermission()).called(1);
   });
@@ -59,7 +59,7 @@ void main() {
 
     await cubit.skipNotificationPermission();
 
-    expect(cubit.state.nextRoute, RouteNames.home);
+    expect(cubit.state.nextRoute, AppRoutes.home);
     verifyNever(() => notificationService.requestPermission());
   });
 
@@ -74,7 +74,7 @@ void main() {
 
     await cubit.requestLocationAlways();
 
-    expect(cubit.state.nextRoute, RouteNames.notificationPermission);
+    expect(cubit.state.nextRoute, AppRoutes.notificationPermission);
     verify(() => authJourney.markLocationPermissionSeen()).called(1);
     verify(() => locationPermissionService.requestAlways()).called(1);
   });

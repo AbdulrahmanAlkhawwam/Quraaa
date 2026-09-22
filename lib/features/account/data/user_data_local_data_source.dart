@@ -1,5 +1,5 @@
-import '../../../core/config/env.dart';
-import '../../../../core/constants/app_storage_keys.dart';
+import '../../../core/config/app_config.dart';
+import '../../../core/constants/storage_keys.dart';
 import '../../../../core/services/storage_service.dart';
 
 class UserDataLocalDataSource {
@@ -12,7 +12,7 @@ class UserDataLocalDataSource {
   static const String _countryKey = 'user_country';
   static const String _phoneKey = 'user_phone';
   static const String _themeKey = 'user_theme';
-  static const String _languageKey = AppStorageKeys.userLanguage;
+  static const String _languageKey = StorageKeys.userLanguage;
   static const String _bookmarksKey = 'user_bookmarks';
   static const String _budgetBalanceKey = 'user_budget_balance';
   static const String _libraryItemsKey = 'user_library_items';
@@ -21,7 +21,7 @@ class UserDataLocalDataSource {
 
   Future<UserDataSnapshot> load() async {
     return UserDataSnapshot(
-      fullName: _storageService.getString(_fullNameKey) ?? Env.appName,
+      fullName: _storageService.getString(_fullNameKey) ?? AppConfig.appName,
       birthDate: _storageService.getString(_birthDateKey) ?? '2005/04/21',
       country: _storageService.getString(_countryKey) ?? 'United Arab Emirates',
       phone: _storageService.getString(_phoneKey) ?? '+971 500 000 000',

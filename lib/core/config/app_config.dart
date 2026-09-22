@@ -9,7 +9,7 @@ import 'package:flutter/foundation.dart';
 /// For local development, create a `.env` file in the project root and pass its
 /// values via `--dart-define` flags. Do NOT add `.env` to `pubspec.yaml` assets
 /// and do NOT commit it to version control.
-abstract class Env {
+abstract class AppConfig {
   static const String appName = 'Quraaa';
   static const String checkoutCallbackScheme = 'quraaa';
   static const String checkoutCallbackHost = 'checkout';

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:quraaa/core/constants/app_storage_keys.dart';
+import 'package:quraaa/core/constants/storage_keys.dart';
 import 'package:quraaa/core/services/app_permission_service.dart';
 import 'package:quraaa/core/services/location_permission_service.dart';
 import 'package:quraaa/core/services/notification_service.dart';
@@ -33,7 +33,7 @@ void main() {
   test('requests notification, location, then storage permission', () async {
     final List<String> requestOrder = <String>[];
     when(
-      () => storageService.getBool(AppStorageKeys.initialPermissionsRequested),
+      () => storageService.getBool(StorageKeys.initialPermissionsRequested),
     ).thenReturn(false);
     when(() => notificationService.requestPermission()).thenAnswer((_) async {
       requestOrder.add('notification');
@@ -51,7 +51,7 @@ void main() {
     });
     when(
       () => storageService.setBool(
-        AppStorageKeys.initialPermissionsRequested,
+        StorageKeys.initialPermissionsRequested,
         true,
       ),
     ).thenAnswer((_) async => true);
@@ -66,7 +66,7 @@ void main() {
     expect(requestOrder, <String>['notification', 'location', 'storage']);
     verify(
       () => storageService.setBool(
-        AppStorageKeys.initialPermissionsRequested,
+        StorageKeys.initialPermissionsRequested,
         true,
       ),
     ).called(1);
@@ -74,7 +74,7 @@ void main() {
 
   test('does not request permissions after the bundle was attempted', () async {
     when(
-      () => storageService.getBool(AppStorageKeys.initialPermissionsRequested),
+      () => storageService.getBool(StorageKeys.initialPermissionsRequested),
     ).thenReturn(true);
 
     await _buildService(
@@ -89,7 +89,7 @@ void main() {
     verifyNever(() => storagePermissionService.requestStorageAccess());
     verifyNever(
       () => storageService.setBool(
-        AppStorageKeys.initialPermissionsRequested,
+        StorageKeys.initialPermissionsRequested,
         true,
       ),
     );
@@ -97,7 +97,7 @@ void main() {
 
   test('continues when a platform permission request throws', () async {
     when(
-      () => storageService.getBool(AppStorageKeys.initialPermissionsRequested),
+      () => storageService.getBool(StorageKeys.initialPermissionsRequested),
     ).thenReturn(false);
     when(
       () => notificationService.requestPermission(),
@@ -110,7 +110,7 @@ void main() {
     ).thenThrow(StateError('storage unavailable'));
     when(
       () => storageService.setBool(
-        AppStorageKeys.initialPermissionsRequested,
+        StorageKeys.initialPermissionsRequested,
         true,
       ),
     ).thenAnswer((_) async => true);
@@ -127,7 +127,7 @@ void main() {
     verify(() => storagePermissionService.requestStorageAccess()).called(1);
     verify(
       () => storageService.setBool(
-        AppStorageKeys.initialPermissionsRequested,
+        StorageKeys.initialPermissionsRequested,
         true,
       ),
     ).called(1);

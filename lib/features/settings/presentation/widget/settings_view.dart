@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/localization/supported_locales.dart';
 import '../../../../core/shared.dart'
@@ -87,48 +87,48 @@ class _SettingsViewState extends State<SettingsView> {
 
     if (section.action == SettingsSectionAction.navigate) {
       if (section.id == 'my_personal_information') {
-        context.pushTo(RouteNames.settingsPersonalInformation);
+        context.pushTo(AppRoutes.settingsPersonalInformation);
         return;
       }
       if (section.id == 'my_locations') {
-        context.pushTo(RouteNames.settingsLocations);
+        context.pushTo(AppRoutes.settingsLocations);
         return;
       }
       if (section.id == 'my_personal_files') {
-        context.pushTo(RouteNames.settingsPersonalFiles);
+        context.pushTo(AppRoutes.settingsPersonalFiles);
         return;
       }
       if (section.id == 'account_type') {
-        context.push(RouteNames.settingsAccountType);
+        context.push(AppRoutes.settingsAccountType);
         return;
       }
       if (section.id == 'change_password') {
-        context.pushTo(RouteNames.settingsChangePassword);
+        context.pushTo(AppRoutes.settingsChangePassword);
         return;
       }
 
       if (section.id == 'my_orders') {
-        context.pushTo(RouteNames.myOrders);
+        context.pushTo(AppRoutes.myOrders);
         return;
       }
       if (section.id == 'my_sells') {
-        context.pushTo(RouteNames.mySells);
+        context.pushTo(AppRoutes.mySells);
         return;
       }
       if (section.id == 'my_listings') {
-        context.pushTo(RouteNames.myListings);
+        context.pushTo(AppRoutes.myListings);
         return;
       }
       if (section.id == 'my_books' || section.id == 'downloads') {
-        context.pushTo(RouteNames.purchasedBooks);
+        context.pushTo(AppRoutes.purchasedBooks);
         return;
       }
       if (section.id == 'wishlist') {
-        context.pushTo(RouteNames.favorites);
+        context.pushTo(AppRoutes.favorites);
         return;
       }
       if (section.id == 'ai_text_tools') {
-        context.pushTo(RouteNames.aiTextTools);
+        context.pushTo(AppRoutes.aiTextTools);
         return;
       }
 
@@ -190,7 +190,7 @@ class _SettingsViewState extends State<SettingsView> {
     );
 
     if (shouldLogin == true && context.mounted) {
-      context.goTo(RouteNames.login);
+      context.goTo(AppRoutes.login);
     }
   }
 
@@ -352,7 +352,7 @@ class _SettingsViewState extends State<SettingsView> {
               current is SettingsLoaded),
       listener: (BuildContext context, SettingsState state) {
         if (state is SettingsLogoutSuccess) {
-          context.goTo(RouteNames.auth);
+          context.goTo(AppRoutes.auth);
           return;
         }
 

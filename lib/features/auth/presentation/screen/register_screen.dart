@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/connectivity/connectivity_ui_helper.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
@@ -180,7 +180,7 @@ class _RegisterViewState extends State<_RegisterView> {
 
     if (state.status == AuthRegistrationStatus.loaded &&
         !state.hasRequiredOnboardingData) {
-      context.goTo(RouteNames.onboarding);
+      context.goTo(AppRoutes.onboarding);
     }
   }
 
@@ -482,7 +482,7 @@ class _RegisterViewState extends State<_RegisterView> {
                                 'Auth already have account button',
                               ),
                             );
-                        context.goTo(RouteNames.login);
+                        context.goTo(AppRoutes.login);
                       },
                       child: Text(
                         LocalizationConstants.authAlreadyHaveAccountKey.tr(),

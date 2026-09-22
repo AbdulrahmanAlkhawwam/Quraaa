@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/error_monitoring/user_context_provider.dart';
 import '../../../../core/localization/localization_constants.dart';
@@ -57,7 +57,7 @@ class _BooksView extends StatelessWidget {
         currentIndex: 2,
         isGuest: isGuest,
         onTap: (_, String route) {
-          if (route != RouteNames.userBooks) context.goTo(route);
+          if (route != AppRoutes.userBooks) context.goTo(route);
         },
       ),
       body: SafeArea(
@@ -243,7 +243,7 @@ class _CatalogBody extends StatelessWidget {
     );
 
     context.pushTo(
-      RouteNames.bookDetailsPath(
+      AppRoutes.bookDetailsPath(
         book.listingId.isNotEmpty ? book.listingId : book.id,
       ),
       extra: BookDetailsNavigationData(book: detailsBook),

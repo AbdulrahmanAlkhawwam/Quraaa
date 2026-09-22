@@ -6,7 +6,7 @@ import '../../../../core/utils/extensions/app_context.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
@@ -147,7 +147,7 @@ class _LocalExplorerViewState extends State<LocalExplorerView> {
 
     if (!context.mounted) return;
     context.pushNamed(
-      RouteNames.pdfReaderName,
+      AppRoutes.pdfReaderName,
       queryParameters: <String, String>{'path': entry.path, 'name': entry.name},
       extra: entry,
     );

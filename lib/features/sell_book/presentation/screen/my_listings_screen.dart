@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/architecture/result.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/shared.dart';
@@ -46,7 +46,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         actions: <Widget>[
           IconButton(
             onPressed: () async {
-              await context.push(RouteNames.sellBook);
+              await context.push(AppRoutes.sellBook);
               if (mounted) setState(_reload);
             },
             icon: const Icon(Icons.add_circle_outline),
@@ -86,7 +86,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                   Text('listings.empty'.tr()),
                   const SizedBox(height: 12),
                   FilledButton(
-                    onPressed: () => context.push(RouteNames.sellBook),
+                    onPressed: () => context.push(AppRoutes.sellBook),
                     child: Text('listings.add'.tr()),
                   ),
                 ],
@@ -126,7 +126,7 @@ class _ListingCard extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(AppRadius.radius16),
         onTap: () => context.push(
-          RouteNames.bookDetailsPath(listing.listingId, listing.bookId),
+          AppRoutes.bookDetailsPath(listing.listingId, listing.bookId),
         ),
         child: Padding(
           padding: const EdgeInsets.all(14),

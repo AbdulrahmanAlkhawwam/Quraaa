@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../home/presentation/widget/home_app_bar.dart';
@@ -36,7 +36,7 @@ class _LibrariesView extends StatelessWidget {
   const _LibrariesView();
 
   void _onNavItemTapped(BuildContext context, int index, String route) {
-    if (route != RouteNames.libraries) {
+    if (route != AppRoutes.libraries) {
       context.goTo(route);
     }
   }
@@ -110,7 +110,7 @@ class _LibrariesBody extends StatelessWidget {
                   'Novels',
                   'Programming',
                 ],
-                onTap: () => context.pushTo(RouteNames.search),
+                onTap: () => context.pushTo(AppRoutes.search),
                 backgroundColor: context.appCard,
                 textColor: context.appTextPrimary,
               ),

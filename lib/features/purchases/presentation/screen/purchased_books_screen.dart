@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/shared.dart';
 import '../../../libraries/libraries.dart';
@@ -40,7 +40,7 @@ class _PurchasedBooksView extends StatelessWidget {
         }
         if (state.openSerial > 0 &&
             state.openedPurchaseId?.trim().isNotEmpty == true) {
-          final String route = '${RouteNames.pdfReader}'
+          final String route = '${AppRoutes.pdfReader}'
               '?purchaseId=${Uri.encodeQueryComponent(state.openedPurchaseId!)}'
               '&name=${Uri.encodeQueryComponent(state.openedName ?? 'PDF')}';
           context.pushTo(route);
@@ -132,7 +132,7 @@ class _PurchasedBooksView extends StatelessWidget {
       format: book.digital ? 'Digital' : 'Physical',
     );
     context.pushTo(
-      RouteNames.bookDetailsPath(book.bookId, book.purchaseId),
+      AppRoutes.bookDetailsPath(book.bookId, book.purchaseId),
       extra: BookDetailsNavigationData(
         book: detailsBook,
         purchaseId: book.purchaseId,

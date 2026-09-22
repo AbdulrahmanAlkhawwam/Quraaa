@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../../../../core/constants/external_urls.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/shared.dart';
@@ -656,7 +657,7 @@ class _ProfileMap extends StatelessWidget {
       ),
       children: <Widget>[
         TileLayer(
-          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          urlTemplate: ExternalUrls.openStreetMapTiles,
           userAgentPackageName: 'com.example.quraaa',
         ),
         MarkerLayer(

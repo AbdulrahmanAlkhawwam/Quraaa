@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/routing/route_resolver.dart';
-import '../../../../core/assets/app_images.dart';
+import '../../../../core/constants/app_images.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/shared.dart';
 
@@ -32,8 +32,8 @@ class _SplashScreenState extends State<SplashScreen> {
       return;
     }
 
-    if (targetRoute == RouteNames.splash) {
-      context.goTo(RouteNames.auth);
+    if (targetRoute == AppRoutes.splash) {
+      context.goTo(AppRoutes.auth);
       return;
     }
 

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import '../../routing/route_names.dart';
+import '../../constants/app_routes.dart';
 import '../../di/injection_container.dart';
 import '../../error_monitoring/user_context_provider.dart';
 import '../../errors/error_message_resolver.dart';
@@ -34,7 +34,7 @@ extension AppNavigation on BuildContext {
     if (GoRouter.of(this).canPop()) {
       GoRouter.of(this).pop(result);
     } else {
-      goTo(RouteNames.home);
+      goTo(AppRoutes.home);
     }
   }
 }

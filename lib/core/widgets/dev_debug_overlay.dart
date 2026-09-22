@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../config/env.dart';
+import '../config/app_config.dart';
 import '../di/injection_container.dart';
 import '../error_monitoring/device_info_provider.dart';
 import '../utils/extensions/app_context.dart';
@@ -27,7 +27,7 @@ class DevDebugOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!Env.isDev) {
+    if (!AppConfig.isDev) {
       return const SizedBox.shrink();
     }
 

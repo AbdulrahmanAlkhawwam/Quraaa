@@ -4,7 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/architecture/use_case.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
@@ -93,7 +93,7 @@ class HomeDrawer extends StatelessWidget {
                 label: LocalizationConstants.homeDrawerProfileKey.tr(),
                 onTap: () {
                   Navigator.of(context).pop();
-                  context.goTo(RouteNames.profile);
+                  context.goTo(AppRoutes.profile);
                 },
               ),
               _DrawerItem(
@@ -101,7 +101,7 @@ class HomeDrawer extends StatelessWidget {
                 label: LocalizationConstants.homeDrawerBookmarksKey.tr(),
                 onTap: () {
                   Navigator.of(context).pop();
-                  context.goTo(RouteNames.favorites);
+                  context.goTo(AppRoutes.favorites);
                 },
               ),
               _DrawerItem(
@@ -109,7 +109,7 @@ class HomeDrawer extends StatelessWidget {
                 label: LocalizationConstants.homeDrawerLibraryKey.tr(),
                 onTap: () {
                   Navigator.of(context).pop();
-                  context.goTo(RouteNames.libraries);
+                  context.goTo(AppRoutes.libraries);
                 },
               ),
               _DrawerItem(
@@ -117,7 +117,7 @@ class HomeDrawer extends StatelessWidget {
                 label: LocalizationConstants.homeDrawerStoresKey.tr(),
                 onTap: () {
                   Navigator.of(context).pop();
-                  context.goTo(RouteNames.stores);
+                  context.goTo(AppRoutes.stores);
                 },
               ),
               _DrawerItem(
@@ -125,7 +125,7 @@ class HomeDrawer extends StatelessWidget {
                 label: LocalizationConstants.homeNavUserBooksKey.tr(),
                 onTap: () {
                   Navigator.of(context).pop();
-                  context.goTo(RouteNames.userBooks);
+                  context.goTo(AppRoutes.userBooks);
                 },
               ),
               _DrawerItem(
@@ -133,7 +133,7 @@ class HomeDrawer extends StatelessWidget {
                 label: LocalizationConstants.homeNavAudioBookKey.tr(),
                 onTap: () {
                   Navigator.of(context).pop();
-                  context.goTo(RouteNames.audioBooks);
+                  context.goTo(AppRoutes.audioBooks);
                 },
               ),
               if (!isGuest)
@@ -142,7 +142,7 @@ class HomeDrawer extends StatelessWidget {
                   label: LocalizationConstants.homeNavCartKey.tr(),
                   onTap: () {
                     Navigator.of(context).pop();
-                    context.goTo(RouteNames.cart);
+                    context.goTo(AppRoutes.cart);
                   },
                 ),
               const SizedBox(height: AppSpacing.spacing16),
@@ -153,7 +153,7 @@ class HomeDrawer extends StatelessWidget {
                 label: LocalizationConstants.homeDrawerSettingsKey.tr(),
                 onTap: () {
                   Navigator.of(context).pop();
-                  context.pushTo(RouteNames.settings);
+                  context.pushTo(AppRoutes.settings);
                 },
               ),
               _DrawerItem(
@@ -189,7 +189,7 @@ class HomeDrawer extends StatelessWidget {
     await sl<LogoutUseCase>()(const NoParams());
     await sl<StorageService>().clearAll();
     if (context.mounted) {
-      context.goTo(RouteNames.auth);
+      context.goTo(AppRoutes.auth);
     }
   }
 

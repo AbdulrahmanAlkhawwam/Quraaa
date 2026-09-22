@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:quraaa/core/architecture/result.dart';
 import 'package:quraaa/core/errors/failures.dart';
-import 'package:quraaa/core/routing/route_names.dart';
+import 'package:quraaa/core/constants/app_routes.dart';
 import 'package:quraaa/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:quraaa/features/auth/data/models/user_model.dart';
 import 'package:quraaa/features/auth/domain/entities/user.dart';
@@ -214,7 +214,7 @@ void main() {
             AuthState(status: AuthStatus.success),
             AuthState(
               status: AuthStatus.success,
-              nextRoute: RouteNames.otpVerification,
+              nextRoute: AppRoutes.otpVerification,
               routeExtra: phoneNumber,
               navigationSerial: 1,
             ),

@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/services/location_permission_service.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../data/data_sources/auth_local_data_source.dart';
@@ -68,7 +68,7 @@ class AuthPermissionCubit extends Cubit<AuthPermissionState> {
   Future<void> _navigateAfterNotification() async {
     final bool locationSeen = await _authJourney.isLocationPermissionSeen();
     _emitNavigation(
-      locationSeen ? RouteNames.home : RouteNames.locationPermission,
+      locationSeen ? AppRoutes.home : AppRoutes.locationPermission,
     );
   }
 
@@ -76,7 +76,7 @@ class AuthPermissionCubit extends Cubit<AuthPermissionState> {
     final bool notificationSeen =
         await _authJourney.isNotificationPermissionSeen();
     _emitNavigation(
-      notificationSeen ? RouteNames.home : RouteNames.notificationPermission,
+      notificationSeen ? AppRoutes.home : AppRoutes.notificationPermission,
     );
   }
 

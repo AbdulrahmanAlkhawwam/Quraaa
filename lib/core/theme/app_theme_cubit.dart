@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../constants/app_storage_keys.dart';
+import '../constants/storage_keys.dart';
 import '../services/storage_service.dart';
 
 class AppThemeCubit extends Cubit<ThemeMode> {
   AppThemeCubit(this._storageService)
-      : super(_parseThemeMode(_storageService.getString(AppStorageKeys.appThemeMode)));
+      : super(_parseThemeMode(_storageService.getString(StorageKeys.appThemeMode)));
 
   final StorageService _storageService;
 
@@ -16,7 +16,7 @@ class AppThemeCubit extends Cubit<ThemeMode> {
     }
 
     emit(mode);
-    await _storageService.setString(AppStorageKeys.appThemeMode, mode.name);
+    await _storageService.setString(StorageKeys.appThemeMode, mode.name);
   }
 
   static ThemeMode _parseThemeMode(String? value) {

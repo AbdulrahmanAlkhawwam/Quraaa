@@ -1,4 +1,4 @@
-import '../../../../core/config/env.dart';
+import '../../../../core/config/app_config.dart';
 import '../../../auth/auth.dart';
 import '../../../profile/data/data_sources/profile_local_data_source.dart';
 import '../../../profile/domain/entities/profile.dart';
@@ -24,7 +24,7 @@ class AccountRepositoryImpl implements AccountRepository {
         .isAuthenticatedSession();
     if (!isAuthenticated) {
       return AccountUserSnapshot(
-        fullName: Env.appName,
+        fullName: AppConfig.appName,
         profileImage: localSnapshot.profileImage,
       );
     }
@@ -32,7 +32,7 @@ class AccountRepositoryImpl implements AccountRepository {
     final Profile? profile = await _profileLocalDataSource.getCachedProfile();
     final String fullName = profile?.fullName.trim() ?? '';
     return AccountUserSnapshot(
-      fullName: fullName.isEmpty ? Env.appName : fullName,
+      fullName: fullName.isEmpty ? AppConfig.appName : fullName,
       profileImage: profile?.profileImageUrl ?? localSnapshot.profileImage,
     );
   }

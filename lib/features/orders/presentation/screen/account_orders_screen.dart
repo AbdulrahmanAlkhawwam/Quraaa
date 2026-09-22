@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/shared.dart';
 import '../../../home/presentation/widget/home_order_status_card.dart';
 import '../../domain/entities/account_order.dart';
@@ -380,7 +380,7 @@ class _OrderBookCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadius.radius16),
         onTap: item.listingId.isEmpty
             ? null
-            : () => context.push(RouteNames.bookDetailsPath(item.listingId)),
+            : () => context.push(AppRoutes.bookDetailsPath(item.listingId)),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(

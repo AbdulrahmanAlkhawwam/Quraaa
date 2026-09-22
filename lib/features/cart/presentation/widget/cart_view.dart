@@ -6,9 +6,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import '../../../../core/config/env.dart';
-import '../../../../core/routing/route_names.dart';
-import '../../../../core/assets/app_icons.dart';
+import '../../../../core/config/app_config.dart';
+import '../../../../core/constants/app_routes.dart';
+import '../../../../core/constants/app_icons.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/shared.dart';
 import '../../../orders/orders.dart';
@@ -39,7 +39,7 @@ class _CartViewState extends State<CartView> {
     if (!mounted) return;
     if (selection == null) return;
     if (selection.manageLocations) {
-      context.pushTo(RouteNames.settingsLocations);
+      context.pushTo(AppRoutes.settingsLocations);
       return;
     }
     await _startCheckout(
@@ -96,7 +96,7 @@ class _CartViewState extends State<CartView> {
     try {
       final String result = await FlutterWebAuth2.authenticate(
         url: checkoutUri.toString(),
-        callbackUrlScheme: Env.checkoutCallbackScheme,
+        callbackUrlScheme: AppConfig.checkoutCallbackScheme,
       );
       final Uri? callbackUri = Uri.tryParse(result);
       if (!mounted) return;
@@ -130,7 +130,7 @@ class _CartViewState extends State<CartView> {
 
     switch (completion) {
       case CheckoutPaid():
-        context.goTo(RouteNames.home, extra: true);
+        context.goTo(AppRoutes.home, extra: true);
       case CheckoutPaymentPending():
         context.showSuccessSnackBar(
           message: Message(

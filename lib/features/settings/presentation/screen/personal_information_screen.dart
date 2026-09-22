@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import '../../../../core/assets/app_icons.dart';
+import '../../../../core/constants/app_icons.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/shared.dart';
 import '../../../profile/profile.dart';

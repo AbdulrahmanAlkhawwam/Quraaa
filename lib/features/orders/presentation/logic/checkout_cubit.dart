@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/config/env.dart';
+import '../../../../core/config/app_config.dart';
 import '../../../../core/architecture/result.dart';
 import '../../../../core/architecture/use_case.dart';
 import '../../../profile/profile.dart';
@@ -245,8 +245,8 @@ class CheckoutCubit extends Cubit<CheckoutState> {
 enum _CheckoutReturnKind { success, cancelled, invalid }
 
 _CheckoutReturnKind _checkoutReturnKind(Uri uri, OrderCheckout checkout) {
-  if (uri.scheme.toLowerCase() != Env.checkoutCallbackScheme ||
-      uri.host.toLowerCase() != Env.checkoutCallbackHost) {
+  if (uri.scheme.toLowerCase() != AppConfig.checkoutCallbackScheme ||
+      uri.host.toLowerCase() != AppConfig.checkoutCallbackHost) {
     return _CheckoutReturnKind.invalid;
   }
 

@@ -4,7 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/architecture/result.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
@@ -257,7 +257,7 @@ class _SearchScreenState extends State<SearchScreen> {
       fallbackIcon: Icons.person_outline,
       title: author.name,
       subtitle: '${author.totalBooksCount} ${'search.books'.tr()}',
-      onTap: () => context.pushTo(RouteNames.authorDetailsPath(author.id)),
+      onTap: () => context.pushTo(AppRoutes.authorDetailsPath(author.id)),
     );
   }
 
@@ -288,7 +288,7 @@ class _SearchScreenState extends State<SearchScreen> {
       title: book.title,
       subtitle: book.author,
       onTap: () => context.pushTo(
-        RouteNames.bookDetailsPath(book.listingId, book.id),
+        AppRoutes.bookDetailsPath(book.listingId, book.id),
       ),
     );
   }

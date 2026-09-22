@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:quraaa/core/routing/route_names.dart';
+import 'package:quraaa/core/constants/app_routes.dart';
 import 'package:quraaa/core/architecture/result.dart';
 import 'package:quraaa/features/auth/data/data_sources/auth_local_data_source.dart';
 import 'package:quraaa/features/auth/data/services/auth_session_service.dart';
@@ -29,7 +29,7 @@ void main() {
 
       expect(cubit.state.status, AuthRecoveryStatus.navigate);
       expect(cubit.state.success, AuthRecoverySuccess.forgotPasswordSent);
-      expect(cubit.state.nextRoute, RouteNames.resetPassword);
+      expect(cubit.state.nextRoute, AppRoutes.resetPassword);
       expect(cubit.state.routeExtra, '+963999111222');
       expect(authJourney.lastPhoneNumber, '+963999111222');
       expect(authJourney.lastPhoneIsoCode, 'SY');
@@ -81,7 +81,7 @@ void main() {
 
     expect(cubit.state.status, AuthRecoveryStatus.navigate);
     expect(cubit.state.success, AuthRecoverySuccess.otpVerified);
-    expect(cubit.state.nextRoute, RouteNames.home);
+    expect(cubit.state.nextRoute, AppRoutes.home);
     verify(
       () => authSessionService.completeAuthenticatedSession(
         const User(accessToken: 'access', refreshToken: 'refresh'),

@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/shared.dart';
 
 class HomeQuickActions extends StatelessWidget {
@@ -18,14 +18,14 @@ class HomeQuickActions extends StatelessWidget {
             title: 'home.actions.browse_files'.tr(),
             icon: HugeIcons.strokeRoundedFolderOpen,
             accentColor: AppColors.primary600,
-            onTap: () => context.pushTo(RouteNames.explorer),
+            onTap: () => context.pushTo(AppRoutes.explorer),
           ),
           const SizedBox(height: AppSpacing.spacing10),
           _HomeQuickActionTile(
             title: 'home.actions.ask_assistant'.tr(),
             icon: HugeIcons.strokeRoundedSparkles,
             accentColor: AppColors.warning500,
-            onTap: () => context.pushTo(RouteNames.bookAssistant),
+            onTap: () => context.pushTo(AppRoutes.bookAssistant),
           ),
         ],
       ),

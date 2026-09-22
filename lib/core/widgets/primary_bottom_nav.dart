@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import '../routing/route_names.dart';
+import '../constants/app_routes.dart';
 import '../di/injection_container.dart';
 import '../error_monitoring/user_context_provider.dart';
 import '../localization/localization_constants.dart';
@@ -38,7 +38,7 @@ class HomeBottomNav extends StatelessWidget {
     final Color shadowColor =
         context.isDark ? Colors.black : AppColors.primary900;
     final String fourthRoute =
-        guest ? RouteNames.settings : RouteNames.bookAssistant;
+        guest ? AppRoutes.settings : AppRoutes.bookAssistant;
 
     return SafeArea(
       top: false,
@@ -64,21 +64,21 @@ class HomeBottomNav extends StatelessWidget {
           children: <Widget>[
             _destination(
               index: 0,
-              route: RouteNames.home,
+              route: AppRoutes.home,
               icon: HugeIcons.strokeRoundedHome04,
               activeIcon: HugeIcons.strokeRoundedHome01,
               label: LocalizationConstants.homeNavHomeKey.tr(),
             ),
             _destination(
               index: 1,
-              route: RouteNames.libraries,
+              route: AppRoutes.libraries,
               icon: HugeIcons.strokeRoundedStore04,
               activeIcon: HugeIcons.strokeRoundedStore01,
               label: LocalizationConstants.homeNavLibrariesKey.tr(),
             ),
             _destination(
               index: 2,
-              route: RouteNames.userBooks,
+              route: AppRoutes.userBooks,
               icon: HugeIcons.strokeRoundedBooks01,
               activeIcon: HugeIcons.strokeRoundedBooks02,
               label: LocalizationConstants.homeNavUserBooksKey.tr(),
@@ -102,7 +102,7 @@ class HomeBottomNav extends StatelessWidget {
             if (_showCart)
               _destination(
                 index: 4,
-                route: RouteNames.cart,
+                route: AppRoutes.cart,
                 icon: HugeIcons.strokeRoundedShoppingCart01,
                 activeIcon: HugeIcons.strokeRoundedShoppingCart01,
                 label: LocalizationConstants.homeNavCartKey.tr(),

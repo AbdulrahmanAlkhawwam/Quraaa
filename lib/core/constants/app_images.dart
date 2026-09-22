@@ -13,6 +13,13 @@ class AppImages {
   static const String quraaaWordmark =
       '${AppAssets.images}/branding/quraaa_wordmark.svg';
 
+  static const String globalEnglish10Cover =
+      '${AppAssets.images}/books/global_english_10.png';
+  static const String globalEnglish11Cover =
+      '${AppAssets.images}/books/global_english_11.png';
+  static const String learnersBook8Cover =
+      '${AppAssets.images}/books/learners_book_8.png';
+
   static const String boyImage = '${AppAssets.illustrations}/boy.svg';
   static const String girlImage = '${AppAssets.illustrations}/girl.svg';
 }

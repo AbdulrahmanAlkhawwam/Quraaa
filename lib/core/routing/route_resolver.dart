@@ -7,7 +7,7 @@ import '../../features/auth/data/data_sources/auth_local_data_source.dart'
     show AuthLocalDataSource, AuthJourneyStage, AuthSessionMode;
 import '../../features/onboarding/domain/entities/onboarding_draft.dart';
 import '../../features/onboarding/domain/repositories/onboarding_repository.dart';
-import 'route_names.dart';
+import '../constants/app_routes.dart';
 
 Future<String> resolveStartupRoute() async {
   final OnboardingRepository onboardingRepository = sl<OnboardingRepository>();
@@ -20,7 +20,7 @@ Future<String> resolveStartupRoute() async {
 
   if (sessionMode == AuthSessionMode.guest ||
       sessionMode == AuthSessionMode.authenticated) {
-    return RouteNames.home;
+    return AppRoutes.home;
   }
 
   ConnectionStatus connectionStatus = ConnectionStatus.unknown;
@@ -41,7 +41,7 @@ Future<String> resolveStartupRoute() async {
     } catch (_) {
       // Monitoring context cleanup is best effort.
     }
-    return RouteNames.home;
+    return AppRoutes.home;
   }
 
   if (currentStage != null) {
@@ -52,12 +52,12 @@ Future<String> resolveStartupRoute() async {
     return resolveRegistrationDraftRoute(onboardingDraft);
   }
 
-  return RouteNames.auth;
+  return AppRoutes.auth;
 }
 
 String resolveRegistrationDraftRoute(OnboardingDraft onboardingDraft) {
   if (!Validators.genderValid(onboardingDraft.selectedGender)) {
-    return RouteNames.onboarding;
+    return AppRoutes.onboarding;
   }
 
   if (!Validators.dateOfBirthAgeInRange(
@@ -65,15 +65,15 @@ String resolveRegistrationDraftRoute(OnboardingDraft onboardingDraft) {
     month: onboardingDraft.birthMonth,
     day: onboardingDraft.birthDay,
   )) {
-    return RouteNames.onboardingAge;
+    return AppRoutes.onboardingAge;
   }
 
   if (!Validators.interestsNotEmpty(onboardingDraft.selectedCategoryIds) ||
       !onboardingDraft.completed) {
-    return RouteNames.onboardingInterests;
+    return AppRoutes.onboardingInterests;
   }
 
-  return RouteNames.register;
+  return AppRoutes.register;
 }
 
 bool _hasOnboardingProgress(OnboardingDraft onboardingDraft) {
@@ -91,27 +91,27 @@ String _normalizeStageRoute(
   OnboardingDraft onboardingDraft,
 ) {
   return switch (stage) {
-    AuthJourneyStage.auth => RouteNames.auth,
-    AuthJourneyStage.login => RouteNames.login,
+    AuthJourneyStage.auth => AppRoutes.auth,
+    AuthJourneyStage.login => AppRoutes.login,
     AuthJourneyStage.register => resolveRegistrationDraftRoute(onboardingDraft),
-    AuthJourneyStage.onboarding => RouteNames.onboarding,
+    AuthJourneyStage.onboarding => AppRoutes.onboarding,
     AuthJourneyStage.onboardingAge =>
       Validators.genderValid(onboardingDraft.selectedGender)
-          ? RouteNames.onboardingAge
-          : RouteNames.onboarding,
+          ? AppRoutes.onboardingAge
+          : AppRoutes.onboarding,
     AuthJourneyStage.onboardingInterests =>
       !Validators.genderValid(onboardingDraft.selectedGender)
-          ? RouteNames.onboarding
+          ? AppRoutes.onboarding
           : Validators.dateOfBirthAgeInRange(
               year: onboardingDraft.birthYear,
               month: onboardingDraft.birthMonth,
               day: onboardingDraft.birthDay,
             )
-          ? RouteNames.onboardingInterests
-          : RouteNames.onboardingAge,
-    AuthJourneyStage.otpVerification => RouteNames.otpVerification,
-    AuthJourneyStage.resetPassword => RouteNames.resetPassword,
-    AuthJourneyStage.home => RouteNames.home,
+          ? AppRoutes.onboardingInterests
+          : AppRoutes.onboardingAge,
+    AuthJourneyStage.otpVerification => AppRoutes.otpVerification,
+    AuthJourneyStage.resetPassword => AppRoutes.resetPassword,
+    AuthJourneyStage.home => AppRoutes.home,
   };
 }
 
@@ -125,31 +125,31 @@ String? resolveBridgeRoute(String? targetRoute) {
 }
 
 const Set<String> _knownRoutes = <String>{
-  RouteNames.home,
-  RouteNames.auth,
-  RouteNames.login,
-  RouteNames.register,
-  RouteNames.libraries,
-  RouteNames.stores,
-  RouteNames.userBooks,
-  RouteNames.audioBooks,
-  RouteNames.cart,
-  RouteNames.favorites,
-  RouteNames.bookAssistant,
-  RouteNames.search,
-  RouteNames.settings,
-  RouteNames.settingsPersonalFiles,
-  RouteNames.settingsChangePassword,
-  RouteNames.settingsAccountType,
-  RouteNames.subscriptionAccountType,
-  RouteNames.explorer,
-  RouteNames.pdfReader,
-  RouteNames.onboarding,
-  RouteNames.onboardingAge,
-  RouteNames.onboardingInterests,
-  RouteNames.notificationPermission,
-  RouteNames.locationPermission,
-  RouteNames.otpVerification,
-  RouteNames.forgotPassword,
-  RouteNames.resetPassword,
+  AppRoutes.home,
+  AppRoutes.auth,
+  AppRoutes.login,
+  AppRoutes.register,
+  AppRoutes.libraries,
+  AppRoutes.stores,
+  AppRoutes.userBooks,
+  AppRoutes.audioBooks,
+  AppRoutes.cart,
+  AppRoutes.favorites,
+  AppRoutes.bookAssistant,
+  AppRoutes.search,
+  AppRoutes.settings,
+  AppRoutes.settingsPersonalFiles,
+  AppRoutes.settingsChangePassword,
+  AppRoutes.settingsAccountType,
+  AppRoutes.subscriptionAccountType,
+  AppRoutes.explorer,
+  AppRoutes.pdfReader,
+  AppRoutes.onboarding,
+  AppRoutes.onboardingAge,
+  AppRoutes.onboardingInterests,
+  AppRoutes.notificationPermission,
+  AppRoutes.locationPermission,
+  AppRoutes.otpVerification,
+  AppRoutes.forgotPassword,
+  AppRoutes.resetPassword,
 };

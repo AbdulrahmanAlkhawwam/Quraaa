@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
-import '../constants/app_storage_keys.dart';
+import '../constants/storage_keys.dart';
 import '../di/injection_container.dart';
 import '../localization/localization_constants.dart';
 import '../localization/supported_locales.dart';
@@ -39,7 +39,7 @@ class LanguageBottomSheet {
 
     await context.setLocale(selected);
     await sl<StorageService>().setString(
-      AppStorageKeys.userLanguage,
+      StorageKeys.userLanguage,
       selected.languageCode,
     );
   }

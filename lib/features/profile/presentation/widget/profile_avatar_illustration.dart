@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../../../../core/assets/app_icons.dart';
+import '../../../../core/constants/app_icons.dart';
 import '../../../../core/theme/app_dimensions.dart';
 
 /// Avatar illustration used inside the profile preview card.

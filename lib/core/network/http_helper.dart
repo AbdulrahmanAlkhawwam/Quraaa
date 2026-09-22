@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 
-import '../config/env.dart';
+import '../config/app_config.dart';
 
 class HttpHelper {
   HttpHelper(this._dio);
@@ -9,7 +9,7 @@ class HttpHelper {
 
   static BaseOptions _baseOptions() {
     return BaseOptions(
-      baseUrl: Env.apiBaseUrl,
+      baseUrl: AppConfig.apiBaseUrl,
       connectTimeout: const Duration(seconds: 30),
       receiveTimeout: const Duration(seconds: 30),
       sendTimeout: const Duration(seconds: 30),

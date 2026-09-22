@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:quraaa/core/routing/route_names.dart';
+import 'package:quraaa/core/constants/app_routes.dart';
 import 'package:quraaa/core/routing/route_resolver.dart';
 import 'package:quraaa/features/onboarding/domain/entities/gender_selection.dart';
 import 'package:quraaa/features/onboarding/domain/entities/onboarding_draft.dart';
@@ -7,7 +7,7 @@ import 'package:quraaa/features/onboarding/domain/entities/onboarding_draft.dart
 void main() {
   group('resolveRegistrationDraftRoute', () {
     test('starts at gender when gender is missing', () {
-      expect(resolveRegistrationDraftRoute(_draft()), RouteNames.onboarding);
+      expect(resolveRegistrationDraftRoute(_draft()), AppRoutes.onboarding);
     });
 
     test('requires age after gender', () {
@@ -15,7 +15,7 @@ void main() {
         resolveRegistrationDraftRoute(
           _draft(selectedGender: GenderSelection.boy),
         ),
-        RouteNames.onboardingAge,
+        AppRoutes.onboardingAge,
       );
     });
 
@@ -29,7 +29,7 @@ void main() {
             birthDay: 10,
           ),
         ),
-        RouteNames.onboardingInterests,
+        AppRoutes.onboardingInterests,
       );
     });
 
@@ -44,7 +44,7 @@ void main() {
             selectedCategoryIds: const <String>['fiction'],
           ),
         ),
-        RouteNames.onboardingInterests,
+        AppRoutes.onboardingInterests,
       );
     });
 
@@ -60,14 +60,14 @@ void main() {
             selectedCategoryIds: const <String>['fiction'],
           ),
         ),
-        RouteNames.register,
+        AppRoutes.register,
       );
     });
 
     test('ignores a stale completed flag when required data is missing', () {
       expect(
         resolveRegistrationDraftRoute(_draft(completed: true)),
-        RouteNames.onboarding,
+        AppRoutes.onboarding,
       );
     });
   });

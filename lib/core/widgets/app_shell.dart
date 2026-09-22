@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import '../routing/route_names.dart';
+import '../constants/app_routes.dart';
 import '../di/injection_container.dart';
 import '../localization/localization_constants.dart';
 import '../services/storage_service.dart';
@@ -123,7 +123,7 @@ class _AppShellState extends State<AppShell> {
     if (!mounted) {
       return;
     }
-    context.goTo(RouteNames.auth);
+    context.goTo(AppRoutes.auth);
   }
 
   Future<void> _openEditor(UserDataTab tab) async {
@@ -164,7 +164,7 @@ class _AppShellState extends State<AppShell> {
           context.showResolvedErrorSnackBar(profileState.error);
         }
         if (profileState.requiresLogin && context.mounted) {
-          context.goTo(RouteNames.auth);
+          context.goTo(AppRoutes.auth);
         }
       },
       builder: (BuildContext context, ProfileState profileState) {

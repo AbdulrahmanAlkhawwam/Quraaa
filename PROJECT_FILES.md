@@ -42,9 +42,9 @@ Generated file index for quick project navigation.
 
 ### Config
 
-- `lib/core/config/env.dart`
+- `lib/core/config/app_config.dart`
 - `lib/core/routing/app_router.dart`
-- `lib/core/routing/route_names.dart`
+- `lib/core/constants/app_routes.dart`
 - `lib/core/routing/route_resolver.dart`
 
 ### Core
@@ -54,14 +54,14 @@ Generated file index for quick project navigation.
 - `lib/core/architecture/result.dart`
 - `lib/core/architecture/syncable_entity.dart`
 - `lib/core/architecture/use_case.dart`
-- `lib/core/assets/app_assets.dart`
-- ✅ `lib/core/assets/app_images.dart`
+- `lib/core/constants/app_assets.dart`
+- ✅ `lib/core/constants/app_images.dart`
 - `lib/core/connectivity/connection_status.dart`
 - `lib/core/connectivity/connectivity_service.dart`
 - `lib/core/connectivity/connectivity_service_impl.dart`
 - `lib/core/connectivity/offline_route_guard.dart`
 - `lib/core/constants/api_endpoints.dart`
-- `lib/core/constants/app_storage_keys.dart`
+- `lib/core/constants/storage_keys.dart`
 - `lib/core/database/adapters/.gitkeep`
 - `lib/core/database/database_service.dart`
 - `lib/core/database/database_tables.dart`

@@ -4,7 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/error_monitoring/user_context_provider.dart';
 import '../../../../core/errors/failures.dart';
 import '../../data/data_sources/auth_local_data_source.dart';
@@ -232,11 +232,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
     } catch (_) {}
     emit(state.copyWith(status: AuthStatus.success));
-    _emitNavigation(emit, RouteNames.otpVerification, routeExtra: phoneNumber);
+    _emitNavigation(emit, AppRoutes.otpVerification, routeExtra: phoneNumber);
   }
 
   Future<String> _resolvePostAuthRoute() async {
-    return RouteNames.home;
+    return AppRoutes.home;
   }
 
   void _emitNavigation(

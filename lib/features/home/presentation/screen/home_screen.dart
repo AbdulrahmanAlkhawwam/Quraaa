@@ -4,7 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/shared.dart';
@@ -105,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       _selectedIndex = index;
     });
 
-    if (route != RouteNames.home) {
+    if (route != AppRoutes.home) {
       context.goTo(route);
     }
   }
@@ -253,7 +253,7 @@ class _HomeFeed extends StatelessWidget {
     );
 
     context.pushTo(
-      RouteNames.bookDetailsPath(book.listingId),
+      AppRoutes.bookDetailsPath(book.listingId),
       extra: BookDetailsNavigationData(book: detailsBook),
     );
   }
@@ -282,7 +282,7 @@ class _HomeFeed extends StatelessWidget {
                   horizontal: AppSpacing.spacing16,
                 ),
                 child: _HomeSearchBar(
-                  onTap: () => context.pushTo(RouteNames.search),
+                  onTap: () => context.pushTo(AppRoutes.search),
                 ),
               ),
             ),
@@ -313,7 +313,7 @@ class _HomeFeed extends StatelessWidget {
                         AccountOrderStage.cancelled => HomeOrderStatus.pending,
                       },
                       onPressed: () async {
-                        await context.pushTo<void>(RouteNames.myOrders);
+                        await context.pushTo<void>(AppRoutes.myOrders);
                         if (context.mounted) {
                           await context.read<AccountOrdersCubit>().load();
                         }

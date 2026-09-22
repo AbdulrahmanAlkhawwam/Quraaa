@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/shared.dart';
 import '../../domain/entities/author_entity.dart';
@@ -226,7 +226,7 @@ class _AuthorWorks extends StatelessWidget {
             width: 116,
             child: InkWell(
               onTap: () => context.pushTo(
-                RouteNames.bookDetailsPath(book.listingId),
+                AppRoutes.bookDetailsPath(book.listingId),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

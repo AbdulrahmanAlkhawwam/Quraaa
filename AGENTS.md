@@ -121,7 +121,7 @@ Be aware that much of the code is scaffolding rather than working implementation
 - Most core services (`StorageService`, `DatabaseService`, `ConnectivityService`, `LoggerService`, etc.) are abstract contracts only. `FirebaseService`, `NotificationService`, and `FirebaseMessagingService` are concrete; the Firebase services are called from `main.dart` and the notification services are wired through DI.
 - No concrete Dio API client, interceptors, or remote endpoints exist.
 - No CI/CD configuration (no `.github/workflows/`, no fastlane, etc.).
-- `.env` exists but `lib/core/config/env.dart` is a simple hard-coded class, not using `envied`.
+- `.env` holds local values; `lib/core/config/app_config.dart` (`AppConfig`) reads them via `String.fromEnvironment`, so pass them with `--dart-define-from-file=.env`. `envied` is not used.
 - Core library desugaring is enabled in `android/app/build.gradle.kts` to satisfy `flutter_local_notifications` requirements.
 
 When adding new functionality, you will usually need to:

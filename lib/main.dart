@@ -5,7 +5,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'app.dart';
 import 'core/di/injection_container.dart';
-import 'core/constants/app_storage_keys.dart';
+import 'core/constants/storage_keys.dart';
 import 'core/error_monitoring/app_logger.dart';
 import 'core/error_monitoring/telegram_notification_service.dart';
 import 'core/localization/localization_service.dart';
@@ -33,7 +33,7 @@ Future<void> main() async {
 
         final StorageService storageService = sl<StorageService>();
         final Locale startLocale = SupportedLocales.fromCode(
-          storageService.getString(AppStorageKeys.userLanguage),
+          storageService.getString(StorageKeys.userLanguage),
         );
 
         appLogger = sl<AppLogger>();

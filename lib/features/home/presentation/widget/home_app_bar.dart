@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/error_monitoring/user_context_provider.dart';
 import '../../../../core/localization/localization_constants.dart';
@@ -153,13 +153,13 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   void _onMenuSelected(BuildContext context, _HomeProfileMenuAction action) {
     switch (action) {
       case _HomeProfileMenuAction.profile:
-        context.pushTo(RouteNames.settings);
+        context.pushTo(AppRoutes.settings);
         return;
       case _HomeProfileMenuAction.cart:
-        context.pushTo(RouteNames.cart);
+        context.pushTo(AppRoutes.cart);
         return;
       case _HomeProfileMenuAction.sellBook:
-        context.pushTo(RouteNames.sellBook);
+        context.pushTo(AppRoutes.sellBook);
         return;
       case _HomeProfileMenuAction.libraryAccount:
         context.read<LibraryRegistrationCubit>().requestRegistration();

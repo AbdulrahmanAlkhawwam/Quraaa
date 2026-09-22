@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/shared.dart';
 import 'home_app_bar.dart';
@@ -153,7 +153,7 @@ class HomeFeatureScreen extends StatelessWidget {
                       width: double.infinity,
                       height: AppDimensions.onboardingButtonHeight,
                       child: FilledButton(
-                        onPressed: () => context.goTo(RouteNames.home),
+                        onPressed: () => context.goTo(AppRoutes.home),
                         style: FilledButton.styleFrom(
                           backgroundColor: accentColor,
                           foregroundColor: AppColors.card,

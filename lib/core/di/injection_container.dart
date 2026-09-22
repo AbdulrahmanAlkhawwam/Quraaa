@@ -78,7 +78,7 @@ import '../../features/sell_book/data/data_sources/sell_book_remote_data_source.
 import '../../features/sell_book/data/repositories/sell_book_repository_impl.dart';
 import '../../features/sell_book/domain/repositories/sell_book_repository.dart';
 import '../../features/sell_book/domain/use_cases/submit_sell_book_use_case.dart';
-import '../config/env.dart';
+import '../config/app_config.dart';
 import '../network/auth_interceptor.dart';
 import '../network/connectivity_interceptor.dart';
 import '../network/language_interceptor.dart';
@@ -243,7 +243,7 @@ void registerCoreDependencies() {
   sl.registerLazySingleton<AuthInterceptor>(
     () => AuthInterceptor(
       sl<AuthLocalDataSource>(),
-      baseUrl: Env.apiBaseUrl,
+      baseUrl: AppConfig.apiBaseUrl,
       onRefreshSession: () async {
         final String? refreshToken =
             await sl<AuthLocalDataSource>().getRefreshToken();

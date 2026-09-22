@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:quraaa/core/constants/app_storage_keys.dart';
+import 'package:quraaa/core/constants/storage_keys.dart';
 import 'package:quraaa/core/network/language_interceptor.dart';
 import 'package:quraaa/core/services/storage_service.dart';
 
@@ -30,7 +30,7 @@ void main() {
   test('attaches the selected app language to every request', () async {
     final _MockStorageService storage = _MockStorageService();
     final _RecordingAdapter adapter = _RecordingAdapter();
-    when(() => storage.getString(AppStorageKeys.userLanguage)).thenReturn('ar');
+    when(() => storage.getString(StorageKeys.userLanguage)).thenReturn('ar');
     final Dio dio = Dio(BaseOptions(baseUrl: 'https://api.quraaa.test'))
       ..interceptors.add(LanguageInterceptor(storage))
       ..httpClientAdapter = adapter;
@@ -44,7 +44,7 @@ void main() {
   test('does not overwrite an explicitly provided language header', () async {
     final _MockStorageService storage = _MockStorageService();
     final _RecordingAdapter adapter = _RecordingAdapter();
-    when(() => storage.getString(AppStorageKeys.userLanguage)).thenReturn('ar');
+    when(() => storage.getString(StorageKeys.userLanguage)).thenReturn('ar');
     final Dio dio = Dio(BaseOptions(baseUrl: 'https://api.quraaa.test'))
       ..interceptors.add(LanguageInterceptor(storage))
       ..httpClientAdapter = adapter;

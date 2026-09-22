@@ -3,7 +3,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 
-import '../config/env.dart';
+import '../config/app_config.dart';
 import '../error_monitoring/app_logger.dart';
 
 class AppDiagnosticsService {
@@ -22,7 +22,7 @@ class AppDiagnosticsService {
           await Connectivity().checkConnectivity();
       final bool hasInternetAccess =
           await InternetConnection().hasInternetAccess;
-      final String? latestVersion = Env.latestVersion;
+      final String? latestVersion = AppConfig.latestVersion;
       final bool hasNewVersion = latestVersion != null &&
           _isVersionOlder(packageInfo.version, latestVersion);
 
@@ -33,7 +33,7 @@ class AppDiagnosticsService {
           'app': packageInfo.appName,
           'version': packageInfo.version,
           'buildNumber': packageInfo.buildNumber,
-          'baseUrl': Env.apiBaseUrl,
+          'baseUrl': AppConfig.apiBaseUrl,
           'networkTransports': transports
               .map((ConnectivityResult result) => result.name)
               .toList(growable: false),

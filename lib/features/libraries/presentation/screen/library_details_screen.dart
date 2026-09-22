@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/shared.dart';
 import '../../domain/entities/library_entity.dart';
@@ -214,7 +214,7 @@ class _LibraryDetailsViewState extends State<_LibraryDetailsView> {
                           return LibraryDetailsBookCard(
                             book: book,
                             onTap: () => context.pushTo(
-                              RouteNames.bookDetailsPath(
+                              AppRoutes.bookDetailsPath(
                                 book.bookId,
                                 book.listingId,
                               ),

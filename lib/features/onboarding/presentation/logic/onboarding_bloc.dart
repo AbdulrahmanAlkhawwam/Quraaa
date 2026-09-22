@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/routing/route_names.dart';
+import '../../../../core/constants/app_routes.dart';
 import '../../../../core/architecture/use_case.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/utils/validators.dart';
@@ -326,7 +326,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
       emit(
         state.copyWith(
           isLoading: false,
-          navigationTarget: RouteNames.onboardingInterests,
+          navigationTarget: AppRoutes.onboardingInterests,
         ),
       );
     } catch (_) {
@@ -405,7 +405,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
         state.copyWith(
           isLoading: false,
           isCompleted: true,
-          navigationTarget: RouteNames.register,
+          navigationTarget: AppRoutes.register,
         ),
       );
     } catch (_) {
@@ -433,7 +433,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
       emit(
         state.copyWith(
           isLoading: false,
-          navigationTarget: RouteNames.onboardingAge,
+          navigationTarget: AppRoutes.onboardingAge,
         ),
       );
     } catch (_) {
