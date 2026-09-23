@@ -4,7 +4,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:quraaa/core/architecture/result.dart';
 import 'package:quraaa/core/errors/failures.dart';
 import 'package:quraaa/core/use_cases/use_case.dart';
 import 'package:quraaa/core/services/app_permission_service.dart';
@@ -148,6 +147,58 @@ void main() {
     );
   });
 
+  test('one failing section does not hide the other', () async {
+    final HomeBloc bloc = HomeBloc(
+      loadUserSnapshot: LoadAccountUserSnapshotUseCase(
+        const _FakeHomeRepository(AccountUserSnapshot(fullName: 'Test User')),
+      ),
+      getRecommendedBooks: GetRecommendedBooksUseCase(
+        _FailingHomeBooksRepository(),
+      ),
+      getMostPopularBooks: GetMostPopularBooksUseCase(
+        _FakeHomeBooksRepository(),
+      ),
+      notificationService: const _FakeNotificationService(),
+      appPermissionService: _FakeAppPermissionService(),
+      authLocalDataSource: _authSession(),
+    );
+    addTearDown(bloc.close);
+
+    bloc.add(const HomeStarted());
+
+    await expectLater(
+      bloc.stream,
+      emitsInOrder(<Matcher>[
+        isA<HomeState>().having(
+          (HomeState state) => state.status,
+          'status',
+          HomeStatus.loading,
+        ),
+        isA<HomeState>()
+            .having(
+              (HomeState state) => state.recommendedStatus,
+              'recommended status',
+              HomeBooksStatus.failure,
+            )
+            .having(
+              (HomeState state) => state.recommendedErrorMessage,
+              'recommended error',
+              'recommendations are down',
+            )
+            .having(
+              (HomeState state) => state.mostPopularStatus,
+              'popular status',
+              HomeBooksStatus.loaded,
+            )
+            .having(
+              (HomeState state) => state.mostPopularBooks.single.title,
+              'popular title',
+              'Popular book',
+            ),
+      ]),
+    );
+  });
+
   test('requests the initial permission bundle when requested', () async {
     final _FakeAppPermissionService permissionService =
         _FakeAppPermissionService();
@@ -197,9 +248,9 @@ class _FakeHomeBooksRepository implements HomeBooksRepository {
   int mostPopularRequests = 0;
 
   @override
-  Future<Result<HomeBooksPage>> getRecommendedBooks() async {
+  FutureEither<HomeBooksPage> getRecommendedBooks() async {
     recommendedRequests += 1;
-    return const Success<HomeBooksPage>(
+    return const Right<Failure, HomeBooksPage>(
       HomeBooksPage(
         items: <HomeBookEntity>[
           HomeBookEntity(
@@ -228,9 +279,9 @@ class _FakeHomeBooksRepository implements HomeBooksRepository {
   }
 
   @override
-  Future<Result<HomeBooksPage>> getMostPopularBooks() async {
+  FutureEither<HomeBooksPage> getMostPopularBooks() async {
     mostPopularRequests += 1;
-    return const Success<HomeBooksPage>(
+    return const Right<Failure, HomeBooksPage>(
       HomeBooksPage(
         items: <HomeBookEntity>[
           HomeBookEntity(
@@ -257,6 +308,16 @@ class _FakeHomeBooksRepository implements HomeBooksRepository {
       ),
     );
   }
+}
+
+class _FailingHomeBooksRepository implements HomeBooksRepository {
+  @override
+  FutureEither<HomeBooksPage> getRecommendedBooks() async =>
+      const Left(ServerFailure(message: 'recommendations are down'));
+
+  @override
+  FutureEither<HomeBooksPage> getMostPopularBooks() async =>
+      const Left(ServerFailure(message: 'recommendations are down'));
 }
 
 class _FakeNotificationService implements NotificationService {

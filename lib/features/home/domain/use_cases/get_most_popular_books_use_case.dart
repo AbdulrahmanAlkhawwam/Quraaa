@@ -1,15 +1,12 @@
-import '../../../../core/architecture/result.dart';
-import '../../../../core/architecture/use_case.dart';
+import '../../../../core/use_cases/use_case.dart';
+import '../entities/home_books_page.dart';
 import '../repositories/home_books_repository.dart';
 
-class GetMostPopularBooksUseCase
-    extends UseCase<Result<HomeBooksPage>, NoParams> {
+class GetMostPopularBooksUseCase extends NoParamsUseCase<HomeBooksPage> {
   const GetMostPopularBooksUseCase(this._repository);
 
   final HomeBooksRepository _repository;
 
   @override
-  Future<Result<HomeBooksPage>> call(NoParams params) {
-    return _repository.getMostPopularBooks();
-  }
+  FutureEither<HomeBooksPage> call() => _repository.getMostPopularBooks();
 }

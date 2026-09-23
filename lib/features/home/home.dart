@@ -1,6 +1,7 @@
 export 'data/data_sources/home_books_remote_data_source.dart';
 export 'data/repositories/home_books_repository_impl.dart';
 export 'domain/entities/home_book_entity.dart';
+export 'domain/entities/home_books_page.dart';
 export 'domain/repositories/home_books_repository.dart';
 export 'domain/use_cases/get_most_popular_books_use_case.dart';
 export 'domain/use_cases/get_recommended_books_use_case.dart';

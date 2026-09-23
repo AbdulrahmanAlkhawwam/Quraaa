@@ -1,12 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:quraaa/core/architecture/result.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:quraaa/core/errors/failures.dart';
 import 'package:quraaa/core/errors/exceptions.dart';
 import 'package:quraaa/features/home/data/data_sources/home_books_remote_data_source.dart';
 import 'package:quraaa/features/home/data/models/home_book_model.dart';
 import 'package:quraaa/features/home/data/models/paginated_home_books_response_model.dart';
 import 'package:quraaa/features/home/data/repositories/home_books_repository_impl.dart';
-import 'package:quraaa/features/home/domain/repositories/home_books_repository.dart';
+import 'package:quraaa/features/home/domain/entities/home_books_page.dart';
 
 class _MockHomeBooksRemoteDataSource extends Mock
     implements HomeBooksRemoteDataSource {}
@@ -51,10 +52,11 @@ void main() {
       remoteDataSource.getRecommendedBooks,
     ).thenAnswer((_) async => response);
 
-    final Result<HomeBooksPage> result = await repository.getRecommendedBooks();
+    final Either<Failure, HomeBooksPage> result =
+        await repository.getRecommendedBooks();
 
-    expect(result, isA<Success<HomeBooksPage>>());
-    final HomeBooksPage page = (result as Success<HomeBooksPage>).value;
+    expect(result.isRight(), isTrue);
+    final HomeBooksPage page = result.getOrElse((_) => fail('expected Right'));
     expect(page.items.single.listingId, 'listing-id');
     expect(page.items.single.averageRating, '4.5');
   });
@@ -64,9 +66,10 @@ void main() {
       remoteDataSource.getMostPopularBooks,
     ).thenThrow(const UnknownException(message: 'Network error'));
 
-    final Result<HomeBooksPage> result = await repository.getMostPopularBooks();
+    final Either<Failure, HomeBooksPage> result =
+        await repository.getMostPopularBooks();
 
-    expect(result, isA<ResultFailure<HomeBooksPage>>());
-    expect((result as ResultFailure<HomeBooksPage>).message, 'Network error');
+    expect(result.isLeft(), isTrue);
+    expect(result.getLeft().toNullable()!.message, 'Network error');
   });
 }
