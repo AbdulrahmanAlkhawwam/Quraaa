@@ -2,11 +2,13 @@ import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart' show Either;
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/constants/app_routes.dart';
 import '../../../../core/architecture/result.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/errors/failures.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/shared.dart';
 import '../../../books/books.dart';
@@ -72,7 +74,7 @@ class _SearchScreenState extends State<SearchScreen> {
     });
     try {
       final List<Object> results = await Future.wait<Object>(<Future<Object>>[
-        _getBooks(query: query),
+        _getBooks(GetBooksParams(query: query)),
         _authorsRepository.searchAuthors(query),
         _librariesRepository.searchLibraries(
           searchTerm: query,
@@ -81,12 +83,16 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
       ]);
       if (!mounted || query != _controller.text.trim()) return;
-      final List<Book> books = results[0] as List<Book>;
+      List<Book> books = const <Book>[];
       List<AuthorSearchResult> authors = const <AuthorSearchResult>[];
       List<LibrarySearchEntity> libraries = const <LibrarySearchEntity>[];
       String? error;
+      (results[0] as Either<Failure, List<Book>>).fold(
+        (Failure failure) => error = failure.message,
+        (List<Book> value) => books = value,
+      );
       (results[1] as Result<AuthorSearchPage>).fold(
-        (failure) => error = failure.message,
+        (failure) => error ??= failure.message,
         (page) => authors = page.items,
       );
       (results[2] as Result<LibrarySearchPage>).fold(

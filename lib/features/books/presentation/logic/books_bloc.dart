@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fpdart/fpdart.dart';
 
+import '../../../../core/errors/failures.dart';
 import '../../domain/entities/book.dart';
 import '../../domain/entities/book_catalog_filter.dart';
 import '../../domain/use_cases/get_books_use_case.dart';
@@ -91,29 +93,10 @@ class BooksBloc extends Bloc<BooksEvent, BooksState> {
     Emitter<BooksState> emit,
   ) async {
     emit(state.copyWith(status: BooksStatus.loading, clearError: true));
-    try {
-      final List<Book> catalog = await _getBooks(
-        catalogFilter: state.catalogFilter,
-      );
-      emit(
-        state.copyWith(
-          status: BooksStatus.success,
-          catalog: catalog,
-          books: _filter(
-            catalog,
-            query: state.query,
-            format: state.format,
-          ),
-        ),
-      );
-    } catch (error) {
-      emit(
-        state.copyWith(
-          status: BooksStatus.failure,
-          errorMessage: error.toString(),
-        ),
-      );
-    }
+    final result = await _getBooks(
+      GetBooksParams(catalogFilter: state.catalogFilter),
+    );
+    emit(_catalogState(result));
   }
 
   void _onQueryChanged(
@@ -160,27 +143,22 @@ class BooksBloc extends Bloc<BooksEvent, BooksState> {
         clearError: true,
       ),
     );
-    try {
-      final List<Book> catalog = await _getBooks(catalogFilter: event.filter);
-      emit(
-        state.copyWith(
-          status: BooksStatus.success,
-          catalog: catalog,
-          books: _filter(
-            catalog,
-            query: state.query,
-            format: state.format,
-          ),
-        ),
-      );
-    } catch (error) {
-      emit(
-        state.copyWith(
-          status: BooksStatus.failure,
-          errorMessage: error.toString(),
-        ),
-      );
-    }
+    final result = await _getBooks(GetBooksParams(catalogFilter: event.filter));
+    emit(_catalogState(result));
+  }
+
+  BooksState _catalogState(Either<Failure, List<Book>> result) {
+    return result.fold(
+      (Failure failure) => state.copyWith(
+        status: BooksStatus.failure,
+        errorMessage: failure.message,
+      ),
+      (List<Book> catalog) => state.copyWith(
+        status: BooksStatus.success,
+        catalog: catalog,
+        books: _filter(catalog, query: state.query, format: state.format),
+      ),
+    );
   }
 
   List<Book> _filter(

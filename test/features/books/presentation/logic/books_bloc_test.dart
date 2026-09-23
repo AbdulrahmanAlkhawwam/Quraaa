@@ -1,14 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:quraaa/core/use_cases/use_case.dart';
 import 'package:quraaa/features/books/books.dart';
 
 class _FakeBooksRepository implements BooksRepository {
   @override
-  Future<List<Book>> getBooks({
+  FutureEither<List<Book>> getBooks({
     String query = '',
     BookFormat? format,
     BookCatalogFilter catalogFilter = const BookCatalogFilter(),
   }) async {
-    return const <Book>[
+    return const Right(<Book>[
       Book(
         id: '1',
         title: 'Global English Course Book 10',
@@ -23,7 +25,7 @@ class _FakeBooksRepository implements BooksRepository {
         price: '9',
         format: BookFormat.used,
       ),
-    ];
+    ]);
   }
 }
 
