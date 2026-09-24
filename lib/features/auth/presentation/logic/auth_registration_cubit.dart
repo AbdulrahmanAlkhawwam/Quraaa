@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/architecture/use_case.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../onboarding/onboarding.dart';
 
@@ -76,13 +75,11 @@ class AuthRegistrationCubit extends Cubit<AuthRegistrationState> {
 
   Future<void> load() async {
     emit(const AuthRegistrationState(status: AuthRegistrationStatus.loading));
-    try {
-      final OnboardingDraft draft = await _loadOnboardingStateUseCase(
-        const NoParams(),
-      );
-      final List<Category> categories = await _loadCategoriesUseCase(
-        const NoParams(),
-      );
+    final OnboardingDraft? draft = (await _loadOnboardingStateUseCase())
+        .toNullable();
+    final List<Category>? categories = (await _loadCategoriesUseCase())
+        .toNullable();
+    if (draft != null && categories != null) {
       emit(
         AuthRegistrationState(
           status: AuthRegistrationStatus.loaded,
@@ -95,13 +92,14 @@ class AuthRegistrationCubit extends Cubit<AuthRegistrationState> {
           selectedCategoryIds: draft.selectedCategoryIds ?? const <String>[],
         ),
       );
-    } catch (_) {
-      emit(
-        const AuthRegistrationState(
-          status: AuthRegistrationStatus.failure,
-          errorMessage: 'Failed to load registration data',
-        ),
-      );
+      return;
     }
+
+    emit(
+      const AuthRegistrationState(
+        status: AuthRegistrationStatus.failure,
+        errorMessage: 'Failed to load registration data',
+      ),
+    );
   }
 }

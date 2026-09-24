@@ -1,14 +1,14 @@
-import '../../../../core/architecture/use_case.dart';
+import '../../../../core/use_cases/use_case.dart';
 import '../entities/onboarding_draft.dart';
 import '../repositories/onboarding_repository.dart';
 
-class LoadOnboardingStateUseCase extends UseCase<OnboardingDraft, NoParams> {
+class LoadOnboardingStateUseCase extends NoParamsUseCase<OnboardingDraft> {
   const LoadOnboardingStateUseCase(this._repository);
 
   final OnboardingRepository _repository;
 
   @override
-  Future<OnboardingDraft> call(NoParams params) {
+  FutureEither<OnboardingDraft> call() {
     return _repository.loadState();
   }
 }

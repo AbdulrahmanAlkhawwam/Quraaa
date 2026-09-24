@@ -1,4 +1,6 @@
-import '../../../../core/architecture/use_case.dart';
+import 'package:fpdart/fpdart.dart';
+
+import '../../../../core/use_cases/use_case.dart';
 import '../repositories/onboarding_repository.dart';
 
 class SaveBirthDateParams {
@@ -13,13 +15,13 @@ class SaveBirthDateParams {
   final int day;
 }
 
-class SaveBirthDateUseCase extends UseCase<void, SaveBirthDateParams> {
+class SaveBirthDateUseCase extends UseCase<Unit, SaveBirthDateParams> {
   const SaveBirthDateUseCase(this._repository);
 
   final OnboardingRepository _repository;
 
   @override
-  Future<void> call(SaveBirthDateParams params) {
+  FutureEither<Unit> call(SaveBirthDateParams params) {
     return _repository.saveBirthDate(
       year: params.year,
       month: params.month,

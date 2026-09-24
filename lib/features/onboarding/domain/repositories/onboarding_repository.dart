@@ -1,25 +1,30 @@
+import 'package:fpdart/fpdart.dart';
+
+import '../../../../core/use_cases/use_case.dart';
 import '../entities/category.dart';
 import '../entities/gender_selection.dart';
 import '../entities/onboarding_draft.dart';
 
 abstract class OnboardingRepository {
-  Future<OnboardingDraft> loadState();
+  /// The locally saved onboarding answers and completion flag.
+  FutureEither<OnboardingDraft> loadState();
 
-  Future<void> saveBirthDate({
+  FutureEither<Unit> saveBirthDate({
     required int year,
     required int month,
     required int day,
   });
 
-  Future<void> saveGender(GenderSelection gender);
+  FutureEither<Unit> saveGender(GenderSelection gender);
 
-  Future<void> saveCategoryIds(List<String>? categoryIds);
+  FutureEither<Unit> saveCategoryIds(List<String>? categoryIds);
 
-  Future<void> completeOnboarding();
+  FutureEither<Unit> completeOnboarding();
 
-  Future<void> resetCompletion();
+  FutureEither<Unit> resetCompletion();
 
-  Future<bool> isCompleted();
+  FutureEither<bool> isCompleted();
 
-  Future<List<Category>> getCategories();
+  /// Interest categories, served from the local cache when one exists.
+  FutureEither<List<Category>> getCategories();
 }

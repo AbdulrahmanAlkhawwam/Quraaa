@@ -1,4 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:quraaa/core/errors/failures.dart';
+import 'package:quraaa/core/use_cases/use_case.dart';
 import 'package:quraaa/features/auth/presentation/logic/auth_registration_cubit.dart';
 import 'package:quraaa/features/onboarding/onboarding.dart';
 
@@ -56,20 +59,20 @@ class _FakeOnboardingRepository implements OnboardingRepository {
   const _FakeOnboardingRepository();
 
   @override
-  Future<OnboardingDraft> loadState() async {
-    return const OnboardingDraft(
+  FutureEither<OnboardingDraft> loadState() async {
+    return const Right(OnboardingDraft(
       completed: true,
       selectedGender: GenderSelection.boy,
       selectedCategoryIds: <String>['3fa85f64-5717-4562-b3fc-2c963f66afa6'],
       birthYear: 2000,
       birthMonth: 5,
       birthDay: 10,
-    );
+    ));
   }
 
   @override
-  Future<List<Category>> getCategories() async {
-    return const <Category>[
+  FutureEither<List<Category>> getCategories() async {
+    return const Right(<Category>[
       Category(
         id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
         nameAr: 'Fiction',
@@ -80,37 +83,38 @@ class _FakeOnboardingRepository implements OnboardingRepository {
         nameAr: 'Science',
         nameEn: 'Science',
       ),
-    ];
+    ]);
   }
 
   @override
-  Future<void> completeOnboarding() async {}
+  FutureEither<Unit> completeOnboarding() async => const Right(unit);
 
   @override
-  Future<bool> isCompleted() async => false;
+  FutureEither<bool> isCompleted() async => const Right(false);
 
   @override
-  Future<void> resetCompletion() async {}
+  FutureEither<Unit> resetCompletion() async => const Right(unit);
 
   @override
-  Future<void> saveBirthDate({
+  FutureEither<Unit> saveBirthDate({
     required int year,
     required int month,
     required int day,
-  }) async {}
+  }) async => const Right(unit);
 
   @override
-  Future<void> saveCategoryIds(List<String>? categoryIds) async {}
+  FutureEither<Unit> saveCategoryIds(List<String>? categoryIds) async =>
+      const Right(unit);
 
   @override
-  Future<void> saveGender(GenderSelection gender) async {}
+  FutureEither<Unit> saveGender(GenderSelection gender) async =>
+      const Right(unit);
 }
 
 class _ThrowingOnboardingRepository extends _FakeOnboardingRepository {
   const _ThrowingOnboardingRepository();
 
   @override
-  Future<OnboardingDraft> loadState() async {
-    throw StateError('cannot load');
-  }
+  FutureEither<OnboardingDraft> loadState() async =>
+      const Left(CacheReadFailure());
 }

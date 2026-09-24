@@ -1,4 +1,6 @@
-import '../../../../core/architecture/use_case.dart';
+import 'package:fpdart/fpdart.dart';
+
+import '../../../../core/use_cases/use_case.dart';
 import '../repositories/onboarding_repository.dart';
 
 class SaveCategoryIdParams {
@@ -7,13 +9,13 @@ class SaveCategoryIdParams {
   final List<String>? categoryIds;
 }
 
-class SaveCategoryIdUseCase extends UseCase<void, SaveCategoryIdParams> {
+class SaveCategoryIdUseCase extends UseCase<Unit, SaveCategoryIdParams> {
   const SaveCategoryIdUseCase(this._repository);
 
   final OnboardingRepository _repository;
 
   @override
-  Future<void> call(SaveCategoryIdParams params) {
+  FutureEither<Unit> call(SaveCategoryIdParams params) {
     return _repository.saveCategoryIds(params.categoryIds);
   }
 }

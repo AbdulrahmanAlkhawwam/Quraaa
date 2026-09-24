@@ -1,10 +1,10 @@
-import '../../../../core/architecture/use_case.dart';
+import '../../../../core/use_cases/use_case.dart';
 import '../entities/category.dart';
 import '../repositories/onboarding_repository.dart';
 
-class LoadCategoriesUseCase extends UseCase<List<Category>, NoParams> {
+class LoadCategoriesUseCase extends NoParamsUseCase<List<Category>> {
   const LoadCategoriesUseCase(this._repository);
   final OnboardingRepository _repository;
   @override
-  Future<List<Category>> call(NoParams params) => _repository.getCategories();
+  FutureEither<List<Category>> call() => _repository.getCategories();
 }

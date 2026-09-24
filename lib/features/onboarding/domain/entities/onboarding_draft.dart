@@ -10,6 +10,17 @@ class OnboardingDraft {
     required this.birthDay,
   });
 
+  /// Nothing answered yet. Also stands in when the saved draft can't be read,
+  /// so startup routing can carry on instead of stalling.
+  static const OnboardingDraft empty = OnboardingDraft(
+    completed: false,
+    selectedGender: null,
+    selectedCategoryIds: null,
+    birthYear: null,
+    birthMonth: null,
+    birthDay: null,
+  );
+
   final bool completed;
   final GenderSelection? selectedGender;
   final List<String>? selectedCategoryIds;

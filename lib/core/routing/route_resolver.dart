@@ -13,8 +13,11 @@ Future<String> resolveStartupRoute() async {
   final OnboardingRepository onboardingRepository = sl<OnboardingRepository>();
   final AuthLocalDataSource authJourney = sl<AuthLocalDataSource>();
 
-  final OnboardingDraft onboardingDraft = await onboardingRepository
-      .loadState();
+  // An unreadable draft routes as if onboarding had not started, rather than
+  // leaving the splash screen waiting forever.
+  final OnboardingDraft onboardingDraft = (await onboardingRepository
+          .loadState())
+      .getOrElse((_) => OnboardingDraft.empty);
   final AuthSessionMode? sessionMode = await authJourney.getSessionMode();
   final AuthJourneyStage? currentStage = await authJourney.getCurrentStage();
 

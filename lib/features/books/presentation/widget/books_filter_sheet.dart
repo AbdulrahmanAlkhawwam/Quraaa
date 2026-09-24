@@ -4,10 +4,11 @@ import 'dart:ui' as ui;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fpdart/fpdart.dart' show Either;
 
 import '../../../../core/architecture/result.dart';
-import '../../../../core/architecture/use_case.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/errors/failures.dart';
 import '../../../../core/shared.dart';
 import '../../../libraries/libraries.dart';
 import '../../../onboarding/onboarding.dart';
@@ -78,8 +79,8 @@ class _BooksFilterSheetState extends State<BooksFilterSheet> {
     }
 
     try {
-      final Future<List<Category>> categoriesFuture =
-          sl<LoadCategoriesUseCase>()(const NoParams());
+      final Future<Either<Failure, List<Category>>> categoriesFuture =
+          sl<LoadCategoriesUseCase>()();
       final Future<Result<LibrariesPage>> librariesFuture =
           sl<GetLibrariesUseCase>()(
         const GetLibrariesParams(
@@ -88,7 +89,9 @@ class _BooksFilterSheetState extends State<BooksFilterSheet> {
           pageSize: 100,
         ),
       );
-      final List<Category> categories = await categoriesFuture;
+      final List<Category> categories = (await categoriesFuture).getOrElse(
+        (Failure failure) => throw StateError(failure.message),
+      );
       final Result<LibrariesPage> librariesResult = await librariesFuture;
       final List<LibraryEntity> libraries = switch (librariesResult) {
         Success<LibrariesPage>(value: final LibrariesPage page) => page.items,

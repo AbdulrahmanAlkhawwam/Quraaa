@@ -2,7 +2,6 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_routes.dart';
-import '../../../../core/architecture/use_case.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/utils/validators.dart';
 import '../../domain/entities/category.dart';
@@ -230,41 +229,40 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     Emitter<OnboardingState> emit,
   ) async {
     emit(state.copyWith(isLoading: true, errorMessage: null));
-    try {
-      final OnboardingDraft draft = await _loadOnboardingStateUseCase(
-        const NoParams(),
-      );
-      final List<Category> categories = await _loadCategoriesUseCase(
-        const NoParams(),
-      );
-      final Set<String> validCategoryIds = categories
-          .map((Category category) => category.id)
-          .where(Validators.interestIdIsGuid)
-          .toSet();
-      final List<String> selectedCategoryIds =
-          (draft.selectedCategoryIds ?? const <String>[])
-              .where(validCategoryIds.contains)
-              .toList(growable: false);
-      emit(
-        OnboardingState(
-          birthYear: draft.birthYear,
-          birthMonth: draft.birthMonth,
-          birthDay: draft.birthDay,
-          selectedGender: draft.selectedGender,
-          categories: categories,
-          selectedCategoryIds: selectedCategoryIds,
-          isLoading: false,
-          isCompleted: false,
-        ),
-      );
-    } catch (_) {
+    final OnboardingDraft? draft = (await _loadOnboardingStateUseCase())
+        .toNullable();
+    final List<Category>? categories = (await _loadCategoriesUseCase())
+        .toNullable();
+    if (draft == null || categories == null) {
       emit(
         state.copyWith(
           isLoading: false,
           errorMessage: LocalizationConstants.onboardingLoadErrorKey,
         ),
       );
+      return;
     }
+
+    final Set<String> validCategoryIds = categories
+        .map((Category category) => category.id)
+        .where(Validators.interestIdIsGuid)
+        .toSet();
+    final List<String> selectedCategoryIds =
+        (draft.selectedCategoryIds ?? const <String>[])
+            .where(validCategoryIds.contains)
+            .toList(growable: false);
+    emit(
+      OnboardingState(
+        birthYear: draft.birthYear,
+        birthMonth: draft.birthMonth,
+        birthDay: draft.birthDay,
+        selectedGender: draft.selectedGender,
+        categories: categories,
+        selectedCategoryIds: selectedCategoryIds,
+        isLoading: false,
+        isCompleted: false,
+      ),
+    );
   }
 
   Future<void> _onAgeYearChanged(
@@ -396,26 +394,23 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     }
 
     emit(state.copyWith(isLoading: true, errorMessage: null));
-    try {
-      await _saveCategoryIdUseCase(
-        SaveCategoryIdParams(state.selectedCategoryIds),
-      );
-      await _completeOnboardingUseCase(const NoParams());
-      emit(
-        state.copyWith(
-          isLoading: false,
-          isCompleted: true,
-          navigationTarget: AppRoutes.register,
-        ),
-      );
-    } catch (_) {
-      emit(
-        state.copyWith(
-          isLoading: false,
-          errorMessage: LocalizationConstants.onboardingCompleteErrorKey,
-        ),
-      );
-    }
+    final bool saved = (await _saveCategoryIdUseCase(
+      SaveCategoryIdParams(state.selectedCategoryIds),
+    )).isRight();
+    final bool completed =
+        saved && (await _completeOnboardingUseCase()).isRight();
+    emit(
+      completed
+          ? state.copyWith(
+              isLoading: false,
+              isCompleted: true,
+              navigationTarget: AppRoutes.register,
+            )
+          : state.copyWith(
+              isLoading: false,
+              errorMessage: LocalizationConstants.onboardingCompleteErrorKey,
+            ),
+    );
   }
 
   Future<void> _onNextRequested(

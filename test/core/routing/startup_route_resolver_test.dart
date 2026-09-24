@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:quraaa/core/constants/app_routes.dart';
 import 'package:quraaa/core/routing/route_resolver.dart';
@@ -30,14 +31,7 @@ void main() {
       sl.registerSingleton<UserContextProvider>(userContextProvider);
 
       when(() => onboardingRepository.loadState()).thenAnswer(
-        (_) async => const OnboardingDraft(
-          completed: false,
-          selectedGender: null,
-          selectedCategoryIds: null,
-          birthYear: null,
-          birthMonth: null,
-          birthDay: null,
-        ),
+        (_) async => const Right(OnboardingDraft.empty),
       );
     });
 

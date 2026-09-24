@@ -1,13 +1,15 @@
-import '../../../../core/architecture/use_case.dart';
+import 'package:fpdart/fpdart.dart';
+
+import '../../../../core/use_cases/use_case.dart';
 import '../repositories/onboarding_repository.dart';
 
-class CompleteOnboardingUseCase extends UseCase<void, NoParams> {
+class CompleteOnboardingUseCase extends NoParamsUseCase<Unit> {
   const CompleteOnboardingUseCase(this._repository);
 
   final OnboardingRepository _repository;
 
   @override
-  Future<void> call(NoParams params) {
+  FutureEither<Unit> call() {
     return _repository.completeOnboarding();
   }
 }
