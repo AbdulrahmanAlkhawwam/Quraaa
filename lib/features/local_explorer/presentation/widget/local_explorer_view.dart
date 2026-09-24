@@ -12,7 +12,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../domain/entities/local_directory_snapshot.dart';
 import '../../domain/entities/local_file_entry.dart';
-import '../../domain/repositories/explorer_history_repository.dart';
+import '../../domain/use_cases/record_opened_file_use_case.dart';
 import '../logic/local_explorer_bloc.dart';
 import 'explorer_access_view.dart';
 import 'explorer_content.dart';
@@ -139,11 +139,8 @@ class _LocalExplorerViewState extends State<LocalExplorerView> {
     BuildContext context,
     LocalFileEntry entry,
   ) async {
-    try {
-      await sl<ExplorerHistoryRepository>().recordOpenedFile(entry);
-    } catch (_) {
-      // History is optional and must never prevent the PDF from opening.
-    }
+    // History is optional and must never prevent the PDF from opening.
+    await sl<RecordOpenedFileUseCase>()(entry);
 
     if (!context.mounted) return;
     context.pushNamed(

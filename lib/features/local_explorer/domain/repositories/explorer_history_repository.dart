@@ -1,12 +1,16 @@
+import 'package:fpdart/fpdart.dart';
+
+import '../../../../core/use_cases/use_case.dart';
 import '../entities/explorer_history_entry.dart';
 import '../entities/local_file_entry.dart';
 
 abstract class ExplorerHistoryRepository {
-  Future<List<ExplorerHistoryEntry>> loadHistory();
+  FutureEither<List<ExplorerHistoryEntry>> loadHistory();
 
-  Future<void> recordOpenedFile(LocalFileEntry entry);
+  FutureEither<Unit> recordOpenedFile(LocalFileEntry entry);
 
-  Future<bool> fileExists(String path);
+  /// Whether the file behind a history entry is still on disk.
+  FutureEither<bool> fileExists(String path);
 
-  Future<void> removeEntry(String path);
+  FutureEither<Unit> removeEntry(String path);
 }

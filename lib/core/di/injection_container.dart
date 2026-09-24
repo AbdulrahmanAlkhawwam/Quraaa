@@ -110,7 +110,10 @@ import '../../features/local_explorer/data/repositories/explorer_history_reposit
 import '../../features/local_explorer/data/repositories/local_file_repository_impl.dart';
 import '../../features/local_explorer/domain/repositories/explorer_history_repository.dart';
 import '../../features/local_explorer/domain/repositories/local_file_repository.dart';
+import '../../features/local_explorer/domain/use_cases/get_local_directory_parent_use_case.dart';
 import '../../features/local_explorer/domain/use_cases/load_local_directory_use_case.dart';
+import '../../features/local_explorer/domain/use_cases/record_opened_file_use_case.dart';
+import '../../features/local_explorer/domain/use_cases/request_local_storage_access_use_case.dart';
 import '../../features/local_explorer/presentation/logic/local_explorer_bloc.dart';
 import '../../features/local_explorer/presentation/logic/explorer_history_cubit.dart';
 import '../../features/pdf_reader/data/data_sources/local/pdf_render_data_source.dart';
@@ -742,6 +745,9 @@ void registerFeatureDependencies() {
         fileSystemDataSource: sl<LocalFileSystemDataSource>(),
       ),
     );
+    sl.registerLazySingleton<RecordOpenedFileUseCase>(
+      () => RecordOpenedFileUseCase(sl<ExplorerHistoryRepository>()),
+    );
   }
 
   if (!sl.isRegistered<LoadLocalDirectoryUseCase>()) {
@@ -752,7 +758,15 @@ void registerFeatureDependencies() {
 
   if (!sl.isRegistered<LocalExplorerBloc>()) {
     sl.registerFactory<LocalExplorerBloc>(
-      () => LocalExplorerBloc(loadDirectory: sl(), repository: sl()),
+      () => LocalExplorerBloc(
+        loadDirectory: sl(),
+        getParentDirectory: GetLocalDirectoryParentUseCase(
+          sl<LocalFileRepository>(),
+        ),
+        requestStorageAccess: RequestLocalStorageAccessUseCase(
+          sl<LocalFileRepository>(),
+        ),
+      ),
     );
   }
 

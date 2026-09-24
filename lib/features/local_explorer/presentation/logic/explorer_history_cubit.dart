@@ -43,17 +43,24 @@ class ExplorerHistoryCubit extends Cubit<ExplorerHistoryState> {
 
   Future<void> load() async {
     emit(state.copyWith(loading: true, clearError: true));
-    final List<ExplorerHistoryEntry> entries = await _repository.loadHistory();
+    final List<ExplorerHistoryEntry> entries = (await _repository.loadHistory())
+        .getOrElse((_) => const <ExplorerHistoryEntry>[]);
     emit(state.copyWith(entries: entries, loading: false, clearError: true));
   }
 
+  /// `true` when the file is still there. A missing file is dropped from the
+  /// history and reported to the screen.
   Future<bool> prepareToOpen(ExplorerHistoryEntry entry) async {
-    if (await _repository.fileExists(entry.path)) {
+    final bool exists = (await _repository.fileExists(
+      entry.path,
+    )).getOrElse((_) => false);
+    if (exists) {
       return true;
     }
 
     await _repository.removeEntry(entry.path);
-    final List<ExplorerHistoryEntry> entries = await _repository.loadHistory();
+    final List<ExplorerHistoryEntry> entries = (await _repository.loadHistory())
+        .getOrElse((_) => const <ExplorerHistoryEntry>[]);
     emit(
       state.copyWith(
         entries: entries,

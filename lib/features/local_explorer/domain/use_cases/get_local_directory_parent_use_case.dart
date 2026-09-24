@@ -1,6 +1,8 @@
-import '../../../../core/architecture/use_case.dart';
+import 'package:fpdart/fpdart.dart';
+
+import '../../../../core/errors/failures.dart';
+import '../../../../core/use_cases/use_case.dart';
 import '../repositories/local_file_repository.dart';
-import '../value_objects/result.dart';
 
 class GetLocalDirectoryParentParams {
   const GetLocalDirectoryParentParams({required this.path});
@@ -9,13 +11,13 @@ class GetLocalDirectoryParentParams {
 }
 
 class GetLocalDirectoryParentUseCase
-    extends UseCase<Result<String?>, GetLocalDirectoryParentParams> {
+    extends SyncUseCase<String?, GetLocalDirectoryParentParams> {
   const GetLocalDirectoryParentUseCase(this._repository);
 
   final LocalFileRepository _repository;
 
   @override
-  Future<Result<String?>> call(GetLocalDirectoryParentParams params) async {
+  Either<Failure, String?> call(GetLocalDirectoryParentParams params) {
     return _repository.parentOf(params.path);
   }
 }

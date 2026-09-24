@@ -1,12 +1,17 @@
+import 'package:fpdart/fpdart.dart';
+
+import '../../../../core/errors/failures.dart';
+import '../../../../core/use_cases/use_case.dart';
 import '../entities/local_directory_snapshot.dart';
-import '../value_objects/result.dart';
 
 abstract class LocalFileRepository {
-  Future<Result<bool>> hasStorageAccess();
+  FutureEither<bool> hasStorageAccess();
 
-  Future<Result<bool>> requestStorageAccess();
+  FutureEither<bool> requestStorageAccess();
 
-  Future<Result<LocalDirectorySnapshot>> loadDirectory({String? path});
+  FutureEither<LocalDirectorySnapshot> loadDirectory({String? path});
 
-  Result<String?> parentOf(String path);
+  /// Parent of [path], or `null` at the root. Synchronous: it is pure path
+  /// arithmetic with no I/O.
+  Either<Failure, String?> parentOf(String path);
 }

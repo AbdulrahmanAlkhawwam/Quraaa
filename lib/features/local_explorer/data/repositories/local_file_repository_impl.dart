@@ -1,8 +1,10 @@
+import 'package:fpdart/fpdart.dart';
+
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/errors/failures.dart';
+import '../../../../core/use_cases/use_case.dart';
 import '../../domain/entities/local_directory_snapshot.dart';
 import '../../domain/repositories/local_file_repository.dart';
-import '../../domain/value_objects/result.dart';
 import '../data_sources/local/local_explorer_platform_data_source.dart';
 import '../data_sources/local/local_file_system_data_source.dart';
 import '../mappers/local_directory_snapshot_mapper.dart';
@@ -20,31 +22,24 @@ class LocalFileRepositoryImpl implements LocalFileRepository {
   final LocalDirectorySnapshotMapper _snapshotMapper;
 
   @override
-  Future<Result<bool>> hasStorageAccess() {
+  FutureEither<bool> hasStorageAccess() {
     return _run(() => _platformDataSource.hasStorageAccess());
   }
 
   @override
-  Future<Result<bool>> requestStorageAccess() {
+  FutureEither<bool> requestStorageAccess() {
     return _run(() => _platformDataSource.requestStorageAccess());
   }
 
   @override
-  Future<Result<LocalDirectorySnapshot>> loadDirectory({String? path}) async {
-    final Result<bool> accessResult = await hasStorageAccess();
-    if (accessResult case ResultFailure<bool>(failure: final Failure failure)) {
-      return ResultFailure<LocalDirectorySnapshot>(failure);
-    }
+  FutureEither<LocalDirectorySnapshot> loadDirectory({String? path}) async {
+    final Either<Failure, bool> accessResult = await hasStorageAccess();
+    final Failure? accessFailure = accessResult.getLeft().toNullable();
+    if (accessFailure != null) return Left(accessFailure);
 
-    final bool hasAccess = switch (accessResult) {
-      Success<bool>(value: final bool value) => value,
-      ResultFailure<bool>() => false,
-    };
-    if (!hasAccess) {
-      return const ResultFailure<LocalDirectorySnapshot>(
-        FileAccessDeniedFailure(
-          message: 'Storage access is required.',
-        ),
+    if (!accessResult.getOrElse((_) => false)) {
+      return const Left(
+        FileAccessDeniedFailure(message: 'Storage access is required.'),
       );
     }
 
@@ -57,41 +52,44 @@ class LocalFileRepositoryImpl implements LocalFileRepository {
         entries: await _fileSystemDataSource.listDirectory(resolvedPath),
       );
 
-      return Success<LocalDirectorySnapshot>(_snapshotMapper.toEntity(snapshot));
+      return Right(_snapshotMapper.toEntity(snapshot));
     } catch (error) {
-      return ResultFailure<LocalDirectorySnapshot>(
-        _failureFromError(error),
-      );
+      return Left(_failureFromError(error));
     }
   }
 
   @override
-  Result<String?> parentOf(String path) {
+  Either<Failure, String?> parentOf(String path) {
     try {
-      return Success<String?>(_fileSystemDataSource.parentOf(path));
+      return Right(_fileSystemDataSource.parentOf(path));
     } catch (error) {
-      return ResultFailure<String?>(_failureFromError(error));
+      return Left(_failureFromError(error));
     }
   }
 
-  Future<Result<T>> _run<T>(Future<T> Function() action) async {
+  Future<Either<Failure, T>> _run<T>(Future<T> Function() action) async {
     try {
-      return Success<T>(await action());
+      return Right(await action());
     } catch (error) {
-      return ResultFailure<T>(_failureFromError(error));
+      return Left(_failureFromError(error));
     }
   }
 
+  /// Local mapping rather than [ErrorMapper]: file-system errors carry text
+  /// (a path, a permission hint) that the shared mapper's fallback drops.
   Failure _failureFromError(Object error) {
     return switch (error) {
       FileAccessDeniedException(message: final String message) =>
         FileAccessDeniedFailure(message: message),
-      NotFoundException(message: final String message) =>
-        NotFoundFailure(message: message),
-      AppException(message: final String message) =>
-        UnknownFailure(message: message),
-      UnsupportedError(message: final String? message) =>
-        UnknownFailure(message: message ?? '$error'),
+      NotFoundException(message: final String message) => NotFoundFailure(
+        message: message,
+      ),
+      AppException(message: final String message) => UnknownFailure(
+        message: message,
+      ),
+      UnsupportedError(message: final String? message) => UnknownFailure(
+        message: message ?? '$error',
+      ),
       _ => UnknownFailure(message: '$error'),
     };
   }
