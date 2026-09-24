@@ -1,19 +1,18 @@
 import 'package:equatable/equatable.dart';
 
-import '../../../../core/architecture/result.dart';
-import '../../../../core/architecture/use_case.dart';
+import '../../../../core/use_cases/use_case.dart';
 import '../entities/assistant_book.dart';
 import '../entities/assistant_response.dart';
 import '../repositories/book_assistant_repository.dart';
 
 class AskBookAssistantUseCase
-    extends UseCase<Result<AssistantResponse>, AskBookAssistantParams> {
+    extends UseCase<AssistantResponse, AskBookAssistantParams> {
   const AskBookAssistantUseCase(this._repository);
 
   final BookAssistantRepository _repository;
 
   @override
-  Future<Result<AssistantResponse>> call(AskBookAssistantParams params) {
+  FutureEither<AssistantResponse> call(AskBookAssistantParams params) {
     return _repository.ask(
       question: params.question,
       books: params.books,

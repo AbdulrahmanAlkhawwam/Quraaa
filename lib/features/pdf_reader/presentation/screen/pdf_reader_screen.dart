@@ -5,9 +5,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fpdart/fpdart.dart' show Either;
 import 'package:hugeicons/hugeicons.dart';
 
-import '../../../../core/architecture/result.dart';
+import '../../../../core/errors/failures.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/utils/extensions/app_context.dart';
@@ -514,7 +515,8 @@ class _PdfReaderBodyState extends State<_PdfReaderBody> {
   Future<void> _translateCurrentPage(PdfReaderReady state) async {
     if (_translating || widget.purchaseId.trim().isEmpty) return;
     setState(() => _translating = true);
-    final Result<String> result = await sl<BookAssistantRepository>().translate(
+    final Either<Failure, String> result =
+        await sl<BookAssistantRepository>().translate(
       purchaseId: widget.purchaseId.trim(),
       pageNumber:
           _localState.currentPageIndex.clamp(0, state.pageCount - 1) + 1,

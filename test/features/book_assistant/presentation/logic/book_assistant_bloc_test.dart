@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:quraaa/core/architecture/result.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:quraaa/core/errors/failures.dart';
+import 'package:quraaa/core/use_cases/use_case.dart';
 import 'package:quraaa/features/book_assistant/book_assistant.dart';
 
 void main() {
@@ -101,21 +103,21 @@ class _FakeRepository extends BookAssistantRepository {
   const _FakeRepository();
 
   @override
-  Future<Result<List<AssistantBook>>> getSuggestedBooks() async =>
-      const Success<List<AssistantBook>>(<AssistantBook>[]);
+  FutureEither<List<AssistantBook>> getSuggestedBooks() async =>
+      const Right<Failure, List<AssistantBook>>(<AssistantBook>[]);
 
   @override
-  Future<Result<String>> summarize({required String purchaseId}) async {
+  FutureEither<String> summarize({required String purchaseId}) async {
     expect(purchaseId, 'purchase-1');
-    return const Success<String>('Important summary');
+    return const Right('Important summary');
   }
 
   @override
-  Future<Result<AssistantResponse>> ask({
+  FutureEither<AssistantResponse> ask({
     required String question,
     required List<AssistantBook> books,
   }) async =>
-      Success<AssistantResponse>(
+      Right(
         AssistantResponse(
             question: question, answer: 'Mock answer', books: books),
       );

@@ -1,17 +1,16 @@
 import 'package:equatable/equatable.dart';
 
-import '../../../../core/architecture/result.dart';
-import '../../../../core/architecture/use_case.dart';
+import '../../../../core/use_cases/use_case.dart';
 import '../repositories/book_assistant_repository.dart';
 
 class SummarizePurchaseUseCase
-    extends UseCase<Result<String>, SummarizePurchaseParams> {
+    extends UseCase<String, SummarizePurchaseParams> {
   const SummarizePurchaseUseCase(this._repository);
 
   final BookAssistantRepository _repository;
 
   @override
-  Future<Result<String>> call(SummarizePurchaseParams params) {
+  FutureEither<String> call(SummarizePurchaseParams params) {
     return _repository.summarize(purchaseId: params.purchaseId);
   }
 }

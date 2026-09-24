@@ -1,6 +1,8 @@
-import '../../../../core/architecture/result.dart';
+import 'package:fpdart/fpdart.dart';
+
 import '../../../../core/errors/error_mapper.dart';
 import '../../../../core/errors/failures.dart';
+import '../../../../core/use_cases/use_case.dart';
 import '../../domain/entities/assistant_book.dart';
 import '../../domain/entities/assistant_response.dart';
 import '../../domain/repositories/book_assistant_repository.dart';
@@ -52,59 +54,56 @@ class BookAssistantRepositoryImpl extends BookAssistantRepository {
   ];
 
   @override
-  Future<Result<List<AssistantBook>>> getSuggestedBooks() async {
-    return const Success<List<AssistantBook>>(_books);
+  FutureEither<List<AssistantBook>> getSuggestedBooks() async {
+    return const Right<Failure, List<AssistantBook>>(_books);
   }
 
   @override
-  Future<Result<String>> summarize({required String purchaseId}) async {
+  FutureEither<String> summarize({required String purchaseId}) async {
     try {
       final BookSummaryModel model = await _remoteDataSource.summarize(
         purchaseId: purchaseId,
       );
-      return Success<String>(model.summary);
+      return Right(model.summary);
     } catch (error) {
-      final Failure failure = ErrorMapper.map(error);
-      return ResultFailure<String>(failure.message, cause: failure);
+      return Left(ErrorMapper.map(error));
     }
   }
 
   @override
-  Future<Result<String>> translate({
+  FutureEither<String> translate({
     required String purchaseId,
     required int pageNumber,
     required String targetLanguage,
   }) async {
     try {
-      return Success<String>(await _remoteDataSource.translate(
+      return Right(await _remoteDataSource.translate(
         purchaseId: purchaseId,
         pageNumber: pageNumber,
         targetLanguage: targetLanguage,
       ));
     } catch (error) {
-      final Failure failure = ErrorMapper.map(error);
-      return ResultFailure<String>(failure.message, cause: failure);
+      return Left(ErrorMapper.map(error));
     }
   }
 
   @override
-  Future<Result<String>> explain({
+  FutureEither<String> explain({
     required String purchaseId,
     required String selectedText,
   }) async {
     try {
-      return Success<String>(await _remoteDataSource.explain(
+      return Right(await _remoteDataSource.explain(
         purchaseId: purchaseId,
         selectedText: selectedText,
       ));
     } catch (error) {
-      final Failure failure = ErrorMapper.map(error);
-      return ResultFailure<String>(failure.message, cause: failure);
+      return Left(ErrorMapper.map(error));
     }
   }
 
   @override
-  Future<Result<AssistantResponse>> ask({
+  FutureEither<AssistantResponse> ask({
     required String question,
     required List<AssistantBook> books,
   }) async {
@@ -123,7 +122,7 @@ class BookAssistantRepositoryImpl extends BookAssistantRepository {
             : 'Based on ${books.length} selected books';
     final String answerBody = useArabic ? _answerBodyAr : _answerBodyEn;
 
-    return Success<AssistantResponse>(
+    return Right(
       AssistantResponse(
         question: normalizedQuestion,
         books: books,

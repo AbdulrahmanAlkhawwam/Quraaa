@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fpdart/fpdart.dart';
 
-import '../../../../core/architecture/result.dart';
-import '../../../../core/architecture/use_case.dart';
+import '../../../../core/errors/failures.dart';
 import '../../domain/entities/assistant_book.dart';
 import '../../domain/entities/assistant_response.dart';
 import '../../domain/use_cases/ask_book_assistant_use_case.dart';
@@ -119,30 +119,31 @@ class BookAssistantBloc extends Bloc<BookAssistantEvent, BookAssistantState> {
     Emitter<BookAssistantState> emit,
   ) async {
     emit(const BookAssistantLoading());
-    switch (await _getBooks(const NoParams())) {
-      case Success<List<AssistantBook>>(value: final List<AssistantBook> books):
-        final BookAssistantNavigationData? request = event.initialRequest;
-        if (request == null) {
-          emit(BookAssistantLoaded(books: books));
-          return;
-        }
-
-        final List<AssistantBook> availableBooks = books.any(
-          (AssistantBook book) => book.id == request.book.id,
-        )
-            ? books
-            : <AssistantBook>[request.book, ...books];
-        final BookAssistantLoaded initialConversation = BookAssistantLoaded(
-          books: availableBooks,
-          selectedBooks: <AssistantBook>[request.book],
-          pendingQuestion: request.question,
-          isAnswering: true,
-        );
-        emit(initialConversation);
-        await _summarizeInitialRequest(request, initialConversation, emit);
-      case ResultFailure<List<AssistantBook>>(message: final String message):
-        emit(BookAssistantFailure(message));
+    final Either<Failure, List<AssistantBook>> result = await _getBooks();
+    final List<AssistantBook>? books = result.toNullable();
+    if (books == null) {
+      emit(BookAssistantFailure(result.getLeft().toNullable()!.message));
+      return;
     }
+
+    final BookAssistantNavigationData? request = event.initialRequest;
+    if (request == null) {
+      emit(BookAssistantLoaded(books: books));
+      return;
+    }
+
+    final List<AssistantBook> availableBooks =
+        books.any((AssistantBook book) => book.id == request.book.id)
+        ? books
+        : <AssistantBook>[request.book, ...books];
+    final BookAssistantLoaded initialConversation = BookAssistantLoaded(
+      books: availableBooks,
+      selectedBooks: <AssistantBook>[request.book],
+      pendingQuestion: request.question,
+      isAnswering: true,
+    );
+    emit(initialConversation);
+    await _summarizeInitialRequest(request, initialConversation, emit);
   }
 
   Future<void> _summarizeInitialRequest(
@@ -161,30 +162,26 @@ class BookAssistantBloc extends Bloc<BookAssistantEvent, BookAssistantState> {
       return;
     }
 
-    final Result<String> result = await _summarizePurchase(
+    final Either<Failure, String> result = await _summarizePurchase(
       SummarizePurchaseParams(purchaseId),
     );
-    switch (result) {
-      case Success<String>(value: final String summary):
-        emit(
-          conversation.copyWith(
-            response: AssistantResponse(
-              question: request.question,
-              answer: summary,
-              books: <AssistantBook>[request.book],
-            ),
-            clearPendingQuestion: true,
-            isAnswering: false,
+    emit(
+      result.fold(
+        (Failure failure) => conversation.copyWith(
+          isAnswering: false,
+          errorMessage: failure.message,
+        ),
+        (String summary) => conversation.copyWith(
+          response: AssistantResponse(
+            question: request.question,
+            answer: summary,
+            books: <AssistantBook>[request.book],
           ),
-        );
-      case ResultFailure<String>(message: final String message):
-        emit(
-          conversation.copyWith(
-            isAnswering: false,
-            errorMessage: message,
-          ),
-        );
-    }
+          clearPendingQuestion: true,
+          isAnswering: false,
+        ),
+      ),
+    );
   }
 
   Future<void> _onPromptSelected(
@@ -242,29 +239,23 @@ class BookAssistantBloc extends Bloc<BookAssistantEvent, BookAssistantState> {
     );
     emit(answering);
 
-    final Result<AssistantResponse> result = await _askAssistant(
+    final Either<Failure, AssistantResponse> result = await _askAssistant(
       AskBookAssistantParams(
         question: trimmedQuestion,
         books: current.selectedBooks,
       ),
     );
 
-    switch (result) {
-      case Success<AssistantResponse>(value: final AssistantResponse response):
-        emit(
-          answering.copyWith(
-            response: response,
-            clearPendingQuestion: true,
-            isAnswering: false,
-          ),
-        );
-      case ResultFailure<AssistantResponse>(message: final String message):
-        emit(
-          answering.copyWith(
-            isAnswering: false,
-            errorMessage: message,
-          ),
-        );
-    }
+    emit(
+      result.fold(
+        (Failure failure) =>
+            answering.copyWith(isAnswering: false, errorMessage: failure.message),
+        (AssistantResponse response) => answering.copyWith(
+          response: response,
+          clearPendingQuestion: true,
+          isAnswering: false,
+        ),
+      ),
+    );
   }
 }

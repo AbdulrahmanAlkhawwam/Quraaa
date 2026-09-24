@@ -1,28 +1,35 @@
-import '../../../../core/architecture/result.dart';
+import 'package:fpdart/fpdart.dart';
+
+import '../../../../core/errors/failures.dart';
+import '../../../../core/use_cases/use_case.dart';
 import '../entities/assistant_book.dart';
 import '../entities/assistant_response.dart';
 
 abstract class BookAssistantRepository {
   const BookAssistantRepository();
 
-  Future<Result<List<AssistantBook>>> getSuggestedBooks();
+  FutureEither<List<AssistantBook>> getSuggestedBooks();
 
-  Future<Result<String>> summarize({required String purchaseId});
+  FutureEither<String> summarize({required String purchaseId});
 
-  Future<Result<String>> translate({
+  /// Implementations without a translation backend keep the default failure.
+  FutureEither<String> translate({
     required String purchaseId,
     required int pageNumber,
     required String targetLanguage,
-  }) async =>
-      const ResultFailure<String>('Translation is unavailable.');
+  }) async => const Left(
+    OperationFailedFailure(message: 'Translation is unavailable.'),
+  );
 
-  Future<Result<String>> explain({
+  /// Implementations without an explanation backend keep the default failure.
+  FutureEither<String> explain({
     required String purchaseId,
     required String selectedText,
-  }) async =>
-      const ResultFailure<String>('Explanation is unavailable.');
+  }) async => const Left(
+    OperationFailedFailure(message: 'Explanation is unavailable.'),
+  );
 
-  Future<Result<AssistantResponse>> ask({
+  FutureEither<AssistantResponse> ask({
     required String question,
     required List<AssistantBook> books,
   });

@@ -2,7 +2,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:fpdart/fpdart.dart' show Either;
 
-import '../../../../core/architecture/result.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/shared.dart';
@@ -149,13 +148,13 @@ class _AiTextToolsScreenState extends State<AiTextToolsScreen> {
         ),
       );
 
-  Future<void> _request(Future<Result<String>> request) async {
+  Future<void> _request(Future<Either<Failure, String>> request) async {
     setState(() {
       _loading = true;
       _answer = null;
       _error = null;
     });
-    final Result<String> result = await request;
+    final Either<Failure, String> result = await request;
     if (!mounted) return;
     result.fold(
       (failure) => setState(() {
