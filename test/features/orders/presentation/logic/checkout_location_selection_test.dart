@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:quraaa/core/architecture/result.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:quraaa/core/errors/failures.dart';
 import 'package:quraaa/features/orders/orders.dart';
 import 'package:quraaa/features/profile/profile.dart';
 
@@ -51,13 +52,13 @@ void main() {
     when(
       ordersRepository.getCheckoutContext,
     ).thenAnswer(
-      (_) async => const Success<OrderCheckoutContext>(checkoutContext),
+      (_) async => const Right<Failure, OrderCheckoutContext>(checkoutContext),
     );
     when(
       () => ordersRepository.createOrder(
         shippingLocationId: 'office',
       ),
-    ).thenAnswer((_) async => const Success<OrderCheckout>(checkout));
+    ).thenAnswer((_) async => const Right<Failure, OrderCheckout>(checkout));
 
     await cubit.startCheckout(shippingLocationId: 'office');
 

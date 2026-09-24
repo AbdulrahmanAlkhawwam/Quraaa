@@ -1,7 +1,9 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/architecture/result.dart';
+import 'package:fpdart/fpdart.dart';
+
+import '../../../../core/errors/failures.dart';
 import '../../domain/entities/account_order.dart';
 import '../../domain/entities/order_checkout_context.dart';
 import '../../domain/repositories/orders_repository.dart';
@@ -54,14 +56,14 @@ class AccountOrdersCubit extends Cubit<AccountOrdersState> {
   Future<OrderCheckoutContext?> getShippingContext() async {
     if (state.loading || mode != AccountOrdersMode.purchases) return null;
     emit(state.copyWith(loading: true, clearError: true));
-    final Result<OrderCheckoutContext> result =
+    final Either<Failure, OrderCheckoutContext> result =
         await _repository.getCheckoutContext();
     if (isClosed) return null;
     OrderCheckoutContext? checkoutContext;
     String? error;
     result.fold(
-      (failure) => error = failure.message,
-      (value) => checkoutContext = value,
+      (Failure failure) => error = failure.message,
+      (OrderCheckoutContext value) => checkoutContext = value,
     );
     emit(state.copyWith(
         loading: false, error: error, clearError: error == null));
@@ -74,7 +76,7 @@ class AccountOrdersCubit extends Cubit<AccountOrdersState> {
   ) async {
     if (state.loading || mode != AccountOrdersMode.purchases) return false;
     emit(state.copyWith(loading: true, clearError: true));
-    final Result<AccountOrder> result =
+    final Either<Failure, AccountOrder> result =
         await _repository.updateShippingLocation(
       orderId: order.orderId,
       shippingLocationId: location.id,
@@ -83,8 +85,8 @@ class AccountOrdersCubit extends Cubit<AccountOrdersState> {
     AccountOrder? updatedOrder;
     String? error;
     result.fold(
-      (failure) => error = failure.message,
-      (value) => updatedOrder = value,
+      (Failure failure) => error = failure.message,
+      (AccountOrder value) => updatedOrder = value,
     );
     if (error != null) {
       emit(state.copyWith(loading: false, error: error));
@@ -101,13 +103,13 @@ class AccountOrdersCubit extends Cubit<AccountOrdersState> {
   Future<bool> cancel(AccountOrder order, {String? reason}) async {
     if (state.loading || mode != AccountOrdersMode.purchases) return false;
     emit(state.copyWith(loading: true, clearError: true));
-    final Result<void> result = await _repository.cancelOrder(
+    final Either<Failure, Unit> result = await _repository.cancelOrder(
       order.orderId,
       reason: reason,
     );
     if (isClosed) return false;
     String? error;
-    result.fold((failure) => error = failure.message, (_) {});
+    result.fold((Failure failure) => error = failure.message, (_) {});
     if (error != null) {
       emit(state.copyWith(loading: false, error: error));
       return false;
@@ -119,7 +121,7 @@ class AccountOrdersCubit extends Cubit<AccountOrdersState> {
   Future<void> advance(AccountOrder order, AccountOrderItem item) async {
     if (state.loading || mode != AccountOrdersMode.sales) return;
     emit(state.copyWith(loading: true, clearError: true));
-    final Result<void> result = item.fulfillmentStatus == 0
+    final Either<Failure, Unit> result = item.fulfillmentStatus == 0
         ? await _repository.markSellerItemProcessing(
             order.orderId,
             item.orderItemId,
@@ -130,7 +132,7 @@ class AccountOrdersCubit extends Cubit<AccountOrdersState> {
           );
     if (isClosed) return;
     String? error;
-    result.fold((failure) => error = failure.message, (_) {});
+    result.fold((Failure failure) => error = failure.message, (_) {});
     if (error != null) {
       emit(state.copyWith(loading: false, error: error));
       return;
@@ -149,7 +151,7 @@ class AccountOrdersCubit extends Cubit<AccountOrdersState> {
         salesFilter: selectedSalesFilter,
       ),
     );
-    final Result<List<AccountOrder>> result =
+    final Either<Failure, List<AccountOrder>> result =
         mode == AccountOrdersMode.purchases
             ? await _repository.getMyOrders()
             : selectedSalesFilter == 2
@@ -159,7 +161,7 @@ class AccountOrdersCubit extends Cubit<AccountOrdersState> {
                   );
     if (isClosed) return;
     result.fold(
-      (ResultFailure<List<AccountOrder>> failure) => emit(
+      (Failure failure) => emit(
         state.copyWith(loading: false, error: failure.message),
       ),
       (List<AccountOrder> orders) => emit(

@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:quraaa/core/architecture/result.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:quraaa/core/errors/failures.dart';
 import 'package:quraaa/features/orders/domain/entities/account_order.dart';
 import 'package:quraaa/features/orders/domain/repositories/orders_repository.dart';
 import 'package:quraaa/features/orders/presentation/logic/account_orders_cubit.dart';
@@ -16,7 +17,7 @@ void main() {
 
   test('sales mode opens completed sell history by default', () async {
     when(() => repository.getSellHistory()).thenAnswer(
-      (_) async => const Success<List<AccountOrder>>(<AccountOrder>[]),
+      (_) async => const Right<Failure, List<AccountOrder>>(<AccountOrder>[]),
     );
     final AccountOrdersCubit cubit = AccountOrdersCubit(
       repository,
@@ -39,7 +40,7 @@ void main() {
     when(
       () => repository.getSellerOrders(fulfillmentStatus: 1),
     ).thenAnswer(
-      (_) async => const Success<List<AccountOrder>>(<AccountOrder>[]),
+      (_) async => const Right<Failure, List<AccountOrder>>(<AccountOrder>[]),
     );
     final AccountOrdersCubit cubit = AccountOrdersCubit(
       repository,

@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:quraaa/core/architecture/result.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:quraaa/core/errors/failures.dart';
 import 'package:quraaa/features/orders/orders.dart';
 import 'package:quraaa/features/profile/profile.dart';
 
@@ -53,12 +54,12 @@ void main() {
     );
     when(
       () => ordersRepository.getCheckoutContext(),
-    ).thenAnswer((_) async => const Success<OrderCheckoutContext>(context));
+    ).thenAnswer((_) async => const Right<Failure, OrderCheckoutContext>(context));
     when(
       () => ordersRepository.createOrder(
         shippingLocationId: 'location-2',
       ),
-    ).thenAnswer((_) async => const Success<OrderCheckout>(checkout));
+    ).thenAnswer((_) async => const Right<Failure, OrderCheckout>(checkout));
 
     await cubit.startCheckout();
 
@@ -82,7 +83,7 @@ void main() {
     );
     when(
       () => ordersRepository.resumePendingOrderCheckout(),
-    ).thenAnswer((_) async => const Success<OrderCheckout>(checkout));
+    ).thenAnswer((_) async => const Right<Failure, OrderCheckout>(checkout));
 
     await cubit.resumePendingCheckout();
 
@@ -99,7 +100,7 @@ void main() {
     when(() => ordersRepository.confirmCheckout('session-1'))
         .thenAnswer((_) async {
       requestCount++;
-      return Success<CheckoutConfirmation>(
+      return Right<Failure, CheckoutConfirmation>(
         _confirmation(
           paid: requestCount > 1,
           pending: requestCount == 1,
@@ -126,7 +127,7 @@ void main() {
     when(
       () => ordersRepository.confirmCheckout('session-1'),
     ).thenAnswer(
-      (_) async => Success<CheckoutConfirmation>(
+      (_) async => Right<Failure, CheckoutConfirmation>(
         _confirmation(paid: false, pending: true),
       ),
     );
@@ -147,7 +148,7 @@ void main() {
     when(
       () => ordersRepository.confirmCheckout('session-1'),
     ).thenAnswer(
-      (_) async => Success<CheckoutConfirmation>(
+      (_) async => Right<Failure, CheckoutConfirmation>(
         _confirmation(paid: false, pending: false),
       ),
     );
@@ -189,7 +190,7 @@ void main() {
     when(
       () => ordersRepository.confirmCheckout('session-1'),
     ).thenAnswer(
-      (_) async => Success<CheckoutConfirmation>(
+      (_) async => Right<Failure, CheckoutConfirmation>(
         _confirmation(paid: true, pending: false, orderId: 'order-2'),
       ),
     );

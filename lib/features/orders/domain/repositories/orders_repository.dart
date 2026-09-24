@@ -1,48 +1,55 @@
-import '../../../../core/architecture/result.dart';
+import 'package:fpdart/fpdart.dart';
+
+import '../../../../core/use_cases/use_case.dart';
 import '../entities/account_order.dart';
 import '../entities/checkout_confirmation.dart';
 import '../entities/order_checkout.dart';
 import '../entities/order_checkout_context.dart';
 
 abstract class OrdersRepository {
-  Future<Result<AccountOrder>> getOrder(String orderId);
-
   const OrdersRepository();
 
-  Future<Result<OrderCheckoutContext>> getCheckoutContext();
+  FutureEither<AccountOrder> getOrder(String orderId);
 
-  Future<Result<OrderCheckout>> createOrder({
+  /// What the cart can be checked out as: totals, saved locations and whether
+  /// a shipping address is required.
+  FutureEither<OrderCheckoutContext> getCheckoutContext();
+
+  FutureEither<OrderCheckout> createOrder({
     String? shippingLocationId,
     double? latitude,
     double? longitude,
   });
 
-  Future<Result<OrderCheckout>> resumePendingOrderCheckout();
-  Future<Result<CheckoutConfirmation>> confirmCheckout(String sessionId);
+  /// Picks up the payment session of an order that was left unpaid.
+  FutureEither<OrderCheckout> resumePendingOrderCheckout();
 
-  Future<Result<List<AccountOrder>>> getMyOrders({int pageNumber = 1});
+  FutureEither<CheckoutConfirmation> confirmCheckout(String sessionId);
 
-  Future<Result<AccountOrder>> updateShippingLocation({
+  FutureEither<List<AccountOrder>> getMyOrders({int pageNumber = 1});
+
+  FutureEither<AccountOrder> updateShippingLocation({
     required String orderId,
     String? shippingLocationId,
     double? latitude,
     double? longitude,
   });
-  Future<Result<void>> cancelOrder(String orderId, {String? reason});
 
-  Future<Result<List<AccountOrder>>> getSellHistory({int pageNumber = 1});
+  FutureEither<Unit> cancelOrder(String orderId, {String? reason});
 
-  Future<Result<List<AccountOrder>>> getSellerOrders({
+  FutureEither<List<AccountOrder>> getSellHistory({int pageNumber = 1});
+
+  FutureEither<List<AccountOrder>> getSellerOrders({
     int pageNumber = 1,
     int? fulfillmentStatus,
   });
 
-  Future<Result<void>> markSellerItemProcessing(
+  FutureEither<Unit> markSellerItemProcessing(
     String orderId,
     String orderItemId,
   );
 
-  Future<Result<void>> markSellerItemFulfilled(
+  FutureEither<Unit> markSellerItemFulfilled(
     String orderId,
     String orderItemId,
   );

@@ -1,9 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart' show Either;
 import 'package:hugeicons/hugeicons.dart';
 
-import '../../../../core/architecture/result.dart';
-import '../../../../core/architecture/use_case.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/errors/error_message_resolver.dart';
 import '../../../../core/errors/failures.dart';
@@ -94,25 +93,20 @@ class _PaymentInfoBottomSheetState extends State<PaymentInfoBottomSheet> {
       _loading = true;
       _loadError = null;
     });
-    final Result<OrderCheckoutContext> result =
-        await sl<GetOrderCheckoutContextUseCase>()(const NoParams());
+    final Either<Failure, OrderCheckoutContext> result =
+        await sl<GetOrderCheckoutContextUseCase>()();
     if (!mounted) return;
-    switch (result) {
-      case Success<OrderCheckoutContext>(value: final checkoutContext):
-        setState(() {
-          _checkoutContext = checkoutContext;
-          _selectedLocationId = checkoutContext.preferredLocation?.id;
-          _loading = false;
-        });
-      case ResultFailure<OrderCheckoutContext>(
-          message: final message,
-          cause: final cause,
-        ):
-        setState(() {
-          _loadError = cause ?? message;
-          _loading = false;
-        });
-    }
+    result.fold(
+      (Failure failure) => setState(() {
+        _loadError = failure;
+        _loading = false;
+      }),
+      (OrderCheckoutContext checkoutContext) => setState(() {
+        _checkoutContext = checkoutContext;
+        _selectedLocationId = checkoutContext.preferredLocation?.id;
+        _loading = false;
+      }),
+    );
   }
 
   @override

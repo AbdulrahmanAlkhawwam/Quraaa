@@ -1,18 +1,17 @@
 import 'package:equatable/equatable.dart';
 
-import '../../../../core/architecture/result.dart';
-import '../../../../core/architecture/use_case.dart';
+import '../../../../core/use_cases/use_case.dart';
 import '../entities/checkout_confirmation.dart';
 import '../repositories/orders_repository.dart';
 
 class ConfirmCheckoutUseCase
-    extends UseCase<Result<CheckoutConfirmation>, ConfirmCheckoutParams> {
+    extends UseCase<CheckoutConfirmation, ConfirmCheckoutParams> {
   const ConfirmCheckoutUseCase(this._repository);
 
   final OrdersRepository _repository;
 
   @override
-  Future<Result<CheckoutConfirmation>> call(ConfirmCheckoutParams params) {
+  FutureEither<CheckoutConfirmation> call(ConfirmCheckoutParams params) {
     return _repository.confirmCheckout(params.sessionId);
   }
 }

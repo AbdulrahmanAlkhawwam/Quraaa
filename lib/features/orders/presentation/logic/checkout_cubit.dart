@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fpdart/fpdart.dart';
 
 import '../../../../core/config/app_config.dart';
-import '../../../../core/architecture/result.dart';
-import '../../../../core/architecture/use_case.dart';
+import '../../../../core/errors/failures.dart';
 import '../../../profile/profile.dart';
 import '../../domain/entities/checkout_confirmation.dart';
 import '../../domain/entities/order_checkout.dart';
@@ -101,18 +101,14 @@ class CheckoutCubit extends Cubit<CheckoutState> {
     if (state is CheckoutLoading) return;
     emit(const CheckoutLoading());
 
-    final Result<OrderCheckoutContext> contextResult =
-        await _getCheckoutContext(const NoParams());
-    if (contextResult
-        case ResultFailure<OrderCheckoutContext>(
-          message: final message,
-          cause: final cause,
-        )) {
-      emit(CheckoutFailure(cause ?? message));
+    final Either<Failure, OrderCheckoutContext> contextResult =
+        await _getCheckoutContext();
+    final OrderCheckoutContext? loadedContext = contextResult.toNullable();
+    if (loadedContext == null) {
+      emit(CheckoutFailure(contextResult.getLeft().toNullable()!));
       return;
     }
-    final OrderCheckoutContext checkoutContext =
-        (contextResult as Success<OrderCheckoutContext>).value;
+    final OrderCheckoutContext checkoutContext = loadedContext;
     final OrderCheckoutLocation? preferredLocation =
         checkoutContext.preferredLocation;
     final String requestedLocationId = shippingLocationId?.trim() ?? '';
@@ -137,7 +133,7 @@ class CheckoutCubit extends Cubit<CheckoutState> {
     }
 
     final ProfileLocation? location = profile?.location;
-    final Result<OrderCheckout> result = await _createOrder(
+    final Either<Failure, OrderCheckout> result = await _createOrder(
       CreateOrderParams(
         shippingLocationId: effectiveLocationId ?? location?.id,
         latitude: location?.latitude,
@@ -150,22 +146,18 @@ class CheckoutCubit extends Cubit<CheckoutState> {
   Future<void> resumePendingCheckout() async {
     if (state is CheckoutLoading) return;
     emit(const CheckoutLoading());
-    final Result<OrderCheckout> result = await _resumePendingOrderCheckout(
-      const NoParams(),
-    );
+    final Either<Failure, OrderCheckout> result =
+        await _resumePendingOrderCheckout();
     _emitCheckoutResult(result);
   }
 
-  void _emitCheckoutResult(Result<OrderCheckout> result) {
-    switch (result) {
-      case Success<OrderCheckout>(value: final checkout):
-        emit(CheckoutReady(checkout));
-      case ResultFailure<OrderCheckout>(
-          message: final message,
-          cause: final cause,
-        ):
-        emit(CheckoutFailure(cause ?? message));
-    }
+  void _emitCheckoutResult(Either<Failure, OrderCheckout> result) {
+    emit(
+      result.fold(
+        (Failure failure) => CheckoutFailure(failure),
+        (OrderCheckout checkout) => CheckoutReady(checkout),
+      ),
+    );
   }
 
   Future<void> handleCheckoutReturn({
@@ -188,36 +180,34 @@ class CheckoutCubit extends Cubit<CheckoutState> {
 
     for (int attempt = 0; attempt < _verificationAttempts; attempt++) {
       if (isClosed) return;
-      final Result<CheckoutConfirmation> result = await _confirmCheckout(
-        ConfirmCheckoutParams(checkout.checkoutSessionId),
-      );
+      final Either<Failure, CheckoutConfirmation> result =
+          await _confirmCheckout(
+            ConfirmCheckoutParams(checkout.checkoutSessionId),
+          );
       if (isClosed) return;
 
-      switch (result) {
-        case Success<CheckoutConfirmation>(value: final confirmation):
-          lastFailure = null;
-          if (confirmation.orderId.toLowerCase() !=
-              checkout.orderId.toLowerCase()) {
-            emit(
-              CheckoutFailure(
-                StateError('Checkout confirmation returned another order.'),
-              ),
-            );
-            return;
-          }
-          if (confirmation.paid) {
-            emit(CheckoutPaid(confirmation));
-            return;
-          }
-          if (!confirmation.pending) {
-            emit(const CheckoutPaymentFailed());
-            return;
-          }
-        case ResultFailure<CheckoutConfirmation>(
-            message: final message,
-            cause: final cause,
-          ):
-          lastFailure = cause ?? message;
+      final CheckoutConfirmation? confirmation = result.toNullable();
+      if (confirmation == null) {
+        lastFailure = result.getLeft().toNullable();
+      } else {
+        lastFailure = null;
+        if (confirmation.orderId.toLowerCase() !=
+            checkout.orderId.toLowerCase()) {
+          emit(
+            CheckoutFailure(
+              StateError('Checkout confirmation returned another order.'),
+            ),
+          );
+          return;
+        }
+        if (confirmation.paid) {
+          emit(CheckoutPaid(confirmation));
+          return;
+        }
+        if (!confirmation.pending) {
+          emit(const CheckoutPaymentFailed());
+          return;
+        }
       }
 
       if (attempt < _verificationAttempts - 1) {
