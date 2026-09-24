@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fpdart/fpdart.dart';
 
-import '../../../../core/architecture/result.dart';
-import '../../../../core/architecture/use_case.dart';
+import '../../../../core/errors/failures.dart';
 import '../../domain/entities/cart_item.dart';
 import '../../domain/entities/cart_summary.dart';
 import '../../domain/use_cases/clear_cart_use_case.dart';
@@ -89,7 +89,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
 
   Future<void> _onStarted(CartStarted event, Emitter<CartState> emit) async {
     emit(const CartLoading());
-    _emitResult(await _getCart(const NoParams()), emit);
+    _emitResult(await _getCart(), emit);
   }
 
   Future<void> _onQuantityIncreased(
@@ -129,7 +129,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
 
   Future<void> _onCleared(CartCleared event, Emitter<CartState> emit) async {
     _emitUpdating(emit);
-    _emitResult(await _clearCart(const NoParams()), emit);
+    _emitResult(await _clearCart(), emit);
   }
 
   void _emitUpdating(Emitter<CartState> emit) {
@@ -139,12 +139,15 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     }
   }
 
-  void _emitResult(Result<CartSummary> result, Emitter<CartState> emit) {
-    switch (result) {
-      case Success<CartSummary>(value: final CartSummary summary):
-        emit(CartLoaded(summary));
-      case ResultFailure<CartSummary>(message: final String message):
-        emit(CartFailure(message));
-    }
+  void _emitResult(
+    Either<Failure, CartSummary> result,
+    Emitter<CartState> emit,
+  ) {
+    emit(
+      result.fold(
+        (Failure failure) => CartFailure(failure.message),
+        (CartSummary summary) => CartLoaded(summary),
+      ),
+    );
   }
 }

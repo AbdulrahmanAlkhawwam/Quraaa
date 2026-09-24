@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:quraaa/core/architecture/result.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:quraaa/core/errors/failures.dart';
+import 'package:quraaa/features/cart/domain/entities/cart_summary.dart';
 import 'package:quraaa/features/cart/data/data_sources/cart_remote_data_source.dart';
 import 'package:quraaa/features/cart/data/models/cart_response_model.dart';
 import 'package:quraaa/features/cart/data/repositories/cart_repository_impl.dart';
@@ -42,10 +44,9 @@ void main() {
   test('maps the API cart response into cart UI entities', () async {
     when(() => remoteDataSource.getCart()).thenAnswer((_) async => response);
 
-    final Result result = await repository.getCart();
+    final Either<Failure, CartSummary> result = await repository.getCart();
 
-    expect(result, isA<Success>());
-    final summary = (result as Success).value;
+    final CartSummary summary = result.getOrElse((_) => fail('expected Right'));
     expect(summary.total, 25);
     expect(summary.items.first.id, 'listing-1');
     expect(summary.items.first.unitPrice, 12.5);

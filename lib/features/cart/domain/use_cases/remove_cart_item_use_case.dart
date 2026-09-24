@@ -1,18 +1,17 @@
 import 'package:equatable/equatable.dart';
 
-import '../../../../core/architecture/result.dart';
-import '../../../../core/architecture/use_case.dart';
+import '../../../../core/use_cases/use_case.dart';
 import '../entities/cart_summary.dart';
 import '../repositories/cart_repository.dart';
 
 class RemoveCartItemUseCase
-    extends UseCase<Result<CartSummary>, RemoveCartItemParams> {
+    extends UseCase<CartSummary, RemoveCartItemParams> {
   const RemoveCartItemUseCase(this._repository);
 
   final CartRepository _repository;
 
   @override
-  Future<Result<CartSummary>> call(RemoveCartItemParams params) {
+  FutureEither<CartSummary> call(RemoveCartItemParams params) {
     return _repository.removeItem(params.itemId);
   }
 }

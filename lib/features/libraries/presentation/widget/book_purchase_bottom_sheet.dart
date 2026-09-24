@@ -1,9 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart' show Either;
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/constants/app_routes.dart';
-import '../../../../core/architecture/result.dart';
+import '../../../../core/errors/failures.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/localization/localization_constants.dart';
 import '../../../../core/shared.dart';
@@ -95,7 +96,7 @@ class BookPurchaseBottomSheet extends StatelessWidget {
       return;
     }
 
-    final Result<CartSummary> result = await sl<AddCartItemUseCase>()(
+    final Either<Failure, CartSummary> result = await sl<AddCartItemUseCase>()(
       AddCartItemParams(
         listingId: book.listingId,
         metadata: CartItem(
@@ -112,8 +113,10 @@ class BookPurchaseBottomSheet extends StatelessWidget {
     if (!parentContext.mounted || !sheetContext.mounted) return;
 
     Navigator.of(sheetContext).pop();
-    switch (result) {
-      case Success<CartSummary>():
+    result.fold(
+      (Failure failure) =>
+          parentContext.showResolvedErrorSnackBar(failure.message),
+      (_) {
         if (checkout) {
           parentContext.pushTo(AppRoutes.cart, extra: true);
         } else {
@@ -124,9 +127,8 @@ class BookPurchaseBottomSheet extends StatelessWidget {
             ),
           );
         }
-      case ResultFailure<CartSummary>(message: final message):
-        parentContext.showResolvedErrorSnackBar(message);
-    }
+      },
+    );
   }
 
   @override

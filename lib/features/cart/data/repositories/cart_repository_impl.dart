@@ -1,6 +1,8 @@
-import '../../../../core/architecture/result.dart';
+import 'package:fpdart/fpdart.dart';
+
 import '../../../../core/errors/error_mapper.dart';
 import '../../../../core/errors/failures.dart';
+import '../../../../core/use_cases/use_case.dart';
 import '../../domain/entities/cart_item.dart';
 import '../../domain/entities/cart_summary.dart';
 import '../../domain/repositories/cart_repository.dart';
@@ -14,14 +16,14 @@ class CartRepositoryImpl implements CartRepository {
   final Map<String, CartItem> _metadataByListingId = <String, CartItem>{};
 
   @override
-  Future<Result<CartSummary>> getCart() => _request(_remoteDataSource.getCart);
+  FutureEither<CartSummary> getCart() => _request(_remoteDataSource.getCart);
 
   @override
-  Future<Result<CartSummary>> clearCart() =>
+  FutureEither<CartSummary> clearCart() =>
       _request(_remoteDataSource.clearCart, clearMetadata: true);
 
   @override
-  Future<Result<CartSummary>> addItem({
+  FutureEither<CartSummary> addItem({
     required String listingId,
     required int quantity,
     CartItem? metadata,
@@ -35,7 +37,7 @@ class CartRepositoryImpl implements CartRepository {
   }
 
   @override
-  Future<Result<CartSummary>> updateQuantity({
+  FutureEither<CartSummary> updateQuantity({
     required String listingId,
     required int quantity,
   }) {
@@ -48,27 +50,26 @@ class CartRepositoryImpl implements CartRepository {
   }
 
   @override
-  Future<Result<CartSummary>> removeItem(String listingId) async {
-    final Result<CartSummary> result = await _request(
+  FutureEither<CartSummary> removeItem(String listingId) async {
+    final Either<Failure, CartSummary> result = await _request(
       () => _remoteDataSource.removeItem(listingId),
     );
-    if (result is Success<CartSummary>) {
+    if (result.isRight()) {
       _metadataByListingId.remove(listingId);
     }
     return result;
   }
 
-  Future<Result<CartSummary>> _request(
+  FutureEither<CartSummary> _request(
     Future<CartResponseModel> Function() request, {
     bool clearMetadata = false,
   }) async {
     try {
       final CartResponseModel response = await request();
       if (clearMetadata) _metadataByListingId.clear();
-      return Success<CartSummary>(_toEntity(response));
+      return Right(_toEntity(response));
     } catch (error) {
-      final Failure failure = ErrorMapper.map(error);
-      return ResultFailure<CartSummary>(failure.message, cause: failure);
+      return Left(ErrorMapper.map(error));
     }
   }
 

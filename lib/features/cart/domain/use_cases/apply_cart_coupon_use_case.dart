@@ -1,18 +1,17 @@
 import 'package:equatable/equatable.dart';
 
-import '../../../../core/architecture/result.dart';
-import '../../../../core/architecture/use_case.dart';
+import '../../../../core/use_cases/use_case.dart';
 import '../entities/cart_summary.dart';
 import '../repositories/cart_repository.dart';
 
 class ApplyCartCouponUseCase
-    extends UseCase<Result<CartSummary>, ApplyCartCouponParams> {
+    extends UseCase<CartSummary, ApplyCartCouponParams> {
   const ApplyCartCouponUseCase(this._repository);
 
   final CartRepository _repository;
 
   @override
-  Future<Result<CartSummary>> call(ApplyCartCouponParams params) {
+  FutureEither<CartSummary> call(ApplyCartCouponParams params) {
     return _repository.getCart();
   }
 }

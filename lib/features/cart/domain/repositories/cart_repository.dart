@@ -1,24 +1,24 @@
-import '../../../../core/architecture/result.dart';
+import '../../../../core/use_cases/use_case.dart';
 import '../entities/cart_item.dart';
 import '../entities/cart_summary.dart';
 
 abstract class CartRepository {
   const CartRepository();
 
-  Future<Result<CartSummary>> getCart();
+  FutureEither<CartSummary> getCart();
 
-  Future<Result<CartSummary>> clearCart();
+  FutureEither<CartSummary> clearCart();
 
-  Future<Result<CartSummary>> addItem({
+  FutureEither<CartSummary> addItem({
     required String listingId,
     required int quantity,
     CartItem? metadata,
   });
 
-  Future<Result<CartSummary>> updateQuantity({
+  FutureEither<CartSummary> updateQuantity({
     required String listingId,
     required int quantity,
   });
 
-  Future<Result<CartSummary>> removeItem(String listingId);
+  FutureEither<CartSummary> removeItem(String listingId);
 }
